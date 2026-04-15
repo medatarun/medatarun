@@ -22,7 +22,7 @@ class RelationshipRole_UpdateX_Test {
             )
         )
 
-        val reloaded = env.query.findModel(env.modelRef).findRelationship(env.relationshipRef).roles
+        val reloaded = env.query.findModelAggregate(env.modelRef).findRelationship(env.relationshipRef).roles
             .first { role -> role.key == env.roleAKey }
         assertEquals(newName, reloaded.name)
     }
@@ -30,7 +30,7 @@ class RelationshipRole_UpdateX_Test {
     @Test
     fun `update relationship role using relationship role ref by id resolved`() {
         val env = TestEnvRelationshipRole()
-        val roleId = env.query.findModel(env.modelRef).findRelationship(env.relationshipRef).roles
+        val roleId = env.query.findModelAggregate(env.modelRef).findRelationship(env.relationshipRef).roles
             .first { role -> role.key == env.roleAKey }
             .id
         val newName = LocalizedTextNotLocalized("Buyer by id")
@@ -44,7 +44,7 @@ class RelationshipRole_UpdateX_Test {
             )
         )
 
-        val reloaded = env.query.findModel(env.modelRef).findRelationship(env.relationshipRef).roles
+        val reloaded = env.query.findModelAggregate(env.modelRef).findRelationship(env.relationshipRef).roles
             .first { role -> role.id == roleId }
         assertEquals(newName, reloaded.name)
     }
@@ -55,7 +55,7 @@ class RelationshipRole_UpdateX_Test {
         assertFailsWith<ModelNotFoundException> {
             env.dispatch(
                 ModelAction.RelationshipRole_UpdateName(
-                    modelRef = modelRef(ModelKey("unknown-model")),
+                    modelRef = ModelRef.modelRefKey(ModelKey("unknown-model")),
                     relationshipRef = env.relationshipRef,
                     relationshipRoleRef = env.roleARef,
                     value = LocalizedTextNotLocalized("Ignored")

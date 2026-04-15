@@ -1,7 +1,6 @@
 package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.AttributeKey
 import io.medatarun.model.domain.EntityKey
 import io.medatarun.model.domain.EntityRef
@@ -15,7 +14,7 @@ import io.medatarun.model.domain.RelationshipRoleKey
 import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.TypeNotFoundException
 import io.medatarun.model.domain.TypeRef
-import io.medatarun.model.domain.typeRef
+import io.medatarun.model.domain.fixtures.ModelTestEnv
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertNotNull
@@ -26,10 +25,12 @@ class Type_Delete_Test {
 
     @Test
     fun `delete type model not found`() {
-        val env = TestEnvTypes()
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("m1")
+        env.modelCreate(modelRef.key)
         val typeKey = TypeKey("String")
         val typeRef = TypeRef.ByKey(typeKey)
-        env.dispatch(ModelAction.Type_Create(env.modelRef, typeKey, null, null))
+        env.dispatch(ModelAction.Type_Create(modelRef, typeKey, null, null))
         assertThrows<ModelNotFoundException> {
             env.dispatch(ModelAction.Type_Delete(modelRefKey("unknown"), typeRef))
         }
@@ -37,45 +38,64 @@ class Type_Delete_Test {
 
     @Test
     fun `delete type type not found`() {
-        val env = TestEnvTypes()
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("m1")
+        env.modelCreate(modelRef.key)
         val typeKey = TypeKey("String")
         val typeKeyWrong = TypeKey("String2")
         val typeRefWrong = TypeRef.ByKey(typeKeyWrong)
-        env.dispatch(ModelAction.Type_Create(env.modelRef, typeKey, null, null))
+        env.dispatch(ModelAction.Type_Create(modelRef, typeKey, null, null))
         assertThrows<TypeNotFoundException> {
-            env.dispatch(ModelAction.Type_Delete(env.modelRef, typeRefWrong))
+            env.dispatch(ModelAction.Type_Delete(modelRef, typeRefWrong))
         }
     }
 
     @Test
     fun `delete type used in entity or relationship attributes then error`() {
-        val env = TestEnvTypes()
-        env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("Markdown"), null, null))
-        env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("PhoneNumber"), null, null))
-        env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("Int"), null, null))
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("m1")
+        env.modelCreate(modelRef.key)
+
+        val typeString = TypeRef.typeRefKey(TypeKey("String"))
+        val typeMarkdown = TypeRef.typeRefKey(TypeKey("Markdown"))
+        val typePhoneNumber = TypeRef.typeRefKey(TypeKey("PhoneNumber"))
+        val typeInt = TypeRef.typeRefKey(TypeKey("Int"))
+
+        env.dispatch(ModelAction.Type_Create(modelRef, typeString.key, null, null))
+        env.dispatch(ModelAction.Type_Create(modelRef, typeMarkdown.key, null, null))
+        env.dispatch(ModelAction.Type_Create(modelRef, typePhoneNumber.key, null, null))
+        env.dispatch(ModelAction.Type_Create(modelRef, typeInt.key, null, null))
         val entityKey = EntityKey("contact")
         val entityRef = EntityRef.ByKey(entityKey)
         val relationshipKey = RelationshipKey("rel")
         val relationshipRef = RelationshipRef.ByKey(relationshipKey)
+
         env.dispatch(
             ModelAction.Entity_Create(
-                modelRef = env.modelRef,
+                modelRef = modelRef,
                 entityKey = entityKey,
                 name = null,
                 description = null,
-                identityAttributeKey = AttributeKey("name"),
-                identityAttributeType = typeRef("String"),
-                identityAttributeName = null,
                 documentationHome = null
             )
         )
         env.dispatch(
             ModelAction.EntityAttribute_Create(
-                modelRef = env.modelRef,
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeKey = AttributeKey("name"),
+                type = typeString,
+                optional = false,
+                name = null,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = modelRef,
                 entityRef = entityRef,
                 attributeKey = AttributeKey("infos"),
-                type = TypeRef.ByKey(TypeKey("Markdown")),
+                type = typeMarkdown,
                 optional = false,
                 name = null,
                 description = null
@@ -83,8 +103,8 @@ class Type_Delete_Test {
         )
         env.dispatch(
             ModelAction.Relationship_Create(
-                modelRef = env.modelRef,
-                relationshipKey = relationshipKey,
+                modelRef = modelRef,
+                relationshipKey = relationshipRef.key,
                 name = null,
                 description = null,
                 roleAKey = RelationshipRoleKey("a"),
@@ -100,39 +120,44 @@ class Type_Delete_Test {
 
         env.dispatch(
             ModelAction.RelationshipAttribute_Create(
-                modelRef = env.modelRef,
+                modelRef = modelRef,
                 relationshipRef = relationshipRef,
                 attributeKey = AttributeKey("attr"),
                 optional = true,
-                type = TypeRef.ByKey(TypeKey("PhoneNumber")),
+                type = typePhoneNumber,
                 name = null,
                 description = null
             )
         )
 
         assertThrows<ModelTypeDeleteUsedException> {
-            env.dispatch(ModelAction.Type_Delete(env.modelRef, typeRef("String")))
+            env.dispatch(ModelAction.Type_Delete(modelRef, typeString))
         }
         assertThrows<ModelTypeDeleteUsedException> {
-            env.dispatch(ModelAction.Type_Delete(env.modelRef, TypeRef.ByKey(TypeKey("Markdown"))))
+            env.dispatch(ModelAction.Type_Delete(modelRef, typeMarkdown))
         }
         assertThrows<ModelTypeDeleteUsedException> {
-            env.dispatch(ModelAction.Type_Delete(env.modelRef, TypeRef.ByKey(TypeKey("PhoneNumber"))))
+            env.dispatch(ModelAction.Type_Delete(modelRef, typePhoneNumber))
         }
-        env.dispatch(ModelAction.Type_Delete(env.modelRef, TypeRef.ByKey(TypeKey("Int"))))
+        env.dispatch(ModelAction.Type_Delete(modelRef, typeInt))
 
     }
 
     @Test
     fun `delete type success`() {
-        val env = TestEnvTypes()
-        env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("Markdown"), null, null))
-        env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("Int"), null, null))
-        env.dispatch(ModelAction.Type_Delete(env.modelRef, TypeRef.ByKey(TypeKey("Int"))))
-        assertNull(env.model.findTypeOptional(TypeRef.ByKey(TypeKey("Int"))))
-        assertNotNull(env.model.findTypeOptional(typeRef("String")))
-        assertNotNull(env.model.findTypeOptional(TypeRef.ByKey(TypeKey("Markdown"))))
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("m1")
+        env.modelCreate(modelRef.key)
+        val typeString = TypeRef.typeRefKey(TypeKey("String"))
+        val typeMarkdown = TypeRef.typeRefKey(TypeKey("Markdown"))
+        val typeInt = TypeRef.typeRefKey(TypeKey("Int"))
+        env.dispatch(ModelAction.Type_Create(modelRef, typeString.key, null, null))
+        env.dispatch(ModelAction.Type_Create(modelRef, typeMarkdown.key, null, null))
+        env.dispatch(ModelAction.Type_Create(modelRef, typeInt.key, null, null))
+        env.dispatch(ModelAction.Type_Delete(modelRef, typeInt))
+        assertNull(env.queries.findTypeOptional(modelRef, typeInt))
+        assertNotNull(env.queries.findTypeOptional(modelRef, typeString))
+        assertNotNull(env.queries.findTypeOptional(modelRef, typeMarkdown))
 
     }
 

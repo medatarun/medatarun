@@ -20,7 +20,7 @@ class Model_UpdateDescription_Test {
         )
         assertEquals(
             LocalizedMarkdownNotLocalized("Model description 2"),
-            env.query.findModel(env.modelRef).description
+            env.query.findModelAggregate(env.modelRef).description
         )
     }
 
@@ -34,7 +34,7 @@ class Model_UpdateDescription_Test {
             )
         )
         env.dispatch(ModelAction.Model_UpdateDescription(env.modelRef, null))
-        assertNull(env.query.findModel(env.modelRef).description)
+        assertNull(env.query.findModelAggregate(env.modelRef).description)
     }
 
 }

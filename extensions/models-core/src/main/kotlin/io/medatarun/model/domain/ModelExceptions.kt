@@ -52,6 +52,12 @@ class RelationshipAttributeNotFoundException(
         StatusCode.NOT_FOUND
     )
 
+class BusinessKeyNotFoundException(modelRef: ModelRef, businessKeyRef: BusinessKeyRef) :
+    MedatarunException(
+        "Business key [${businessKeyRef.asString()}] not found in model [${modelRef.asString()}]",
+        StatusCode.NOT_FOUND
+    )
+
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
@@ -130,9 +136,6 @@ class TypeUpdateDuplicateKeyException(typeKey: TypeKey) :
     MedatarunException("Another type uses the key [${typeKey.value}].", StatusCode.BAD_REQUEST)
 
 
-class DeleteAttributeIdentifierException(modelId: ModelRef, entityId: EntityRef, attributeRef: EntityAttributeRef) :
-    MedatarunException("Can not delete attribute [${attributeRef.asString()}] in entity [${entityId.asString()}] of model [${modelId.asString()}] because it is used as the entity's identifier")
-
 class ModelInvalidException(modelId: ModelId, errors: List<ModelValidationError>) :
     MedatarunException(
         "Model with id [${modelId.asString()}] could not be validated. " + errors.joinToString(". ") { it.message },
@@ -193,9 +196,24 @@ class RelationshipAttributeUpdateDuplicateKeyException(
     StatusCode.BAD_REQUEST
 )
 
+class BusinessKeyCreateDuplicateKeyException(
+    modelRef: ModelRef,
+    key: BusinessKeyKey
+) : MedatarunException(
+    "Cannot create business key in model [${modelRef.asString()}] because key [${key.value}] already exists.",
+    StatusCode.BAD_REQUEST
+)
+
+class BusinessKeyUpdateDuplicateKeyException(
+    modelRef: ModelRef,
+    businessKeyRef: BusinessKeyRef,
+    key: BusinessKeyKey
+) : MedatarunException(
+    "Cannot update business key [${businessKeyRef.asString()}] in model [${modelRef.asString()}] to key [${key.value}] because this key already exists.",
+    StatusCode.BAD_REQUEST
+)
+
 class ModelExportNoPluginFoundException : MedatarunException("No model exporters found in extensions")
-class CopyModelIdConversionFailedException(name: String, oldId: String) :
-    MedatarunException("While copying model, could not get new $name identifier for old id $oldId")
 
 class ModelQuerySearchCouldNotResolveTagRef(tagRef: TagRef) :
     MedatarunException("Could not resolve tag reference [${tagRef.asString()}")

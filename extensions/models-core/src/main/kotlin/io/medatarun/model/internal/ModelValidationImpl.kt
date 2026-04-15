@@ -7,7 +7,6 @@ class ModelValidationImpl : ModelValidation {
     override fun validate(model: ModelAggregate): ModelValidationState {
 
         val errors = ensureEachAttributeHasKnownType(model) +
-                ensureIdentityAttributeExists(model) +
                 ensureTypeKeyUniqueInModel(model) +
                 ensureEntityKeyUniqueInModel(model) +
                 ensureEntityAttributeKeyUniqueInEntity(model) +
@@ -30,19 +29,6 @@ class ModelValidationImpl : ModelValidation {
                     is AttributeOwnerId.OwnerRelationshipId -> model.findRelationship(ownerId.id).key
                 }
                 errors.add(ModelValidationErrorTypeNotFound(model.key, key, attr.key, attr.typeId))
-            }
-        }
-        return errors
-    }
-
-    /**
-     * each entity identity attribute must exist
-     */
-    private fun ensureIdentityAttributeExists(model: ModelAggregate): List<ModelValidationError> {
-        val errors = mutableListOf<ModelValidationError>()
-        model.entities.forEach { e ->
-            if (model.findEntityAttributeOptional(e.ref, e.identifierAttributeId) == null) {
-                errors.add(ModelValidationErrorInvalidIdentityAttribute(model.key, e.key, e.identifierAttributeId))
             }
         }
         return errors

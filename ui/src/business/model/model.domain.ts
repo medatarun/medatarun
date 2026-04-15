@@ -1,4 +1,5 @@
 import type { ModelDto, TypeDto } from "./model.dto.ts";
+import { includes } from "lodash-es";
 
 export interface TypeOption {
   code: string;
@@ -6,6 +7,11 @@ export interface TypeOption {
 }
 
 export interface EntityOption {
+  code: string;
+  label: string;
+}
+
+export interface EntityAttributeOption {
   code: string;
   label: string;
 }
@@ -198,5 +204,35 @@ export class Model {
         code: entity.id,
         label: entity.name ?? entity.key ?? entity.id,
       }));
+  }
+
+  /**
+   * Returns attributes for one entity sorted by their display label.
+   */
+  findEntityAttributeOptions(entityId: string): EntityAttributeOption[] {
+    const entity = this.dto.entities.find((it) => it.id === entityId);
+    if (!entity) return [];
+    return [...entity.attributes]
+      .sort((left, right) => {
+        const leftLabel = left.name ?? left.key ?? left.id;
+        const rightLabel = right.name ?? right.key ?? right.id;
+        return leftLabel.localeCompare(rightLabel);
+      })
+      .map((attribute) => ({
+        code: attribute.id,
+        label: attribute.name ?? attribute.key ?? attribute.id,
+      }));
+  }
+
+  /**
+   * Returns true if the given attribute id is part of an entity primary key
+   */
+  isEntityAttributePK(entityId: string, attributeId: string): boolean {
+    return (
+      this.dto.entityPrimaryKeys.find(
+        (it) =>
+          it.entityId === entityId && includes(it.participants, attributeId),
+      ) !== undefined
+    );
   }
 }

@@ -13,54 +13,11 @@ import kotlin.test.assertIs
 class ModelValidationTest {
     private val validation: ModelValidation = ModelValidationImpl()
 
-    @Test
-    fun `model with bad entity identifier`() {
-        val model = ModelAggregateInMemory.builder(
-            key = ModelKey("test"),
-            version = ModelVersion("0.0.1"),
-        ) {
-            val typeStringId = TypeId.generate()
-            types = mutableListOf(
-                ModelTypeInMemory(
-                    id = typeStringId,
-                    key = TypeKey("String"),
-                    name = null,
-                    description = null
-                )
-            )
-            val goodAttributeId = AttributeId.generate()
-            val badAttributeId = AttributeId.generate()
-            val e = addEntity(
-                key = EntityKey("Contact"),
-                identifierAttributeId = badAttributeId
-            ) {
-
-            }
-            addAttribute(
-                AttributeInMemory(
-                    id = goodAttributeId,
-                    key = AttributeKey("id"),
-                    typeId = typeStringId,
-                    name = null,
-                    description = null,
-                    optional = false,
-                    tags = emptyList(),
-                    ownerId = AttributeOwnerId.OwnerEntityId(e.id)
-                )
-            )
-
-
-        }
-        val result = validation.validate(model)
-        assertIs<ModelValidationState.Error>(result)
-        kotlin.test.assertEquals(1, result.errors.size)
-        assertIs<ModelValidationErrorInvalidIdentityAttribute>(result.errors.first())
-
-    }
 
     @Test
     fun `model with bad attribute type`() {
         val identifierAttribute = AttributeId.generate()
+        val contactEntityId= EntityId.generate()
         val typeIdString = TypeId.generate()
         val typeIdInvalid = TypeId.generate()
         val model = ModelAggregateInMemory.builder(
@@ -77,12 +34,8 @@ class ModelValidationTest {
                     description = null
                 )
             )
-            val contact = addEntity(
-                key = EntityKey("Contact"),
-                identifierAttributeId = identifierAttribute,
-            ) {
-
-            }
+            val contact = addEntity(id = contactEntityId, key = EntityKey("Contact"))
+            addEntityPrimaryKeySingle(contactEntityId, identifierAttribute)
             addAttribute(
                 AttributeInMemory(
                     id = identifierAttribute,
@@ -106,6 +59,8 @@ class ModelValidationTest {
     @Test
     fun `model with duplicate keys`() {
         val typeId = TypeId.generate()
+        val entityOneId = EntityId.generate()
+        val entityTwoId = EntityId.generate()
         val entityOneIdentifier = AttributeId.generate()
         val entityTwoIdentifier = AttributeId.generate()
         val relationshipId = RelationshipId.generate()
@@ -121,14 +76,12 @@ class ModelValidationTest {
             )
 
             val duplicateEntityKey = EntityKey("Contact")
-            val entityOne = addEntity(
-                key = duplicateEntityKey,
-                identifierAttributeId = entityOneIdentifier,
-            ) {}
-            val entityTwo = addEntity(
-                key = duplicateEntityKey,
-                identifierAttributeId = entityTwoIdentifier,
-            ) {}
+
+            val entityOne = addEntity(id = entityOneId, key = duplicateEntityKey)
+            val entityTwo = addEntity(id = entityTwoId, key = duplicateEntityKey)
+
+            addEntityPrimaryKeySingle(entityOneId, entityOneIdentifier)
+            addEntityPrimaryKeySingle(entityTwoId, entityTwoIdentifier)
 
             addAttribute(
                 AttributeInMemory(

@@ -21,6 +21,13 @@ interface ModelStorage {
 
     fun existsModelByKey(key: ModelKey): Boolean
 
+    fun existsModel(ref: ModelRef): Boolean {
+        return when(ref) {
+            is ModelRef.ById -> existsModelById(ref.id)
+            is ModelRef.ByKey -> existsModelByKey(ref.key)
+        }
+    }
+
     fun findAllModelIds(): List<ModelId>
 
     fun findModelByKeyOptional(key: ModelKey): Model?
@@ -37,6 +44,8 @@ interface ModelStorage {
     fun findModel(ref: ModelRef): Model {
         return findModelOptional(ref) ?: throw ModelNotFoundException(ref)
     }
+
+    fun findModelTags(modelId:ModelId): List<TagId>
 
     fun findModelAggregateVersionOptional(modelId: ModelId, modelVersion: ModelVersion): ModelAggregate?
 
@@ -78,6 +87,8 @@ interface ModelStorage {
         return type
     }
 
+    fun findTypes(modelId: ModelId): List<ModelType>
+
     // Entity
 
     fun findEntityByIdOptional(modelId: ModelId, entityId: EntityId): Entity?
@@ -93,6 +104,23 @@ interface ModelStorage {
 
     fun findEntity(modelId: ModelId, entityRef: EntityRef): Entity {
         return findEntityOptional(modelId, entityRef) ?: throw EntityNotFoundException(ModelRef.ById(modelId), entityRef)
+    }
+
+    fun findEntityPrimaryKeyOptional(modelId: ModelId, entityId: EntityId): EntityPrimaryKey?
+
+    // Business key
+
+    fun findBusinessKeyByIdOptional(modelId: ModelId, id: BusinessKeyId): BusinessKey?
+
+    fun findBusinessKeyByKeyOptional(modelId: ModelId, key: BusinessKeyKey): BusinessKey?
+
+    fun findBusinessKeys(modelId: ModelId): List<BusinessKey>
+
+    fun findBusinessKeyOptional(modelId: ModelId, ref: BusinessKeyRef): BusinessKey? {
+        return when (ref) {
+            is BusinessKeyRef.ById -> findBusinessKeyByIdOptional(modelId, ref.id)
+            is BusinessKeyRef.ByKey -> findBusinessKeyByKeyOptional(modelId, ref.key)
+        }
     }
 
     // Entity attribute
@@ -174,8 +202,15 @@ interface ModelStorage {
     // -------------------------------------------------------------------------
 
     fun findModelVersions(modelId: ModelId): List<ModelChangeEvent>
+    fun findAllModelChangeEvent(modelId: ModelId): List<ModelChangeEvent>
     fun findModelChangeEventsInVersion(modelId: ModelId, version: ModelVersion): List<ModelChangeEvent>
     fun findModelChangeEventsSinceLastReleaseEvent(modelId: ModelId): List<ModelChangeEvent>
+    /**
+     * Finds the latest known model change event
+     */
+    fun findLastModelChangeEventOptional(modelId: ModelId): ModelChangeEvent?
+    fun findLastModelChangeEvent(modelId: ModelId): ModelChangeEvent = findLastModelChangeEventOptional(modelId)
+        ?: throw ModelNotFoundByIdException(modelId)
 
     // -------------------------------------------------------------------------
     // Search

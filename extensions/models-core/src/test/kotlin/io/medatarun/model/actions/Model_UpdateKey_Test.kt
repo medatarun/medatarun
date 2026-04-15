@@ -6,6 +6,7 @@ import io.medatarun.model.domain.ModelDuplicateKeyException
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.ModelVersion
+import io.medatarun.model.domain.fixtures.ModelTestEnv
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -28,14 +29,14 @@ class Model_UpdateKey_Test {
         )
 
         env.runtime.replayWithRebuild {
-            assertNull(env.query.findModelOptional(modelRefKey(oldKey)))
-            assertEquals(newKey, env.query.findModelByKey(newKey).key)
+            assertNull(env.query.findModelRootOptional(modelRefKey(oldKey)))
+            assertEquals(newKey, env.query.findModelRoot(modelRefKey(newKey)).key)
         }
     }
 
     @Test
     fun `updates on model key throws when key is already used by another model`() {
-        val env = createEnv()
+        val env = ModelTestEnv()
         val firstModelKey = ModelKey("m1")
         val secondModelKey = ModelKey("m2")
 

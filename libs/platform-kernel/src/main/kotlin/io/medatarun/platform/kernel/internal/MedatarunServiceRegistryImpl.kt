@@ -10,7 +10,7 @@ class MedatarunServiceRegistryImpl : MedatarunServiceRegistry {
     private val services: MutableMap<KClass<*>, Any> = mutableMapOf()
 
     fun <T : Any> register(service: KClass<T>, implem: T) {
-        logger.info("Registering ${service.qualifiedName} for ${implem::class.qualifiedName}")
+        logger.debug("Registering ${service.qualifiedName} for ${implem::class.qualifiedName}")
         services[service] = implem
     }
 

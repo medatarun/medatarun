@@ -1,12 +1,12 @@
 package io.medatarun.model.actions
 
+import io.medatarun.model.domain.EntityAttributeRef.Companion.entityAttributeRefKey
+import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
+import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
+import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.DeleteAttributeIdentifierException
-import io.medatarun.model.domain.EntityAttributeRef
-import io.medatarun.model.domain.entityAttributeRef
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -15,61 +15,63 @@ class EntityAttribute_Delete_Test {
 
     @Test
     fun `delete entity attribute in model then attribute removed`() {
-        val env = TestEnvEntityAttribute()
-        env.addSampleEntity()
-        env.createAttribute(attributeKey = AttributeKey("bk"))
-        env.createAttribute(attributeKey = AttributeKey("firstname"))
-        env.createAttribute(attributeKey = AttributeKey("lastname"))
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("entity-attribute-delete")
+        val entityRef = entityRefKey("entity-a")
+        val typeRef = typeRefKey("String")
+        val bkRef = entityAttributeRefKey("bk")
+        val firstNameRef = entityAttributeRefKey("firstname")
+        val lastNameRef = entityAttributeRefKey("lastname")
+
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate(modelRef, entityRef.key)
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeKey = bkRef.key,
+                type = typeRef,
+                optional = false,
+                name = null,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeKey = firstNameRef.key,
+                type = typeRef,
+                optional = false,
+                name = null,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeKey = lastNameRef.key,
+                type = typeRef,
+                optional = false,
+                name = null,
+                description = null
+            )
+        )
+
         env.dispatch(
             ModelAction.EntityAttribute_Delete(
-                env.sampleModelRef,
-                env.sampleEntityRef,
-                EntityAttributeRef.ByKey(AttributeKey("firstname"))
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeRef = firstNameRef
             )
         )
 
-        assertNotNull(
-            env.query.findEntityAttributeOptional(
-                env.sampleModelRef,
-                env.sampleEntityRef,
-                entityAttributeRef("bk")
-            )
-        )
-        assertNull(
-            env.query.findEntityAttributeOptional(
-                env.sampleModelRef,
-                env.sampleEntityRef,
-                entityAttributeRef("firstname")
-            )
-        )
-        assertNotNull(
-            env.query.findEntityAttributeOptional(
-                env.sampleModelRef,
-                env.sampleEntityRef,
-                entityAttributeRef("lastname")
-            )
-        )
-
-    }
-
-    @Test
-    fun `delete entity attribute used as identifier throws error`() {
-        val env = TestEnvEntityAttribute()
-        env.addSampleEntity()
-        env.createAttribute(attributeKey = AttributeKey("bk"))
-        env.createAttribute(attributeKey = AttributeKey("firstname"))
-        env.createAttribute(attributeKey = AttributeKey("lastname"))
-
-        val reloaded = env.query.findEntity(env.sampleModelRef, env.sampleEntityRef)
-        assertThrows<DeleteAttributeIdentifierException> {
-            env.dispatch(
-                ModelAction.EntityAttribute_Delete(
-                    env.sampleModelRef,
-                    env.sampleEntityRef,
-                    EntityAttributeRef.ById(reloaded.identifierAttributeId)
-                )
-            )
+        env.replayWithRebuild {
+            assertNotNull(env.queries.findEntityAttributeOptional(modelRef, entityRef, bkRef))
+            assertNull(env.queries.findEntityAttributeOptional(modelRef, entityRef, firstNameRef))
+            assertNotNull(env.queries.findEntityAttributeOptional(modelRef, entityRef, lastNameRef))
         }
     }
-
 }

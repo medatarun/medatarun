@@ -14,13 +14,7 @@ import {
   tokens,
 } from "@fluentui/react-components";
 
-import {
-  type FunctionComponent,
-  type Ref,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { type Ref, useEffect, useRef, useState } from "react";
 import { ActionOutputBox } from "./ActionOutput.tsx";
 import { type ActionResp } from "@/business/action_runner";
 import {
@@ -48,16 +42,15 @@ import { isNil, isPlainObject } from "lodash-es";
 import { toProblem } from "@seij/common-types";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { useNavigate } from "@tanstack/react-router";
-import { ActionPerformerInputTypeRef } from "./inputs/ActionPerformerInputTypeRef.tsx";
-import { ActionPerformerInputModelAuthority } from "./inputs/ActionPerformerInputModelAuthority.tsx";
-import { ActionPerformerInputTextBase } from "./inputs/ActionPerformerInputTextBase.tsx";
 import type { ActionPerformerInputProps } from "./inputs/ActionPerformerInputProps.tsx";
-import { ActionPerformerInputBoolean } from "./inputs/ActionPerformerInputBoolean.tsx";
-import { ActionPerformerInputEntityRef } from "./inputs/ActionPerformerInputEntityRef.tsx";
-import { ActionPerformerInputRelationshipCardinality } from "./inputs/ActionPerformerInputRelationshipCardinality.tsx";
-import { ActionPerformerInputSecurityPermission } from "./inputs/ActionPerformerInputSecurityPermission.tsx";
-import { ActionPerformerInputRoleRef } from "./inputs/ActionPerformerInputRoleRef.tsx";
-import { ActionPerformerInputPasswordClear } from "./inputs/ActionPerformerInputPasswordClear.tsx";
+import { ActionPerformerInputList } from "./inputs/ActionPerformerInputList.tsx";
+import { TypeRegistryInstance } from "@/business/types/TypeRegistry.ts";
+import {
+  ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE,
+  ACTION_PERFORMER_INPUT_DEFAULT_COMPONENT,
+} from "./inputs/ActionPerformerInputRegistry.ts";
+
+const DEBUG = false;
 
 export function ActionPerformerView() {
   // Separate state extraction here, so that when state changes all ActionPerformView is redrawn
@@ -213,6 +206,7 @@ export function ActionPerformerViewLoaded({
                 <ErrorBox error={toProblem(state.error)} />
               ) : null}
               {actionResp ? <ActionOutputBox resp={actionResp} /> : null}
+              {DEBUG && <pre>{JSON.stringify(formData, null, 2)}</pre>}
             </div>
           </DialogContent>
         </DialogBody>
@@ -274,23 +268,11 @@ function FormFieldInput({
     disabled: disabled,
     onValueChange: (nextValue) => onChange(field, nextValue),
   };
-  const componentSelect = (
-    fieldType: string,
-  ): FunctionComponent<ActionPerformerInputProps> => {
-    if (fieldType === "Boolean") return ActionPerformerInputBoolean;
-    if (fieldType === "EntityRef") return ActionPerformerInputEntityRef;
-    if (fieldType === "ModelAuthority")
-      return ActionPerformerInputModelAuthority;
-    if (fieldType === "PermissionKey")
-      return ActionPerformerInputSecurityPermission;
-    if (fieldType === "PasswordClear") return ActionPerformerInputPasswordClear;
-    if (fieldType === "RoleRef") return ActionPerformerInputRoleRef;
-    if (fieldType === "RelationshipCardinality")
-      return ActionPerformerInputRelationshipCardinality;
-    if (fieldType === "TypeRef") return ActionPerformerInputTypeRef;
-    return ActionPerformerInputTextBase;
-  };
-  const ActionPerformerInputComponent = componentSelect(field.type);
+
+  const fieldType = TypeRegistryInstance.typeDecode(field.type);
+  const InputComponent =
+    ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE[fieldType.type] ??
+    ACTION_PERFORMER_INPUT_DEFAULT_COMPONENT;
 
   return (
     <div>
@@ -316,7 +298,14 @@ function FormFieldInput({
         validationMessage={validationResult?.error}
         required={!field.optional}
       >
-        <ActionPerformerInputComponent {...inputProps} />
+        {fieldType.isList ? (
+          <ActionPerformerInputList
+            {...(inputProps as ActionPerformerInputProps<unknown[]>)}
+            inputType={fieldType.type}
+          />
+        ) : (
+          <InputComponent {...inputProps} />
+        )}
       </Field>
     </div>
   );

@@ -3,6 +3,7 @@ package io.medatarun.model.actions
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.ports.exposed.ModelQueries
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -12,13 +13,13 @@ import kotlin.test.assertFailsWith
 class Model_UpdateX_Test {
     @Test
     fun `updates on model fails if model not found`() {
-        val env = createEnv()
+        val env = ModelTestEnv()
         val query: ModelQueries = env.queries
 
-        val modelKey = ModelKey("m1")
+        val modelRef = modelRefKey("m1")
         env.dispatch(
             ModelAction.Model_Create(
-                key = modelKey,
+                key = modelRef.key,
                 name = LocalizedTextNotLocalized("Model name"),
                 description = null,
                 version = ModelVersion("2.0.0")
@@ -67,11 +68,11 @@ class Model_UpdateX_Test {
         }
         env.dispatch(
             ModelAction.Model_UpdateName(
-                modelRef = modelRefKey(modelKey),
+                modelRef = modelRef,
                 value = LocalizedTextNotLocalized("Model name 2")
             )
         )
-        assertEquals(LocalizedTextNotLocalized("Model name 2"), query.findModelByKey(modelKey).name)
+        assertEquals(LocalizedTextNotLocalized("Model name 2"), query.findModelRoot(modelRef).name)
     }
 
 }

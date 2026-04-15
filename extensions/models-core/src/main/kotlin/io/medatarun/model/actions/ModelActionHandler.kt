@@ -246,22 +246,15 @@ class ModelActionHandler(
     // Entities
     // ------------------------------------------------------------------------
 
+
     fun entityCreate(cmd: ModelAction.Entity_Create) {
         dispatch(
             ModelCmd.CreateEntity(
                 modelRef = cmd.modelRef,
-                entityInitializer = EntityInitializer(
-                    entityKey = cmd.entityKey,
-                    name = cmd.name,
-                    description = cmd.description,
-                    documentationHome = cmd.documentationHome?.let { URI(it).toURL() },
-                    identityAttribute = AttributeIdentityInitializer(
-                        attributeKey = cmd.identityAttributeKey,
-                        type = cmd.identityAttributeType,
-                        name = cmd.identityAttributeName,
-                        description = null,
-                    )
-                ),
+                entityKey = cmd.entityKey,
+                name = cmd.name,
+                description = cmd.description,
+                documentationHome = cmd.documentationHome?.let { URI(it).toURL() }
             )
         )
     }
@@ -292,6 +285,16 @@ class ModelActionHandler(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 value = cmd.value
+            )
+        )
+    }
+
+    fun entityPrimaryKeyUpdate(cmd: ModelAction.EntityPrimaryKey_Update) {
+        dispatch(
+            ModelCmd.UpdateEntityPrimaryKey(
+                modelRef = cmd.modelRef,
+                entityRef = cmd.entityRef,
+                attributeRefs = cmd.attributeRef
             )
         )
     }
@@ -709,6 +712,75 @@ class ModelActionHandler(
         )
     }
 
+    // -------------------------------------------------------------------------
+    // Business keys
+    // -------------------------------------------------------------------------
+
+    fun businessKeyCreate(cmd: ModelAction.BusinessKey_Create) {
+        dispatch(
+            ModelCmd.BusinessKeyCreate(
+                modelRef = cmd.modelRef,
+                entityRef = cmd.entityRef,
+                key = cmd.key,
+                name = cmd.name,
+                description = cmd.description,
+                participants = cmd.participants
+            )
+        )
+    }
+
+    fun businessKeyUpdateKey(cmd: ModelAction.BusinessKey_Update_Key) {
+        dispatch(
+            ModelCmd.BusinessKeyUpdateKey(
+                modelRef = cmd.modelRef,
+                businessKeyRef = cmd.businessKeyRef,
+                value = cmd.value
+            )
+        )
+    }
+
+    fun businessKeyUpdateName(cmd: ModelAction.BusinessKey_Update_Name) {
+        dispatch(
+            ModelCmd.BusinessKeyUpdateName(
+                modelRef = cmd.modelRef,
+                businessKeyRef = cmd.businessKeyRef,
+                value = cmd.value
+            )
+        )
+    }
+
+    fun businessKeyUpdateDescription(cmd: ModelAction.BusinessKey_Update_Description) {
+        dispatch(
+            ModelCmd.BusinessKeyUpdateDescription(
+                modelRef = cmd.modelRef,
+                businessKeyRef = cmd.businessKeyRef,
+                value = cmd.value
+            )
+        )
+    }
+
+    fun businessKeyUpdateParticipants(cmd: ModelAction.BusinessKey_Update_Participants) {
+        dispatch(
+            ModelCmd.BusinessKeyUpdateParticipants(
+                modelRef = cmd.modelRef,
+                businessKeyRef = cmd.businessKeyRef,
+                value = cmd.value
+            )
+        )
+    }
+
+    fun businessKeyDelete(cmd: ModelAction.BusinessKey_Delete) {
+        dispatch(
+            ModelCmd.BusinessKeyDelete(
+                modelRef = cmd.modelRef,
+                businessKeyRef = cmd.businessKeyRef
+            )
+        )
+    }
+
+    // -------------------------------------------------------------------------
+    // Other
+    // -------------------------------------------------------------------------
 
     fun historyVersions(action: ModelAction.HistoryVersions): ModelChangeEventListDto {
         val changes = modelQueries.findModelVersions(action.modelRef)
@@ -734,7 +806,7 @@ class ModelActionHandler(
 
     fun modelExport(cmd: ModelAction.Model_Export): JsonObject {
         val exporters = extensionRegistry.findContributionsFlat(ModelExporter::class)
-        val model = modelQueries.findModel(cmd.modelRef)
+        val model = modelQueries.findModelAggregate(cmd.modelRef)
         val exporter = exporters.firstOrNull() ?: throw ModelExportNoPluginFoundException()
         return exporter.exportJson(model)
 
@@ -742,7 +814,7 @@ class ModelActionHandler(
 
     fun modelExportVersion(cmd: ModelAction.Model_Export_Version): JsonObject {
         val exporters = extensionRegistry.findContributionsFlat(ModelExporter::class)
-        val model = modelQueries.findModelAtVersion(cmd.modelRef, cmd.version)
+        val model = modelQueries.findModelAggregateAtVersion(cmd.modelRef, cmd.version)
         val exporter = exporters.firstOrNull() ?: throw ModelExportNoPluginFoundException()
         return exporter.exportJson(model)
 

@@ -8,6 +8,8 @@ export interface AttributeEditPageMessages {
   attributeEditPage_keyLabel: string;
   attributeEditPage_modelNotFound: string;
   attributeEditPage_parentNotFound: string;
+  attributeEditPage_primaryKeyLabel: string;
+  attributeEditPage_primaryKeyYes: string;
   attributeEditPage_relationshipEyebrow: string;
   attributeEditPage_requiredLabel: string;
   attributeEditPage_requiredNo: string;

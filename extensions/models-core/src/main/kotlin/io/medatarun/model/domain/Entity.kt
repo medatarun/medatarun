@@ -28,11 +28,6 @@ interface Entity {
     val description: LocalizedMarkdown?
 
     /**
-     * Tells which attribute acts as entities' identifier
-     */
-    val identifierAttributeId: AttributeId
-
-    /**
      * Tells where the definition comes from
      */
     val origin: EntityOrigin

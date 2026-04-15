@@ -590,24 +590,6 @@ sealed interface ModelAction {
         )
         val description: LocalizedMarkdown?,
         @ActionParamDoc(
-            name = "Identity attribute key",
-            description = "Provide a stable code for the attribute that will identify this entity. This first attribute is created together with the entity and is used to identify each occurrence of it.",
-            order = 60
-        )
-        val identityAttributeKey: AttributeKey,
-        @ActionParamDoc(
-            name = "Identity attribute type",
-            description = "Choose the data type of the attribute that will identify this entity. This first attribute is created together with the entity and is used to identify each occurrence of it.",
-            order = 70
-        )
-        val identityAttributeType: TypeRef,
-        @ActionParamDoc(
-            name = "Identity attribute name",
-            description = "Name of the attribute that will identify this entity. This first attribute is created together with the entity and is used to identify each occurrence of it.",
-            order = 50
-        )
-        val identityAttributeName: LocalizedText?,
-        @ActionParamDoc(
             name = "External documentation",
             description = "Link to external documentation for this entity.",
             order = 80
@@ -863,7 +845,7 @@ sealed interface ModelAction {
             order = 70
         )
         val description: LocalizedMarkdown?,
-        ) : ModelAction
+    ) : ModelAction
 
 
     @ActionDoc(
@@ -1135,6 +1117,33 @@ sealed interface ModelAction {
         val attributeRef: EntityAttributeRef,
     ) : ModelAction
 
+    @ActionDoc(
+        key = "entity_primary_key_update",
+        title = "Update entity primary key",
+        description = "Defines the primary key of an entity. Note that if the list of attributes is empty, the primary key will be removed.",
+        uiLocations = [ActionUILocation.entity],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class EntityPrimaryKey_Update(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where the entity is located.",
+            order = 10
+        )
+        val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Entity for which we set the primary key.",
+            order = 20
+        )
+        val entityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Attributes",
+            description = "Attributes that participate in the primary key in order.",
+            order = 30
+        )
+        val attributeRef: List<EntityAttributeRef>,
+    ) : ModelAction
 
     // ------------------------------------------------------------------------
     // Relationships
@@ -1366,7 +1375,11 @@ sealed interface ModelAction {
         val relationshipRef: RelationshipRef,
         @ActionParamDoc(name = "Role", description = "Role to update.", order = 30)
         val relationshipRoleRef: RelationshipRoleRef,
-        @ActionParamDoc(name = "Key", description = "Provide the stable code used to identify this role within the relationship.", order = 40)
+        @ActionParamDoc(
+            name = "Key",
+            description = "Provide the stable code used to identify this role within the relationship.",
+            order = 40
+        )
         val value: RelationshipRoleKey,
     ) : ModelAction
 
@@ -1384,7 +1397,11 @@ sealed interface ModelAction {
         val relationshipRef: RelationshipRef,
         @ActionParamDoc(name = "Role", description = "Role to update.", order = 30)
         val relationshipRoleRef: RelationshipRoleRef,
-        @ActionParamDoc(name = "Entity", description = "Entity that participates in the relationship through this role.", order = 40)
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Entity that participates in the relationship through this role.",
+            order = 40
+        )
         val value: EntityRef,
     ) : ModelAction
 
@@ -1402,7 +1419,11 @@ sealed interface ModelAction {
         val relationshipRef: RelationshipRef,
         @ActionParamDoc(name = "Role", description = "Role to update.", order = 30)
         val relationshipRoleRef: RelationshipRoleRef,
-        @ActionParamDoc(name = "Name", description = "Name of this role. Use it to express how the entity participates in the relationship.", order = 40)
+        @ActionParamDoc(
+            name = "Name",
+            description = "Name of this role. Use it to express how the entity participates in the relationship.",
+            order = 40
+        )
         val value: LocalizedText?,
     ) : ModelAction
 
@@ -1420,7 +1441,11 @@ sealed interface ModelAction {
         val relationshipRef: RelationshipRef,
         @ActionParamDoc(name = "Role", description = "Role to update.", order = 30)
         val relationshipRoleRef: RelationshipRoleRef,
-        @ActionParamDoc(name = "Cardinality", description = "Choose how many occurrences of this entity may participate through this role in one occurrence of the relationship.", order = 40)
+        @ActionParamDoc(
+            name = "Cardinality",
+            description = "Choose how many occurrences of this entity may participate through this role in one occurrence of the relationship.",
+            order = 40
+        )
         val value: RelationshipCardinality,
     ) : ModelAction
 
@@ -1549,11 +1574,19 @@ sealed interface ModelAction {
     data class RelationshipAttribute_UpdateKey(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
-        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
+        @ActionParamDoc(
+            name = "Relationship",
+            description = "Relationship where this attribute is located.",
+            order = 20
+        )
         val relationshipRef: RelationshipRef,
         @ActionParamDoc(name = "Attribute", description = "Attribute to update.", order = 30)
         val attributeRef: RelationshipAttributeRef,
-        @ActionParamDoc(name = "Key", description = "Provide the stable code used to identify this attribute. It must be unique in the relationship. Keep it stable over time, and avoid quotes, backslashes, and unusual special characters.", order = 40)
+        @ActionParamDoc(
+            name = "Key",
+            description = "Provide the stable code used to identify this attribute. It must be unique in the relationship. Keep it stable over time, and avoid quotes, backslashes, and unusual special characters.",
+            order = 40
+        )
         val value: AttributeKey
     ) : ModelAction
 
@@ -1567,7 +1600,11 @@ sealed interface ModelAction {
     data class RelationshipAttribute_UpdateName(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
-        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
+        @ActionParamDoc(
+            name = "Relationship",
+            description = "Relationship where this attribute is located.",
+            order = 20
+        )
         val relationshipRef: RelationshipRef,
         @ActionParamDoc(name = "Attribute", description = "Attribute to update.", order = 30)
         val attributeRef: RelationshipAttributeRef,
@@ -1585,11 +1622,19 @@ sealed interface ModelAction {
     data class RelationshipAttribute_UpdateDescription(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
-        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
+        @ActionParamDoc(
+            name = "Relationship",
+            description = "Relationship where this attribute is located.",
+            order = 20
+        )
         val relationshipRef: RelationshipRef,
         @ActionParamDoc(name = "Attribute", description = "Attribute to update.", order = 30)
         val attributeRef: RelationshipAttributeRef,
-        @ActionParamDoc(name = "Description", description = "Provide a comprehensive description of what this attribute represents, what information it contains, which values are expected, the main rules that apply to it, and any useful examples or notes.", order = 40)
+        @ActionParamDoc(
+            name = "Description",
+            description = "Provide a comprehensive description of what this attribute represents, what information it contains, which values are expected, the main rules that apply to it, and any useful examples or notes.",
+            order = 40
+        )
         val value: LocalizedMarkdown?
     ) : ModelAction
 
@@ -1603,11 +1648,19 @@ sealed interface ModelAction {
     data class RelationshipAttribute_UpdateType(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
-        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
+        @ActionParamDoc(
+            name = "Relationship",
+            description = "Relationship where this attribute is located.",
+            order = 20
+        )
         val relationshipRef: RelationshipRef,
         @ActionParamDoc(name = "Attribute", description = "Attribute to update.", order = 30)
         val attributeRef: RelationshipAttributeRef,
-        @ActionParamDoc(name = "Data type", description = "Choose the data type of the information carried by this attribute.", order = 40)
+        @ActionParamDoc(
+            name = "Data type",
+            description = "Choose the data type of the information carried by this attribute.",
+            order = 40
+        )
         val value: TypeRef
     ) : ModelAction
 
@@ -1621,11 +1674,19 @@ sealed interface ModelAction {
     data class RelationshipAttribute_UpdateOptional(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
-        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
+        @ActionParamDoc(
+            name = "Relationship",
+            description = "Relationship where this attribute is located.",
+            order = 20
+        )
         val relationshipRef: RelationshipRef,
         @ActionParamDoc(name = "Attribute", description = "Attribute to update.", order = 30)
         val attributeRef: RelationshipAttributeRef,
-        @ActionParamDoc(name = "Optional", description = "Choose whether this attribute is required for all occurrences of the relationship, or optional for some of them.", order = 40)
+        @ActionParamDoc(
+            name = "Optional",
+            description = "Choose whether this attribute is required for all occurrences of the relationship, or optional for some of them.",
+            order = 40
+        )
         val value: Boolean
     ) : ModelAction
 
@@ -1639,7 +1700,11 @@ sealed interface ModelAction {
     data class RelationshipAttribute_AddTag(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
-        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
+        @ActionParamDoc(
+            name = "Relationship",
+            description = "Relationship where this attribute is located.",
+            order = 20
+        )
         val relationshipRef: RelationshipRef,
         @ActionParamDoc(name = "Attribute", description = "Attribute to update.", order = 30)
         val attributeRef: RelationshipAttributeRef,
@@ -1657,7 +1722,11 @@ sealed interface ModelAction {
     data class RelationshipAttribute_DeleteTag(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
-        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
+        @ActionParamDoc(
+            name = "Relationship",
+            description = "Relationship where this attribute is located.",
+            order = 20
+        )
         val relationshipRef: RelationshipRef,
         @ActionParamDoc(name = "Attribute", description = "Attribute to update.", order = 30)
         val attributeRef: RelationshipAttributeRef,
@@ -1675,11 +1744,202 @@ sealed interface ModelAction {
     data class RelationshipAttribute_Delete(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
-        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
+        @ActionParamDoc(
+            name = "Relationship",
+            description = "Relationship where this attribute is located.",
+            order = 20
+        )
         val relationshipRef: RelationshipRef,
         @ActionParamDoc(name = "Attribute", description = "Attribute to delete.", order = 30)
         val attributeRef: RelationshipAttributeRef,
     ) : ModelAction
+
+    // ------------------------------------------------------------------------
+    // Business keys
+    // ------------------------------------------------------------------------
+
+    @ActionDoc(
+        key = "business_key_create",
+        title = "Create a business key",
+        description = "Creates a business key to represent wich attributes of an entity uniquely identifies the objet in a business manner.",
+        uiLocations = [ActionUILocation.entity],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class BusinessKey_Create(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where the entity containing this business key is located.",
+            order = 10
+        )
+        val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Name",
+            description = "Business key name",
+            order = 11
+        )
+        val name: LocalizedText?,
+        @ActionParamDoc(
+            name = "Key",
+            description = "Business key's own key",
+            order = 12
+        )
+        val key: BusinessKeyKey,
+        @ActionParamDoc(
+            name = "Description",
+            description = "Business key description",
+            order = 14
+        )
+        val description: LocalizedMarkdown?,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Entity where this business key is located.",
+            order = 20
+        )
+        val entityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Participants",
+            description = "List of attributes that participate in the business key, in order.",
+            order = 30
+        )
+        val participants: List<EntityAttributeRef>,
+    ) : ModelAction
+    @ActionDoc(
+        key = "business_key_update_key",
+        title = "Update business key's key",
+        description = "Changes the key of a business key.",
+        uiLocations = [ActionUILocation.entity],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class BusinessKey_Update_Key(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where the business key is located.",
+            order = 10
+        )
+        val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Business key",
+            description = "Business key to update.",
+            order = 20
+        )
+        val businessKeyRef: BusinessKeyRef,
+        @ActionParamDoc(
+            name = "Key",
+            description = "New key",
+            order = 30
+        )
+        val value: BusinessKeyKey,
+    ) : ModelAction
+
+    @ActionDoc(
+        key = "business_key_update_name",
+        title = "Update business key name",
+        description = "Changes the name of a business key.",
+        uiLocations = [ActionUILocation.entity],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class BusinessKey_Update_Name(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where the business key is located.",
+            order = 10
+        )
+        val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Business key",
+            description = "Business key to update.",
+            order = 20
+        )
+        val businessKeyRef: BusinessKeyRef,
+        @ActionParamDoc(
+            name = "Name",
+            description = "New name",
+            order = 30
+        )
+        val value: LocalizedText?,
+    ) : ModelAction
+    @ActionDoc(
+        key = "business_key_update_description",
+        title = "Update business key description",
+        description = "Changes the description of a business key.",
+        uiLocations = [ActionUILocation.entity],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class BusinessKey_Update_Description(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where the business key is located.",
+            order = 10
+        )
+        val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Business key",
+            description = "Business key to update.",
+            order = 20
+        )
+        val businessKeyRef: BusinessKeyRef,
+        @ActionParamDoc(
+            name = "Name",
+            description = "New name",
+            order = 30
+        )
+        val value: LocalizedMarkdown?,
+    ) : ModelAction
+
+    @ActionDoc(
+        key = "business_key_update_participants",
+        title = "Update business key participants",
+        description = "Changes the participants of a business key, meaning all attributes that define the business key meaning.",
+        uiLocations = [ActionUILocation.entity],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class BusinessKey_Update_Participants(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where the business key is located.",
+            order = 10
+        )
+        val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Business key",
+            description = "Business key to update.",
+            order = 20
+        )
+        val businessKeyRef: BusinessKeyRef,
+        @ActionParamDoc(
+            name = "Participants",
+            description = "List of the entity attributes that define the business key, in order.",
+            order = 30
+        )
+        val value: List<EntityAttributeRef>,
+    ) : ModelAction
+
+    @ActionDoc(
+        key = "business_key_delete",
+        title = "Update business key participants",
+        description = "Changes the participants of a business key, meaning all attributes that define the business key meaning.",
+        uiLocations = [ActionUILocation.entity],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class BusinessKey_Delete(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where the business key is located.",
+            order = 10
+        )
+        val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Business key",
+            description = "Business key to delete.",
+            order = 20
+        )
+        val businessKeyRef: BusinessKeyRef
+    ) : ModelAction
+
+
+    // ------------------------------------------------------------------------
+    // Search
+    // ------------------------------------------------------------------------
 
     @ActionDoc(
         key = "search",
@@ -1708,22 +1968,6 @@ sealed interface ModelAction {
         )
         val fields: SearchFields,
     ) : ModelAction
-
-    @ActionDoc(
-        key = "maintenance_rebuild_caches",
-        title = "Maintenance rebuild caches",
-        description = """
-            Rebuilds model application caches from stored events.
-            
-            Use this only as an exceptional maintenance action when data appears out of date.
-            If you need to run it, we recommend contacting us on the project GitHub because it
-            usually means you identified a bug.
-        """,
-        uiLocations = [ActionUILocation.hidden],
-        securityRule = SecurityRuleNames.ADMIN,
-        semantics = ActionDocSemantics(mode = ActionDocSemanticsMode.NONE)
-    )
-    class MaintenanceRebuildCaches : ModelAction
 
     // ------------------------------------------------------------------------
     // History
@@ -1778,6 +2022,26 @@ sealed interface ModelAction {
         )
         val version: ModelVersion?
     ) : ModelAction
+
+    // ------------------------------------------------------------------------
+    // Maintenance
+    // ------------------------------------------------------------------------
+
+    @ActionDoc(
+        key = "maintenance_rebuild_caches",
+        title = "Maintenance rebuild caches",
+        description = """
+            Rebuilds model application caches from stored events.
+            
+            Use this only as an exceptional maintenance action when data appears out of date.
+            If you need to run it, we recommend contacting us on the project GitHub because it
+            usually means you identified a bug.
+        """,
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.ADMIN,
+        semantics = ActionDocSemantics(mode = ActionDocSemanticsMode.NONE)
+    )
+    class MaintenanceRebuildCaches : ModelAction
 
 
 }

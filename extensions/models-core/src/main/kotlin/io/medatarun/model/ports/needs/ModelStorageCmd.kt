@@ -1,7 +1,6 @@
 package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.*
-import io.medatarun.storage.eventsourcing.StorageCmd
 import io.medatarun.storage.eventsourcing.StorageEventContract
 import io.medatarun.tags.core.domain.TagId
 import kotlinx.serialization.Contextual
@@ -9,13 +8,11 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.net.URL
 
+/**
+ * Current storage commands
+ */
 @Serializable
-sealed interface ModelStorageCmdOnModel : ModelStorageCmd {
-    val modelId: ModelId
-}
-
-@Serializable
-sealed interface ModelStorageCmd: StorageCmd {
+sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
 
 
     // ------------------------------------------------------------------------
@@ -23,20 +20,24 @@ sealed interface ModelStorageCmd: StorageCmd {
     // ------------------------------------------------------------------------
 
     @Serializable
-    @StorageEventContract(eventType = "model_aggregate_stored", eventVersion = 1)
+    @StorageEventContract(eventType = "model_aggregate_stored", eventVersion = 2)
     data class StoreModelAggregate(
         @SerialName("model")
         val model: StoreModelAggregateModel,
         @SerialName("types")
         val types: List<StoreModelAggregateType>,
         @SerialName("entities")
-        val entities: List<StoreModelAggregateEntity>,
+        val entities: List<StoreModelAggregateEntityCurrent>,
         @SerialName("entityAttributes")
         val entityAttributes: List<StoreModelAggregateEntityAttribute>,
         @SerialName("relationships")
         val relationships: List<StoreModelAggregateRelationship>,
         @SerialName("relationshipAttributes")
         val relationshipAttributes: List<StoreModelAggregateRelationshipAttribute>,
+        @SerialName("entityPrimaryKeys")
+        val entityPrimaryKeys: List<StoreModelAggregatePrimaryKey>,
+        @SerialName("businessKeys")
+        val businessKeys: List<StoreModelAggregateBusinessKey>,
     ) : ModelStorageCmd
 
     @Serializable
@@ -246,7 +247,7 @@ sealed interface ModelStorageCmd: StorageCmd {
     // ------------------------------------------------------------------------
 
     @Serializable
-    @StorageEventContract(eventType = "entity_created", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_created", eventVersion = 2)
     data class CreateEntity(
         @Contextual
         @SerialName("modelId")
@@ -269,24 +270,6 @@ sealed interface ModelStorageCmd: StorageCmd {
         @Contextual
         @SerialName("origin")
         val origin: EntityOrigin,
-        @Contextual
-        @SerialName("identityAttributeId")
-        val identityAttributeId: AttributeId,
-        @Contextual
-        @SerialName("identityAttributeKey")
-        val identityAttributeKey: AttributeKey,
-        @Contextual
-        @SerialName("identityAttributeTypeId")
-        val identityAttributeTypeId: TypeId,
-        @Contextual
-        @SerialName("identityAttributeName")
-        val identityAttributeName: LocalizedText?,
-        @Contextual
-        @SerialName("identityAttributeDescription")
-        val identityAttributeDescription: LocalizedMarkdown?,
-        @SerialName("identityAttributeOptional")
-        val identityAttributeIdOptional: Boolean,
-
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -332,8 +315,8 @@ sealed interface ModelStorageCmd: StorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @StorageEventContract(eventType = "entity_identifier_attribute_updated", eventVersion = 1)
-    data class UpdateEntityIdentifierAttribute(
+    @StorageEventContract(eventType = "entity_primary_key_set", eventVersion = 1)
+    data class Entity_PrimaryKey_Set(
         @Contextual
         @SerialName("modelId")
         override val modelId: ModelId,
@@ -341,8 +324,8 @@ sealed interface ModelStorageCmd: StorageCmd {
         @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("identifierAttributeId")
-        val identifierAttributeId: AttributeId
+        @SerialName("attributeIds")
+        val attributeIds: List<@Contextual AttributeId>
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -957,5 +940,99 @@ sealed interface ModelStorageCmd: StorageCmd {
         val attributeId: AttributeId,
     ) : ModelStorageCmdOnModel
 
+    // -------------------------------------------------------------------------
+    // Business keys
+    // -------------------------------------------------------------------------
+
+    @Serializable
+    @StorageEventContract(eventType = "business_key_created", eventVersion = 1)
+    data class BusinessKeyCreate(
+        @Contextual
+        @SerialName("modelId")
+        override val modelId: ModelId,
+        @Contextual
+        @SerialName("entityId")
+        val entityId: EntityId,
+        @Contextual
+        @SerialName("businessKeyId")
+        val businessKeyId: BusinessKeyId,
+        @Contextual
+        @SerialName("key")
+        val key: BusinessKeyKey,
+        @Contextual
+        @SerialName("name")
+        val name: LocalizedText?,
+        @Contextual
+        @SerialName("description")
+        val description: LocalizedMarkdown?,
+        @SerialName("participantAttributeIds")
+        val participantAttributeIds: List<@Contextual AttributeId>,
+    ) : ModelStorageCmdOnModel
+
+    @Serializable
+    @StorageEventContract(eventType = "business_key_key_updated", eventVersion = 1)
+    data class BusinessKeyUpdateKey(
+        @Contextual
+        @SerialName("modelId")
+        override val modelId: ModelId,
+        @Contextual
+        @SerialName("businessKeyId")
+        val businessKeyId: BusinessKeyId,
+        @Contextual
+        @SerialName("key")
+        val key: BusinessKeyKey,
+    ) : ModelStorageCmdOnModel
+
+    @Serializable
+    @StorageEventContract(eventType = "business_key_name_updated", eventVersion = 1)
+    data class BusinessKeyUpdateName(
+        @Contextual
+        @SerialName("modelId")
+        override val modelId: ModelId,
+        @Contextual
+        @SerialName("businessKeyId")
+        val businessKeyId: BusinessKeyId,
+        @Contextual
+        @SerialName("name")
+        val name: LocalizedText?,
+    ) : ModelStorageCmdOnModel
+
+    @Serializable
+    @StorageEventContract(eventType = "business_key_description_updated", eventVersion = 1)
+    data class BusinessKeyUpdateDescription(
+        @Contextual
+        @SerialName("modelId")
+        override val modelId: ModelId,
+        @Contextual
+        @SerialName("businessKeyId")
+        val businessKeyId: BusinessKeyId,
+        @Contextual
+        @SerialName("description")
+        val description: LocalizedMarkdown?,
+    ) : ModelStorageCmdOnModel
+
+    @Serializable
+    @StorageEventContract(eventType = "business_key_participants_updated", eventVersion = 1)
+    data class BusinessKeyUpdateParticipants(
+        @Contextual
+        @SerialName("modelId")
+        override val modelId: ModelId,
+        @Contextual
+        @SerialName("businessKeyId")
+        val businessKeyId: BusinessKeyId,
+        @SerialName("participantAttributeIds")
+        val participantAttributeIds: List<@Contextual AttributeId>,
+    ) : ModelStorageCmdOnModel
+
+    @Serializable
+    @StorageEventContract(eventType = "business_key_deleted", eventVersion = 1)
+    data class BusinessKeyDelete(
+        @Contextual
+        @SerialName("modelId")
+        override val modelId: ModelId,
+        @Contextual
+        @SerialName("businessKeyId")
+        val businessKeyId: BusinessKeyId,
+    ) : ModelStorageCmdOnModel
 
 }

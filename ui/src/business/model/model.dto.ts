@@ -23,6 +23,8 @@ export interface ModelDto {
   entities: EntityDto[];
   relationships: RelationshipDto[];
   types: TypeDto[];
+  entityPrimaryKeys: EntityPrimaryKeyDto[];
+  businessKeys: BusinessKeyDto[];
 }
 
 export interface TypeDto {
@@ -48,6 +50,21 @@ export interface EntityDto {
   attributes: AttributeDto[];
 }
 
+export interface EntityPrimaryKeyDto {
+  id: string;
+  entityId: string;
+  participants: string[];
+}
+
+export interface BusinessKeyDto {
+  id: string;
+  entityId: string;
+  key: string;
+  name: string | null;
+  description: string | null;
+  participants: string[];
+}
+
 export interface AttributeDto {
   id: string;
   key: string;
@@ -55,7 +72,6 @@ export interface AttributeDto {
   description: string | null;
   type: string;
   optional: boolean;
-  identifierAttribute: boolean;
   tags: string[];
 }
 

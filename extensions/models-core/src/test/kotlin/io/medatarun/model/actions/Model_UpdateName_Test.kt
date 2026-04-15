@@ -17,6 +17,6 @@ class Model_UpdateName_Test {
                 value = LocalizedTextNotLocalized("Model name 2")
             )
         )
-        assertEquals(LocalizedTextNotLocalized("Model name 2"), env.query.findModel(env.modelRef).name)
+        assertEquals(LocalizedTextNotLocalized("Model name 2"), env.query.findModelAggregate(env.modelRef).name)
     }
 }

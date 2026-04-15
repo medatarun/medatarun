@@ -8,7 +8,9 @@ import io.medatarun.model.infra.db.events.ModelEventSystem
 import io.medatarun.model.infra.db.records.ModelEventRecord
 import io.medatarun.model.infra.db.snapshots.ModelStorageDbProjection
 import io.medatarun.model.infra.db.snapshots.ModelStorageDbProjection.ProjectionEventCtx
-import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshots
+import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshotCreate
+import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshotWriter
+import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshotHead
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector.CurrentHeadByModelId
 import io.medatarun.model.infra.db.tables.ModelEventTable
 import io.medatarun.model.infra.db.tables.ModelSnapshotTable
@@ -31,10 +33,18 @@ class ModelStorageDb(
     private val searchRead = ModelStorageDbSearchRead()
     private val searchWrite = ModelStorageDbSearchWrite()
     private val eventSystem = ModelEventSystem()
-    private val snapshots = ModelStorageDbSnapshots()
+    private val snapshotHead = ModelStorageDbSnapshotHead()
+    private val snapshotWriter = ModelStorageDbSnapshotWriter(snapshotHead, clock)
+    private val snapshotCreate = ModelStorageDbSnapshotCreate(clock, snapshotWriter)
     private val aggregateReader = ModelStorageDbAggregateReader()
     private val read = ModelStorageDbRead(eventSystem.registry, aggregateReader)
-    private val projection = ModelStorageDbProjection(searchWrite, snapshots, clock)
+    private val projection = ModelStorageDbProjection(
+        searchWrite = searchWrite,
+        snapshotHead = snapshotHead,
+        clock = clock,
+        snapWrite = snapshotWriter,
+        snapshotCreate = snapshotCreate
+    )
 
     override fun existsModelById(id: ModelId): Boolean {
         return db.withExposed {
@@ -68,6 +78,13 @@ class ModelStorageDb(
         return db.withExposed {
             logger.debug("findModelByIdOptional id={}", id)
             read.findModelByIdOptional(id)
+        }
+    }
+
+    override fun findModelTags(id: ModelId): List<TagId> {
+        return db.withExposed {
+            logger.debug("findModelTags id={}", id)
+            read.findAllModelTags(id)
         }
     }
 
@@ -114,6 +131,13 @@ class ModelStorageDb(
         }
     }
 
+    override fun findTypes(modelId: ModelId): List<ModelType> {
+        return db.withExposed {
+            logger.debug("findTypes modelId={}", modelId)
+            read.findTypes(modelId)
+        }
+    }
+
     override fun findEntityByIdOptional(modelId: ModelId, entityId: EntityId): Entity? {
         return db.withExposed {
             logger.debug("findEntityByIdOptional modelId={} entityId={}", modelId, entityId)
@@ -125,6 +149,34 @@ class ModelStorageDb(
         return db.withExposed {
             logger.debug("findEntityByKeyOptional modelId={} entityKey={}", modelId, entityKey)
             read.findEntityByKeyOptional(modelId, entityKey)
+        }
+    }
+
+    override fun findEntityPrimaryKeyOptional(modelId: ModelId, entityId: EntityId): EntityPrimaryKey? {
+        return db.withExposed {
+            logger.debug("findEntityPrimaryKeyOptional modelId={} entityId={}", modelId, entityId)
+            read.findEntityPrimaryKeyOptional(modelId, entityId)
+        }
+    }
+
+    override fun findBusinessKeyByIdOptional(modelId: ModelId, id: BusinessKeyId): BusinessKey? {
+        return db.withExposed {
+            logger.debug("findBusinessKeyByIdOptional modelId={} id={}", modelId, id)
+            read.findBusinessKeyByIdOptional(modelId, id)
+        }
+    }
+
+    override fun findBusinessKeyByKeyOptional(modelId: ModelId, key: BusinessKeyKey): BusinessKey? {
+        return db.withExposed {
+            logger.debug("findBusinessKeyByKeyOptional modelId={} key={}", modelId, key)
+            read.findBusinessKeyByKeyOptional(modelId, key)
+        }
+    }
+
+    override fun findBusinessKeys(modelId: ModelId): List<BusinessKey> {
+        return db.withExposed {
+            logger.debug("findBusinessKeys modelId={}", modelId)
+            read.findBusinessKeys(modelId)
         }
     }
 
@@ -250,13 +302,6 @@ class ModelStorageDb(
         }
     }
 
-    fun findAllModelEvents(modelId: ModelId): List<ModelEventRecord> {
-        return db.withExposed {
-            logger.debug("findAllModelEvents modelId={}", modelId)
-            read.findAllModelEvents(modelId)
-        }
-    }
-
     // -------------------------------------------------------------------------
     // History
     // -------------------------------------------------------------------------
@@ -265,6 +310,13 @@ class ModelStorageDb(
         return db.withExposed {
             logger.debug("findModelVersions modelId={}", modelId)
             read.findModelVersions(modelId)
+        }
+    }
+
+    override fun findAllModelChangeEvent(modelId: ModelId): List<ModelChangeEvent> {
+        return db.withExposed {
+            logger.debug("findAllModelChangeEvent modelId={}", modelId)
+            read.findAllModelChangeEvent(modelId)
         }
     }
 
@@ -279,6 +331,13 @@ class ModelStorageDb(
         return db.withExposed {
             logger.debug("findModelChangeEventsSinceLastReleaseEvent modelId={}", modelId)
             read.findModelChangeEventsSinceLastReleaseEvent(modelId)
+        }
+    }
+
+    override fun findLastModelChangeEventOptional(modelId: ModelId): ModelChangeEvent? {
+        return db.withExposed {
+            logger.debug("findLastModelChangeEventOptional modelId={}", modelId)
+            read.findLastModelChangeEventOptional(modelId)
         }
     }
 
@@ -334,14 +393,18 @@ class ModelStorageDb(
             streamRevision = streamNumberCtx.nextRevision(),
             createdAt = clock.now()
         )
-        processEvent(modelId,record) {
+        processEvent(modelId, record) {
             appendModelEvent(streamNumberCtx, record)
         }
     }
 
+    /**
+     * Process a single event from the event source
+     */
     private fun processEvent(modelId: ModelId, record: ModelEventRecord, storeEventIfNeeded: () -> Unit) {
 
-        val cmd = eventSystem.codec.decode(
+        // Decode event in JSON into a real command
+        val cmdAnyVersion: ModelStorageCmdAnyVersion = eventSystem.codec.decode(
             StorageEventEncoded(
                 eventType = record.eventType,
                 eventVersion = record.eventVersion,
@@ -349,27 +412,47 @@ class ModelStorageDb(
             )
         )
 
-        val modelSnapshotId = prepareStorageForAppend(cmd, modelId)
+        // Old events may be translated into new events. An old event may be
+        // converted into a succession of smaller events, so we may end up with
+        // a list of events.
+        val cmds: List<ModelStorageCmd> = eventSystem.upscale(cmdAnyVersion)
 
-        storeEventIfNeeded()
+        // Treat each event independently, but only current versions
+        for (cmd in cmds) {
+            // Events are stored in a model, so we need to be sure the model
+            // exists before doing anything. This happens when we see special
+            // creation events like model_created or model_aggregate_stored.
+            val modelSnapshotId = prepareStorageForAppend(cmd, modelId)
 
+            // Event may be stored, or not. In a normal scenario when we receive
+            // an event, we need to store it in the model. When we are just
+            // replaying a stack of events, we won't.
+            // It is the caller's responsibility to do that when storage is ready.
+            storeEventIfNeeded()
 
-        if (cmd is ModelStorageCmd.DeleteModel) {
-            deleteModel(cmd.modelId)
-        } else {
-
-            projection.projectCommand(
-                ProjectionEventCtx(
-                    cmd = cmd,
-                    modelId = record.modelId,
-                    modelSnapshotId = modelSnapshotId,
-                    modelEventId = record.id,
-                    streamRevision = record.streamRevision
+            if (cmd is ModelStorageCmd.DeleteModel) {
+                // Deleting a model is a special command because it removes the
+                // model and all the event stack (complete destruction)
+                deleteModel(cmd.modelId)
+            } else {
+                // Normal case, we maintain the current state (head snapshot)
+                // and versions snapshot when we see model_released commands.
+                // Note that this will incrementally manage the search engine
+                // too.
+                projection.projectCommand(
+                    ProjectionEventCtx(
+                        cmd = cmd,
+                        modelId = record.modelId,
+                        modelSnapshotId = modelSnapshotId,
+                        modelEventId = record.id,
+                        streamRevision = record.streamRevision
+                    )
                 )
-            )
-            updateCurrentHeadProjectionMetadata(extractModelId(cmd), record.streamRevision)
+                // Finally, we set in the head snapshot the current event
+                // revision number we just processed and last update time.
+                updateCurrentHeadProjectionMetadata(extractModelId(cmd), record.streamRevision)
+            }
         }
-
     }
 
 
@@ -439,7 +522,7 @@ class ModelStorageDb(
                 generateCurrentHeadModelSnapshotId()
             }
 
-            else -> snapshots.currentHeadModelSnapshotId(modelId)
+            else -> snapshotHead.toModelSnapshotId(modelId)
         }
     }
 

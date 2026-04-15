@@ -1,9 +1,13 @@
 package io.medatarun.model.actions
 
+import io.medatarun.model.domain.*
+import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
+import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
+import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.EntityUpdateKeyDuplicateKeyException
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -13,15 +17,23 @@ class Entity_UpdateKey_Test {
 
     @Test
     fun `update entity key with duplicate key throws exception`() {
-        val env = TestEnvEntityUpdate()
-        val duplicateId = env.secondaryEntityKey
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("entity-update-key-duplicate")
+        val typeRef = typeRefKey("String")
+        val primaryEntityRef = entityRefKey("entity-primary")
+        val secondaryEntityRef = entityRefKey("entity-secondary")
+
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate(modelRef, primaryEntityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, secondaryEntityRef.key, LocalizedTextNotLocalized("Entity secondary"))
 
         assertFailsWith<EntityUpdateKeyDuplicateKeyException> {
             env.dispatch(
                 ModelAction.Entity_UpdateKey(
-                    env.modelRef,
-                    env.primaryEntityRef,
-                    duplicateId
+                    modelRef = modelRef,
+                    entityRef = primaryEntityRef,
+                    value = secondaryEntityRef.key
                 )
             )
         }
@@ -29,14 +41,51 @@ class Entity_UpdateKey_Test {
 
     @Test
     fun `update entity key with correct key ok`() {
-        val env = TestEnvEntityUpdate()
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("entity-update-key")
+        val typeRef = typeRefKey("String")
+        val primaryEntityRef = entityRefKey("entity-primary")
         val newId = EntityKey("entity-renamed")
 
-        env.dispatch(ModelAction.Entity_UpdateKey(env.modelRef, env.primaryEntityRef, newId))
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate(modelRef, primaryEntityRef.key, LocalizedTextNotLocalized("Entity primary"))
 
-        val reloaded = env.query.findModel(env.modelRef)
-        assertNull(reloaded.findEntityOptional(env.primaryEntityKey))
-        assertNotNull(reloaded.findEntityOptional(newId))
+        env.dispatch(
+            ModelAction.Entity_UpdateKey(
+                modelRef = modelRef,
+                entityRef = primaryEntityRef,
+                value = newId
+            )
+        )
+
+        env.replayWithRebuild {
+            assertNull(env.queries.findEntityOptional(modelRef, primaryEntityRef))
+            assertNotNull(env.queries.findEntityOptional(modelRef, entityRefKey(newId.value)))
+        }
     }
 
+    @Test
+    fun `update entity key with same value does not create new event`() {
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("entity-update-key-noop")
+        val typeRef = typeRefKey("String")
+        val primaryEntityRef = entityRefKey("entity-primary")
+
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate(modelRef, primaryEntityRef.key, LocalizedTextNotLocalized("Entity primary"))
+
+        val beforeEventId = env.findLastStoredModelChangeEvent(modelRef).eventId
+        env.dispatch(
+            ModelAction.Entity_UpdateKey(
+                modelRef = modelRef,
+                entityRef = primaryEntityRef,
+                value = primaryEntityRef.key
+            )
+        )
+        val afterEventId = env.findLastStoredModelChangeEvent(modelRef).eventId
+
+        assertEquals(beforeEventId, afterEventId)
+    }
 }

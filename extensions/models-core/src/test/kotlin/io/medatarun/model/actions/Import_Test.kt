@@ -21,10 +21,15 @@ import kotlin.test.assertEquals
 class Import_Test {
     @Test
     fun `import then imported`() {
+
+        // we do not need to test everything because import is like copy
+        // and copy is also covered. We just check the basics
+
+        val modelRef = ModelRef.modelRefKey("recipe")
         val sampleModel = ModelAggregateInMemory(
             ModelInMemory(
                 id = ModelId.generate(),
-                key = Key.fromString("recipe", ::ModelKey),
+                key = modelRef.key,
                 name = null,
                 description = null,
                 version = ModelVersion("1.2.3"),
@@ -36,13 +41,15 @@ class Import_Test {
             entities = emptyList(),
             attributes = emptyList(),
             relationships = emptyList(),
-            tags = emptyList()
+            tags = emptyList(),
+            entityPrimaryKeys = emptyList(),
+            businessKeys = emptyList()
         )
         val env = ModelTestEnv(
             listOf(ImportFixtureExtension(sampleModel, emptyList()))
         )
         env.dispatch(ModelAction.Import("test:recipe", null, null))
-        val found = env.queries.findModel(ModelRef.modelRefKey("recipe"))
+        val found = env.queries.findModelRoot(modelRef)
         assertEquals(sampleModel.id, found.id)
         assertEquals(sampleModel.key, found.key)
         assertEquals(sampleModel.name, found.name)
@@ -72,8 +79,8 @@ class Import_Test {
         override fun toModel(
             path: String,
             resourceLocator: ResourceLocator,
-            modelKey: ModelKey?,
-            modelName: String?
+            modelKeyChoosen: ModelKey?,
+            modelNameChoosen: String?
         ): ModelImporterData {
             if (path == "test:recipe") {
                 return ModelImporterData(

@@ -2,8 +2,8 @@ package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
-import io.medatarun.model.domain.modelRef
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.*
 import org.junit.jupiter.api.Test
@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 class ModelAndTag_Event_Test {
 
     private class CookingModelSetup(env: ModelTestEnv) {
-        val modelRef: ModelRef = modelRef("cooking")
+        val modelRef: ModelRef = ModelRef.modelRefKey("cooking")
         val ingredientRef: EntityRef = EntityRef.ByKey(EntityKey("ingredient"))
         val recipeRef: EntityRef = EntityRef.ByKey(EntityKey("recipe"))
         val usageRef: RelationshipRef = RelationshipRef.ByKey(RelationshipKey("usage"))
@@ -36,9 +36,6 @@ class ModelAndTag_Event_Test {
                     entityKey = EntityKey("ingredient"),
                     name = null,
                     description = null,
-                    identityAttributeKey = AttributeKey("id"),
-                    identityAttributeType = typeRef("String"),
-                    identityAttributeName = null,
                     documentationHome = null
                 )
             )
@@ -47,7 +44,7 @@ class ModelAndTag_Event_Test {
                     modelRef = modelRef,
                     entityRef = ingredientRef,
                     attributeKey = AttributeKey("name"),
-                    type = typeRef("String"),
+                    type = TypeRef.typeRefKey(TypeKey("String")),
                     optional = false,
                     name = null,
                     description = null
@@ -58,7 +55,7 @@ class ModelAndTag_Event_Test {
                     modelRef = modelRef,
                     entityRef = ingredientRef,
                     attributeKey = AttributeKey("code"),
-                    type = typeRef("String"),
+                    type = TypeRef.typeRefKey(TypeKey("String")),
                     optional = false,
                     name = null,
                     description = null
@@ -70,9 +67,6 @@ class ModelAndTag_Event_Test {
                     entityKey = EntityKey("recipe"),
                     name = null,
                     description = null,
-                    identityAttributeKey = AttributeKey("id"),
-                    identityAttributeType = typeRef("String"),
-                    identityAttributeName = null,
                     documentationHome = null
                 )
             )
@@ -81,7 +75,7 @@ class ModelAndTag_Event_Test {
                     modelRef = modelRef,
                     entityRef = recipeRef,
                     attributeKey = AttributeKey("description"),
-                    type = typeRef("String"),
+                    type = TypeRef.typeRefKey(TypeKey("String")),
                     optional = false,
                     name = null,
                     description = null
@@ -108,7 +102,7 @@ class ModelAndTag_Event_Test {
                     modelRef = modelRef,
                     relationshipRef = usageRef,
                     attributeKey = AttributeKey("quantity"),
-                    type = typeRef("String"),
+                    type = TypeRef.typeRefKey(TypeKey("String")),
                     optional = false,
                     name = null,
                     description = null
@@ -119,7 +113,7 @@ class ModelAndTag_Event_Test {
                     modelRef = modelRef,
                     relationshipRef = usageRef,
                     attributeKey = AttributeKey("unit"),
-                    type = typeRef("String"),
+                    type = TypeRef.typeRefKey(TypeKey("String")),
                     optional = false,
                     name = null,
                     description = null
@@ -129,7 +123,7 @@ class ModelAndTag_Event_Test {
     }
 
     private class CrmModelSetup(env: ModelTestEnv) {
-        val modelRef: ModelRef = modelRef("crm")
+        val modelRef: ModelRef = ModelRef.modelRefKey("crm")
         val personRef: EntityRef = EntityRef.ByKey(EntityKey("person"))
         val companyRef: EntityRef = EntityRef.ByKey(EntityKey("company"))
         val employmentRef: RelationshipRef = RelationshipRef.ByKey(RelationshipKey("employment"))
@@ -152,9 +146,6 @@ class ModelAndTag_Event_Test {
                     entityKey = EntityKey("person"),
                     name = null,
                     description = null,
-                    identityAttributeKey = AttributeKey("id"),
-                    identityAttributeType = typeRef("String"),
-                    identityAttributeName = null,
                     documentationHome = null
                 )
             )
@@ -163,7 +154,7 @@ class ModelAndTag_Event_Test {
                     modelRef = modelRef,
                     entityRef = personRef,
                     attributeKey = AttributeKey("name"),
-                    type = typeRef("String"),
+                    type = TypeRef.typeRefKey(TypeKey("String")),
                     optional = false,
                     name = null,
                     description = null
@@ -174,7 +165,7 @@ class ModelAndTag_Event_Test {
                     modelRef = modelRef,
                     entityRef = personRef,
                     attributeKey = AttributeKey("email"),
-                    type = typeRef("String"),
+                    type = TypeRef.typeRefKey(TypeKey("String")),
                     optional = false,
                     name = null,
                     description = null
@@ -186,9 +177,6 @@ class ModelAndTag_Event_Test {
                     entityKey = EntityKey("company"),
                     name = null,
                     description = null,
-                    identityAttributeKey = AttributeKey("id"),
-                    identityAttributeType = typeRef("String"),
-                    identityAttributeName = null,
                     documentationHome = null
                 )
             )
@@ -197,7 +185,7 @@ class ModelAndTag_Event_Test {
                     modelRef = modelRef,
                     entityRef = companyRef,
                     attributeKey = AttributeKey("name"),
-                    type = typeRef("String"),
+                    type = TypeRef.typeRefKey(TypeKey("String")),
                     optional = false,
                     name = null,
                     description = null
@@ -208,7 +196,7 @@ class ModelAndTag_Event_Test {
                     modelRef = modelRef,
                     entityRef = companyRef,
                     attributeKey = AttributeKey("website"),
-                    type = typeRef("String"),
+                    type = TypeRef.typeRefKey(TypeKey("String")),
                     optional = false,
                     name = null,
                     description = null
@@ -235,7 +223,7 @@ class ModelAndTag_Event_Test {
                     modelRef = modelRef,
                     relationshipRef = employmentRef,
                     attributeKey = AttributeKey("since"),
-                    type = typeRef("String"),
+                    type = TypeRef.typeRefKey(TypeKey("String")),
                     optional = false,
                     name = null,
                     description = null
@@ -252,7 +240,7 @@ class ModelAndTag_Event_Test {
      */
     @Test
     fun `delete a global tag removes it from every model location`() {
-        val env = createEnv()
+        val env = ModelTestEnv()
         val cooking = CookingModelSetup(env)
         val crm = CrmModelSetup(env)
 
@@ -292,8 +280,8 @@ class ModelAndTag_Event_Test {
 
         // Only the removed tag disappears. Tags that were not part of the deletion stay attached.
         env.replayWithRebuild {
-            assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).tags)
-            assertEquals(listOf(publicVisibilityTag.id), env.queries.findModel(cooking.modelRef).findEntity(cooking.recipeRef).tags)
+            assertEquals(emptyList(), env.queries.findModelAggregate(cooking.modelRef).tags)
+            assertEquals(listOf(publicVisibilityTag.id), env.queries.findModelAggregate(cooking.modelRef).findEntity(cooking.recipeRef).tags)
             assertEquals(
                 emptyList(),
                 env.queries.findEntityAttribute(
@@ -302,24 +290,24 @@ class ModelAndTag_Event_Test {
                     cooking.recipeDescriptionRef
                 ).tags
             )
-            assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).findRelationship(cooking.usageRef).tags)
+            assertEquals(emptyList(), env.queries.findModelAggregate(cooking.modelRef).findRelationship(cooking.usageRef).tags)
             assertEquals(
                 emptyList(),
-                env.queries.findModel(cooking.modelRef)
+                env.queries.findModelAggregate(cooking.modelRef)
                     .findRelationshipAttributeOptional(cooking.usageRef, cooking.usageQuantityRef)!!
                     .tags
             )
 
-            assertEquals(emptyList(), env.queries.findModel(crm.modelRef).tags)
-            assertEquals(emptyList(), env.queries.findModel(crm.modelRef).findEntity(crm.personRef).tags)
+            assertEquals(emptyList(), env.queries.findModelAggregate(crm.modelRef).tags)
+            assertEquals(emptyList(), env.queries.findModelAggregate(crm.modelRef).findEntity(crm.personRef).tags)
         }
     }
 
     @Test
     fun `delete a global tag removes model-level tags after rebuild`() {
-        val env = createEnv()
-        val cookingRef = modelRef("cooking-rebuild")
-        val crmRef = modelRef("crm-rebuild")
+        val env = ModelTestEnv()
+        val cookingRef = ModelRef.modelRefKey("cooking-rebuild")
+        val crmRef = ModelRef.modelRefKey("crm-rebuild")
         env.dispatch(
             ModelAction.Model_Create(
                 key = ModelKey("cooking-rebuild"),
@@ -346,8 +334,8 @@ class ModelAndTag_Event_Test {
         env.dispatchTag(TagAction.TagGlobalDelete(personalDataTag.ref))
 
         env.replayWithRebuild {
-            assertEquals(listOf(publicVisibilityTag.id), env.queries.findModel(cookingRef).tags)
-            assertEquals(emptyList(), env.queries.findModel(crmRef).tags)
+            assertEquals(listOf(publicVisibilityTag.id), env.queries.findModelAggregate(cookingRef).tags)
+            assertEquals(emptyList(), env.queries.findModelAggregate(crmRef).tags)
         }
     }
 
@@ -359,7 +347,7 @@ class ModelAndTag_Event_Test {
      */
     @Test
     fun `delete a tag group removes its global tags from all model locations`() {
-        val env = createEnv()
+        val env = ModelTestEnv()
         val cooking = CookingModelSetup(env)
         val crm = CrmModelSetup(env)
 
@@ -402,24 +390,24 @@ class ModelAndTag_Event_Test {
         env.dispatchTag(TagAction.TagGroupDelete(TagGroupRef.ByKey(groupKey)))
 
         // The deleted group tags disappear everywhere, but the unrelated tag remains attached.
-        assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).tags)
-        assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).findEntity(cooking.recipeRef).tags)
+        assertEquals(emptyList(), env.queries.findModelAggregate(cooking.modelRef).tags)
+        assertEquals(emptyList(), env.queries.findModelAggregate(cooking.modelRef).findEntity(cooking.recipeRef).tags)
         assertEquals(
             emptyList(),
-            env.queries.findModel(cooking.modelRef).findEntityAttribute(
+            env.queries.findModelAggregate(cooking.modelRef).findEntityAttribute(
                 cooking.recipeRef,
                 cooking.recipeDescriptionRef
             ).tags
         )
         assertEquals(
             listOf(securityPublicTag.id),
-            env.queries.findModel(crm.modelRef)
+            env.queries.findModelAggregate(crm.modelRef)
                 .findRelationship(crm.employmentRef)
                 .tags
         )
         assertEquals(
             emptyList(),
-            env.queries.findModel(crm.modelRef)
+            env.queries.findModelAggregate(crm.modelRef)
                 .findRelationshipAttributeOptional(crm.employmentRef, crm.employmentSinceRef)!!
                 .tags
         )
@@ -434,7 +422,7 @@ class ModelAndTag_Event_Test {
      */
     @Test
     fun `delete a scoped tag removes it from every location in the model`() {
-        val env = createEnv()
+        val env = ModelTestEnv()
         val cooking = CookingModelSetup(env)
 
         val draftOnlyTag = env.createLocalTagInModelScope(cooking.modelRef, "draft-only")
@@ -479,19 +467,19 @@ class ModelAndTag_Event_Test {
         // Deleting the scoped tag must clean every attachment inside the model and keep the sibling tag alive.
         env.dispatchTag(TagAction.TagLocalDelete(draftOnlyTag.ref))
 
-        assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).tags)
-        assertEquals(listOf(reviewedTag.id), env.queries.findModel(cooking.modelRef).findEntity(cooking.recipeRef).tags)
+        assertEquals(emptyList(), env.queries.findModelAggregate(cooking.modelRef).tags)
+        assertEquals(listOf(reviewedTag.id), env.queries.findModelAggregate(cooking.modelRef).findEntity(cooking.recipeRef).tags)
         assertEquals(
             emptyList(),
-            env.queries.findModel(cooking.modelRef).findEntityAttribute(
+            env.queries.findModelAggregate(cooking.modelRef).findEntityAttribute(
                 cooking.recipeRef,
                 cooking.recipeDescriptionRef
             ).tags
         )
-        assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).findRelationship(cooking.usageRef).tags)
+        assertEquals(emptyList(), env.queries.findModelAggregate(cooking.modelRef).findRelationship(cooking.usageRef).tags)
         assertEquals(
             listOf(reviewedTag.id),
-            env.queries.findModel(cooking.modelRef)
+            env.queries.findModelAggregate(cooking.modelRef)
                 .findRelationshipAttributeOptional(cooking.usageRef, cooking.usageQuantityRef)!!
                 .tags
         )

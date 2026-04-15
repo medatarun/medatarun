@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.10.0]
+
+### Added
+
+- Entities can have composite primary keys.
+- Entities primary keys are no longer required, you can have entities without
+  primary keys to better reflect real models.
+- Entities can have business keys. A business key is composed of one or more
+  entity attributes, have name and description as well as its own identiier key.
+- Model JSON schema version 3.0.0 released for import/export
+
+### Changes
+
+- JDBC imports now create composite primary keys and don't fail with no primary
+  key exists
+- Frictionless-data now supports composite primary keys detection
+
+### Breaking changes
+
+- action `entity_create` doesn't support `identifierAttribute` properties
+  anymore. You must call `entity_attribute_create` after entity creation to add
+  the previous identifier attribute separaterly and call primary key actions to
+  set it as a primary key participant.
+- `inspect_models_json` action removed `identifierAttribute`, added
+  `businessKeys` in the model, `primaryKey` in each Entity.
+
 ## [0.9.0]
 
 ### Added

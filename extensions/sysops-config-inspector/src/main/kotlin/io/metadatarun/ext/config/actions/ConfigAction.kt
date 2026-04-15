@@ -68,5 +68,15 @@ sealed interface ConfigAction {
     )
     class InspectPermissions : ConfigAction
 
+    @ActionDoc(
+        key="inspect_type_system",
+        title = "Inspect type system",
+        description = "Returns all known types declared in application with their description.",
+        uiLocations = [ActionUILocation.global],
+        securityRule = SecurityRuleNames.PUBLIC,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
+    )
+    class InspectTypeSystem : ConfigAction
+
 }
 

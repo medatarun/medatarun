@@ -184,8 +184,7 @@ Naming and origin
 
 Primary keys
 
-- if no primary key exists on a database table, the first column becomes the entity’s identifier
-- if a composite primary key exists in the database table, only its first column becomes the entity's identifier
+- Primary keys detected on tables are imported as entity primary keys
 
 Foreign keys
 

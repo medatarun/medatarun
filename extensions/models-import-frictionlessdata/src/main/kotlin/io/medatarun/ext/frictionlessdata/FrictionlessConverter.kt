@@ -6,10 +6,13 @@ import io.medatarun.model.infra.AttributeInMemory
 import io.medatarun.model.infra.EntityInMemory
 import io.medatarun.model.infra.ModelAggregateInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
+import io.medatarun.model.infra.inmemory.EntityPrimaryKeyInMemory
 import io.medatarun.model.infra.inmemory.ModelInMemory
+import io.medatarun.model.infra.inmemory.PBKeyParticipantInMemory
 import io.medatarun.model.ports.needs.ModelImporterData
 import io.medatarun.platform.kernel.ResourceLocator
 import io.medatarun.tags.core.domain.TagId
+import io.medatarun.type.commons.id.Id
 import org.slf4j.LoggerFactory
 import java.net.URI
 
@@ -83,6 +86,7 @@ class FrictionlessConverter {
     ): ModelAggregateInMemory {
         val modelId = ModelId.generate()
         val attributesCollector = mutableListOf<AttributeInMemory>()
+        val primaryKeysCollector = mutableListOf<EntityPrimaryKeyInMemory>()
         val model = ModelAggregateInMemory(
             model = ModelInMemory(
                 id = modelId,
@@ -120,12 +124,15 @@ class FrictionlessConverter {
                         types = types
                     )
                     attributesCollector.addAll(entityAndAttributes.attributes)
+                    entityAndAttributes.primaryKey?.let { primaryKeysCollector.add(it) }
                     entityAndAttributes.entity
                 }
             },
             relationships = emptyList(),
             tags = tagImporter.importModelScopeTags(modelId, datapackage.keywords),
-            attributes = attributesCollector
+            attributes = attributesCollector,
+            entityPrimaryKeys = primaryKeysCollector,
+            businessKeys = emptyList()
         )
         return model
     }
@@ -168,13 +175,19 @@ class FrictionlessConverter {
             relationships = emptyList(),
             attributes = entityAndAttributes.attributes,
             tags = tagImporter.importModelScopeTags(modelId, datapackage.keywords),
+            entityPrimaryKeys = entityAndAttributes.primaryKey?.let { listOf(it) } ?: emptyList(),
+            businessKeys = emptyList()
         )
         return model
     }
 
     fun toURLSafe(str: String?) = runCatching { str?.let { URI(it).normalize().toURL() } }.getOrNull()
 
-    data class EntityAndAttributes(val entity: EntityInMemory, val attributes: List<AttributeInMemory>)
+    data class EntityAndAttributes(
+        val entity: EntityInMemory,
+        val attributes: List<AttributeInMemory>,
+        val primaryKey: EntityPrimaryKeyInMemory?
+    )
 
     private fun toEntity(
         uri: URI,
@@ -207,9 +220,6 @@ class FrictionlessConverter {
             )
         }
 
-        val identifierAttribute = attributes.firstOrNull { it.key.value == pk }
-        if (identifierAttribute == null) throw FrictionlessConverterEntityIdentifierNotFound(entityKey, pk)
-
         val entity = EntityInMemory(
             id = entityId,
             key = EntityKey(entityKey),
@@ -217,10 +227,24 @@ class FrictionlessConverter {
             description = entityDescription?.let(::LocalizedMarkdownNotLocalized),
             origin = EntityOrigin.Uri(uri),
             documentationHome = toURLSafe(documentationHome),
-            tags = tags,
-            identifierAttributeId = identifierAttribute.id
+            tags = tags
         )
-        return EntityAndAttributes(entity, attributes)
+
+        // Get ids from primary key for this entity
+        val pks = schema.primaryKey?.values ?: emptyList()
+        val pkAttributeIds = pks.mapNotNull { pkName ->
+            attributes.firstOrNull { it.key.value == pkName}?.id
+        }.mapIndexed { index, id ->
+            PBKeyParticipantInMemory(attributeId = id, position = index)
+        }
+        val primaryKey = if (pkAttributeIds.isNotEmpty()) EntityPrimaryKeyInMemory(
+            id = Id.generate(::EntityPrimaryKeyId),
+            entityId = entityId,
+            participants = pkAttributeIds
+        ) else null
+
+
+        return EntityAndAttributes(entity, attributes, primaryKey)
     }
 
     /**

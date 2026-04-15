@@ -1,27 +1,20 @@
 package io.medatarun.model.infra.db
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
-import io.medatarun.actions.adapters.ActionTraceabilityRecord
-import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.infra.db.tables.ModelEventTable
 import io.medatarun.model.infra.db.tables.ModelSnapshotTable
-import io.medatarun.model.internal.ModelCmdCopyImpl
-import io.medatarun.model.ports.exposed.ModelCmd
-import io.medatarun.model.ports.exposed.ModelCmdEnveloppe
-import io.medatarun.model.ports.exposed.ModelCmds
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-// TODO this is not correct, see val modelCmds = env.platform.services.getService(ModelCmds::class) in the last test shall not happen
+
 
 @EnableDatabaseTests
 class ModelEventLogTest {
@@ -39,7 +32,7 @@ class ModelEventLogTest {
             )
         )
 
-        val model = env.queries.findModel(ModelRef.ByKey(ModelKey("crm")))
+        val model = env.queries.findModelAggregate(ModelRef.ByKey(ModelKey("crm")))
 
         env.dispatch(
             ModelAction.Model_UpdateName(
@@ -48,21 +41,24 @@ class ModelEventLogTest {
             )
         )
 
-        val rows = env.storageDb.findAllModelEvents(model.id)
+        val rows = env.findAllModelEvents(model.id)
 
         assertEquals(3, rows.size)
-        assertEquals(1, rows[0].streamRevision)
-        assertEquals(2, rows[1].streamRevision)
-        assertEquals(3, rows[2].streamRevision)
+
+        assertEquals(1, rows[0].eventSequenceNumber)
         assertEquals("model_created", rows[0].eventType)
+        assertEquals(ModelTestEnv.testPrincipal.id, rows[0].traceabilityRecord.actorId)
+        assertNotNull(rows[0].traceabilityRecord.origin)
+
+        assertEquals(2, rows[1].eventSequenceNumber)
         assertEquals("model_release", rows[1].eventType)
+        assertEquals(ModelTestEnv.testPrincipal.id, rows[1].traceabilityRecord.actorId)
+        assertNotNull(rows[1].traceabilityRecord.origin)
+
+        assertEquals(3, rows[2].eventSequenceNumber)
         assertEquals("model_name_updated", rows[2].eventType)
-        assertEquals(ModelTestEnv.testPrincipal.id, rows[0].actorId)
-        assertEquals(ModelTestEnv.testPrincipal.id, rows[1].actorId)
-        assertEquals(ModelTestEnv.testPrincipal.id, rows[2].actorId)
-        assertNotNull(rows[0].traceabilityOrigin)
-        assertNotNull(rows[1].traceabilityOrigin)
-        assertNotNull(rows[2].traceabilityOrigin)
+        assertEquals(ModelTestEnv.testPrincipal.id, rows[2].traceabilityRecord.actorId)
+        assertNotNull(rows[2].traceabilityRecord.origin)
     }
 
     @Test
@@ -78,16 +74,17 @@ class ModelEventLogTest {
             )
         )
 
-        val model = env.queries.findModel(ModelRef.ByKey(ModelKey("crm")))
+        val model = env.queries.findModelRoot(ModelRef.ByKey(ModelKey("crm")))
 
+        val modelRefId = ModelRef.ById(model.id)
         env.dispatch(
             ModelAction.Model_Release(
-                modelRef = ModelRef.ById(model.id),
+                modelRef = modelRefId,
                 value = ModelVersion("2.0.0")
             )
         )
 
-        val rows = env.storageDb.findAllModelEvents(model.id)
+        val rows = env.findAllModelEvents(model.id)
 
         assertEquals(3, rows.size)
         assertEquals("model_release", rows[2].eventType)

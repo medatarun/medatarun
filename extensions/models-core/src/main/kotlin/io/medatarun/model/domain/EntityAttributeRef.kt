@@ -1,6 +1,7 @@
 package io.medatarun.model.domain
 
 import io.medatarun.type.commons.ref.Ref
+import java.util.UUID
 
 sealed interface EntityAttributeRef : Ref<EntityAttributeRef> {
 
@@ -15,5 +16,12 @@ sealed interface EntityAttributeRef : Ref<EntityAttributeRef> {
         val key: AttributeKey
     ) : EntityAttributeRef {
         override fun asString(): String = "key:" + key.value
+    }
+
+    companion object {
+        fun entityAttributeRefKey(value:String) = ByKey(AttributeKey(value))
+        fun entityAttributeRefKey(value: AttributeKey) = ByKey(value)
+        fun entityAttributeRefId(value: UUID) = ById(AttributeId(value))
+        fun entityAttributeRefId(value: AttributeId) = ById(value)
     }
 }

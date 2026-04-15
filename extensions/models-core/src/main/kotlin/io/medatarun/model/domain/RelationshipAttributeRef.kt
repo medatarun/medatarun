@@ -16,4 +16,9 @@ sealed interface RelationshipAttributeRef : Ref<RelationshipAttributeRef> {
     ) : RelationshipAttributeRef {
         override fun asString(): String = "key:" + key.value
     }
+
+    companion object {
+        fun relationshipAttributeRefKey(value:String) = ByKey(AttributeKey(value))
+        fun relationshipAttributeRefKey(value: AttributeKey) = ByKey(value)
+    }
 }

@@ -56,7 +56,6 @@ object EntityTable : Table("model_entity_snapshot") {
     val key = text("key").transform(KeyTransformer(::EntityKey))
     val name = text("name").transform(LocalizedTextTransformer()).nullable()
     val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
-    val identifierAttributeSnapshotId = javaUUID("identifier_attribute_snapshot_id").transform(IdTransformer(::AttributeSnapshotId))
     val origin = text("origin").transform(EntityOriginTransformer())
     val documentationHome = text("documentation_home").nullable()
 
@@ -79,6 +78,37 @@ object EntityAttributeTable : Table("model_entity_attribute_snapshot") {
     val optional = bool("optional")
 
     override val primaryKey = PrimaryKey(id)
+}
+
+object EntityPKTable : Table("model_entity_pk_snapshot") {
+    val id = javaUUID("id").transform(IdTransformer(::EntityPKSnapshotId))
+    val lineageId = javaUUID("lineage_id").transform(IdTransformer(::EntityPrimaryKeyId))
+    val entitySnapshotId = javaUUID("model_entity_snapshot_id").transform(IdTransformer(::EntitySnapshotId))
+
+    override val primaryKey = PrimaryKey(id)
+}
+
+object EntityPKAttributeTable : Table("model_entity_pk_attribute_snapshot") {
+    val entityPKSnapshotId = javaUUID("model_entity_pk_snapshot_id").transform(IdTransformer(::EntityPKSnapshotId))
+    val priority = integer("priority")
+    val attributeSnapshotId = javaUUID("model_entity_attribute_snapshot_id").transform(IdTransformer(::AttributeSnapshotId))
+}
+
+object BusinessKeyTable : Table("model_business_key_snapshot") {
+    val id = javaUUID("id").transform(IdTransformer(::BusinessKeySnapshotId))
+    val lineageId = javaUUID("lineage_id").transform(IdTransformer(::BusinessKeyId))
+    val entitySnapshotId = javaUUID("model_entity_snapshot_id").transform(IdTransformer(::EntitySnapshotId))
+    val key = text("key").transform(KeyTransformer(::BusinessKeyKey))
+    val name = text("name").transform(LocalizedTextTransformer()).nullable()
+    val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
+
+    override val primaryKey = PrimaryKey(id)
+}
+
+object BusinessKeyAttributeTable : Table("model_business_key_attribute_snapshot") {
+    val businessKeySnapshotId = javaUUID("model_business_key_snapshot_id").transform(IdTransformer(::BusinessKeySnapshotId))
+    val priority = integer("priority")
+    val attributeSnapshotId = javaUUID("model_entity_attribute_snapshot_id").transform(IdTransformer(::AttributeSnapshotId))
 }
 
 object EntityAttributeTagTable : Table("model_entity_attribute_tag_snapshot") {

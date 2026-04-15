@@ -14,8 +14,8 @@ class FrictionlessdataModelImporter : ModelImporter {
         return converter.isCompatible(path, resourceLocator)
     }
 
-    override fun toModel(path: String, resourceLocator: ResourceLocator, modelKey: ModelKey?, modelName: String?): ModelImporterData {
-        return converter.convert(path, resourceLocator, modelKey, modelName)
+    override fun toModel(path: String, resourceLocator: ResourceLocator, modelKeyChoosen: ModelKey?, modelNameChoosen: String?): ModelImporterData {
+        return converter.convert(path, resourceLocator, modelKeyChoosen, modelNameChoosen)
     }
 
 

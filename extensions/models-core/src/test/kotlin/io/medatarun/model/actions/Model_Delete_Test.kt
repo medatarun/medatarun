@@ -3,6 +3,7 @@ package io.medatarun.model.actions
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.ports.exposed.ModelQueries
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -14,7 +15,7 @@ class Model_Delete_Test {
 
     @Test
     fun `delete model fails if model Id not found in any storage`() {
-        val env = createEnv()
+        val env = ModelTestEnv()
         env.dispatch(
             ModelAction.Model_Create(
                 ModelKey("recipe"),
@@ -38,7 +39,7 @@ class Model_Delete_Test {
 
     @Test
     fun `delete model removes it from storage`() {
-        val env = createEnv()
+        val env = ModelTestEnv()
         val query: ModelQueries = env.queries
 
         env.dispatch(
@@ -74,46 +75,46 @@ class Model_Delete_Test {
             )
         )
 
-        val recipeUiSearchTag = env.createLocalTagInModelScope(modelRef("recipe"), "ui-search")
-        val vehicleImportedTag = env.createLocalTagInModelScope(modelRef("vehicle"), "imported")
-        val movieUiResultTag = env.createLocalTagInModelScope(modelRef("movie"), "ui-result")
-        val videogameImportedTag = env.createLocalTagInModelScope(modelRef("videogame"), "imported")
+        val recipeUiSearchTag = env.createLocalTagInModelScope(modelRefKey("recipe"), "ui-search")
+        val vehicleImportedTag = env.createLocalTagInModelScope(modelRefKey("vehicle"), "imported")
+        val movieUiResultTag = env.createLocalTagInModelScope(modelRefKey("movie"), "ui-result")
+        val videogameImportedTag = env.createLocalTagInModelScope(modelRefKey("videogame"), "imported")
         val globalSecurityInternalTag = env.createGlobalTag("security", "internal")
 
-        env.dispatch(ModelAction.Model_Delete(modelRef("recipe")))
-        assertNull(query.findModelOptional(modelRef("recipe")))
+        env.dispatch(ModelAction.Model_Delete(modelRefKey("recipe")))
+        assertNull(query.findModelAggregateOptional(modelRefKey("recipe")))
         assertNull(env.tagQueries.findTagByIdOptional(recipeUiSearchTag.id))
         assertNotNull(env.tagQueries.findTagByIdOptional(vehicleImportedTag.id))
         assertNotNull(env.tagQueries.findTagByIdOptional(movieUiResultTag.id))
         assertNotNull(env.tagQueries.findTagByIdOptional(videogameImportedTag.id))
         assertNotNull(env.tagQueries.findTagByIdOptional(globalSecurityInternalTag.id))
 
-        assertNotNull(query.findModelOptional(modelRef("movie")))
-        assertNotNull(query.findModelOptional(modelRef("vehicle")))
-        assertNotNull(query.findModelOptional(modelRef("videogame")))
+        assertNotNull(query.findModelAggregateOptional(modelRefKey("movie")))
+        assertNotNull(query.findModelAggregateOptional(modelRefKey("vehicle")))
+        assertNotNull(query.findModelAggregateOptional(modelRefKey("videogame")))
 
         env.dispatch(ModelAction.Model_Delete(modelRefKey("vehicle")))
-        assertNull(query.findModelOptional(modelRef("vehicle")))
+        assertNull(query.findModelAggregateOptional(modelRefKey("vehicle")))
         assertNull(env.tagQueries.findTagByIdOptional(recipeUiSearchTag.id))
         assertNull(env.tagQueries.findTagByIdOptional(vehicleImportedTag.id))
         assertNotNull(env.tagQueries.findTagByIdOptional(movieUiResultTag.id))
         assertNotNull(env.tagQueries.findTagByIdOptional(videogameImportedTag.id))
         assertNotNull(env.tagQueries.findTagByIdOptional(globalSecurityInternalTag.id))
-        assertNotNull(query.findModelOptional(modelRef("movie")))
-        assertNotNull(query.findModelOptional(modelRef("videogame")))
+        assertNotNull(query.findModelAggregateOptional(modelRefKey("movie")))
+        assertNotNull(query.findModelAggregateOptional(modelRefKey("videogame")))
 
-        env.dispatch(ModelAction.Model_Delete(modelRef("movie")))
-        assertNull(query.findModelOptional(modelRef("movie")))
+        env.dispatch(ModelAction.Model_Delete(modelRefKey("movie")))
+        assertNull(query.findModelAggregateOptional(modelRefKey("movie")))
         assertNull(env.tagQueries.findTagByIdOptional(recipeUiSearchTag.id))
         assertNull(env.tagQueries.findTagByIdOptional(vehicleImportedTag.id))
         assertNull(env.tagQueries.findTagByIdOptional(movieUiResultTag.id))
         assertNotNull(env.tagQueries.findTagByIdOptional(videogameImportedTag.id))
         assertNotNull(env.tagQueries.findTagByIdOptional(globalSecurityInternalTag.id))
-        assertNotNull(query.findModelOptional(modelRef("videogame")))
+        assertNotNull(query.findModelAggregateOptional(modelRefKey("videogame")))
 
         env.dispatch(ModelAction.Model_Delete(modelRefKey("videogame")))
         env.replayWithRebuild {
-            assertNull(query.findModelOptional(modelRef("videogame")))
+            assertNull(query.findModelAggregateOptional(modelRefKey("videogame")))
             assertNull(env.tagQueries.findTagByIdOptional(recipeUiSearchTag.id))
             assertNull(env.tagQueries.findTagByIdOptional(vehicleImportedTag.id))
             assertNull(env.tagQueries.findTagByIdOptional(movieUiResultTag.id))

@@ -13,7 +13,12 @@ data class ModelRecord(
     val version: ModelVersion,
     val origin: ModelOrigin,
     val authority: ModelAuthority,
-    val documentationHome: String?
+    val documentationHome: String?,
+    val snapshotKind: ModelSnapshotKind,
+    val upToRevision: Int,
+    val modelEventReleaseId: ModelEventId?,
+    val createdAt: java.time.Instant,
+    val updatedAt: java.time.Instant,
 ) {
     companion object {
         fun read(row: ResultRow): ModelRecord {
@@ -26,7 +31,12 @@ data class ModelRecord(
                 version = row[ModelSnapshotTable.version],
                 origin = row[ModelSnapshotTable.origin],
                 authority = row[ModelSnapshotTable.authority],
-                documentationHome = row[ModelSnapshotTable.documentationHome]
+                documentationHome = row[ModelSnapshotTable.documentationHome],
+                snapshotKind = row[ModelSnapshotTable.snapshotKind],
+                upToRevision = row[ModelSnapshotTable.upToRevision],
+                modelEventReleaseId = row[ModelSnapshotTable.modelEventReleaseId],
+                createdAt = row[ModelSnapshotTable.createdAt],
+                updatedAt = row[ModelSnapshotTable.updatedAt],
             )
         }
     }

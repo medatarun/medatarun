@@ -312,6 +312,7 @@ export function RelationshipView({
                 attributeId,
               )
             }
+            parentId={relationship.id}
             displayedSubject={displayedSubject}
             onClickAttribute={handleClickAttribute}
           />

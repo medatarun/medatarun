@@ -14,7 +14,7 @@ class Model_UpdateDocumentationHome_Test {
         val env = TestEnvOneModel()
         val url = URI("https://some.url/index.html").toURL()
         env.dispatch(ModelAction.Model_UpdateDocumentationHome(env.modelRef, url.toString()))
-        assertEquals(url, env.query.findModel(env.modelRef).documentationHome)
+        assertEquals(url, env.query.findModelAggregate(env.modelRef).documentationHome)
     }
 
     @Test
@@ -23,6 +23,6 @@ class Model_UpdateDocumentationHome_Test {
         val url = URI("https://some.url/index.html").toURL()
         env.dispatch(ModelAction.Model_UpdateDocumentationHome(env.modelRef, url.toString()))
         env.dispatch(ModelAction.Model_UpdateDocumentationHome(env.modelRef, null))
-        assertNull(env.query.findModel(env.modelRef).documentationHome)
+        assertNull(env.query.findModelAggregate(env.modelRef).documentationHome)
     }
 }

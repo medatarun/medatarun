@@ -118,7 +118,10 @@ sealed interface ModelCmd {
 
     data class CreateEntity(
         override val modelRef: ModelRef,
-        val entityInitializer: EntityInitializer
+        val entityKey: EntityKey,
+        val name: LocalizedText?,
+        val description: LocalizedMarkdown?,
+        val documentationHome: URL?
     ) : ModelCmdOnModel
 
     data class UpdateEntityKey(
@@ -139,10 +142,10 @@ sealed interface ModelCmd {
         val value: LocalizedMarkdown?
     ) : ModelCmdOnModel
 
-    data class UpdateEntityIdentifierAttribute(
+    data class UpdateEntityPrimaryKey(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val value: EntityAttributeRef
+        val attributeRefs: List<EntityAttributeRef>
     ) : ModelCmdOnModel
 
     data class UpdateEntityDocumentationHome(
@@ -381,6 +384,49 @@ sealed interface ModelCmd {
         val relationshipRef: RelationshipRef,
         val attributeRef: RelationshipAttributeRef,
     ) : ModelCmdOnModel
+
+    // -------------------------------------------------------------------------
+    // Business keys
+    // -------------------------------------------------------------------------
+
+    data class BusinessKeyCreate(
+        override val modelRef: ModelRef,
+        val entityRef: EntityRef,
+        val key: BusinessKeyKey,
+        val name: LocalizedText?,
+        val description: LocalizedMarkdown?,
+        val participants: List<EntityAttributeRef>
+    ) : ModelCmdOnModel
+
+    data class BusinessKeyUpdateKey(
+        override val modelRef: ModelRef,
+        val businessKeyRef: BusinessKeyRef,
+        val value: BusinessKeyKey
+    ) : ModelCmdOnModel
+
+    data class BusinessKeyUpdateName(
+        override val modelRef: ModelRef,
+        val businessKeyRef: BusinessKeyRef,
+        val value: LocalizedText?
+    ) : ModelCmdOnModel
+
+    data class BusinessKeyUpdateDescription(
+        override val modelRef: ModelRef,
+        val businessKeyRef: BusinessKeyRef,
+        val value: LocalizedMarkdown?
+    ) : ModelCmdOnModel
+
+    data class BusinessKeyUpdateParticipants(
+        override val modelRef: ModelRef,
+        val businessKeyRef: BusinessKeyRef,
+        val value: List<EntityAttributeRef>
+    ) : ModelCmdOnModel
+
+    data class BusinessKeyDelete(
+        override val modelRef: ModelRef,
+        val businessKeyRef: BusinessKeyRef,
+    ) : ModelCmdOnModel
+
 
 
 }

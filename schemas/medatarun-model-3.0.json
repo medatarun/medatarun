@@ -1,0 +1,410 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/medatarun/medatarun/main/schemas/medatarun-model-3.0.json",
+  "title": "Medatarun Model JSON",
+  "description": "JSON document produced and consumed by ModelJsonConverter (extensions/modeljson).",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Location of this schema definition.",
+      "const": "https://raw.githubusercontent.com/medatarun/medatarun/main/schemas/medatarun-model-3.0.json"
+    },
+    "id": {
+      "type": "string",
+      "description": "Unique model identifier."
+    },
+    "key": {
+      "type": "string",
+      "description": "Unique model key."
+    },
+    "version": {
+      "type": "string",
+      "description": "Model version identifier."
+    },
+    "name": {
+      "$ref": "#/$defs/stringOrNull"
+    },
+    "description": {
+      "$ref": "#/$defs/stringOrNull"
+    },
+    "origin": {
+      "description": "URI to the source of the model. Omit or set null when the model is defined manually.",
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri"
+    },
+    "authority": {
+      "description": "Authority level of the model.",
+      "type": "string",
+      "enum": [
+        "system",
+        "canonical"
+      ],
+      "default": "system"
+    },
+    "types": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/modelType"
+      },
+      "description": "Available attribute types."
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/entity"
+      },
+      "description": "Entities defined in the model."
+    },
+    "businessKeys": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/businessKey"
+      },
+      "description": "Business keys defined in the model.",
+      "default": []
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/relationship"
+      },
+      "description": "Relationships between entities.",
+      "default": []
+    },
+    "documentationHome": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri",
+      "description": "Optional URL to the model documentation."
+    },
+    "tags": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Tag references associated with the model.",
+      "default": []
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "types",
+    "entities",
+    "businessKeys"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "stringOrNull": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "objectReference": {
+      "type": "string",
+      "description": "Reference to an object by id:<uuid> or key:<string>.",
+      "anyOf": [
+        {
+          "pattern": "^id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        },
+        {
+          "pattern": "^key:.+$"
+        }
+      ]
+    },
+    "typeReference": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/objectReference"
+        }
+      ],
+      "description": "Reference to a model type by id:<uuid> or key:<typeKey>."
+    },
+    "entityReference": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/objectReference"
+        }
+      ],
+      "description": "Reference to an entity by id:<uuid> or key:<entityKey>."
+    },
+    "attributeReference": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/objectReference"
+        }
+      ],
+      "description": "Reference to an attribute by id:<uuid> or key:<attributeKey>."
+    },
+    "modelType": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "description": "Unique type key."
+        },
+        "name": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "description": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "attribute": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "description": "Unique attribute key."
+        },
+        "name": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "description": {
+          "$ref": "#/$defs/stringOrNull",
+          "description": "Optional human-readable description of the attribute."
+        },
+        "type": {
+          "$ref": "#/$defs/typeReference",
+          "description": "Reference to the attribute type by id:<uuid> or key:<typeKey>."
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false
+        },
+        "tags": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "entity": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "description": "Unique entity key."
+        },
+        "name": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "description": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "primaryKey": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "ordered list of attribute ids that participate in the primary key of this entity"
+        },
+        "origin": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attribute"
+          }
+        },
+        "documentationHome": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "tags": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "id",
+        "primaryKey",
+        "attributes"
+      ],
+      "additionalProperties": false
+    },
+    "businessKey": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identifier of the business key"
+        },
+        "key": {
+          "type": "string",
+          "description": "Unique key of the business key in the scope of the model"
+        },
+        "entity": {
+          "$ref": "#/$defs/entityReference",
+          "description": "Entity targeted by the business key."
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional display name of the business key"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional description name of the business key"
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attributeReference"
+          },
+          "description": "Ordered list of attribute references that participate in the business key."
+        }
+      },
+      "required": [
+        "id",
+        "key",
+        "entity",
+        "participants"
+      ],
+      "additionalProperties": false
+    },
+    "relationshipRole": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "description": "Unique relationship role key."
+        },
+        "entity": {
+          "$ref": "#/$defs/entityReference"
+        },
+        "name": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "cardinality": {
+          "type": "string",
+          "enum": [
+            "zeroOrOne",
+            "many",
+            "one"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "entity",
+        "cardinality"
+      ],
+      "additionalProperties": false
+    },
+    "relationship": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "description": "Unique relationship key."
+        },
+        "name": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "description": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relationshipRole"
+          }
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attribute"
+          }
+        },
+        "tags": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "id",
+        "roles",
+        "attributes"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

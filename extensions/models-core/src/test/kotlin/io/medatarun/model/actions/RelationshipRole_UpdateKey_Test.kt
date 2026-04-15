@@ -14,7 +14,7 @@ class RelationshipRole_UpdateKey_Test {
     fun `update relationship role key persisted`() {
         val env = TestEnvRelationshipRole()
         val newRoleKey = RelationshipRoleKey("buyer-updated")
-        val updatedRoleId = env.query.findModel(env.modelRef).findRelationship(env.relationshipRef).roles
+        val updatedRoleId = env.query.findModelAggregate(env.modelRef).findRelationship(env.relationshipRef).roles
             .first { role -> role.key == env.roleAKey }
             .id
         env.dispatch(
@@ -26,7 +26,7 @@ class RelationshipRole_UpdateKey_Test {
             )
         )
 
-        val reloaded = env.query.findModel(env.modelRef).findRelationship(env.relationshipRef).roles
+        val reloaded = env.query.findModelAggregate(env.modelRef).findRelationship(env.relationshipRef).roles
         assertEquals(newRoleKey, reloaded.first { role -> role.id == updatedRoleId }.key)
     }
 

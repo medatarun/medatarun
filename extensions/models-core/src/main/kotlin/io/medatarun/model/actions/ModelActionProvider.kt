@@ -8,7 +8,6 @@ import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.ResourceLocator
 import io.medatarun.security.AppActorResolver
 import io.medatarun.tags.core.domain.TagQueries
-import org.slf4j.LoggerFactory
 import java.util.*
 
 class ModelActionProvider(
@@ -79,6 +78,7 @@ class ModelActionProvider(
             // ------------------------------------------------------------------------
 
             is ModelAction.Entity_Create -> handler.entityCreate(action)
+            is ModelAction.Entity_Create -> handler.entityCreate(action)
             is ModelAction.Entity_UpdateKey -> handler.entityUpdateKey(action)
             is ModelAction.Entity_UpdateName -> handler.entityUpdateName(action)
             is ModelAction.Entity_UpdateDescription -> handler.entityUpdateDescription(action)
@@ -123,13 +123,28 @@ class ModelActionProvider(
             is ModelAction.RelationshipAttribute_UpdateType -> handler.relationshipAttributeUpdateType(action)
             is ModelAction.RelationshipAttribute_UpdateOptional -> handler.relationshipAttributeUpdateOptional(action)
             is ModelAction.RelationshipAttribute_UpdateName -> handler.relationshipAttributeUpdateName(action)
-            is ModelAction.RelationshipAttribute_UpdateDescription -> handler.relationshipAttributeUpdateDescription(
-                action
-            )
+            is ModelAction.RelationshipAttribute_UpdateDescription -> handler.relationshipAttributeUpdateDescription(action)
 
             is ModelAction.RelationshipAttribute_AddTag -> handler.relationshipAttributeAddTag(action)
             is ModelAction.RelationshipAttribute_DeleteTag -> handler.relationshipAttributeDeleteTag(action)
             is ModelAction.RelationshipAttribute_Delete -> handler.relationshipAttributeDelete(action)
+
+            // ------------------------------------------------------------------------
+            // Primary keys
+            // ------------------------------------------------------------------------
+
+            is ModelAction.EntityPrimaryKey_Update -> handler.entityPrimaryKeyUpdate(action)
+            
+            // ------------------------------------------------------------------------
+            // Business keys
+            // ------------------------------------------------------------------------
+
+            is ModelAction.BusinessKey_Create -> handler.businessKeyCreate(action)
+            is ModelAction.BusinessKey_Update_Key -> handler.businessKeyUpdateKey(action)
+            is ModelAction.BusinessKey_Update_Name -> handler.businessKeyUpdateName(action)
+            is ModelAction.BusinessKey_Update_Description -> handler.businessKeyUpdateDescription(action)
+            is ModelAction.BusinessKey_Update_Participants -> handler.businessKeyUpdateParticipants(action)
+            is ModelAction.BusinessKey_Delete -> handler.businessKeyDelete(action)
 
             // History
 
@@ -148,6 +163,3 @@ class ModelActionProvider(
         const val ACTION_GROUP_KEY = "model"
     }
 }
-
-
-

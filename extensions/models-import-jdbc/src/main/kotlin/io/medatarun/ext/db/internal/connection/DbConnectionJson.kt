@@ -3,7 +3,7 @@ package io.medatarun.ext.db.internal.connection
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DbConnectionJson (
+internal data class DbConnectionJson (
     val name: String,
     val driver: String,
     val url: String,

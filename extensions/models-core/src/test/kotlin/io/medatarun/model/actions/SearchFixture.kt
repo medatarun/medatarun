@@ -2,6 +2,7 @@ package io.medatarun.model.actions
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
 import io.medatarun.tags.core.actions.TagAction
@@ -292,7 +293,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
     }
 
     class Builder {
-        private val fixture = SearchFixture(createEnv())
+        private val fixture = SearchFixture(ModelTestEnv())
 
         fun addGlobalTags(): Builder {
             createTagGroup(
@@ -361,7 +362,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         }
 
         fun declareCrmTags(): Builder {
-            val modelId = fixture.env.queries.findModel(refs.crm.ref).id
+            val modelId = fixture.env.queries.findModelAggregate(refs.crm.ref).id
             createLocalTag(
                 modelId = modelId,
                 key = refs.tags.local.crm.ui_result.key,
@@ -378,7 +379,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         }
 
         fun declareCookingTags(): Builder {
-            val modelId = fixture.env.queries.findModel(refs.cooking.ref).id
+            val modelId = fixture.env.queries.findModelAggregate(refs.cooking.ref).id
             createLocalTag(
                 modelId = modelId,
                 key = refs.tags.local.cooking.imported.key,
@@ -389,7 +390,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         }
 
         fun tagWithCrmTags(): Builder {
-            val modelId = fixture.env.queries.findModel(refs.crm.ref).id
+            val modelId = fixture.env.queries.findModelAggregate(refs.crm.ref).id
             val uiResult = refs.tags.local.crm.ui_result.ref(modelId)
             val uiSearch = refs.tags.local.crm.ui_search.ref(modelId)
             val gdprPersonalData = refs.tags.global.gdpr.personal_data.ref
@@ -422,7 +423,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         }
 
         fun tagWithCookingTags(): Builder {
-            val modelId = fixture.env.queries.findModel(refs.cooking.ref).id
+            val modelId = fixture.env.queries.findModelAggregate(refs.cooking.ref).id
             val imported = refs.tags.local.cooking.imported.ref(modelId)
             val gdprSpecialCategoryData = refs.tags.global.gdpr.special_category_data.ref
             val securityPublic = refs.tags.global.security.public.ref
@@ -516,9 +517,6 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 entityKey = refs.crm.person.key,
                 name = null,
                 description = null,
-                identityAttributeKey = refs.crm.person.attr.id.key,
-                identityAttributeType = typeRef("String"),
-                identityAttributeName = null,
                 documentationHome = null
             )
         )
@@ -526,8 +524,19 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
             ModelAction.EntityAttribute_Create(
                 modelRef = refs.crm.ref,
                 entityRef = refs.crm.person.ref,
+                attributeKey = refs.crm.person.attr.id.key,
+                type = TypeRef.typeRefKey(TypeKey("String")),
+                optional = false,
+                name = null,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = refs.crm.ref,
+                entityRef = refs.crm.person.ref,
                 attributeKey = refs.crm.person.attr.name.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -538,7 +547,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 modelRef = refs.crm.ref,
                 entityRef = refs.crm.person.ref,
                 attributeKey = refs.crm.person.attr.email.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -549,7 +558,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 modelRef = refs.crm.ref,
                 entityRef = refs.crm.person.ref,
                 attributeKey = refs.crm.person.attr.password.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -562,9 +571,6 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 entityKey = refs.crm.company.key,
                 name = null,
                 description = null,
-                identityAttributeKey = refs.crm.company.attr.id.key,
-                identityAttributeType = typeRef("String"),
-                identityAttributeName = null,
                 documentationHome = null
             )
         )
@@ -572,8 +578,19 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
             ModelAction.EntityAttribute_Create(
                 modelRef = refs.crm.ref,
                 entityRef = refs.crm.company.ref,
+                attributeKey = refs.crm.company.attr.id.key,
+                type = TypeRef.typeRefKey(TypeKey("String")),
+                optional = false,
+                name = null,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = refs.crm.ref,
+                entityRef = refs.crm.company.ref,
                 attributeKey = refs.crm.company.attr.name.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -584,7 +601,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 modelRef = refs.crm.ref,
                 entityRef = refs.crm.company.ref,
                 attributeKey = refs.crm.company.attr.website.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -612,7 +629,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 modelRef = refs.crm.ref,
                 relationshipRef = refs.crm.employment.ref,
                 attributeKey = refs.crm.employment.attr.since.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -637,9 +654,6 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 entityKey = refs.cooking.ingredient.key,
                 name = null,
                 description = null,
-                identityAttributeKey = refs.cooking.ingredient.attr.id.key,
-                identityAttributeType = typeRef("String"),
-                identityAttributeName = null,
                 documentationHome = null
             )
         )
@@ -647,8 +661,19 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
             ModelAction.EntityAttribute_Create(
                 modelRef = refs.cooking.ref,
                 entityRef = refs.cooking.ingredient.ref,
+                attributeKey = refs.cooking.ingredient.attr.id.key,
+                type = TypeRef.typeRefKey(TypeKey("String")),
+                optional = false,
+                name = null,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = refs.cooking.ref,
+                entityRef = refs.cooking.ingredient.ref,
                 attributeKey = refs.cooking.ingredient.attr.name.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -659,7 +684,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 modelRef = refs.cooking.ref,
                 entityRef = refs.cooking.ingredient.ref,
                 attributeKey = refs.cooking.ingredient.attr.code.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -672,9 +697,6 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 entityKey = refs.cooking.recipe.key,
                 name = null,
                 description = null,
-                identityAttributeKey = refs.cooking.recipe.attr.id.key,
-                identityAttributeType = typeRef("String"),
-                identityAttributeName = null,
                 documentationHome = null
             )
         )
@@ -682,8 +704,19 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
             ModelAction.EntityAttribute_Create(
                 modelRef = refs.cooking.ref,
                 entityRef = refs.cooking.recipe.ref,
+                attributeKey = refs.cooking.recipe.attr.id.key,
+                type = TypeRef.typeRefKey(TypeKey("String")),
+                optional = false,
+                name = null,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = refs.cooking.ref,
+                entityRef = refs.cooking.recipe.ref,
                 attributeKey = refs.cooking.recipe.attr.name.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -694,7 +727,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 modelRef = refs.cooking.ref,
                 entityRef = refs.cooking.recipe.ref,
                 attributeKey = refs.cooking.recipe.attr.description.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -707,9 +740,6 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 entityKey = refs.cooking.chef.key,
                 name = null,
                 description = null,
-                identityAttributeKey = refs.cooking.chef.attr.id.key,
-                identityAttributeType = typeRef("String"),
-                identityAttributeName = null,
                 documentationHome = null
             )
         )
@@ -717,8 +747,19 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
             ModelAction.EntityAttribute_Create(
                 modelRef = refs.cooking.ref,
                 entityRef = refs.cooking.chef.ref,
+                attributeKey = refs.cooking.chef.attr.id.key,
+                type = TypeRef.typeRefKey(TypeKey("String")),
+                optional = false,
+                name = null,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = refs.cooking.ref,
+                entityRef = refs.cooking.chef.ref,
                 attributeKey = refs.cooking.chef.attr.name.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -729,7 +770,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 modelRef = refs.cooking.ref,
                 entityRef = refs.cooking.chef.ref,
                 attributeKey = refs.cooking.chef.attr.email.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -740,7 +781,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 modelRef = refs.cooking.ref,
                 entityRef = refs.cooking.chef.ref,
                 attributeKey = refs.cooking.chef.attr.fingerprint.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -768,7 +809,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 modelRef = refs.cooking.ref,
                 relationshipRef = refs.cooking.usage.ref,
                 attributeKey = refs.cooking.usage.attr.quantity.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -779,7 +820,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 modelRef = refs.cooking.ref,
                 relationshipRef = refs.cooking.usage.ref,
                 attributeKey = refs.cooking.usage.attr.unit.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -807,11 +848,12 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 modelRef = refs.cooking.ref,
                 relationshipRef = refs.cooking.author.ref,
                 attributeKey = refs.cooking.author.attr.date.key,
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
             )
         )
     }
+
 }

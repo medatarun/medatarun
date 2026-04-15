@@ -201,6 +201,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
             )
           }
           displayedSubject={displayedSubject}
+          parentId={entity.id}
           onClickAttribute={handleClickAttribute}
         />
       </SectionTable>

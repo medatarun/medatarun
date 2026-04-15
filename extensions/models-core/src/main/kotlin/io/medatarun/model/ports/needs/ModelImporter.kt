@@ -5,6 +5,6 @@ import io.medatarun.platform.kernel.ResourceLocator
 
 interface ModelImporter {
     fun accept(path: String, resourceLocator: ResourceLocator): Boolean
-    fun toModel(path: String, resourceLocator: ResourceLocator, modelKey: ModelKey?, modelName: String?): ModelImporterData
+    fun toModel(path: String, resourceLocator: ResourceLocator, modelKeyChoosen: ModelKey?, modelNameChoosen: String?): ModelImporterData
 
 }

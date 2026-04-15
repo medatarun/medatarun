@@ -1,8 +1,12 @@
 package io.medatarun.ext.frictionlessdata
 
+import io.medatarun.model.domain.EntityAttributeRef.Companion.entityAttributeRefKey
+import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
 import io.medatarun.platform.kernel.ResourceLocator
 import org.junit.jupiter.api.Test
 import java.net.URI
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class TableSchemaTest {
 
@@ -70,8 +74,8 @@ class TableSchemaTest {
     fun test() {
         val resource = "/budget.json"
         val rl = TestResourceLocatorURL(URI("classpath:$resource"))
-        conv.convert(resource, rl, null, null)
-        // println(ModelHumanPrinterEmoji().print(model))
+        val imported = conv.convert(resource, rl, null, null)
+        // println(model)
         // TODO("Complete tests on tableSchema")
     }
 
@@ -79,8 +83,8 @@ class TableSchemaTest {
     fun testDataPackage() {
         val resource = URI("https://raw.githubusercontent.com/cnigfr/schema-paysage/refs/heads/main/datapackage.json")
         val locator = TestResourceLocatorURL(resource)
-        conv.convert(resource.toString(), locator, null, null)
-        // println(ModelHumanPrinterEmoji().print(model))
+        val imported = conv.convert(resource.toString(), locator, null, null)
+        // println(model)
         // TODO("Complete tests on DataPackage")
     }
 
@@ -89,8 +93,23 @@ class TableSchemaTest {
         val resource =
             URI("https://raw.githubusercontent.com/betagouv/schema-projet-collectivites-transition-ecologique/refs/heads/main/datapackage.json")
         val locator = TestResourceLocatorURL(resource)
-        conv.convert(resource.toString(), locator, null, null)
-        // println(ModelHumanPrinterEmoji().print(model))
+        val imported = conv.convert(resource.toString(), locator, null, null)
+
+        fun checkPK(entityKey: String, attributeKey: String) {
+            val projetsTerritoireRef = entityRefKey(entityKey)
+            val projetsTerritoireIdRef = entityAttributeRefKey(attributeKey)
+            val projetsTerritoire = imported.model.findEntity(projetsTerritoireRef)
+            val projetsTerritoireId = imported.model.findEntityAttribute(projetsTerritoire.ref, projetsTerritoireIdRef)
+            val projetsTerritoirePKFound = imported.model.entityPrimaryKeys.firstOrNull() { it.entityId == projetsTerritoire.id }
+            assertNotNull(projetsTerritoirePKFound)
+            assertTrue(projetsTerritoirePKFound.participants.any { p -> p.attributeId == projetsTerritoireId.id})
+
+        }
+
+        checkPK("projets-territoire", "id")
+        checkPK("referentiel-leviers-sgpe", "levier")
+        checkPK("referentiel-competences-m57", "code")
+
         // TODO("Complete tests on DataPackage")
     }
 }

@@ -10,7 +10,7 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
         val root = buildJsonObject {
             put("models", buildJsonArray {
                 modelQueries.findAllModelIds().forEach { modelId ->
-                    val model = modelQueries.findModelById(modelId)
+                    val model = modelQueries.findModelAggregateById(modelId)
                     add(buildJsonObject {
                         put("id", model.key.value)
                         put("version", model.version.value)
@@ -28,16 +28,18 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                         })
                         put("entities", buildJsonArray {
                             model.entities.forEach { entity ->
-                                val identifierAttribute = model.findEntityAttribute(
-                                    EntityRef.ById(entity.id),
-                                    EntityAttributeRef.ById(entity.identifierAttributeId)
-                                )
+                                val pkList: List<String> = model.findEntityPrimaryKeyOptional(entity.id)
+                                    ?.participants
+                                    ?.map { it.attributeId.asString() }
+                                    ?: emptyList()
                                 add(buildJsonObject {
                                     put("id", entity.key.value)
                                     put("name", localizedTextToJson(entity.name))
                                     put("description", localizedTextToJson(entity.description))
-                                    put("identifierAttribute", identifierAttribute.key.value)
                                     put("attributes", toAttributesJson(model, entity.ref))
+                                    putJsonArray("primaryKey") {
+                                        for (p in pkList) add(p)
+                                    }
                                 })
                             }
                         })
@@ -58,6 +60,22 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                                             }
                                         }
                                     }
+                                }
+                            }
+                        })
+                        put("businessKeys", buildJsonArray {
+                            for (bk in model.businessKeys) {
+                                addJsonObject {
+                                    put("id", bk.id.asString())
+                                    put("entityId", bk.entityId.asString())
+                                    put("key", bk.key.asString())
+                                    put("name", localizedTextToJson(bk.name))
+                                    put("description", localizedTextToJson(bk.description))
+                                    putJsonArray("participants", {
+                                        for (p in bk.participants.sortedBy { it.position }) {
+                                            add(p.attributeId.asString())
+                                        }
+                                    })
                                 }
                             }
                         })

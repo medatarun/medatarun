@@ -61,6 +61,7 @@ internal class ActionSemanticsResolver(val vocabulary: SemanticsVocabulary) {
             return SemanticsVocabulary(
                 knownSubjects = listOf(
                     "actor",
+                    "business_key",
                     "tag",
                     "tag_local",
                     "tag_global",

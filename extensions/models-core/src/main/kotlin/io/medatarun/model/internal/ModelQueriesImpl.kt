@@ -18,6 +18,7 @@ class ModelQueriesImpl(
 ) : ModelQueries {
     private val diffRunner = ModelDiffRunner()
 
+
     override fun findAllModelIds(): List<ModelId> {
         return storage.findAllModelIds()
     }
@@ -27,7 +28,7 @@ class ModelQueriesImpl(
         val modelIds = storage.findAllModelIds()
         return modelIds.map { id ->
             try {
-                val model = findModelById(id)
+                val model = findModelAggregateById(id)
                 ModelSummary(
                     id = model.id,
                     key = model.key,
@@ -62,8 +63,15 @@ class ModelQueriesImpl(
         modelRef: ModelRef,
         entityRef: EntityRef
     ): Entity {
-        val model = findModel(modelRef)
-        return model.findEntityOptional(entityRef) ?: throw EntityNotFoundException(modelRef, entityRef)
+        return findEntityOptional(modelRef, entityRef) ?: throw EntityNotFoundException(modelRef, entityRef)
+    }
+
+    override fun findEntityOptional(
+        modelRef: ModelRef,
+        entityRef: EntityRef
+    ): Entity? {
+        val model = storage.findModel(modelRef)
+        return storage.findEntityOptional(model.id, entityRef)
     }
 
     override fun findEntityAttributeOptional(
@@ -71,8 +79,31 @@ class ModelQueriesImpl(
         entityRef: EntityRef,
         attributeRef: EntityAttributeRef
     ): Attribute? {
-        val model = findModel(modelRef)
+        val model = findModelAggregate(modelRef)
         return model.findEntityAttributeOptional(entityRef, attributeRef)
+    }
+
+    override fun findRelationship(modelRef: ModelRef, relationshipRef: RelationshipRef): Relationship {
+        val model = storage.findModel(modelRef)
+        return storage.findRelationship(model.id, relationshipRef)
+    }
+
+    override fun findRelationshipOptional(modelRef: ModelRef, relationshipRef: RelationshipRef): Relationship? {
+        val model = storage.findModel(modelRef)
+        return storage.findRelationshipOptional(model.id, relationshipRef)
+    }
+
+    override fun findRelationshipAttribute(modelRef: ModelRef, relationshipRef: RelationshipRef, attributeRef: RelationshipAttributeRef): Attribute {
+        val model = storage.findModel(modelRef)
+        val relationship = storage.findRelationship(model.id, relationshipRef)
+        return storage.findRelationshipAttribute(model.id, relationship.id, attributeRef)
+    }
+
+    override fun findRelationshipAttributeOptional(modelRef: ModelRef, relationshipRef: RelationshipRef, attributeRef: RelationshipAttributeRef): Attribute? {
+        val model = storage.findModel(modelRef)
+        val relationship = storage.findRelationship(model.id, relationshipRef)
+        return storage.findRelationshipAttributeOptional(model.id, relationship.id, attributeRef)
+
     }
 
     override fun findEntityAttribute(
@@ -84,11 +115,53 @@ class ModelQueriesImpl(
             ?: throw EntityAttributeNotFoundException(modelRef, entityRef, attributeRef)
     }
 
-    override fun findType(
+    override fun findEntityPrimaryKeyOptional(
         modelRef: ModelRef,
-        typeRef: TypeRef
-    ): ModelType {
-        return findModel(modelRef).findTypeOptional(typeRef) ?: throw TypeNotFoundException(modelRef, typeRef)
+        entityRef: EntityRef
+    ): EntityPrimaryKey? {
+        val model = storage.findModel(modelRef)
+        val entity = storage.findEntity(model.id, entityRef)
+        return storage.findEntityPrimaryKeyOptional(model.id, entity.id)
+    }
+
+    override fun findBusinessKeyOptional(
+        modelRef: ModelRef,
+        businessKeyRef: BusinessKeyRef
+    ): BusinessKey? {
+        val model = storage.findModelOptional(modelRef) ?: return null
+        return storage.findBusinessKeyOptional(model.id, businessKeyRef)
+    }
+
+    override fun findBusinessKey(
+        modelRef: ModelRef,
+        businessKeyRef: BusinessKeyRef
+    ): BusinessKey {
+        return findBusinessKeyOptional(modelRef, businessKeyRef)
+            ?: throw BusinessKeyNotFoundException(modelRef, businessKeyRef)
+    }
+
+    override fun findBusinessKeys(modelRef: ModelRef): List<BusinessKey> {
+        val model = storage.findModel(modelRef)
+        return storage.findBusinessKeys(model.id)
+    }
+
+    override fun findModelTags(modelRef: ModelRef): List<TagId> {
+        val modelId = storage.findModel(modelRef).id
+        return storage.findModelTags(modelId)
+    }
+
+    override fun findTypeOptional(modelRef: ModelRef, typeRef: TypeRef): ModelType? {
+        val modelId = storage.findModelOptional(modelRef)?.id ?: return null
+        return storage.findTypeOptional(modelId, typeRef)
+    }
+
+    override fun findType(modelRef: ModelRef, typeRef: TypeRef): ModelType {
+        return findTypeOptional(modelRef, typeRef) ?: throw TypeNotFoundException(modelRef, typeRef)
+    }
+
+    override fun findTypes(modelRef: ModelRef): List<ModelType> {
+        val model = storage.findModel(modelRef)
+        return storage.findTypes(model.id)
     }
 
     override fun diff(
@@ -99,36 +172,48 @@ class ModelQueriesImpl(
         scope: ModelDiffScope
     ): ModelDiff {
         val leftModel = if (leftModelVersion == null) {
-            findModel(leftModelRef)
+            findModelAggregate(leftModelRef)
         } else {
-            findModelAtVersion(leftModelRef, leftModelVersion)
+            findModelAggregateAtVersion(leftModelRef, leftModelVersion)
         }
         val rightModel = if (rightModelVersion == null) {
-            findModel(rightModelRef)
+            findModelAggregate(rightModelRef)
         } else {
-            findModelAtVersion(rightModelRef, rightModelVersion)
+            findModelAggregateAtVersion(rightModelRef, rightModelVersion)
         }
         return diffRunner.diff(leftModel, rightModel, scope)
     }
 
-    override fun findModelByKey(modelKey: ModelKey): ModelAggregate {
+    override fun findModelAggregateByKey(modelKey: ModelKey): ModelAggregate {
         return storage.findModelAggregateByKeyOptional(modelKey)
             ?: throw ModelNotFoundByKeyException(modelKey)
     }
 
-    override fun findModelById(modelId: ModelId): ModelAggregate {
+    override fun findModelAggregateById(modelId: ModelId): ModelAggregate {
         return storage.findModelAggregateByIdOptional(modelId)
             ?: throw ModelNotFoundByIdException(modelId)
     }
 
-    override fun findModel(modelRef: ModelRef): ModelAggregate {
+    override fun findModelAggregate(modelRef: ModelRef): ModelAggregate {
         return when (modelRef) {
-            is ModelRef.ById -> findModelById(modelRef.id)
-            is ModelRef.ByKey -> findModelByKey(modelRef.key)
+            is ModelRef.ById -> findModelAggregateById(modelRef.id)
+            is ModelRef.ByKey -> findModelAggregateByKey(modelRef.key)
         }
     }
 
-    override fun findModelAtVersion(modelRef: ModelRef, modelVersion: ModelVersion): ModelAggregate {
+    override fun findModelRoot(modelRef: ModelRef): Model {
+        return storage.findModel(modelRef)
+    }
+
+    override fun findModelRootOptional(modelRef: ModelRef): Model? {
+        return storage.findModelOptional(modelRef)
+    }
+
+    override fun existsModel(modelRef: ModelRef): Boolean {
+        return storage.existsModel(modelRef)
+    }
+
+    override fun findModelAggregateAtVersion(modelRef: ModelRef, modelVersion: ModelVersion): ModelAggregate {
         val model = storage.findModel(modelRef)
         return storage.findModelAggregateVersion(model.id, modelVersion)
     }
@@ -155,7 +240,7 @@ class ModelQueriesImpl(
         return storage.findModelChangeEventsSinceLastReleaseEvent(model.id)
     }
 
-    override fun findModelOptional(modelRef: ModelRef): ModelAggregate? {
+    override fun findModelAggregateOptional(modelRef: ModelRef): ModelAggregate? {
         return when (modelRef) {
             is ModelRef.ById -> storage.findModelAggregateByIdOptional(modelRef.id)
             is ModelRef.ByKey -> storage.findModelAggregateByKeyOptional(modelRef.key)
@@ -227,5 +312,7 @@ class ModelQueriesImpl(
         )
         return storage.search(storageQuery)
     }
+
+
 
 }

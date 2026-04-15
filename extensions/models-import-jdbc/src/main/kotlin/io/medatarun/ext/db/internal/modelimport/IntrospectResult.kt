@@ -1,6 +1,6 @@
 package io.medatarun.ext.db.internal.modelimport
 
-class IntrospectResult(
+internal class IntrospectResult(
     val tables: List<IntrospectTable>,
 
     ) {

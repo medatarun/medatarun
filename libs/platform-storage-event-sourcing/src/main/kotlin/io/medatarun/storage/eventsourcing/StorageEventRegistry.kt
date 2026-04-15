@@ -54,6 +54,10 @@ class StorageEventRegistry<T : StorageCmd>(
         return entry as StorageEventDescriptor<T>
     }
 
+    fun findAllDescriptor(): Collection<StorageEventDescriptor<out T>> {
+        return entriesByContract.values
+    }
+
     private data class ContractKey(
         val eventType: String,
         val eventVersion: Int

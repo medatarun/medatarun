@@ -14,6 +14,10 @@ import io.medatarun.model.infra.db.events.ModelEventKnownTypes
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.tables.*
+import io.medatarun.model.infra.inmemory.BusinessKeyInMemory
+import io.medatarun.model.infra.inmemory.EntityPrimaryKeyInMemory
+import io.medatarun.model.infra.inmemory.PBKeyParticipantInMemory
+import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -22,7 +26,6 @@ class ModelStorageDbRead(
     private val modelEventKnownTypes: ModelEventKnownTypes,
     private val aggregateReader: ModelStorageDbAggregateReader
 ) {
-
 
 
     // -------------------------------------------------------------------------
@@ -64,11 +67,12 @@ class ModelStorageDbRead(
         )
     }
 
-    fun findAllModelEvents(modelId: ModelId): List<ModelEventRecord> {
+    fun findAllModelChangeEvent(modelId: ModelId): List<ModelChangeEvent> {
         return ModelEventTable.selectAll()
             .where { ModelEventTable.modelId eq modelId }
             .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
             .map(ModelEventRecord::read)
+            .map { record -> toModelChangeEvent(record) }
     }
 
     fun findModelByKeyOptional(key: ModelKey): Model? {
@@ -85,11 +89,22 @@ class ModelStorageDbRead(
         return if (row == null) null else toModel(ModelRecord.read(row))
     }
 
+    fun findAllModelTags(id: ModelId): List<TagId> {
+        return ModelTagTable.join(
+            ModelSnapshotTable,
+            JoinType.INNER,
+            onColumn = ModelTagTable.modelSnapshotId,
+            otherColumn = ModelSnapshotTable.id
+        ).selectAll().where {
+            SnapshotSelector.CurrentHeadByModelId(id).criterion()
+        }.map { row -> row[ModelTagTable.tagId] }
+    }
+
     fun findLatestModelReleaseVersionOptional(modelId: ModelId): ModelVersion? {
         return ModelEventTable.select(ModelEventTable.modelVersion)
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType())
+                        (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType())
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.DESC)
             .limit(1)
@@ -252,6 +267,18 @@ class ModelStorageDbRead(
         }.singleOrNull()?.let { row -> toType(ModelTypeRecord.read(row)) }
     }
 
+
+    fun findTypes(modelId: ModelId): List<ModelType> {
+        return ModelTypeTable.join(
+            ModelSnapshotTable,
+            JoinType.INNER,
+            onColumn = ModelTypeTable.modelSnapshotId,
+            otherColumn = ModelSnapshotTable.id
+        ).selectAll().where {
+            SnapshotSelector.CurrentHeadByModelId(modelId).criterion()
+        }.map { row -> toType(ModelTypeRecord.read(row)) }
+    }
+
     fun findEntityByIdOptional(
         modelId: ModelId, entityId: EntityId
     ): Entity? {
@@ -264,22 +291,122 @@ class ModelStorageDbRead(
         return findEntityByOptional(modelId, EntityTable.key eq entityKey)
     }
 
+    fun findEntityPrimaryKeyOptional(
+        modelId: ModelId,
+        entityId: EntityId
+    ): EntityPrimaryKey? {
+        val row = EntityPKTable.join(
+            EntityTable,
+            JoinType.INNER,
+            onColumn = EntityPKTable.entitySnapshotId,
+            otherColumn = EntityTable.id
+        ).join(
+            ModelSnapshotTable,
+            JoinType.INNER,
+            onColumn = EntityTable.modelSnapshotId,
+            otherColumn = ModelSnapshotTable.id
+        ).selectAll().where {
+            SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and
+                    (EntityTable.lineageId eq entityId)
+        }.singleOrNull() ?: return null
+
+        val primaryKeySnapshotId = row[EntityPKTable.id]
+        val participants = EntityPKAttributeTable
+            .join(
+                EntityAttributeTable,
+                JoinType.INNER,
+                onColumn = EntityPKAttributeTable.attributeSnapshotId,
+                otherColumn = EntityAttributeTable.id
+            )
+            .selectAll()
+            .where {
+                EntityPKAttributeTable.entityPKSnapshotId eq primaryKeySnapshotId
+            }
+            .orderBy(EntityPKAttributeTable.priority to SortOrder.ASC)
+            .map { participantRow ->
+                PBKeyParticipantInMemory(
+                    attributeId = participantRow[EntityAttributeTable.lineageId],
+                    position = participantRow[EntityPKAttributeTable.priority]
+                )
+            }
+
+        return EntityPrimaryKeyInMemory(
+            id = row[EntityPKTable.lineageId],
+            entityId = row[EntityTable.lineageId],
+            participants = participants
+        )
+    }
+
+    fun findBusinessKeyByIdOptional(modelId: ModelId, id: BusinessKeyId): BusinessKey? {
+        return findBusinessKeyByOptional(modelId, BusinessKeyTable.lineageId eq id)
+    }
+
+    fun findBusinessKeyByKeyOptional(modelId: ModelId, key: BusinessKeyKey): BusinessKey? {
+        return findBusinessKeyByOptional(modelId, BusinessKeyTable.key eq key)
+    }
+
+    fun findBusinessKeys(modelId: ModelId): List<BusinessKey> {
+        return findBusinessKeys(modelId, Op.TRUE)
+    }
+
+    private fun findBusinessKeyByOptional(modelId: ModelId, criterion: Op<Boolean>): BusinessKey? {
+        return findBusinessKeys(modelId, criterion).firstOrNull()
+    }
+
+    private fun findBusinessKeys(modelId: ModelId, criterion: Op<Boolean>): List<BusinessKey> {
+        val rows = BusinessKeyTable.join(
+            EntityTable,
+            JoinType.INNER,
+            onColumn = BusinessKeyTable.entitySnapshotId,
+            otherColumn = EntityTable.id
+        ).join(
+            ModelSnapshotTable,
+            JoinType.INNER,
+            onColumn = EntityTable.modelSnapshotId,
+            otherColumn = ModelSnapshotTable.id
+        ).selectAll().where {
+            SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and criterion
+        }
+
+        return rows.map { row ->
+            BusinessKeyInMemory(
+                id = row[BusinessKeyTable.lineageId],
+                key = row[BusinessKeyTable.key],
+                entityId = row[EntityTable.lineageId],
+                name = row[BusinessKeyTable.name],
+                description = row[BusinessKeyTable.description],
+                participants = findBusinessKeyParticipantsBySnapshotId(row[BusinessKeyTable.id])
+            )
+        }
+    }
+
+    private fun findBusinessKeyParticipantsBySnapshotId(businessKeySnapshotId: BusinessKeySnapshotId): List<PBKeyParticipantInMemory> {
+        return BusinessKeyAttributeTable.join(
+            EntityAttributeTable,
+            JoinType.INNER,
+            onColumn = BusinessKeyAttributeTable.attributeSnapshotId,
+            otherColumn = EntityAttributeTable.id
+        ).selectAll().where {
+            BusinessKeyAttributeTable.businessKeySnapshotId eq businessKeySnapshotId
+        }.orderBy(BusinessKeyAttributeTable.priority to SortOrder.ASC)
+            .map { row ->
+                PBKeyParticipantInMemory(
+                    attributeId = row[EntityAttributeTable.lineageId],
+                    position = row[BusinessKeyAttributeTable.priority]
+                )
+            }
+    }
+
     private fun findEntityByOptional(
         modelId: ModelId,
         criterion: Op<Boolean>
     ): Entity? {
-        val identifierAttributeTable = EntityAttributeTable.alias("identifier_attribute_snapshot")
         val entityTagTable = EntityTagTable.alias("entity_tag_snapshot")
         return EntityTable.join(
             ModelSnapshotTable,
             JoinType.INNER,
             onColumn = EntityTable.modelSnapshotId,
             otherColumn = ModelSnapshotTable.id
-        ).join(
-            identifierAttributeTable,
-            JoinType.INNER,
-            onColumn = EntityTable.identifierAttributeSnapshotId,
-            otherColumn = identifierAttributeTable[EntityAttributeTable.id]
         ).join(
             entityTagTable,
             JoinType.LEFT,
@@ -298,12 +425,15 @@ class ModelStorageDbRead(
                     val tags = rows
                         .mapNotNull { tagRow -> readOptionalTagId(tagRow, entityTagTable[EntityTagTable.tagId]) }
                         .distinct()
-                    toEntity(record, tags, row[identifierAttributeTable[EntityAttributeTable.lineageId]])
+                    toEntity(record, tags)
                 }
             }
     }
 
-    private fun readOptionalTagId(row: ResultRow, column: Column<io.medatarun.tags.core.domain.TagId>): io.medatarun.tags.core.domain.TagId? {
+    private fun readOptionalTagId(
+        row: ResultRow,
+        column: Column<io.medatarun.tags.core.domain.TagId>
+    ): io.medatarun.tags.core.domain.TagId? {
         return try {
             row.getOrNull(column)
         } catch (_: IllegalStateException) {
@@ -352,11 +482,14 @@ class ModelStorageDbRead(
             otherColumn = typeTable[ModelTypeTable.id]
         ).join(
             attributeTagTable,
-                JoinType.LEFT,
-                onColumn = EntityAttributeTable.id,
-                otherColumn = attributeTagTable[EntityAttributeTagTable.attributeSnapshotId]
-            ).selectAll()
-            .where { SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and (EntityTable.lineageId eq entityId) and criterion }
+            JoinType.LEFT,
+            onColumn = EntityAttributeTable.id,
+            otherColumn = attributeTagTable[EntityAttributeTagTable.attributeSnapshotId]
+        ).selectAll()
+            .where {
+                SnapshotSelector.CurrentHeadByModelId(modelId)
+                    .criterion() and (EntityTable.lineageId eq entityId) and criterion
+            }
             .orderBy(attributeTagTable[EntityAttributeTagTable.tagId] to SortOrder.ASC)
             .toList()
             .let { rows ->
@@ -366,7 +499,12 @@ class ModelStorageDbRead(
                     val row = rows.first()
                     val record = EntityAttributeRecord.read(row)
                     val tags = rows
-                        .mapNotNull { tagRow -> readOptionalTagId(tagRow, attributeTagTable[EntityAttributeTagTable.tagId]) }
+                        .mapNotNull { tagRow ->
+                            readOptionalTagId(
+                                tagRow,
+                                attributeTagTable[EntityAttributeTagTable.tagId]
+                            )
+                        }
                         .distinct()
                     toEntityAttribute(
                         record,
@@ -465,7 +603,8 @@ class ModelStorageDbRead(
             onColumn = RelationshipRoleTable.entitySnapshotId,
             otherColumn = roleEntityTable[EntityTable.id]
         ).selectAll().where {
-            SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and (RelationshipTable.lineageId eq relationshipId) and criterion
+            SnapshotSelector.CurrentHeadByModelId(modelId)
+                .criterion() and (RelationshipTable.lineageId eq relationshipId) and criterion
         }.singleOrNull()?.let { row ->
             toRelationshipRole(
                 RelationshipRoleRecord.read(row),
@@ -514,11 +653,14 @@ class ModelStorageDbRead(
             otherColumn = typeTable[ModelTypeTable.id]
         ).join(
             attributeTagTable,
-                JoinType.LEFT,
-                onColumn = RelationshipAttributeTable.id,
-                otherColumn = attributeTagTable[RelationshipAttributeTagTable.attributeSnapshotId]
-            ).selectAll()
-            .where { SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and (RelationshipTable.lineageId eq relationshipId) and criterion }
+            JoinType.LEFT,
+            onColumn = RelationshipAttributeTable.id,
+            otherColumn = attributeTagTable[RelationshipAttributeTagTable.attributeSnapshotId]
+        ).selectAll()
+            .where {
+                SnapshotSelector.CurrentHeadByModelId(modelId)
+                    .criterion() and (RelationshipTable.lineageId eq relationshipId) and criterion
+            }
             .orderBy(attributeTagTable[RelationshipAttributeTagTable.tagId] to SortOrder.ASC)
             .toList()
             .let { rows ->
@@ -528,7 +670,12 @@ class ModelStorageDbRead(
                     val row = rows.first()
                     val record = RelationshipAttributeRecord.read(row)
                     val tags = rows
-                        .mapNotNull { tagRow -> readOptionalTagId(tagRow, attributeTagTable[RelationshipAttributeTagTable.tagId]) }
+                        .mapNotNull { tagRow ->
+                            readOptionalTagId(
+                                tagRow,
+                                attributeTagTable[RelationshipAttributeTagTable.tagId]
+                            )
+                        }
                         .distinct()
                     toRelationshipAttribute(
                         record,
@@ -561,7 +708,7 @@ class ModelStorageDbRead(
         ).selectAll().where {
             SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and
                     (ModelTypeTable.lineageId eq typeId) and
-                (ModelTypeTable.modelSnapshotId eq ModelSnapshotTable.id)
+                    (ModelTypeTable.modelSnapshotId eq ModelSnapshotTable.id)
         }.any()
     }
 
@@ -586,7 +733,7 @@ class ModelStorageDbRead(
         ).selectAll().where {
             SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and
                     (ModelTypeTable.lineageId eq typeId) and
-                (ModelTypeTable.modelSnapshotId eq ModelSnapshotTable.id)
+                    (ModelTypeTable.modelSnapshotId eq ModelSnapshotTable.id)
         }.any()
     }
 
@@ -607,8 +754,8 @@ class ModelStorageDbRead(
             .select(ModelEventTable.streamRevision)
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType()) and
-                    (ModelEventTable.modelVersion eq version)
+                        (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType()) and
+                        (ModelEventTable.modelVersion eq version)
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
             .limit(1)
@@ -620,8 +767,8 @@ class ModelStorageDbRead(
             .select(ModelEventTable.streamRevision)
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType()) and
-                    (ModelEventTable.streamRevision less releaseRevision)
+                        (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType()) and
+                        (ModelEventTable.streamRevision less releaseRevision)
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.DESC)
             .limit(1)
@@ -631,12 +778,12 @@ class ModelStorageDbRead(
         return ModelEventTable.selectAll()
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.streamRevision lessEq releaseRevision) and
-                    if (previousReleaseRevision == null) {
-                        Op.TRUE
-                    } else {
-                        ModelEventTable.streamRevision greater previousReleaseRevision
-                    }
+                        (ModelEventTable.streamRevision lessEq releaseRevision) and
+                        if (previousReleaseRevision == null) {
+                            Op.TRUE
+                        } else {
+                            ModelEventTable.streamRevision greater previousReleaseRevision
+                        }
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
             .map(ModelEventRecord::read)
@@ -648,7 +795,7 @@ class ModelStorageDbRead(
             .select(ModelEventTable.streamRevision)
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType())
+                        (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType())
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.DESC)
             .limit(1)
@@ -659,11 +806,23 @@ class ModelStorageDbRead(
         return ModelEventTable.selectAll()
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.streamRevision greater releaseRevision)
+                        (ModelEventTable.streamRevision greater releaseRevision)
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
             .map(ModelEventRecord::read)
             .map { record -> toModelChangeEvent(record) }
     }
+
+    fun findLastModelChangeEventOptional(modelId: ModelId): ModelChangeEvent? {
+        val record = ModelEventTable.selectAll()
+            .where { ModelEventTable.modelId eq modelId }
+            .orderBy(ModelEventTable.streamRevision to SortOrder.DESC)
+            .limit(1)
+            .singleOrNull()
+            ?.let { row -> ModelEventRecord.read(row) }
+            ?: return null
+        return toModelChangeEvent(record)
+    }
+
 
 }

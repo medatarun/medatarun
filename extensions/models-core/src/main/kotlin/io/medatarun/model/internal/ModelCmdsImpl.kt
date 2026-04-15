@@ -62,7 +62,7 @@ class ModelCmdsImpl(
                 is ModelCmd.UpdateEntityKey -> updateEntityKey(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityName -> updateEntityName(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityDescription -> updateEntityDescription(cmdEnv, cmd)
-                is ModelCmd.UpdateEntityIdentifierAttribute -> updateEntityIdentifierAttribute(cmdEnv, cmd)
+                is ModelCmd.UpdateEntityPrimaryKey -> updateEntityPrimaryKey(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityDocumentationHome -> updateEntityDocumentationHome(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityTagAdd -> updateEntityTagAdd(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityTagDelete -> updateEntityTagDelete(cmdEnv, cmd)
@@ -102,6 +102,13 @@ class ModelCmdsImpl(
                 is ModelCmd.UpdateRelationshipAttributeTagAdd -> updateRelationshipAttributeTagAdd(cmdEnv, cmd)
                 is ModelCmd.UpdateRelationshipAttributeTagDelete -> updateRelationshipAttributeTagDelete(cmdEnv, cmd)
                 is ModelCmd.DeleteRelationshipAttribute -> deleteRelationshipAttribute(cmdEnv, cmd)
+                is ModelCmd.BusinessKeyCreate -> businessKeyCreate(cmdEnv, cmd)
+                is ModelCmd.BusinessKeyUpdateKey -> businessKeyUpdateKey(cmdEnv, cmd)
+                is ModelCmd.BusinessKeyUpdateName -> businessKeyUpdateName(cmdEnv, cmd)
+                is ModelCmd.BusinessKeyUpdateDescription -> businessKeyUpdateDescription(cmdEnv, cmd)
+                is ModelCmd.BusinessKeyUpdateParticipants -> businessKeyUpdateParticipants(cmdEnv, cmd)
+                is ModelCmd.BusinessKeyDelete -> businessKeyDelete(cmdEnv, cmd)
+
             }
             auditor.onCmdProcessed(cmdEnv)
         }
@@ -204,6 +211,15 @@ class ModelCmdsImpl(
         val entity = storage.findEntity(model.id, entityRef)
         val attribute = storage.findEntityAttribute(model.id, entity.id, attributeRef)
         return ModelAndEntityAndAttribute(model, entity, attribute)
+    }
+
+    data class ModelAndBusinessKey(val model: Model, val businessKey: BusinessKey)
+
+    fun findModelAndBusinessKey(modelRef: ModelRef, businessKeyRef: BusinessKeyRef): ModelAndBusinessKey {
+        val model = storage.findModel(modelRef)
+        val businessKey = storage.findBusinessKeyOptional(model.id, businessKeyRef)
+            ?: throw BusinessKeyNotFoundException(ModelRef.ById(model.id), businessKeyRef)
+        return ModelAndBusinessKey(model, businessKey)
     }
 
     data class ModelAndRelationship(val model: Model, val relationship: Relationship)
@@ -504,6 +520,7 @@ class ModelCmdsImpl(
 
     private fun updateEntityKey(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityKey) {
         val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
+        if (entity.key == cmd.value) return
         val duplicate = storage.findEntityByKeyOptional(model.id, cmd.value)
 
         if (duplicate != null && duplicate.id != entity.id) {
@@ -525,14 +542,124 @@ class ModelCmdsImpl(
         storageDispatch(cmdEnv, ModelStorageCmd.UpdateEntityDescription(model.id, entity.id, cmd.value))
     }
 
-    private fun updateEntityIdentifierAttribute(
+    private fun updateEntityPrimaryKey(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityPrimaryKey) {
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
+        val attributeIds = cmd.attributeRefs.map { attributeRef ->
+            storage.findEntityAttribute(model.id, entity.id, attributeRef).id
+        }
+        val currentPrimaryKey = storage.findEntityPrimaryKeyOptional(model.id, entity.id)
+        val hasChanges = if (currentPrimaryKey==null) {
+            attributeIds.isNotEmpty()
+        } else {
+            !currentPrimaryKey.containsInOrder(attributeIds)
+
+        }
+        if (hasChanges) {
+            storageDispatch(
+                cmdEnv, ModelStorageCmd.Entity_PrimaryKey_Set(
+                    modelId = model.id,
+                    entityId = entity.id,
+                    attributeIds = attributeIds
+                )
+            )
+        }
+    }
+
+    private fun businessKeyCreate(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.BusinessKeyCreate) {
+        val model = storage.findModel(cmd.modelRef)
+        val duplicate = storage.findBusinessKeyByKeyOptional(model.id, cmd.key)
+        if (duplicate != null) throw BusinessKeyCreateDuplicateKeyException(ModelRef.ById(model.id), cmd.key)
+        val entity = storage.findEntity(model.id, cmd.entityRef)
+        val participantAttributeIds = cmd.participants.map { participantRef ->
+            storage.findEntityAttribute(model.id, entity.id, participantRef).id
+        }
+        storageDispatch(
+            cmdEnv,
+            ModelStorageCmd.BusinessKeyCreate(
+                modelId = model.id,
+                entityId = entity.id,
+                businessKeyId = BusinessKeyId.generate(),
+                key = cmd.key,
+                name = cmd.name,
+                description = cmd.description,
+                participantAttributeIds = participantAttributeIds
+            )
+        )
+    }
+
+    private fun businessKeyUpdateKey(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.BusinessKeyUpdateKey) {
+        val (model, businessKey) = findModelAndBusinessKey(cmd.modelRef, cmd.businessKeyRef)
+        if (businessKey.key == cmd.value) return
+
+        val duplicate = storage.findBusinessKeyByKeyOptional(model.id, cmd.value)
+        if (duplicate != null && duplicate.id != businessKey.id) {
+            throw BusinessKeyUpdateDuplicateKeyException(ModelRef.ById(model.id), cmd.businessKeyRef, cmd.value)
+        }
+        storageDispatch(
+            cmdEnv,
+            ModelStorageCmd.BusinessKeyUpdateKey(
+                modelId = model.id,
+                businessKeyId = businessKey.id,
+                key = cmd.value
+            )
+        )
+    }
+
+    private fun businessKeyUpdateName(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.BusinessKeyUpdateName) {
+        val (model, businessKey) = findModelAndBusinessKey(cmd.modelRef, cmd.businessKeyRef)
+        if (businessKey.name == cmd.value) return
+        storageDispatch(
+            cmdEnv,
+            ModelStorageCmd.BusinessKeyUpdateName(
+                modelId = model.id,
+                businessKeyId = businessKey.id,
+                name = cmd.value
+            )
+        )
+    }
+
+    private fun businessKeyUpdateDescription(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.BusinessKeyUpdateDescription) {
+        val (model, businessKey) = findModelAndBusinessKey(cmd.modelRef, cmd.businessKeyRef)
+        if (businessKey.description == cmd.value) return
+        storageDispatch(
+            cmdEnv,
+            ModelStorageCmd.BusinessKeyUpdateDescription(
+                modelId = model.id,
+                businessKeyId = businessKey.id,
+                description = cmd.value
+            )
+        )
+    }
+
+    private fun businessKeyUpdateParticipants(
         cmdEnv: ModelCmdEnveloppe,
-        cmd: ModelCmd.UpdateEntityIdentifierAttribute
+        cmd: ModelCmd.BusinessKeyUpdateParticipants
     ) {
-        val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.value)
-        val attrId = attribute.id
-        if (entity.identifierAttributeId == attrId) return
-        storageDispatch(cmdEnv, ModelStorageCmd.UpdateEntityIdentifierAttribute(model.id, entity.id, attrId))
+        val (model, businessKey) = findModelAndBusinessKey(cmd.modelRef, cmd.businessKeyRef)
+        val participantAttributeIds = cmd.value.map { participantRef ->
+            storage.findEntityAttribute(model.id, businessKey.entityId, participantRef).id
+        }
+        if (!businessKey.containsInOrder(participantAttributeIds)) {
+            storageDispatch(
+                cmdEnv,
+                ModelStorageCmd.BusinessKeyUpdateParticipants(
+                    modelId = model.id,
+                    businessKeyId = businessKey.id,
+                    participantAttributeIds = participantAttributeIds
+                )
+            )
+        }
+    }
+
+    private fun businessKeyDelete(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.BusinessKeyDelete) {
+        val (model, businessKey) = findModelAndBusinessKey(cmd.modelRef, cmd.businessKeyRef)
+        storageDispatch(
+            cmdEnv,
+            ModelStorageCmd.BusinessKeyDelete(
+                modelId = model.id,
+                businessKeyId = businessKey.id
+            )
+        )
     }
 
     private fun updateEntityDocumentationHome(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityDocumentationHome) {
@@ -563,28 +690,19 @@ class ModelCmdsImpl(
         )
     }
 
-
     private fun createEntity(cmdEnv: ModelCmdEnveloppe, c: ModelCmd.CreateEntity) {
         val model = storage.findModel(c.modelRef)
-        val type = storage.findType(model.id, c.entityInitializer.identityAttribute.type)
-        val identityAttributeId = AttributeId.generate()
-        storageDispatch(
-            cmdEnv,
-            ModelStorageCmd.CreateEntity(
-                modelId = model.id,
-                entityId = EntityId.generate(),
-                key = c.entityInitializer.entityKey,
-                name = c.entityInitializer.name,
-                description = c.entityInitializer.description,
-                origin = EntityOrigin.Manual,
-                documentationHome = c.entityInitializer.documentationHome,
-                identityAttributeId = identityAttributeId,
-                identityAttributeKey = c.entityInitializer.identityAttribute.attributeKey,
-                identityAttributeName = c.entityInitializer.identityAttribute.name,
-                identityAttributeDescription = c.entityInitializer.identityAttribute.description,
-                identityAttributeTypeId = type.id,
-                identityAttributeIdOptional = false, // because it's identity, can never be optional
+        val entityId = EntityId.generate()
 
+        storageDispatch(
+            cmdEnv, ModelStorageCmd.CreateEntity(
+                modelId = model.id,
+                entityId = entityId,
+                key = c.entityKey,
+                name = c.name,
+                description = c.description,
+                documentationHome = c.documentationHome,
+                origin = EntityOrigin.Manual
             )
         )
     }
@@ -621,8 +739,6 @@ class ModelCmdsImpl(
 
     private fun deleteEntityAttribute(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.DeleteEntityAttribute) {
         val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
-        if (entity.identifierAttributeId == attribute.id)
-            throw DeleteAttributeIdentifierException(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         storageDispatch(
             cmdEnv,
             ModelStorageCmd.DeleteEntityAttribute(
@@ -635,6 +751,7 @@ class ModelCmdsImpl(
 
     private fun updateEntityAttributeKey(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityAttributeKey) {
         val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
+        if (attribute.key == cmd.value) return
         val found = storage.findEntityAttributeByKeyOptional(model.id, entity.id, cmd.value)
         if (found != null && found.id != attribute.id) throw UpdateAttributeDuplicateKeyException(
             cmd.entityRef,
@@ -1079,10 +1196,7 @@ class ModelCmdsImpl(
     }
 
     fun ensureModelExists(modelRef: ModelRef) {
-        val exists = when (modelRef) {
-            is ModelRef.ByKey -> storage.existsModelByKey(modelRef.key)
-            is ModelRef.ById -> storage.existsModelById(modelRef.id)
-        }
+        val exists = storage.existsModel(modelRef)
         if (!exists) throw ModelNotFoundException(modelRef)
     }
 

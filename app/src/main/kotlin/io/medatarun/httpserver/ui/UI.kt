@@ -40,7 +40,7 @@ class UI(runtime: PlatformRuntime) {
     }
 
     fun modelJson(modelId: ModelId, locale: Locale): String {
-        val model = modelQueries.findModelById(modelId)
+        val model = modelQueries.findModelAggregateById(modelId)
 
         return buildJsonObject {
             put("id", model.id.asString())
@@ -85,6 +85,35 @@ class UI(runtime: PlatformRuntime) {
                         put("key", t.key.value)
                         put("name", t.name?.get(locale))
                         put("description", t.description?.get(locale))
+                    }
+                }
+            }
+            putJsonArray("entityPrimaryKeys") {
+                model.entityPrimaryKeys.forEach { t ->
+                    addJsonObject {
+                        put("id", t.id.value.toString())
+                        put("entityId", t.entityId.asString())
+                        putJsonArray("participants") {
+                            for (participant in t.participants) {
+                                add(participant.attributeId.asString())
+                            }
+                        }
+                    }
+                }
+            }
+            putJsonArray("businessKeys") {
+                model.businessKeys.forEach { t ->
+                    addJsonObject {
+                        put("id", t.id.value.toString())
+                        put("entityId", t.entityId.asString())
+                        put("key", t.key.asString())
+                        put("name", t.name?.name)
+                        put("description", t.description?.name)
+                        putJsonArray("participants") {
+                            for (participant in t.participants) {
+                                add(participant.attributeId.asString())
+                            }
+                        }
                     }
                 }
             }
@@ -171,7 +200,6 @@ class UI(runtime: PlatformRuntime) {
                         put("description", attr.description?.get(locale))
                         put("type", attr.typeId.value.toString())
                         put("optional", attr.optional)
-                        put("identifierAttribute", e.identifierAttributeId == attr.id)
                         putJsonArray("tags") {
                             attr.tags.forEach { add(it.value.toString()) }
                         }

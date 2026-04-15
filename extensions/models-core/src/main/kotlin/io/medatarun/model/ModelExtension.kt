@@ -95,7 +95,7 @@ open class ModelExtension(
 
             override fun localScopeExists(scopeRef: TagScopeRef.Local): Boolean {
                 val modelId = ModelId(scopeRef.localScopeId.value)
-                return modelQueries.findModelOptional(ModelRef.ById(modelId)) != null
+                return modelQueries.existsModel(ModelRef.ById(modelId))
             }
         }
 
@@ -107,6 +107,8 @@ open class ModelExtension(
         ctx.registerContribution(ActionProvider::class, actionProvider)
         ctx.registerContribution(DbMigration::class, ModelStorageDbMigration(id))
         ctx.registerContribution(TypeDescriptor::class, AttributeKeyDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, BusinessKeyKeyDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, BusinessKeyRefDescriptor())
         ctx.registerContribution(TypeDescriptor::class, EntityKeyDescriptor())
         ctx.registerContribution(TypeDescriptor::class, EntityRefDescriptor())
         ctx.registerContribution(TypeDescriptor::class, EntityAttributeRefDescriptor())

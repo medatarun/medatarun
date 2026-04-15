@@ -8,9 +8,8 @@ import io.medatarun.model.ModelExtension
 import io.medatarun.model.ModelExtensionConfigProd
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.actions.ModelActionProvider
-import io.medatarun.model.domain.ModelId
-import io.medatarun.model.domain.ModelRef
-import io.medatarun.model.domain.ModelVersion
+import io.medatarun.model.domain.*
+import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
 import io.medatarun.model.infra.db.ModelStorageDb
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelTagResolver
@@ -28,9 +27,9 @@ import io.medatarun.security.*
 import io.medatarun.tags.core.TagsCoreExtension
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
-import io.medatarun.tags.core.adapters.security.TagLocalManagePermission
-import io.medatarun.tags.core.adapters.security.TagGroupManagePermission
 import io.medatarun.tags.core.adapters.security.TagGlobalManagePermission
+import io.medatarun.tags.core.adapters.security.TagGroupManagePermission
+import io.medatarun.tags.core.adapters.security.TagLocalManagePermission
 import io.medatarun.tags.core.domain.*
 import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeSystemExtension
@@ -64,8 +63,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         get() = platform.services.getService(DbMigrationChecker::class)
     val dbConnectionFactory
         get() = platform.services.getService(DbConnectionFactory::class)
-    val storageDb
-        get() = ModelStorageDb(dbConnectionFactory, ModelExtensionConfigProd().modelClock)
+    private val storageDb = ModelStorageDb(dbConnectionFactory, ModelExtensionConfigProd().modelClock)
     private val actionPlatform get() = platform.services.getService<ActionPlatform>()
 
     fun dispatch(action: ModelAction): Any? {
@@ -86,6 +84,189 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         return actionPlatform.invoker.handleInvocation(request, testActionRequestContext)
 
     }
+
+    // -------------------------------------------------------------------------
+    //  Action methods
+    // -------------------------------------------------------------------------
+
+    // Model_Create
+    fun modelCreate(
+        key: ModelKey,
+        name: LocalizedText = LocalizedTextNotLocalized(key.value),
+        description: LocalizedMarkdown? = null,
+        version: ModelVersion? = ModelVersion("1.0.0")
+    ): Any? {
+        return dispatch(
+            ModelAction.Model_Create(
+                key = key,
+                name = name,
+                description = description,
+                version = version
+            )
+        )
+    }
+
+    // Type_Create
+    fun typeCreate(
+        modelRef: ModelRef,
+        typeKey: TypeKey,
+        name: LocalizedText? = null,
+        description: LocalizedMarkdown? = null
+    ): Any? {
+        return dispatch(
+            ModelAction.Type_Create(
+                modelRef = modelRef,
+                typeKey = typeKey,
+                name = name,
+                description = description
+            )
+        )
+    }
+
+    // Entity_Create2
+    fun entityCreate(
+        modelRef: ModelRef,
+        entityKey: EntityKey,
+        name: LocalizedText? = null,
+        description: LocalizedMarkdown? = null,
+        documentationHome: String? = null
+    ): Any? {
+        return dispatch(
+            ModelAction.Entity_Create(
+                modelRef = modelRef,
+                entityKey = entityKey,
+                name = name,
+                description = description,
+                documentationHome = documentationHome
+            )
+        )
+    }
+
+    // EntityAttribute_Create
+    fun entityAttributeCreate(
+        modelRef: ModelRef,
+        entityRef: EntityRef,
+        attributeKey: AttributeKey,
+        type: TypeRef = typeRefKey("String"),
+        name: LocalizedText? = null,
+        optional: Boolean = false,
+        description: LocalizedMarkdown? = null
+    ): Any? {
+        return dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = modelRef,
+                entityRef = entityRef,
+                name = name,
+                attributeKey = attributeKey,
+                type = type,
+                optional = optional,
+                description = description
+            )
+        )
+    }
+
+    // Relationship_Create
+    fun relationshipCreate(
+        modelRef: ModelRef,
+        relationshipKey: RelationshipKey,
+        roleAKey: RelationshipRoleKey,
+        roleAEntityRef: EntityRef,
+        roleBKey: RelationshipRoleKey,
+        roleBEntityRef: EntityRef,
+        name: LocalizedText? = null,
+        description: LocalizedMarkdown? = null,
+        roleAName: LocalizedText? = null,
+        roleACardinality: RelationshipCardinality = RelationshipCardinality.One,
+        roleBName: LocalizedText? = null,
+        roleBCardinality: RelationshipCardinality = RelationshipCardinality.Many
+    ): Any? {
+        return dispatch(
+            ModelAction.Relationship_Create(
+                modelRef = modelRef,
+                relationshipKey = relationshipKey,
+                name = name,
+                description = description,
+                roleAKey = roleAKey,
+                roleAEntityRef = roleAEntityRef,
+                roleAName = roleAName,
+                roleACardinality = roleACardinality,
+                roleBKey = roleBKey,
+                roleBEntityRef = roleBEntityRef,
+                roleBName = roleBName,
+                roleBCardinality = roleBCardinality
+            )
+        )
+    }
+
+    // RelationshipRole_Create
+    fun relationshipRoleCreate(
+        modelRef: ModelRef,
+        relationshipRef: RelationshipRef,
+        roleKey: RelationshipRoleKey,
+        roleEntityRef: EntityRef,
+        roleName: LocalizedText? = null,
+        roleCardinality: RelationshipCardinality = RelationshipCardinality.One
+    ): Any? {
+        return dispatch(
+            ModelAction.RelationshipRole_Create(
+                modelRef = modelRef,
+                relationshipRef = relationshipRef,
+                roleKey = roleKey,
+                roleEntityRef = roleEntityRef,
+                roleName = roleName,
+                roleCardinality = roleCardinality
+            )
+        )
+    }
+
+    // RelationshipAttribute_Create
+    fun relationshipAttributeCreate(
+        modelRef: ModelRef,
+        relationshipRef: RelationshipRef,
+        attributeKey: AttributeKey,
+        type: TypeRef = typeRefKey("String"),
+        name: LocalizedText? = null,
+        optional: Boolean = false,
+        description: LocalizedMarkdown? = null
+    ): Any? {
+        return dispatch(
+            ModelAction.RelationshipAttribute_Create(
+                modelRef = modelRef,
+                relationshipRef = relationshipRef,
+                name = name,
+                attributeKey = attributeKey,
+                type = type,
+                optional = optional,
+                description = description
+            )
+        )
+    }
+
+    // BusinessKey_Create
+    fun businessKeyCreate(
+        modelRef: ModelRef,
+        key: BusinessKeyKey,
+        entityRef: EntityRef,
+        participants: List<EntityAttributeRef>,
+        name: LocalizedText? = null,
+        description: LocalizedMarkdown? = null
+    ): Any? {
+        return dispatch(
+            ModelAction.BusinessKey_Create(
+                modelRef = modelRef,
+                name = name,
+                key = key,
+                description = description,
+                entityRef = entityRef,
+                participants = participants
+            )
+        )
+    }
+
+
+    // -------------------------------------------------------------------------
+    //  Other
+    // -------------------------------------------------------------------------
 
     fun loginAsAdmin() {
         testPrincipal = testPrincipalAdmin
@@ -131,7 +312,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
      * This keeps scope checks explicit in tests that validate tag attachment rules.
      */
     fun createLocalTagInModelScope(modelRef: ModelRef, tagKeyValue: String): Tag {
-        val modelId = queries.findModel(modelRef).id
+        val modelId = queries.findModelAggregate(modelRef).id
         val scopeRef = ModelTagResolver.modelTagScopeRef(modelId)
         val tagKey = TagKey(tagKeyValue)
         val tagRef = TagRef.ByKey(
@@ -150,7 +331,32 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         val versions = queries.findModelVersions(ModelRef.modelRefId(modelId))
         assertEquals(1, versions.size, "Model should have exactly one version released")
         val foundVersion = versions.first().modelVersion
-        assertEquals(expectedVersion, foundVersion, "Model expected version should be $expectedVersion but was $foundVersion")
+        assertEquals(
+            expectedVersion,
+            foundVersion,
+            "Model expected version should be $expectedVersion but was $foundVersion"
+        )
+    }
+
+    /**
+     * Returns the latest raw event stored for this model.
+     * This bypasses query-layer history filtering logic and reads persisted events directly.
+     */
+    fun findLastStoredModelChangeEvent(modelRef: ModelRef): ModelChangeEvent {
+        val modelId = storageDb.findModel(modelRef).id
+        return findLastStoredModelChangeEvent(modelId)
+    }
+
+    fun findLastStoredModelChangeEvent(modelId: ModelId): ModelChangeEvent {
+        return storageDb.findLastModelChangeEvent(modelId)
+    }
+
+    /**
+     * Returns all raw events stored for this model.
+     * This bypasses query-layer history filtering logic and reads persisted events directly.
+     */
+    fun findAllModelEvents(modelId: ModelId): List<ModelChangeEvent> {
+        return storageDb.findAllModelChangeEvent(modelId)
     }
 
     companion object {
@@ -174,7 +380,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
             override val subject: String = ""
             override val isAdmin: Boolean = false
             override val fullname: String = "user"
-            override val permissions=setOf(
+            override val permissions = setOf(
                 TagLocalManagePermission,
                 TagGroupManagePermission,
                 TagGlobalManagePermission
