@@ -11,6 +11,11 @@ export interface EntityOption {
   label: string;
 }
 
+export interface EntityAttributeOption {
+  code: string;
+  label: string;
+}
+
 export class Model {
   public dto: ModelDto;
 
@@ -198,6 +203,24 @@ export class Model {
       .map((entity) => ({
         code: entity.id,
         label: entity.name ?? entity.key ?? entity.id,
+      }));
+  }
+
+  /**
+   * Returns attributes for one entity sorted by their display label.
+   */
+  findEntityAttributeOptions(entityId: string): EntityAttributeOption[] {
+    const entity = this.dto.entities.find((it) => it.id === entityId);
+    if (!entity) return [];
+    return [...entity.attributes]
+      .sort((left, right) => {
+        const leftLabel = left.name ?? left.key ?? left.id;
+        const rightLabel = right.name ?? right.key ?? right.id;
+        return leftLabel.localeCompare(rightLabel);
+      })
+      .map((attribute) => ({
+        code: attribute.id,
+        label: attribute.name ?? attribute.key ?? attribute.id,
       }));
   }
 

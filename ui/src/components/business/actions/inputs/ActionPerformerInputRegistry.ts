@@ -1,6 +1,7 @@
 import type { FunctionComponent } from "react";
 import type { ActionPerformerInputProps } from "./ActionPerformerInputProps.tsx";
 import { ActionPerformerInputBoolean } from "./ActionPerformerInputBoolean.tsx";
+import { ActionPerformerInputEntityAttributeRef } from "./ActionPerformerInputEntityAttributeRef.tsx";
 import { ActionPerformerInputEntityRef } from "./ActionPerformerInputEntityRef.tsx";
 import { ActionPerformerInputModelAuthority } from "./ActionPerformerInputModelAuthority.tsx";
 import { ActionPerformerInputPasswordClear } from "./ActionPerformerInputPasswordClear.tsx";
@@ -18,6 +19,7 @@ export const ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE: Record<
   FunctionComponent<ActionPerformerInputProps>
 > = {
   Boolean: ActionPerformerInputBoolean,
+  EntityAttributeRef: ActionPerformerInputEntityAttributeRef,
   EntityRef: ActionPerformerInputEntityRef,
   ModelAuthority: ActionPerformerInputModelAuthority,
   PermissionKey: ActionPerformerInputSecurityPermission,
