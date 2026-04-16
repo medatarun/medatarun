@@ -9,6 +9,7 @@ import { createActionTemplateGeneral } from "@/components/business/model/model.a
 import { useAppI18n } from "@/services/appI18n.tsx";
 import {
   type ActionCtx,
+  createActionCtx,
   displaySubjectNone,
 } from "@/components/business/actions";
 import {
@@ -26,10 +27,10 @@ export function PreferencesPage() {
     ? t("preferencesPage_modeTech")
     : t("preferencesPage_modeBusiness");
 
-  const actionCtxPage: ActionCtx = {
+  const actionCtxPage: ActionCtx = createActionCtx({
     actionParams: createActionTemplateGeneral(),
     displayedSubject: displaySubjectNone,
-  };
+  });
 
   const headerProps: ViewLayoutHeaderProps = {
     title: t("preferencesPage_title"),

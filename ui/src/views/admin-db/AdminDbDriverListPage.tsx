@@ -8,6 +8,7 @@ import { createActionTemplateGeneral } from "@/components/business/model/model.a
 import { useAppI18n } from "@/services/appI18n.tsx";
 import {
   type ActionCtx,
+  createActionCtx,
   displaySubjectNone,
 } from "@/components/business/actions";
 import { useDatabaseDrivers } from "@/business/db";
@@ -33,10 +34,10 @@ export function AdminDbDriverListPage() {
   const { t } = useAppI18n();
 
   const data = sortBy(driversRaw ?? [], (it) => it.name);
-  const actionCtxPage: ActionCtx = {
+  const actionCtxPage = createActionCtx({
     actionParams: createActionTemplateGeneral(),
     displayedSubject: displaySubjectNone,
-  };
+  });
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: undefined,
     eyebrow: undefined,

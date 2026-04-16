@@ -38,7 +38,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import type { ActionCtx } from "@/components/business/actions";
+import { type ActionCtx, createActionCtx } from "@/components/business/actions";
 
 export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
   const { t } = useAppI18n();
@@ -80,18 +80,19 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
   };
 
   const displayedSubject = createDisplayedSubjectTagGroup(tagGroup.id);
-  const actionCtxPage: ActionCtx = {
+  const actionCtxPage = createActionCtx({
     actionParams: createActionTemplateTagGroup(tagGroup.id),
     displayedSubject: displayedSubject,
-  };
-  const actionCtxTagList: ActionCtx = {
+  });
+  const actionCtxTagList = createActionCtx({
     actionParams: createActionTemplateTagGlobalList(tagGroup.id),
     displayedSubject: displayedSubject,
-  };
-  const actionCtxTag = (tag: Tag): ActionCtx => ({
-    actionParams: createActionTemplateTag(tag.id),
-    displayedSubject: displayedSubject,
   });
+  const actionCtxTag = (tag: Tag): ActionCtx =>
+    createActionCtx({
+      actionParams: createActionTemplateTag(tag.id),
+      displayedSubject: displayedSubject,
+    });
 
   const breadcrumb = (
     <Breadcrumb size="small">

@@ -15,6 +15,7 @@ import { ModelIcon } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import {
   type ActionCtx,
+  createActionCtx,
   displaySubjectNone,
 } from "@/components/business/actions";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
@@ -38,10 +39,10 @@ export function ModelListPage({
   );
   const systemModels = data.filter((model) => model.authority !== "canonical");
 
-  const actionCtxPage: ActionCtx = {
+  const actionCtxPage = createActionCtx({
     actionParams: createActionTemplateGeneral(),
     displayedSubject: displaySubjectNone,
-  };
+  });
 
   const headerProps: ViewLayoutHeaderProps = {
     title: t("modelListPage_title"),

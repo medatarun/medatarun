@@ -78,3 +78,16 @@ export type ActionCtx = {
    */
   displayedSubject: ActionDisplayedSubject;
 };
+
+/**
+ * Factory to create action ctx. Never try to create an ActionCtx without
+ * using one of the provided methods
+ * @param props
+ */
+export const createActionCtx = (props: {
+  actionParams: ActionPerformerRequestParams;
+  displayedSubject: ActionDisplayedSubject;
+}): ActionCtx => ({
+  actionParams: props.actionParams,
+  displayedSubject: props.displayedSubject,
+});

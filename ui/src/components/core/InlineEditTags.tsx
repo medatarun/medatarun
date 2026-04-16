@@ -25,6 +25,7 @@ import { useAppI18n } from "@/services/appI18n.tsx";
 import {
   type ActionCtx,
   type ActionDisplayedSubject,
+  createActionCtx,
 } from "@/components/business/actions";
 
 const CREATE_OPTION_PREFIX = "__create__:";
@@ -86,13 +87,14 @@ export function InlineEditTags({
     setWaitingCreatedTagResolution(false);
   }, [requestedCreatedTagKey, scope, state, tags, waitingCreatedTagResolution]);
 
-  const actionCtxTag = (key: string): ActionCtx => ({
-    actionParams: {
-      scopeRef: { value: scope, readonly: true, visible: false },
-      key: { value: key, readonly: false, visible: true },
-    },
-    displayedSubject: displayedSubject,
-  });
+  const actionCtxTag = (key: string) =>
+    createActionCtx({
+      actionParams: {
+        scopeRef: { value: scope, readonly: true, visible: false },
+        key: { value: key, readonly: false, visible: true },
+      },
+      displayedSubject: displayedSubject,
+    });
 
   const handleEditStart = async () => {
     setValues(value);

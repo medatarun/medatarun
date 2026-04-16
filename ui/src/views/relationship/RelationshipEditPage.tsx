@@ -62,7 +62,7 @@ import {
 import { toProblem } from "@seij/common-types";
 import { ErrorBox } from "@seij/common-ui";
 import { useNavigate } from "@tanstack/react-router";
-import type { ActionCtx } from "@/components/business/actions";
+import { type ActionCtx, createActionCtx } from "@/components/business/actions";
 
 export function RelationshipEditPage({
   modelId,
@@ -137,28 +137,30 @@ export function RelationshipView({
     model.id,
     relationship.id,
   );
-  const actionCtxPage: ActionCtx = {
+  const actionCtxPage = createActionCtx({
     actionParams: actionParams,
     displayedSubject: displayedSubject,
-  };
-
-  const actionCtxAttribute = (attr: AttributeDto): ActionCtx => ({
-    actionParams: createActionTemplateRelationshipAttribute(
-      model.id,
-      relationship.id,
-      attr.id,
-    ),
-    displayedSubject: displayedSubject,
   });
 
-  const actionCtxRole = (role: RelationshipRoleDto): ActionCtx => ({
-    actionParams: createActionTemplateRelationshipRole(
-      model.id,
-      relationship.id,
-      role.id,
-    ),
-    displayedSubject: displayedSubject,
-  });
+  const actionCtxAttribute = (attr: AttributeDto) =>
+    createActionCtx({
+      actionParams: createActionTemplateRelationshipAttribute(
+        model.id,
+        relationship.id,
+        attr.id,
+      ),
+      displayedSubject: displayedSubject,
+    });
+
+  const actionCtxRole = (role: RelationshipRoleDto) =>
+    createActionCtx({
+      actionParams: createActionTemplateRelationshipRole(
+        model.id,
+        relationship.id,
+        role.id,
+      ),
+      displayedSubject: displayedSubject,
+    });
 
   const breadCrumb = (
     <Breadcrumb size="small">

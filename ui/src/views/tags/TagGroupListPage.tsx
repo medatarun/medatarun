@@ -18,6 +18,7 @@ import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import {
   type ActionCtx,
+  createActionCtx,
   displaySubjectNone,
 } from "@/components/business/actions";
 import {
@@ -43,15 +44,16 @@ export function TagGroupListPage() {
   if (tagsResult.isPending) return null;
   if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)} />;
 
-  const actionCtxPage: ActionCtx = {
+  const actionCtxPage = createActionCtx({
     actionParams: createActionTemplateTagGroupList(),
     displayedSubject: displaySubjectNone,
-  };
-
-  const actionCtxTagGroup = (tagGroup: TagGroup): ActionCtx => ({
-    actionParams: createActionTemplateTagGroup(tagGroup.id),
-    displayedSubject: displaySubjectNone,
   });
+
+  const actionCtxTagGroup = (tagGroup: TagGroup) =>
+    createActionCtx({
+      actionParams: createActionTemplateTagGroup(tagGroup.id),
+      displayedSubject: displaySubjectNone,
+    });
 
   const headerProps: ViewLayoutHeaderProps = {
     title: t("tagGroupsPage_title"),

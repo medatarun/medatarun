@@ -63,6 +63,7 @@ import { useAppI18n } from "@/services/appI18n.tsx";
 import {
   type ActionCtx,
   type ActionDisplayedSubject,
+  createActionCtx,
   displaySubjectNone,
 } from "@/components/business/actions";
 import { InlineEditBoolean } from "@/components/core/InlineEditBoolean.tsx";
@@ -229,10 +230,10 @@ export function AttributeView({
           )
         : displaySubjectNone;
 
-  const actionCtxPage: ActionCtx = {
+  const actionCtxPage = createActionCtx({
     actionParams: actionParams,
     displayedSubject: displayedSubject,
-  };
+  });
 
   const handleUpdateName = async (value: string) => {
     if (parentAsEntity != null) {

@@ -46,9 +46,10 @@ import {
 import { LockClosedRegular } from "@fluentui/react-icons";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import type {
-  ActionCtx,
-  ActionPerformerRequestParams,
+import {
+  type ActionCtx,
+  type ActionPerformerRequestParams,
+  createActionCtx,
 } from "@/components/business/actions";
 
 export function AdminRoleEditPage({ roleId }: { roleId: string }) {
@@ -77,17 +78,18 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
     });
   };
 
-  const actionCtxPage: ActionCtx = {
+  const actionCtxPage = createActionCtx({
     actionParams: createActionTemplateRole(role.id),
     displayedSubject: displayedSubject,
-  };
-  const actionCtxPermission = (permissionKey: string) => ({
-    actionParams: createActionTemplateRolePermission(roleId, permissionKey),
-    displayedSubject: createDisplayedSubjectRolePermission(
-      roleId,
-      permissionKey,
-    ),
   });
+  const actionCtxPermission = (permissionKey: string) =>
+    createActionCtx({
+      actionParams: createActionTemplateRolePermission(roleId, permissionKey),
+      displayedSubject: createDisplayedSubjectRolePermission(
+        roleId,
+        permissionKey,
+      ),
+    });
 
   const breadcrumb = (
     <Breadcrumb size="small">

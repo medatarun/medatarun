@@ -61,7 +61,7 @@ import { useAppI18n } from "@/services/appI18n.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { TagIcon } from "@/components/business/tag/tag.icons.tsx";
-import type { ActionCtx } from "@/components/business/actions";
+import { createActionCtx } from "@/components/business/actions";
 import { Tag } from "@/business/tag";
 
 export function ModelEditPage({ modelId }: { modelId: string }) {
@@ -114,22 +114,24 @@ export function ModelView() {
   };
 
   const displayedSubject = createDisplayedSubjectModel(model.id);
-  const actionCtxPage: ActionCtx = {
+  const actionCtxPage = createActionCtx({
     actionParams: createActionTemplateModel(model.id),
     displayedSubject: displayedSubject,
-  };
-  const actionCtxTagList = {
+  });
+  const actionCtxTagList = createActionCtx({
     actionParams: createActionTemplateTagLocalList(modelTagScope(model.id)),
     displayedSubject: displayedSubject,
-  };
-  const actionCtxRelationship = (r: RelationshipDto): ActionCtx => ({
-    actionParams: createActionTemplateRelationship(model.id, r.id),
-    displayedSubject: displayedSubject,
   });
-  const actionCtxTag = (tag: Tag): ActionCtx => ({
-    actionParams: createActionTemplateTag(tag.id),
-    displayedSubject: displayedSubject,
-  });
+  const actionCtxRelationship = (r: RelationshipDto) =>
+    createActionCtx({
+      actionParams: createActionTemplateRelationship(model.id, r.id),
+      displayedSubject: displayedSubject,
+    });
+  const actionCtxTag = (tag: Tag) =>
+    createActionCtx({
+      actionParams: createActionTemplateTag(tag.id),
+      displayedSubject: displayedSubject,
+    });
 
   return (
     <ViewLayoutContained

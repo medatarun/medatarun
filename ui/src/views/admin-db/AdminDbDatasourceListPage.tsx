@@ -14,7 +14,7 @@ import {
 } from "@fluentui/react-icons";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import {
-  type ActionCtx,
+  createActionCtx,
   displaySubjectNone,
 } from "@/components/business/actions";
 import { CardGrid } from "@/components/layout/CardGrid.tsx";
@@ -36,10 +36,10 @@ export function AdminDbDatasourceListPage() {
   const datasources = sortBy(dsRaw ?? [], (it) => it.id);
   const drivers = sortBy(driversRaw ?? [], (it) => it.id);
 
-  const actionCtxPage: ActionCtx = {
+  const actionCtxPage = createActionCtx({
     actionParams: createActionTemplateGeneral(),
     displayedSubject: displaySubjectNone,
-  };
+  });
 
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: undefined,

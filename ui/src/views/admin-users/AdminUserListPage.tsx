@@ -25,6 +25,7 @@ import {
 } from "@/components/business/auth_user/user.actions.ts";
 import {
   type ActionCtx,
+  createActionCtx,
   displaySubjectNone,
 } from "@/components/business/actions";
 import { useAppI18n } from "@/services/appI18n.tsx";
@@ -55,15 +56,16 @@ export function AdminUserListPage() {
     navigate({ to: "/admin/users/$userId", params: { userId } });
   };
 
-  const actionCtxPage: ActionCtx = {
+  const actionCtxPage = createActionCtx({
     actionParams: createActionTemplateUserList(),
     displayedSubject: displaySubjectNone,
-  };
-
-  const actionCtxUser = (user: UserInfoDto): ActionCtx => ({
-    actionParams: createActionTemplateUser(user.username),
-    displayedSubject: createDisplayedSubjectUser(user.username),
   });
+
+  const actionCtxUser = (user: UserInfoDto) =>
+    createActionCtx({
+      actionParams: createActionTemplateUser(user.username),
+      displayedSubject: createDisplayedSubjectUser(user.username),
+    });
 
   const headerProps: ViewLayoutHeaderProps = {
     eyebrow: t("adminUsersPage_eyebrow"),

@@ -21,6 +21,7 @@ import { formatLocalDateTime, toProblem } from "@seij/common-types";
 import { createActionTemplateActor } from "@/components/business/actor/actor.actions.ts";
 import {
   type ActionCtx,
+  createActionCtx,
   displaySubjectNone,
 } from "@/components/business/actions";
 import { useAppI18n } from "@/services/appI18n.tsx";
@@ -52,10 +53,15 @@ export function AdminActorListPage() {
     navigate({ to: "/admin/actors/$actorId", params: { actorId } });
   };
 
-  const actionCtxPage: ActionCtx = {
+  const actionCtxPage = createActionCtx({
     actionParams: {},
     displayedSubject: displaySubjectNone,
-  };
+  });
+  const actionCtxActor = (actor: ActorInfoDto): ActionCtx =>
+    createActionCtx({
+      actionParams: createActionTemplateActor(actor.id),
+      displayedSubject: displaySubjectNone,
+    });
 
   const headerProps: ViewLayoutHeaderProps = {
     eyebrow: t("adminActorsPage_eyebrow"),
@@ -82,6 +88,7 @@ export function AdminActorListPage() {
           actors={actorItems}
           itemActions={itemActions}
           onClickActor={handleClickActor}
+          actionCtxActor={actionCtxActor}
         />
       </SectionTable>
     </ViewLayoutContained>
@@ -92,10 +99,12 @@ function AdminActorsTable({
   actors,
   itemActions,
   onClickActor,
+  actionCtxActor,
 }: {
   actors: ActorInfoDto[];
   itemActions: ActionDescriptor[];
   onClickActor: (actorId: string) => void;
+  actionCtxActor: (actor: ActorInfoDto) => ActionCtx;
 }) {
   const { t } = useAppI18n();
   if (actors.length === 0) {
@@ -110,10 +119,6 @@ function AdminActorsTable({
     <Table>
       <TableBody>
         {actors.map((actor) => {
-          const actionCtx: ActionCtx = {
-            actionParams: createActionTemplateActor(actor.id),
-            displayedSubject: displaySubjectNone,
-          };
           return (
             <TableRow key={actor.id}>
               <TableCell onClick={() => onClickActor(actor.id)}>
@@ -137,7 +142,7 @@ function AdminActorsTable({
               <TableCell style={{ width: "3em", textAlign: "right" }}>
                 <ActionMenuButton
                   itemActions={itemActions}
-                  actionCtx={actionCtx}
+                  actionCtx={actionCtxActor(actor)}
                 />
               </TableCell>
             </TableRow>

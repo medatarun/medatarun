@@ -4,6 +4,7 @@ import {
 } from "@/business/action_registry";
 import {
   type ActionCtx,
+  createActionCtx,
   displaySubjectNone,
 } from "@/components/business/actions";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
@@ -20,10 +21,10 @@ export function DashboardPage() {
   const actionRegistry = useActionRegistry();
   const actions = actionRegistry.findActions(ActionUILocations.global);
   const { t } = useAppI18n();
-  const actionCtxPage: ActionCtx = {
+  const actionCtxPage = createActionCtx({
     actionParams: createActionTemplateGeneral(),
     displayedSubject: displaySubjectNone,
-  };
+  });
   const headerProps: ViewLayoutHeaderProps = {
     eyebrow: t("dashboardPage_eyebrow"),
     title: t("dashboardPage_title"),

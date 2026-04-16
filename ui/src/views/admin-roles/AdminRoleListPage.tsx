@@ -23,6 +23,7 @@ import {
 } from "@/components/business/actor/actor.actions.ts";
 import {
   type ActionCtx,
+  createActionCtx,
   displaySubjectNone,
 } from "@/components/business/actions";
 import { useAppI18n } from "@/services/appI18n.tsx";
@@ -50,15 +51,16 @@ export function AdminRoleListPage() {
     navigate({ to: "/admin/roles/$roleId", params: { roleId } });
   };
 
-  const actionCtxPage: ActionCtx = {
+  const actionCtxPage = createActionCtx({
     actionParams: createActionTemplateRoleList(),
     displayedSubject: displaySubjectNone,
-  };
-
-  const actionCtxRole = (role: AuthRole) => ({
-    actionParams: createActionTemplateRole(role.id),
-    displayedSubject: createDisplayedSubjectRole(role.id),
   });
+
+  const actionCtxRole = (role: AuthRole) =>
+    createActionCtx({
+      actionParams: createActionTemplateRole(role.id),
+      displayedSubject: createDisplayedSubjectRole(role.id),
+    });
 
   const headerProps: ViewLayoutHeaderProps = {
     eyebrow: t("authRolesPage_eyebrow"),
