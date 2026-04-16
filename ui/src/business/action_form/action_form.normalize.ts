@@ -26,12 +26,15 @@ function formDataToPayload(
   const payload: ActionPayload = {};
   for (const parameter of action.parameters) {
     const name = parameter.name;
-    const value = formData[name] ?? null;
-    payload[name] = isNil(value) ? null : normalize(parameter, value);
+    const value = formData[name];
+    // Normalize null | undefined to null
+    const valueNullable = isNil(value) ? null : value;
+    const valueNormalized = TypeRegistryInstance.normalize(
+      parameter.type,
+      parameter,
+      valueNullable,
+    );
+    payload[name] = valueNormalized;
   }
   return payload;
-}
-
-function normalize(param: ActionDescriptorParam, value: unknown) {
-  return TypeRegistryInstance.normalize(param.type, param, value);
 }

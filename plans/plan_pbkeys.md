@@ -132,16 +132,9 @@ identifierAttribute from the business class `Entity`
 - [X] changer l'interprétation de `entity_created` pour aller vers la nouvelle
   table
 
-We can do that much later
-
-- [ ] completely delete `entity_created` v1 from event stack
-- [ ] completely delete `entity_identifier_attribute_updated` v1 from event
-  stack
-- [ ] completely delete `model_aggregate_stored` v1 from event stack
-
 ### Post cleanup
 
-- [ ] unit tests that update PK reads pk
+- [X] unit tests that update PK reads pk
 - [ ] unit tests that update bk reads bk
 - [ ] unit tests that model copy with complex bk and pk
 - [ ] unit tests that model imports with complex bk and pk
@@ -315,3 +308,13 @@ Cleanup phase:
 - [ ] revoir les TU
 - [ ] au niveau TU ajouter des controles sur les relations pk/bk vers entityId,
   attributeId pour voir si on pointe bien sur des références valides
+
+## Post project items
+ 
+Tech debt to remove. We can do that much later. Compatibility is ok and unit tested.
+
+- [ ] completely delete `entity_created` v1 from event stack
+- [ ] completely delete `entity_identifier_attribute_updated` v1 from event
+  stack
+- [ ] completely delete `model_aggregate_stored` v1 from event stack
+
