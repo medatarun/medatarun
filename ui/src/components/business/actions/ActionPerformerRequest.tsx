@@ -37,6 +37,7 @@ export type ActionPerformerRequest = {
 };
 
 export type ActionPerformerRequestParam = {
+  visible: boolean;
   readonly: boolean;
   value: unknown;
 };

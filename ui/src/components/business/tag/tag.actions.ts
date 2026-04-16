@@ -51,7 +51,7 @@ export const createActionTemplateTagLocalList = (scope: {
   id: string | null;
 }): ActionPerformerRequestParams => {
   return {
-    scopeRef: { value: scope, readonly: true },
+    scopeRef: { value: scope, readonly: true, visible: true },
   };
 };
 

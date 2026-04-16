@@ -107,8 +107,8 @@ export function InlineEditTags({
       actionGroupKey: "tag",
       actionKey: "tag_local_create",
       params: {
-        scopeRef: { value: scope, readonly: true },
-        key: { value: key, readonly: false },
+        scopeRef: { value: scope, readonly: true, visible: false },
+        key: { value: key, readonly: false, visible: true },
       },
       displayedSubject: displayedSubject,
     });

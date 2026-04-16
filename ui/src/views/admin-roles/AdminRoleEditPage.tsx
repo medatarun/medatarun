@@ -46,6 +46,7 @@ import {
 import { LockClosedRegular } from "@fluentui/react-icons";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import type { ActionPerformerRequestParams } from "@/components/business/actions";
 
 export function AdminRoleEditPage({ roleId }: { roleId: string }) {
   const { t } = useAppI18n();
@@ -147,10 +148,10 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
 function createActionTemplateRolePermission(
   roleId: string,
   permissionKey: string,
-) {
+): ActionPerformerRequestParams {
   return {
     roleRef: refid(roleId),
-    permissionKey: { value: permissionKey, readonly: true },
+    permissionKey: { value: permissionKey, readonly: true, visible: true },
   };
 }
 

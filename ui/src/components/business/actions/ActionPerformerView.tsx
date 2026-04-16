@@ -326,7 +326,7 @@ function createFormFields(
       type: param.type,
       order: param.order,
       readonly: isNil(prefilledValue) ? false : prefilledValue.readonly,
-      visible: isNil(prefilledValue) ? true : !prefilledValue.readonly,
+      visible: isNil(prefilledValue) ? true : prefilledValue.visible,
     };
     formFields.push(field);
   });

@@ -82,5 +82,6 @@ function actorIdParam(actorId: string): ActionPerformerRequestParam {
   return {
     value: actorId,
     readonly: true,
+    visible: false,
   };
 }

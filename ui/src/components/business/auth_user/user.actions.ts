@@ -29,5 +29,6 @@ function usernameParam(username: string): ActionPerformerRequestParam {
   return {
     value: username,
     readonly: true,
+    visible: true,
   };
 }
