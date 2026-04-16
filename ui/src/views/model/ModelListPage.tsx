@@ -13,7 +13,10 @@ import { InfoLabel, tokens } from "@fluentui/react-components";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { displaySubjectNone } from "@/components/business/actions";
+import {
+  type ActionCtx,
+  displaySubjectNone,
+} from "@/components/business/actions";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { SectionCards } from "@/components/layout/SectionCards.tsx";
 import {
@@ -35,14 +38,18 @@ export function ModelListPage({
   );
   const systemModels = data.filter((model) => model.authority !== "canonical");
 
+  const actionCtxPage: ActionCtx = {
+    actionParams: createActionTemplateGeneral(),
+    displayedSubject: displaySubjectNone,
+  };
+
   const headerProps: ViewLayoutHeaderProps = {
     title: t("modelListPage_title"),
     titleIcon: <ModelIcon />,
     actions: {
       label: t("modelListPage_actions"),
       itemActions: actions,
-      actionParams: createActionTemplateGeneral(),
-      displayedSubject: displaySubjectNone,
+      actionCtx: actionCtxPage,
     },
   };
 
@@ -59,6 +66,7 @@ export function ModelListPage({
           titleInfo={t("modelListPage_canonicalInfo")}
           models={canonicalModels}
           onClickModel={onClickModel}
+          actionCtxSection={actionCtxPage}
         />
       )}
       {systemModels.length > 0 && (
@@ -67,6 +75,7 @@ export function ModelListPage({
           titleInfo={t("modelListPage_systemInfo")}
           models={systemModels}
           onClickModel={onClickModel}
+          actionCtxSection={actionCtxPage}
         />
       )}
     </ViewLayoutContained>
@@ -78,18 +87,19 @@ function ModelsSection({
   titleInfo,
   models,
   onClickModel,
+  actionCtxSection,
 }: {
   title: string;
   titleInfo: string;
   models: ModelSummaryDto[];
   onClickModel: (modelId: string) => void;
+  actionCtxSection: ActionCtx;
 }) {
   return (
     <>
       <SectionTitle
         icon={undefined}
-        actionParams={createActionTemplateGeneral()}
-        displayedSubject={displaySubjectNone}
+        actionCtx={actionCtxSection}
         location={ActionUILocations.none}
       >
         <span

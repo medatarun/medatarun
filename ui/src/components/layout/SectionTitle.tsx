@@ -5,6 +5,7 @@ import {
 } from "@/business/action_registry";
 import { Text, tokens } from "@fluentui/react-components";
 import type {
+  ActionCtx,
   ActionDisplayedSubject,
   ActionPerformerRequestParams,
 } from "@/components/business/actions";
@@ -13,18 +14,12 @@ import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton
 export function SectionTitle({
   icon,
   location,
-  actionParams,
-  displayedSubject,
+  actionCtx,
   children,
 }: {
   icon: ReactNode;
-  actionParams: ActionPerformerRequestParams;
-  /**
-   * Page subject propagated to action performer.
-   * Keep it equal to the page displayed subject.
-   */
-  displayedSubject: ActionDisplayedSubject;
   location: ActionUILocation;
+  actionCtx: ActionCtx;
 } & PropsWithChildren) {
   const actionRegistry = useActionRegistry();
   const actions = actionRegistry.findActions(location);
@@ -52,11 +47,7 @@ export function SectionTitle({
         <Text weight="semibold">{children}</Text>
       </div>
       <div>
-        <ActionMenuButton
-          actionParams={actionParams}
-          displayedSubject={displayedSubject}
-          itemActions={actions}
-        />
+        <ActionMenuButton actionCtx={actionCtx} itemActions={actions} />
       </div>
     </div>
   );

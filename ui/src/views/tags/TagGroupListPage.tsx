@@ -3,17 +3,23 @@ import {
   ActionUILocations,
   useActionRegistry,
 } from "@/business/action_registry";
-import { useTags } from "@/business/tag";
+import { TagGroup, useTags } from "@/business/tag";
 import { TagGroupsTable } from "./TagGroupsTable.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
-import { createActionTemplateTagGroupList } from "@/components/business/tag/tag.actions.ts";
+import {
+  createActionTemplateTagGroup,
+  createActionTemplateTagGroupList,
+} from "@/components/business/tag/tag.actions.ts";
 import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { displaySubjectNone } from "@/components/business/actions";
+import {
+  type ActionCtx,
+  displaySubjectNone,
+} from "@/components/business/actions";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
@@ -36,6 +42,17 @@ export function TagGroupListPage() {
 
   if (tagsResult.isPending) return null;
   if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)} />;
+
+  const actionCtxPage: ActionCtx = {
+    actionParams: createActionTemplateTagGroupList(),
+    displayedSubject: displaySubjectNone,
+  };
+
+  const actionCtxTagGroup = (tagGroup: TagGroup): ActionCtx => ({
+    actionParams: createActionTemplateTagGroup(tagGroup.id),
+    displayedSubject: displaySubjectNone,
+  });
+
   const headerProps: ViewLayoutHeaderProps = {
     title: t("tagGroupsPage_title"),
     titleIcon: <TagGroupIcon />,
@@ -43,8 +60,7 @@ export function TagGroupListPage() {
     actions: {
       label: t("tagGroupsPage_actions"),
       itemActions: actions,
-      actionParams: createActionTemplateTagGroupList(),
-      displayedSubject: displaySubjectNone,
+      actionCtx: actionCtxPage,
     },
   };
   return (
@@ -58,8 +74,7 @@ export function TagGroupListPage() {
       <SectionTitle
         icon={<TagGroupIcon />}
         location={ActionUILocations.tag_group_list}
-        actionParams={createActionTemplateTagGroupList()}
-        displayedSubject={displaySubjectNone}
+        actionCtx={actionCtxPage}
       >
         {t("tagGroupsPage_sectionTitle")}
       </SectionTitle>
@@ -68,6 +83,7 @@ export function TagGroupListPage() {
         <TagGroupsTable
           tagGroups={tagsResult.tags.listTagGroups()}
           onClick={handleClickTagGroup}
+          actionCtxTagGroup={actionCtxTagGroup}
         />
       </SectionTable>
     </ViewLayoutContained>

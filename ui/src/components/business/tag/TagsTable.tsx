@@ -11,13 +11,16 @@ import { useNavigate } from "@tanstack/react-router";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import { useActionRegistry } from "@/business/action_registry";
-import { type TagScopeRef, useTags } from "@/business/tag";
+import { Tag, type TagScopeRef, useTags } from "@/business/tag";
 import {
   createActionTemplateTag,
   detailActionLocation,
 } from "./tag.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { type ActionDisplayedSubject } from "@/components/business/actions";
+import {
+  type ActionCtx,
+  type ActionDisplayedSubject,
+} from "@/components/business/actions";
 import { Key } from "@/components/core/Key.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
@@ -36,11 +39,11 @@ const useStyles = makeStyles({
 export function TagsTable({
   scope,
   tagGroupId,
-  displayedSubject,
+  actionCtxTag,
 }: {
   scope: TagScopeRef;
   tagGroupId?: string;
-  displayedSubject: ActionDisplayedSubject;
+  actionCtxTag: (tag: Tag) => ActionCtx;
 }) {
   const { t } = useAppI18n();
   const navigate = useNavigate();
@@ -96,8 +99,7 @@ export function TagsTable({
                   itemActions={actionRegistry.findActions(
                     detailActionLocation(tag),
                   )}
-                  actionParams={createActionTemplateTag(tag.id)}
-                  displayedSubject={displayedSubject}
+                  actionCtx={actionCtxTag(tag)}
                 />
               </TableCell>
             </TableRow>

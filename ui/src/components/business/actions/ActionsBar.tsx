@@ -59,8 +59,10 @@ export const ActionButton = ({
       performAction({
         actionKey: action.key,
         actionGroupKey: action.actionGroupKey,
-        params: params,
-        displayedSubject: displayedSubject ?? displaySubjectNone,
+        ctx: {
+          actionParams: params,
+          displayedSubject: displayedSubject ?? displaySubjectNone,
+        },
       });
     } catch (e) {
       // We don't manage errors here

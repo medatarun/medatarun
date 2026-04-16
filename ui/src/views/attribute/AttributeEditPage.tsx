@@ -61,6 +61,7 @@ import {
 } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import {
+  type ActionCtx,
   type ActionDisplayedSubject,
   displaySubjectNone,
 } from "@/components/business/actions";
@@ -228,6 +229,11 @@ export function AttributeView({
           )
         : displaySubjectNone;
 
+  const actionCtxPage: ActionCtx = {
+    actionParams: actionParams,
+    displayedSubject: displayedSubject,
+  };
+
   const handleUpdateName = async (value: string) => {
     if (parentAsEntity != null) {
       return entityAttributeUpdateName.mutateAsync({
@@ -321,8 +327,7 @@ export function AttributeView({
     actions: {
       label: t("attributeEditPage_actions"),
       itemActions: actions,
-      actionParams: actionParams,
-      displayedSubject: displayedSubject,
+      actionCtx: actionCtxPage,
     },
   };
 

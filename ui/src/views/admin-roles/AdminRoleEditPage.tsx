@@ -46,7 +46,10 @@ import {
 import { LockClosedRegular } from "@fluentui/react-icons";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import type { ActionPerformerRequestParams } from "@/components/business/actions";
+import type {
+  ActionCtx,
+  ActionPerformerRequestParams,
+} from "@/components/business/actions";
 
 export function AdminRoleEditPage({ roleId }: { roleId: string }) {
   const { t } = useAppI18n();
@@ -73,6 +76,18 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
       value: value,
     });
   };
+
+  const actionCtxPage: ActionCtx = {
+    actionParams: createActionTemplateRole(role.id),
+    displayedSubject: displayedSubject,
+  };
+  const actionCtxPermission = (permissionKey: string) => ({
+    actionParams: createActionTemplateRolePermission(roleId, permissionKey),
+    displayedSubject: createDisplayedSubjectRolePermission(
+      roleId,
+      permissionKey,
+    ),
+  });
 
   const breadcrumb = (
     <Breadcrumb size="small">
@@ -105,8 +120,7 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
     actions: {
       label: t("authRolePage_actions"),
       itemActions: actionRegistry.findActions(ActionUILocations.auth_role),
-      actionParams: createActionTemplateRole(role.id),
-      displayedSubject: displayedSubject,
+      actionCtx: actionCtxPage,
     },
   };
 
@@ -126,13 +140,16 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
       <SectionTitle
         icon={undefined}
         location={ActionUILocations.auth_role_permissions}
-        actionParams={createActionTemplateRole(role.id)}
-        displayedSubject={displayedSubject}
+        actionCtx={actionCtxPage}
       >
         {t("authRolePage_permissionsLabel")}
       </SectionTitle>
       <SectionTable>
-        <PermissionTable roleId={role.id} permissions={details.permissions} />
+        <PermissionTable
+          roleId={role.id}
+          permissions={details.permissions}
+          actionCtxPermission={actionCtxPermission}
+        />
       </SectionTable>
 
       <ViewLayoutTechnicalInfos
@@ -158,9 +175,11 @@ function createActionTemplateRolePermission(
 function PermissionTable({
   roleId,
   permissions,
+  actionCtxPermission,
 }: {
   roleId: string;
   permissions: string[];
+  actionCtxPermission: (permissionKey: string) => ActionCtx;
 }) {
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
@@ -204,14 +223,7 @@ function PermissionTable({
               <TableCell style={{ width: "3em", textAlign: "right" }}>
                 <ActionMenuButton
                   itemActions={permissionActions}
-                  actionParams={createActionTemplateRolePermission(
-                    roleId,
-                    permissionKey,
-                  )}
-                  displayedSubject={createDisplayedSubjectRolePermission(
-                    roleId,
-                    permissionKey,
-                  )}
+                  actionCtx={actionCtxPermission(permissionKey)}
                 />
               </TableCell>
             </TableRow>

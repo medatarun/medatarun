@@ -37,6 +37,7 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { PersonKeyRegular } from "@fluentui/react-icons";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import type { ActionCtx } from "@/components/business/actions";
 
 export function AdminActorEditPage({ actorId }: { actorId: string }) {
   const { t } = useAppI18n();
@@ -50,6 +51,15 @@ export function AdminActorEditPage({ actorId }: { actorId: string }) {
 
   const actor = actorResult.data;
   const actorActions = actionRegistry.findActions(ActionUILocations.auth_actor);
+
+  const actionCtxPage: ActionCtx = {
+    actionParams: createActionTemplateActor(actor.id),
+    displayedSubject: createDisplayedSubjectActor(actor.id),
+  };
+  const actionCtxActorRoleList: ActionCtx = {
+    actionParams: createActionTemplateActorRoleList(actor.id),
+    displayedSubject: createDisplayedSubjectActor(actor.id),
+  };
 
   const breadcrumb = (
     <Breadcrumb size="small">
@@ -74,8 +84,7 @@ export function AdminActorEditPage({ actorId }: { actorId: string }) {
     actions: {
       label: t("adminActorPage_actions"),
       itemActions: actorActions,
-      actionParams: createActionTemplateActor(actor.id),
-      displayedSubject: createDisplayedSubjectActor(actor.id),
+      actionCtx: actionCtxPage,
     },
   };
 
@@ -124,8 +133,7 @@ export function AdminActorEditPage({ actorId }: { actorId: string }) {
       <SectionTitle
         icon={undefined}
         location={ActionUILocations.auth_actor_roles}
-        actionParams={createActionTemplateActorRoleList(actor.id)}
-        displayedSubject={createDisplayedSubjectActor(actor.id)}
+        actionCtx={actionCtxActorRoleList}
       >
         {t("adminActorPage_rolesTitle")}
       </SectionTitle>
@@ -162,6 +170,14 @@ function ActorRolesTable({ actor }: { actor: ActorDetails }) {
     <Table>
       <TableBody>
         {rolesItems.map((role) => {
+          const actionCtxRole: ActionCtx = {
+            actionParams: createActionTemplateActorRole(actor.id, role.id),
+            displayedSubject: createDisplayedSubjectActorRole(
+              actor.id,
+              role.id,
+            ),
+          };
+
           return (
             <TableRow key={role.id}>
               <TableCell>
@@ -173,14 +189,7 @@ function ActorRolesTable({ actor }: { actor: ActorDetails }) {
               <TableCell style={{ width: "3em", textAlign: "right" }}>
                 <ActionMenuButton
                   itemActions={roleActions}
-                  actionParams={createActionTemplateActorRole(
-                    actor.id,
-                    role.id,
-                  )}
-                  displayedSubject={createDisplayedSubjectActorRole(
-                    actor.id,
-                    role.id,
-                  )}
+                  actionCtx={actionCtxRole}
                 />
               </TableCell>
             </TableRow>

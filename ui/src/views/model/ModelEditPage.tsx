@@ -6,6 +6,7 @@ import {
 import {
   type ElementOrigin,
   Model,
+  type RelationshipDto,
   useModel,
   useModelAddTag,
   useModelDeleteTag,
@@ -41,12 +42,16 @@ import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
 import {
   createActionTemplateModel,
+  createActionTemplateRelationship,
   createDisplayedSubjectModel,
 } from "@/components/business/model/model.actions.ts";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
-import { createActionTemplateTagLocalList } from "@/components/business/tag/tag.actions.ts";
+import {
+  createActionTemplateTag,
+  createActionTemplateTagLocalList,
+} from "@/components/business/tag/tag.actions.ts";
 import {
   EntityIcon,
   RelationshipIcon,
@@ -56,6 +61,8 @@ import { useAppI18n } from "@/services/appI18n.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { TagIcon } from "@/components/business/tag/tag.icons.tsx";
+import type { ActionCtx } from "@/components/business/actions";
+import { Tag } from "@/business/tag";
 
 export function ModelEditPage({ modelId }: { modelId: string }) {
   const { data: model } = useModel(modelId);
@@ -107,6 +114,23 @@ export function ModelView() {
   };
 
   const displayedSubject = createDisplayedSubjectModel(model.id);
+  const actionCtxPage: ActionCtx = {
+    actionParams: createActionTemplateModel(model.id),
+    displayedSubject: displayedSubject,
+  };
+  const actionCtxTagList = {
+    actionParams: createActionTemplateTagLocalList(modelTagScope(model.id)),
+    displayedSubject: displayedSubject,
+  };
+  const actionCtxRelationship = (r: RelationshipDto): ActionCtx => ({
+    actionParams: createActionTemplateRelationship(model.id, r.id),
+    displayedSubject: displayedSubject,
+  });
+  const actionCtxTag = (tag: Tag): ActionCtx => ({
+    actionParams: createActionTemplateTag(tag.id),
+    displayedSubject: displayedSubject,
+  });
+
   return (
     <ViewLayoutContained
       title={
@@ -131,8 +155,7 @@ export function ModelView() {
                 <ActionMenuButton
                   label={t("modelEditPage_actions")}
                   itemActions={actions}
-                  actionParams={createActionTemplateModel(model.id)}
-                  displayedSubject={displayedSubject}
+                  actionCtx={actionCtxPage}
                 />
               </div>
             </div>
@@ -161,8 +184,7 @@ export function ModelView() {
 
             <SectionTitle
               icon={<EntityIcon />}
-              actionParams={createActionTemplateModel(model.id)}
-              displayedSubject={displayedSubject}
+              actionCtx={actionCtxPage}
               location={ActionUILocations.model_entities}
             >
               {t("modelEditPage_entitiesTitle")}
@@ -183,8 +205,7 @@ export function ModelView() {
 
             <SectionTitle
               icon={<RelationshipIcon />}
-              actionParams={createActionTemplateModel(model.id)}
-              displayedSubject={displayedSubject}
+              actionCtx={actionCtxPage}
               location={ActionUILocations.model_relationships}
             >
               {t("modelEditPage_relationshipsTitle")}
@@ -202,15 +223,14 @@ export function ModelView() {
                 <RelationshipsTable
                   onClick={handleClickRelationship}
                   relationships={model.relationships}
-                  displayedSubject={displayedSubject}
+                  actionCtxRelationship={actionCtxRelationship}
                 />
               </SectionTable>
             )}
 
             <SectionTitle
               icon={<TypeIcon />}
-              actionParams={createActionTemplateModel(model.id)}
-              displayedSubject={displayedSubject}
+              actionCtx={actionCtxPage}
               location={ActionUILocations.model_types}
             >
               {t("modelEditPage_dataTypesTitle")}
@@ -231,11 +251,8 @@ export function ModelView() {
 
             <SectionTitle
               icon={<TagIcon />}
-              actionParams={createActionTemplateTagLocalList(
-                modelTagScope(model.id),
-              )}
+              actionCtx={actionCtxTagList}
               location={ActionUILocations.tag_local_list}
-              displayedSubject={displayedSubject}
             >
               {t("modelEditPage_localTagsTitle")}
             </SectionTitle>
@@ -243,7 +260,7 @@ export function ModelView() {
             <SectionTable>
               <TagsTable
                 scope={modelTagScope(model.id)}
-                displayedSubject={displayedSubject}
+                actionCtxTag={actionCtxTag}
               />
             </SectionTable>
 

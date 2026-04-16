@@ -42,6 +42,7 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
+import type { ActionCtx } from "@/components/business/actions";
 
 export function TypeEditPage({
   modelId,
@@ -92,7 +93,11 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
       value: value,
     });
   };
-  const actionParams = createActionTemplateType(model.id, type.id);
+
+  const actionCtxPage: ActionCtx = {
+    actionParams: createActionTemplateType(model.id, type.id),
+    displayedSubject: createDisplayedSubjectType(model.id, type.id),
+  };
 
   const breadcrumb = (
     <Breadcrumb size="small">
@@ -132,8 +137,7 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
     actions: {
       label: t("typeEditPage_actions"),
       itemActions: actions,
-      actionParams: actionParams,
-      displayedSubject: createDisplayedSubjectType(model.id, type.id),
+      actionCtx: actionCtxPage,
     },
   };
 

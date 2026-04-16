@@ -36,6 +36,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
+import type { ActionCtx } from "@/components/business/actions";
 
 export function TagEditPage({ tagId }: { tagId: string }) {
   const { t } = useAppI18n();
@@ -77,6 +78,15 @@ export function TagEditPage({ tagId }: { tagId: string }) {
     });
   };
 
+  const actionCtxPage: ActionCtx = {
+    actionParams: createActionTemplateTag(tag.id),
+    displayedSubject: createDisplayedSubjectTag({
+      tagId: tag.id,
+      tagScopeRef: tag.scope,
+      tagGroupId: tag.groupId,
+    }),
+  };
+
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: <TagEditBreadcrumb tag={tag} />,
     title: (
@@ -92,12 +102,7 @@ export function TagEditPage({ tagId }: { tagId: string }) {
     actions: {
       label: t("tagEdit_actions"),
       itemActions: actions,
-      actionParams: createActionTemplateTag(tag.id),
-      displayedSubject: createDisplayedSubjectTag({
-        tagId: tag.id,
-        tagScopeRef: tag.scope,
-        tagGroupId: tag.groupId,
-      }),
+      actionCtx: actionCtxPage,
     },
   };
 

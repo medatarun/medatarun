@@ -19,21 +19,10 @@ export type ActionPerformerRequest = {
    */
   actionKey: string;
   /**
-   * Known predefined parameters for the action, typically what is already
-   * set before starting.
+   * Contextual information for the action (prefilled parameters, where we
+   * are on screens, etc.)
    */
-  params: ActionPerformerRequestParams;
-  /**
-   * The object the action is about.
-   * There is contextual information about where the user launches the action.
-   *
-   * Typically, which entity, which model, which tag, etc. It helps resolve
-   * action parameters and resolve post-action behaviors.
-   *
-   * For example, for the "delete" actions on an object this helps to go back to
-   * its parent object after deletion.
-   */
-  displayedSubject: ActionDisplayedSubject;
+  ctx: ActionCtx;
 };
 
 export type ActionPerformerRequestParam = {
@@ -66,3 +55,26 @@ export type ActionDisplayedSubject =
   | ActionDisplayedSubjectResource;
 
 export const displaySubjectNone: ActionDisplayedSubjectNone = { kind: "none" };
+
+export type ActionCtx = {
+  /**
+   * Known predefined parameters for the action, typically what is already
+   * set before starting.
+   */
+  actionParams: ActionPerformerRequestParams;
+  /**
+   * The object the action is about.
+   * There is contextual information about where the user launches the action.
+   *
+   * Typically, which entity, which model, which tag, etc. It helps resolve
+   * action parameters and resolve post-action behaviors.
+   *
+   * For example, for the "delete" actions on an object this helps to go back to
+   * its parent object after deletion.
+   *
+   * Keep it equal to the page displayed subject (not the object on which
+   * the action is executed). For example, if the action is on an attribute
+   * in an entity page, this will be the Entity not the attribute.
+   */
+  displayedSubject: ActionDisplayedSubject;
+};

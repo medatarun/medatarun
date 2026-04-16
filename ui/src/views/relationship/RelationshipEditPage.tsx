@@ -3,6 +3,7 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import {
+  type AttributeDto,
   Model,
   type RelationshipDto,
   type RelationshipRoleDto,
@@ -61,6 +62,7 @@ import {
 import { toProblem } from "@seij/common-types";
 import { ErrorBox } from "@seij/common-ui";
 import { useNavigate } from "@tanstack/react-router";
+import type { ActionCtx } from "@/components/business/actions";
 
 export function RelationshipEditPage({
   modelId,
@@ -131,11 +133,32 @@ export function RelationshipView({
     model.id,
     relationship.id,
   );
-
   const displayedSubject = createDisplayedSubjectRelationship(
     model.id,
     relationship.id,
   );
+  const actionCtxPage: ActionCtx = {
+    actionParams: actionParams,
+    displayedSubject: displayedSubject,
+  };
+
+  const actionCtxAttribute = (attr: AttributeDto): ActionCtx => ({
+    actionParams: createActionTemplateRelationshipAttribute(
+      model.id,
+      relationship.id,
+      attr.id,
+    ),
+    displayedSubject: displayedSubject,
+  });
+
+  const actionCtxRole = (role: RelationshipRoleDto): ActionCtx => ({
+    actionParams: createActionTemplateRelationshipRole(
+      model.id,
+      relationship.id,
+      role.id,
+    ),
+    displayedSubject: displayedSubject,
+  });
 
   const breadCrumb = (
     <Breadcrumb size="small">
@@ -178,8 +201,7 @@ export function RelationshipView({
     actions: {
       label: t("relationshipEditPage_actions"),
       itemActions: actions,
-      actionParams: actionParams,
-      displayedSubject: displayedSubject,
+      actionCtx: actionCtxPage,
     },
   };
 
@@ -208,11 +230,7 @@ export function RelationshipView({
 
       <SectionTitle
         icon={<AttributeIcon />}
-        actionParams={createActionTemplateRelationship(
-          model.id,
-          relationship.id,
-        )}
-        displayedSubject={displayedSubject}
+        actionCtx={actionCtxPage}
         location={ActionUILocations.relationship_roles}
       >
         {t("relationshipEditPage_rolesTitle")}
@@ -263,12 +281,7 @@ export function RelationshipView({
                       itemActions={actionRegistry.findActions(
                         ActionUILocations.relationship_role,
                       )}
-                      actionParams={createActionTemplateRelationshipRole(
-                        model.id,
-                        relationship.id,
-                        role.id,
-                      )}
-                      displayedSubject={displayedSubject}
+                      actionCtx={actionCtxRole(role)}
                     />
                   }
                 />
@@ -283,11 +296,7 @@ export function RelationshipView({
 
       <SectionTitle
         icon={<AttributeIcon />}
-        actionParams={createActionTemplateRelationship(
-          model.id,
-          relationship.id,
-        )}
-        displayedSubject={displayedSubject}
+        actionCtx={actionCtxPage}
         location={ActionUILocations.relationship_attributes}
       >
         {t("relationshipEditPage_attributesTitle")}
@@ -305,15 +314,8 @@ export function RelationshipView({
           <AttributesTable
             attributes={relationship.attributes}
             actionUILocation={ActionUILocations.relationship_attribute}
-            actionParamsFactory={(attributeId: string) =>
-              createActionTemplateRelationshipAttribute(
-                model.id,
-                relationship.id,
-                attributeId,
-              )
-            }
+            actionCtxAttribute={actionCtxAttribute}
             parentId={relationship.id}
-            displayedSubject={displayedSubject}
             onClickAttribute={handleClickAttribute}
           />
         </SectionTable>

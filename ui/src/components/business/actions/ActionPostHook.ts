@@ -135,7 +135,7 @@ export class ActionPostHooks {
   private resolveSuccessContext(
     context: ActionPostBaseContext,
   ): ActionPostSuccessContext | null {
-    const subject = context.request.displayedSubject;
+    const subject = context.request.ctx.displayedSubject;
     if (subject.kind !== "resource") {
       return null;
     }

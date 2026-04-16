@@ -69,10 +69,10 @@ export function ActionPerformerView() {
   const defaultFormData: FormDataType = {};
   for (const actionParam of action.parameters) {
     defaultFormData[actionParam.name] =
-      state.request.params[actionParam.name]?.value ?? null;
+      state.request.ctx.actionParams[actionParam.name]?.value ?? null;
   }
 
-  const formFields = createFormFields(action, state.request.params);
+  const formFields = createFormFields(action, state.request.ctx.actionParams);
 
   return (
     <ActionPerformerViewLoaded

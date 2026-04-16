@@ -1,9 +1,5 @@
 import type { ActionDescriptor } from "@/business/action_registry";
-import {
-  type ActionDisplayedSubject,
-  type ActionPerformerRequestParams,
-  displaySubjectNone,
-} from "@/components/business/actions";
+import { type ActionCtx } from "@/components/business/actions";
 import { useActionPerformer } from "@/components/business/actions/ActionPerformerHook.tsx";
 import {
   Button,
@@ -17,18 +13,12 @@ import { Icon } from "@seij/common-ui-icons";
 
 export function ActionMenuButton({
   itemActions,
-  actionParams,
-  displayedSubject,
+  actionCtx,
   label,
 }: {
   label?: string;
   itemActions: ActionDescriptor[];
-  actionParams: ActionPerformerRequestParams;
-  /**
-   * Page subject propagated to action performer.
-   * Keep it equal to the page displayed subject.
-   */
-  displayedSubject: ActionDisplayedSubject;
+  actionCtx: ActionCtx;
 }) {
   const actionPerformer = useActionPerformer();
   if (itemActions.length === 0) return null;
@@ -47,8 +37,7 @@ export function ActionMenuButton({
                 actionPerformer.performAction({
                   actionKey: action.key,
                   actionGroupKey: action.actionGroupKey,
-                  params: actionParams,
-                  displayedSubject: displayedSubject ?? displaySubjectNone,
+                  ctx: actionCtx,
                 });
               }}
               icon={undefined}

@@ -21,8 +21,8 @@ export function ActionPerformerInputEntityRef(
   props: ActionPerformerInputProps,
 ) {
   const modelId =
-    props.request.displayedSubject.kind === "resource"
-      ? (props.request.displayedSubject.refs["modelId"] ?? null)
+    props.request.ctx.displayedSubject.kind === "resource"
+      ? (props.request.ctx.displayedSubject.refs["modelId"] ?? null)
       : null;
   if (!modelId)
     return (

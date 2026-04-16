@@ -26,6 +26,7 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { PersonRegular } from "@fluentui/react-icons";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
+import type { ActionCtx } from "@/components/business/actions";
 
 export function AdminUserEditPage({ userId }: { userId: string }) {
   const { t } = useAppI18n();
@@ -41,6 +42,11 @@ export function AdminUserEditPage({ userId }: { userId: string }) {
   if (!user) {
     return <InfoBox intent="warning">{t("adminUserPage_notFound")}</InfoBox>;
   }
+
+  const actionCtxPage: ActionCtx = {
+    actionParams: createActionTemplateUser(user.username),
+    displayedSubject: createDisplayedSubjectUser(user.username),
+  };
 
   const breadcrumb = (
     <Breadcrumb size="small">
@@ -65,8 +71,7 @@ export function AdminUserEditPage({ userId }: { userId: string }) {
     actions: {
       label: t("adminUserPage_actions"),
       itemActions: actionRegistry.findActions(ActionUILocations.user),
-      actionParams: createActionTemplateUser(user.username),
-      displayedSubject: createDisplayedSubjectUser(user.username),
+      actionCtx: actionCtxPage,
     },
   };
 

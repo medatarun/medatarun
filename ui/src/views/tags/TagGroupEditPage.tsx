@@ -4,8 +4,8 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import {
+  Tag,
   useTagGroupUpdateDescription,
-  useTagGroupUpdateKey,
   useTagGroupUpdateName,
   useTags,
 } from "@/business/tag";
@@ -26,6 +26,7 @@ import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import {
+  createActionTemplateTag,
   createActionTemplateTagGlobalList,
   createActionTemplateTagGroup,
   createDisplayedSubjectTagGroup,
@@ -37,6 +38,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
+import type { ActionCtx } from "@/components/business/actions";
 
 export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
   const { t } = useAppI18n();
@@ -78,6 +80,18 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
   };
 
   const displayedSubject = createDisplayedSubjectTagGroup(tagGroup.id);
+  const actionCtxPage: ActionCtx = {
+    actionParams: createActionTemplateTagGroup(tagGroup.id),
+    displayedSubject: displayedSubject,
+  };
+  const actionCtxTagList: ActionCtx = {
+    actionParams: createActionTemplateTagGlobalList(tagGroup.id),
+    displayedSubject: displayedSubject,
+  };
+  const actionCtxTag = (tag: Tag): ActionCtx => ({
+    actionParams: createActionTemplateTag(tag.id),
+    displayedSubject: displayedSubject,
+  });
 
   const breadcrumb = (
     <Breadcrumb size="small">
@@ -115,8 +129,7 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
     actions: {
       label: t("tagGroupEdit_actions"),
       itemActions: actions,
-      actionParams: createActionTemplateTagGroup(tagGroup.id),
-      displayedSubject: displayedSubject,
+      actionCtx: actionCtxPage,
     },
   };
   return (
@@ -136,8 +149,7 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
       <SectionTitle
         icon={<TagGroupIcon />}
         location={ActionUILocations.tag_global_list}
-        actionParams={createActionTemplateTagGlobalList(tagGroup.id)}
-        displayedSubject={displayedSubject}
+        actionCtx={actionCtxTagList}
       >
         {t("tagGroupEdit_tagsTitle")}
       </SectionTitle>
@@ -146,7 +158,7 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
         <TagsTable
           scope={{ type: "global", id: null }}
           tagGroupId={tagGroup.id}
-          displayedSubject={displayedSubject}
+          actionCtxTag={actionCtxTag}
         />
       </SectionTable>
       <ViewLayoutTechnicalInfos
