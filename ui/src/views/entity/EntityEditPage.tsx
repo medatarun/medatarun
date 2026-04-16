@@ -52,7 +52,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { type ActionCtx, createActionCtx } from "@/components/business/actions";
+import { createActionCtx } from "@/components/business/actions";
 
 export function EntityEditPage({
   modelId,

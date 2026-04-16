@@ -4,11 +4,7 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import { Text, tokens } from "@fluentui/react-components";
-import type {
-  ActionCtx,
-  ActionDisplayedSubject,
-  ActionPerformerRequestParams,
-} from "@/components/business/actions";
+import type { ActionCtx } from "@/components/business/actions";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export function SectionTitle({

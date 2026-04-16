@@ -16,11 +16,7 @@ import type { AttributeDto } from "@/business/model";
 import { useModelContext } from "./ModelContext.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { modelTagScope, TagsCondensed } from "@/components/core/Tag.tsx";
-import type {
-  ActionCtx,
-  ActionDisplayedSubject,
-  ActionPerformerRequestParams,
-} from "@/components/business/actions";
+import type { ActionCtx } from "@/components/business/actions";
 import { Key } from "@/components/core/Key.tsx";
 import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
 import {

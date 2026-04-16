@@ -23,7 +23,6 @@ import { Tags, type TagScopeRef, useTags } from "@/business/tag";
 import { useActionPerformer } from "@/components/business/actions/ActionPerformerHook.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import {
-  type ActionCtx,
   type ActionDisplayedSubject,
   createActionCtx,
 } from "@/components/business/actions";

@@ -2,11 +2,7 @@ import type { ReactNode } from "react";
 import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import { tokens } from "@fluentui/react-components";
 import { ActionDescriptor } from "@/business/action_registry";
-import type {
-  ActionCtx,
-  ActionDisplayedSubject,
-  ActionPerformerRequestParams,
-} from "@/components/business/actions";
+import type { ActionCtx } from "@/components/business/actions";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export interface ViewLayoutHeaderProps {

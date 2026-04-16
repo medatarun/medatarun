@@ -8,7 +8,6 @@ import {
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import {
   ContainedFixed,
-  ContainedHeader,
   ContainedMixedScrolling,
   ContainedScrollable,
 } from "@/components/layout/Contained";

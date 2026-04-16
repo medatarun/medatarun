@@ -12,15 +12,9 @@ import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import { useActionRegistry } from "@/business/action_registry";
 import { Tag, type TagScopeRef, useTags } from "@/business/tag";
-import {
-  createActionTemplateTag,
-  detailActionLocation,
-} from "./tag.actions.ts";
+import { detailActionLocation } from "./tag.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import {
-  type ActionCtx,
-  type ActionDisplayedSubject,
-} from "@/components/business/actions";
+import { type ActionCtx } from "@/components/business/actions";
 import { Key } from "@/components/core/Key.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";

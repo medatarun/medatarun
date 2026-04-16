@@ -62,7 +62,7 @@ import {
 import { toProblem } from "@seij/common-types";
 import { ErrorBox } from "@seij/common-ui";
 import { useNavigate } from "@tanstack/react-router";
-import { type ActionCtx, createActionCtx } from "@/components/business/actions";
+import { createActionCtx } from "@/components/business/actions";
 
 export function RelationshipEditPage({
   modelId,
