@@ -3,7 +3,12 @@ import {
   ActionUILocations,
   useActionRegistry,
 } from "@/business/action_registry";
-import { ActorDetails, useActor, useRoleRegistry } from "@/business/actor";
+import {
+  ActorDetails,
+  AuthRole,
+  useActor,
+  useRoleRegistry,
+} from "@/business/actor";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -37,6 +42,7 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { PersonKeyRegular } from "@fluentui/react-icons";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import { type ActionCtx, createActionCtx } from "@/components/business/actions";
 
 export function AdminActorEditPage({ actorId }: { actorId: string }) {
   const { t } = useAppI18n();
@@ -50,6 +56,20 @@ export function AdminActorEditPage({ actorId }: { actorId: string }) {
 
   const actor = actorResult.data;
   const actorActions = actionRegistry.findActions(ActionUILocations.auth_actor);
+
+  const actionCtxPage = createActionCtx({
+    actionParams: createActionTemplateActor(actor.id),
+    displayedSubject: createDisplayedSubjectActor(actor.id),
+  });
+  const actionCtxActorRoleList = createActionCtx({
+    actionParams: createActionTemplateActorRoleList(actor.id),
+    displayedSubject: createDisplayedSubjectActor(actor.id),
+  });
+  const actionCtxRole = (role: AuthRole) =>
+    createActionCtx({
+      actionParams: createActionTemplateActorRole(actor.id, role.id),
+      displayedSubject: createDisplayedSubjectActorRole(actor.id, role.id),
+    });
 
   const breadcrumb = (
     <Breadcrumb size="small">
@@ -74,8 +94,7 @@ export function AdminActorEditPage({ actorId }: { actorId: string }) {
     actions: {
       label: t("adminActorPage_actions"),
       itemActions: actorActions,
-      actionParams: createActionTemplateActor(actor.id),
-      displayedSubject: createDisplayedSubjectActor(actor.id),
+      actionCtx: actionCtxPage,
     },
   };
 
@@ -124,19 +143,24 @@ export function AdminActorEditPage({ actorId }: { actorId: string }) {
       <SectionTitle
         icon={undefined}
         location={ActionUILocations.auth_actor_roles}
-        actionParams={createActionTemplateActorRoleList(actor.id)}
-        displayedSubject={createDisplayedSubjectActor(actor.id)}
+        actionCtx={actionCtxActorRoleList}
       >
         {t("adminActorPage_rolesTitle")}
       </SectionTitle>
       <SectionTable>
-        <ActorRolesTable actor={actor} />
+        <ActorRolesTable actor={actor} actionCtxRole={actionCtxRole} />
       </SectionTable>
     </ViewLayoutContained>
   );
 }
 
-function ActorRolesTable({ actor }: { actor: ActorDetails }) {
+function ActorRolesTable({
+  actor,
+  actionCtxRole,
+}: {
+  actor: ActorDetails;
+  actionCtxRole: (role: AuthRole) => ActionCtx;
+}) {
   // Hooks
   const { t } = useAppI18n();
   const roleRegistry = useRoleRegistry();
@@ -173,14 +197,7 @@ function ActorRolesTable({ actor }: { actor: ActorDetails }) {
               <TableCell style={{ width: "3em", textAlign: "right" }}>
                 <ActionMenuButton
                   itemActions={roleActions}
-                  actionParams={createActionTemplateActorRole(
-                    actor.id,
-                    role.id,
-                  )}
-                  displayedSubject={createDisplayedSubjectActorRole(
-                    actor.id,
-                    role.id,
-                  )}
+                  actionCtx={actionCtxRole(role)}
                 />
               </TableCell>
             </TableRow>

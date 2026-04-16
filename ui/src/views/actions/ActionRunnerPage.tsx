@@ -6,7 +6,6 @@ import { SecurityRuleBadge } from "@/views/actions/components/SecurityRuleBadge.
 import { Markdown } from "@/components/core/Markdown.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import {
   Button,
   Field,

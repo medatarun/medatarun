@@ -1,11 +1,11 @@
 import type { QueryClient } from "@tanstack/react-query";
 import type { NavigateFn } from "@tanstack/react-router";
 import type { ActionDescriptor } from "@/business/action_registry";
+import type { ActionPerformerState } from "./ActionPerformer.tsx";
 import type {
   ActionDisplayedSubjectResource,
   ActionPerformerRequest,
-  ActionPerformerState,
-} from "@/components/business/actions/ActionPerformer.tsx";
+} from "./ActionPerformerRequest.tsx";
 
 type ActionPostBaseContext = {
   action: ActionDescriptor;
@@ -135,7 +135,7 @@ export class ActionPostHooks {
   private resolveSuccessContext(
     context: ActionPostBaseContext,
   ): ActionPostSuccessContext | null {
-    const subject = context.request.displayedSubject;
+    const subject = context.request.ctx.displayedSubject;
     if (subject.kind !== "resource") {
       return null;
     }

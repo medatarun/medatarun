@@ -12,8 +12,7 @@ import {
   DatabaseRegular,
   LinkRegular,
 } from "@fluentui/react-icons";
-import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
-import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import { createActionCtxVoid } from "@/components/business/actions";
 import { CardGrid } from "@/components/layout/CardGrid.tsx";
 import {
   ViewLayoutHeader,
@@ -33,6 +32,8 @@ export function AdminDbDatasourceListPage() {
   const datasources = sortBy(dsRaw ?? [], (it) => it.id);
   const drivers = sortBy(driversRaw ?? [], (it) => it.id);
 
+  const actionCtxPage = createActionCtxVoid();
+
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: undefined,
     eyebrow: undefined,
@@ -41,8 +42,7 @@ export function AdminDbDatasourceListPage() {
     actions: {
       label: t("adminDbDatasourceListPage_actions"),
       itemActions: actions,
-      actionParams: createActionTemplateGeneral(),
-      displayedSubject: displaySubjectNone,
+      actionCtx: actionCtxPage,
     },
   };
   return (

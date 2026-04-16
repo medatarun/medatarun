@@ -2,10 +2,7 @@ import type { ReactNode } from "react";
 import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import { tokens } from "@fluentui/react-components";
 import { ActionDescriptor } from "@/business/action_registry";
-import type {
-  ActionDisplayedSubject,
-  ActionPerformerRequestParams,
-} from "@/components/business/actions/ActionPerformer.tsx";
+import type { ActionCtx } from "@/components/business/actions";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export interface ViewLayoutHeaderProps {
@@ -16,8 +13,7 @@ export interface ViewLayoutHeaderProps {
   actions?: {
     label: string;
     itemActions: ActionDescriptor[];
-    actionParams: ActionPerformerRequestParams;
-    displayedSubject: ActionDisplayedSubject;
+    actionCtx: ActionCtx;
   };
 }
 export function ViewLayoutHeader(props: ViewLayoutHeaderProps) {
@@ -44,8 +40,7 @@ export function ViewLayoutHeader(props: ViewLayoutHeaderProps) {
               <ActionMenuButton
                 label={props.actions.label}
                 itemActions={props.actions.itemActions}
-                actionParams={props.actions.actionParams}
-                displayedSubject={props.actions.displayedSubject}
+                actionCtx={props.actions.actionCtx}
               />
             </div>
           )}

@@ -2,7 +2,7 @@ import type {
   ActionDisplayedSubject,
   ActionPerformerRequestParam,
   ActionPerformerRequestParams,
-} from "@/components/business/actions/ActionPerformer.tsx";
+} from "@/components/business/actions";
 
 export const createActionTemplateUserList =
   (): ActionPerformerRequestParams => {
@@ -29,5 +29,6 @@ function usernameParam(username: string): ActionPerformerRequestParam {
   return {
     value: username,
     readonly: true,
+    visible: true,
   };
 }

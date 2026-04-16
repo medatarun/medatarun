@@ -6,49 +6,9 @@ import {
 import { ActionRegistry } from "@/business/action_registry";
 import { queryClient } from "@/services/queryClient.ts";
 import type { ActionPostHooks } from "./ActionPostHook.ts";
+import type { ActionPerformerRequest } from "@/components/business/actions/ActionPerformerRequest.tsx";
 
-export type ActionPerformerRequestParam = {
-  readonly: boolean;
-  value: unknown;
-};
-export type ActionPerformerRequestParams = Record<
-  string,
-  ActionPerformerRequestParam
->;
-
-/**
- * Subject currently displayed by the UI where the action is triggered.
- *
- * Contract:
- * - This is page-level context, not row-level or transient item context.
- * - refs keys must follow action naming conventions (modelRef, entityRef, ...).
- * - refs values should use the same normalized format as action params ("id:...").
- */
-export type ActionDisplayedSubjectNone = { kind: "none" };
-export type ActionDisplayedSubjectResource = {
-  kind: "resource";
-  type: string;
-  refs: Record<string, string>;
-};
-export type ActionDisplayedSubject =
-  | ActionDisplayedSubjectNone
-  | ActionDisplayedSubjectResource;
 export type ActionPerformerFormData = Record<string, unknown>;
-
-/**
- * Action execution request captured at trigger time.
- *
- * Contract:
- * - params are action input values.
- * - displayedSubject describes where the action was launched from.
- *   Post-action navigation relies on it for delete behaviors.
- */
-export type ActionPerformerRequest = {
-  actionGroupKey: string;
-  actionKey: string;
-  params: ActionPerformerRequestParams;
-  displayedSubject: ActionDisplayedSubject;
-};
 
 export type ActionPerformerState =
   | { kind: "idle" }
@@ -150,4 +110,3 @@ export class ActionPerformer {
     return resp;
   }
 }
-export const displaySubjectNone: ActionDisplayedSubjectNone = { kind: "none" };

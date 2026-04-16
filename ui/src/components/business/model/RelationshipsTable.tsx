@@ -16,9 +16,8 @@ import {
 import type { RelationshipDto } from "@/business/model";
 import { useModelContext } from "./ModelContext.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
-import { createActionTemplateRelationship } from "./model.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import type { ActionDisplayedSubject } from "@/components/business/actions/ActionPerformer.tsx";
+import type { ActionCtx } from "@/components/business/actions";
 import { Key } from "@/components/core/Key.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
@@ -47,11 +46,11 @@ const useStyles = makeStyles({
 export function RelationshipsTable({
   relationships,
   onClick,
-  displayedSubject,
+  actionCtxRelationship,
 }: {
-  displayedSubject: ActionDisplayedSubject;
   relationships: RelationshipDto[];
   onClick: (relationshipId: string) => void;
+  actionCtxRelationship: (r: RelationshipDto) => ActionCtx;
 }) {
   const { t } = useAppI18n();
   const model = useModelContext();
@@ -92,11 +91,7 @@ export function RelationshipsTable({
                 <TableCell className={styles.actionCell}>
                   <ActionMenuButton
                     itemActions={itemActions}
-                    actionParams={createActionTemplateRelationship(
-                      model.id,
-                      r.id,
-                    )}
-                    displayedSubject={displayedSubject}
+                    actionCtx={actionCtxRelationship(r)}
                   />
                 </TableCell>
               </TableRow>

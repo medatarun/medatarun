@@ -5,9 +5,11 @@ import {
   ActionUILocations,
   useActionRegistry,
 } from "@/business/action_registry";
-import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import {
+  type ActionCtx,
+  createActionCtxVoid,
+} from "@/components/business/actions";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
@@ -22,14 +24,16 @@ export function PreferencesPage() {
   const mode = isDetailLevelTech
     ? t("preferencesPage_modeTech")
     : t("preferencesPage_modeBusiness");
+
+  const actionCtxPage: ActionCtx = createActionCtxVoid();
+
   const headerProps: ViewLayoutHeaderProps = {
     title: t("preferencesPage_title"),
     titleIcon: <SettingsCogMultipleRegular />,
     actions: {
       label: t("preferencesPage_actions"),
       itemActions: actions,
-      actionParams: createActionTemplateGeneral(),
-      displayedSubject: displaySubjectNone,
+      actionCtx: actionCtxPage,
     },
   };
   return (

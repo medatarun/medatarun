@@ -1,6 +1,6 @@
 import type { NavigateFn } from "@tanstack/react-router";
 import type { ActionPostHook } from "@/components/business/actions/ActionPostHook.ts";
-import type { ActionDisplayedSubjectResource } from "@/components/business/actions/ActionPerformer.tsx";
+import type { ActionDisplayedSubjectResource } from "@/components/business/actions";
 import {
   actionTargetsDisplayedSubject,
   decodeActionParamId,
@@ -12,7 +12,9 @@ export const modelActionPostHook: ActionPostHook = {
   },
 
   onActionSuccess: async (context, queryClient) => {
-    const modelId = decodeActionParamId(context.request.params.modelRef);
+    const modelId = decodeActionParamId(
+      context.request.ctx.actionParams.modelRef,
+    );
     if (modelId) {
       await queryClient.invalidateQueries({ queryKey: ["model", modelId] });
     }

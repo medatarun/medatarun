@@ -23,7 +23,11 @@ import {
   createActionTemplateUserList,
   createDisplayedSubjectUser,
 } from "@/components/business/auth_user/user.actions.ts";
-import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import {
+  type ActionCtx,
+  createActionCtx,
+  displaySubjectNone,
+} from "@/components/business/actions";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
 import {
@@ -52,6 +56,17 @@ export function AdminUserListPage() {
     navigate({ to: "/admin/users/$userId", params: { userId } });
   };
 
+  const actionCtxPage = createActionCtx({
+    actionParams: createActionTemplateUserList(),
+    displayedSubject: displaySubjectNone,
+  });
+
+  const actionCtxUser = (user: UserInfoDto) =>
+    createActionCtx({
+      actionParams: createActionTemplateUser(user.username),
+      displayedSubject: createDisplayedSubjectUser(user.username),
+    });
+
   const headerProps: ViewLayoutHeaderProps = {
     eyebrow: t("adminUsersPage_eyebrow"),
     title: t("adminUsersPage_title"),
@@ -59,8 +74,7 @@ export function AdminUserListPage() {
     actions: {
       label: t("adminUsersPage_actions"),
       itemActions: actionRegistry.findActions(ActionUILocations.users),
-      actionParams: createActionTemplateUserList(),
-      displayedSubject: displaySubjectNone,
+      actionCtx: actionCtxPage,
     },
   };
 
@@ -81,6 +95,7 @@ export function AdminUserListPage() {
           users={userItems}
           itemActions={itemActions}
           onClickUser={handleClickUser}
+          actionCtxUser={actionCtxUser}
         />
       </SectionTable>
     </ViewLayoutContained>
@@ -91,10 +106,12 @@ function AdminUsersTable({
   users,
   itemActions,
   onClickUser,
+  actionCtxUser,
 }: {
   users: UserInfoDto[];
   itemActions: ActionDescriptor[];
   onClickUser: (userId: string) => void;
+  actionCtxUser: (user: UserInfoDto) => ActionCtx;
 }) {
   const { t } = useAppI18n();
 
@@ -126,8 +143,7 @@ function AdminUsersTable({
             <TableCell style={{ width: "3em", textAlign: "right" }}>
               <ActionMenuButton
                 itemActions={itemActions}
-                actionParams={createActionTemplateUser(user.username)}
-                displayedSubject={createDisplayedSubjectUser(user.username)}
+                actionCtx={actionCtxUser(user)}
               />
             </TableCell>
           </TableRow>

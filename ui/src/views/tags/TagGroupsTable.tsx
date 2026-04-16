@@ -13,8 +13,7 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import type { TagGroup } from "@/business/tag";
-import { createActionTemplateTagGroup } from "@/components/business/tag/tag.actions.ts";
-import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import { type ActionCtx } from "@/components/business/actions";
 import { Key } from "@/components/core/Key.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
@@ -32,9 +31,11 @@ const useStyles = makeStyles({
 export function TagGroupsTable({
   tagGroups,
   onClick,
+  actionCtxTagGroup,
 }: {
   tagGroups: TagGroup[];
   onClick: (tagGroupId: string) => void;
+  actionCtxTagGroup: (tagGroup: TagGroup) => ActionCtx;
 }) {
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
@@ -53,28 +54,29 @@ export function TagGroupsTable({
       ) : null}
       <Table>
         <TableBody>
-          {tagGroups.map((tagGroup) => (
-            <TableRow key={tagGroup.id}>
-              <TableCell
-                className={styles.titleCell}
-                onClick={() => onClick(tagGroup.id)}
-              >
-                <div>{tagGroup.name ?? <Key value={tagGroup.key} />}</div>
-                <div>
-                  {tagGroup.name && detailLevelContext.isDetailLevelTech ? (
-                    <Key value={tagGroup.key} />
-                  ) : null}
-                </div>
-              </TableCell>
-              <TableCell className={styles.actionCell}>
-                <ActionMenuButton
-                  itemActions={itemActions}
-                  actionParams={createActionTemplateTagGroup(tagGroup.id)}
-                  displayedSubject={displaySubjectNone}
-                />
-              </TableCell>
-            </TableRow>
-          ))}
+          {tagGroups.map((tagGroup) => {
+            return (
+              <TableRow key={tagGroup.id}>
+                <TableCell
+                  className={styles.titleCell}
+                  onClick={() => onClick(tagGroup.id)}
+                >
+                  <div>{tagGroup.name ?? <Key value={tagGroup.key} />}</div>
+                  <div>
+                    {tagGroup.name && detailLevelContext.isDetailLevelTech ? (
+                      <Key value={tagGroup.key} />
+                    ) : null}
+                  </div>
+                </TableCell>
+                <TableCell className={styles.actionCell}>
+                  <ActionMenuButton
+                    itemActions={itemActions}
+                    actionCtx={actionCtxTagGroup(tagGroup)}
+                  />
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>

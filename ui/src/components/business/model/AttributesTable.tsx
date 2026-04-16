@@ -16,10 +16,7 @@ import type { AttributeDto } from "@/business/model";
 import { useModelContext } from "./ModelContext.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { modelTagScope, TagsCondensed } from "@/components/core/Tag.tsx";
-import type {
-  ActionDisplayedSubject,
-  ActionPerformerRequestParams,
-} from "@/components/business/actions/ActionPerformer.tsx";
+import type { ActionCtx } from "@/components/business/actions";
 import { Key } from "@/components/core/Key.tsx";
 import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
 import {
@@ -52,16 +49,14 @@ export function AttributesTable({
   attributes,
   actionUILocation,
   onClickAttribute,
-  actionParamsFactory,
-  displayedSubject,
   parentId,
+  actionCtxAttribute,
 }: {
   attributes: AttributeDto[];
   parentId: string;
-  actionParamsFactory: (attributeId: string) => ActionPerformerRequestParams;
-  displayedSubject: ActionDisplayedSubject;
   actionUILocation: ActionUILocation;
   onClickAttribute: (id: string) => void;
+  actionCtxAttribute: (attr: AttributeDto) => ActionCtx;
 }) {
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
@@ -150,8 +145,7 @@ export function AttributesTable({
               <TableCell className={styles.actionCell}>
                 <ActionMenuButton
                   itemActions={itemActions}
-                  actionParams={actionParamsFactory(attribute.id)}
-                  displayedSubject={displayedSubject}
+                  actionCtx={actionCtxAttribute(attribute)}
                 />
               </TableCell>
             </TableRow>

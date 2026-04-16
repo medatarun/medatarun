@@ -62,8 +62,9 @@ import {
 import { useAppI18n } from "@/services/appI18n.tsx";
 import {
   type ActionDisplayedSubject,
+  createActionCtx,
   displaySubjectNone,
-} from "@/components/business/actions/ActionPerformer.tsx";
+} from "@/components/business/actions";
 import { InlineEditBoolean } from "@/components/core/InlineEditBoolean.tsx";
 import { InlineEditCombobox } from "@/components/core/InlineEditCombobox.tsx";
 import {
@@ -228,6 +229,11 @@ export function AttributeView({
           )
         : displaySubjectNone;
 
+  const actionCtxPage = createActionCtx({
+    actionParams: actionParams,
+    displayedSubject: displayedSubject,
+  });
+
   const handleUpdateName = async (value: string) => {
     if (parentAsEntity != null) {
       return entityAttributeUpdateName.mutateAsync({
@@ -321,8 +327,7 @@ export function AttributeView({
     actions: {
       label: t("attributeEditPage_actions"),
       itemActions: actions,
-      actionParams: actionParams,
-      displayedSubject: displayedSubject,
+      actionCtx: actionCtxPage,
     },
   };
 

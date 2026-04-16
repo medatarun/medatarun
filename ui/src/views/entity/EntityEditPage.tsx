@@ -4,8 +4,10 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import {
+  type AttributeDto,
   type EntityDto,
   Model,
+  type RelationshipDto,
   useEntityUpdateDescription,
   useEntityUpdateName,
   useModel,
@@ -32,6 +34,7 @@ import {
   createActionTemplateEntity,
   createActionTemplateEntityAttribute,
   createActionTemplateEntityForRelationships,
+  createActionTemplateRelationship,
   createDisplayedSubjectEntity,
 } from "@/components/business/model/model.actions.ts";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
@@ -49,6 +52,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { createActionCtx } from "@/components/business/actions";
 
 export function EntityEditPage({
   modelId,
@@ -116,6 +120,35 @@ export function EntityView({ entity }: { entity: EntityDto }) {
   };
   const displayedSubject = createDisplayedSubjectEntity(model.id, entity.id);
 
+  const actionCtxPage = createActionCtx({
+    actionParams: createActionTemplateEntity(model.id, entity.id),
+    displayedSubject: displayedSubject,
+  });
+
+  const actionCtxRelationship = (r: RelationshipDto) =>
+    createActionCtx({
+      actionParams: createActionTemplateRelationship(model.id, r.id),
+      displayedSubject: displayedSubject,
+    });
+
+  const actionCtxAttribute = (attr: AttributeDto) =>
+    createActionCtx({
+      actionParams: createActionTemplateEntityAttribute(
+        model.id,
+        entity.id,
+        attr.id,
+      ),
+      displayedSubject: displayedSubject,
+    });
+
+  const actionCtxRelationshipList = createActionCtx({
+    actionParams: createActionTemplateEntityForRelationships(
+      model.id,
+      entity.id,
+    ),
+    displayedSubject: displayedSubject,
+  });
+
   const breadcrumb = (
     <Breadcrumb size="small">
       <BreadcrumbItem>
@@ -152,8 +185,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
     actions: {
       label: t("entityEditPage_actions"),
       itemActions: actions,
-      actionParams: createActionTemplateEntity(model.id, entity.id),
-      displayedSubject: displayedSubject,
+      actionCtx: actionCtxPage,
     },
   };
 
@@ -182,8 +214,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
 
       <SectionTitle
         icon={<AttributeIcon />}
-        actionParams={createActionTemplateEntity(model.id, entity.id)}
-        displayedSubject={displayedSubject}
+        actionCtx={actionCtxPage}
         location={ActionUILocations.entity_attributes}
       >
         {t("entityEditPage_attributesTitle")}
@@ -193,26 +224,15 @@ export function EntityView({ entity }: { entity: EntityDto }) {
         <AttributesTable
           attributes={entity.attributes}
           actionUILocation={ActionUILocations.entity_attribute}
-          actionParamsFactory={(attributeId: string) =>
-            createActionTemplateEntityAttribute(
-              model.id,
-              entity.id,
-              attributeId,
-            )
-          }
-          displayedSubject={displayedSubject}
           parentId={entity.id}
           onClickAttribute={handleClickAttribute}
+          actionCtxAttribute={actionCtxAttribute}
         />
       </SectionTable>
 
       <SectionTitle
         icon={<RelationshipIcon />}
-        actionParams={createActionTemplateEntityForRelationships(
-          model.id,
-          entity.id,
-        )}
-        displayedSubject={displayedSubject}
+        actionCtx={actionCtxRelationshipList}
         location={ActionUILocations.entity_relationships}
       >
         {t("entityEditPage_relationshipsTitle")}
@@ -222,7 +242,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
         <RelationshipsTable
           onClick={handleClickRelationship}
           relationships={relationshipsInvolved}
-          displayedSubject={displayedSubject}
+          actionCtxRelationship={actionCtxRelationship}
         />
       </SectionTable>
 

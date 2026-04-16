@@ -1,5 +1,5 @@
 import type { ActionPostNavigationContext } from "./ActionPostHook.ts";
-import type { ActionPerformerRequestParam } from "./ActionPerformer.tsx";
+import type { ActionPerformerRequestParam } from "./ActionPerformerRequest.tsx";
 
 /**
  * Decodes an action request parameter value into a plain id when possible.
@@ -35,7 +35,7 @@ export function actionTargetsDisplayedSubject(
   } else {
     for (const refParam of targetSubject.referencingParams) {
       const expectedId = decodeActionParamId(
-        context.request.params[refParam.name],
+        context.request.ctx.actionParams[refParam.name],
       );
       const displayedKey = toDisplayedSubjectIdKey(refParam.name);
       const displayedId = displayedKey

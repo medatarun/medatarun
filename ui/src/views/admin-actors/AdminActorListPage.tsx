@@ -18,11 +18,12 @@ import {
 } from "@fluentui/react-components";
 import { ErrorBox } from "@seij/common-ui";
 import { formatLocalDateTime, toProblem } from "@seij/common-types";
+import { createActionTemplateActor } from "@/components/business/actor/actor.actions.ts";
 import {
-  createActionTemplateActor,
-  createDisplayedSubjectActor,
-} from "@/components/business/actor/actor.actions.ts";
-import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+  type ActionCtx,
+  createActionCtx,
+  displaySubjectNone,
+} from "@/components/business/actions";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
 import type { ActorInfoDto } from "@/business/actor/actor.dto.ts";
@@ -52,6 +53,16 @@ export function AdminActorListPage() {
     navigate({ to: "/admin/actors/$actorId", params: { actorId } });
   };
 
+  const actionCtxPage = createActionCtx({
+    actionParams: {},
+    displayedSubject: displaySubjectNone,
+  });
+  const actionCtxActor = (actor: ActorInfoDto): ActionCtx =>
+    createActionCtx({
+      actionParams: createActionTemplateActor(actor.id),
+      displayedSubject: displaySubjectNone,
+    });
+
   const headerProps: ViewLayoutHeaderProps = {
     eyebrow: t("adminActorsPage_eyebrow"),
     title: t("adminActorsPage_title"),
@@ -59,8 +70,7 @@ export function AdminActorListPage() {
     actions: {
       label: t("adminActorsPage_actions"),
       itemActions: actionRegistry.findActions(ActionUILocations.auth_actors),
-      actionParams: {},
-      displayedSubject: displaySubjectNone,
+      actionCtx: actionCtxPage,
     },
   };
 
@@ -78,6 +88,7 @@ export function AdminActorListPage() {
           actors={actorItems}
           itemActions={itemActions}
           onClickActor={handleClickActor}
+          actionCtxActor={actionCtxActor}
         />
       </SectionTable>
     </ViewLayoutContained>
@@ -88,10 +99,12 @@ function AdminActorsTable({
   actors,
   itemActions,
   onClickActor,
+  actionCtxActor,
 }: {
   actors: ActorInfoDto[];
   itemActions: ActionDescriptor[];
   onClickActor: (actorId: string) => void;
+  actionCtxActor: (actor: ActorInfoDto) => ActionCtx;
 }) {
   const { t } = useAppI18n();
   if (actors.length === 0) {
@@ -105,35 +118,36 @@ function AdminActorsTable({
   return (
     <Table>
       <TableBody>
-        {actors.map((actor) => (
-          <TableRow key={actor.id}>
-            <TableCell onClick={() => onClickActor(actor.id)}>
-              <div>
-                {actor.fullname}
-                {actor.disabledAt ? (
-                  <Caption1 style={{ display: "inline" }}>
-                    {" "}
-                    - {t("adminActorsPage_disabled")}
-                  </Caption1>
-                ) : null}
-              </div>
-              {actor.email ? <Caption1>{actor.email}</Caption1> : null}
-            </TableCell>
-            <TableCell
-              style={{ width: "9em", textAlign: "right" }}
-              onClick={() => onClickActor(actor.id)}
-            >
-              {formatLocalDateTime(actor.lastSeenAt)}
-            </TableCell>
-            <TableCell style={{ width: "3em", textAlign: "right" }}>
-              <ActionMenuButton
-                itemActions={itemActions}
-                actionParams={createActionTemplateActor(actor.id)}
-                displayedSubject={createDisplayedSubjectActor(actor.id)}
-              />
-            </TableCell>
-          </TableRow>
-        ))}
+        {actors.map((actor) => {
+          return (
+            <TableRow key={actor.id}>
+              <TableCell onClick={() => onClickActor(actor.id)}>
+                <div>
+                  {actor.fullname}
+                  {actor.disabledAt ? (
+                    <Caption1 style={{ display: "inline" }}>
+                      {" "}
+                      - {t("adminActorsPage_disabled")}
+                    </Caption1>
+                  ) : null}
+                </div>
+                {actor.email ? <Caption1>{actor.email}</Caption1> : null}
+              </TableCell>
+              <TableCell
+                style={{ width: "9em", textAlign: "right" }}
+                onClick={() => onClickActor(actor.id)}
+              >
+                {formatLocalDateTime(actor.lastSeenAt)}
+              </TableCell>
+              <TableCell style={{ width: "3em", textAlign: "right" }}>
+                <ActionMenuButton
+                  itemActions={itemActions}
+                  actionCtx={actionCtxActor(actor)}
+                />
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );

@@ -22,7 +22,10 @@ import { InlineEditSingleLineLayout } from "./InlineEditSingleLineLayout.tsx";
 import { Tags, type TagScopeRef, useTags } from "@/business/tag";
 import { useActionPerformer } from "@/components/business/actions/ActionPerformerHook.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { type ActionDisplayedSubject } from "@/components/business/actions/ActionPerformer.tsx";
+import {
+  type ActionDisplayedSubject,
+  createActionCtx,
+} from "@/components/business/actions";
 
 const CREATE_OPTION_PREFIX = "__create__:";
 
@@ -83,6 +86,15 @@ export function InlineEditTags({
     setWaitingCreatedTagResolution(false);
   }, [requestedCreatedTagKey, scope, state, tags, waitingCreatedTagResolution]);
 
+  const actionCtxTag = (key: string) =>
+    createActionCtx({
+      actionParams: {
+        scopeRef: { value: scope, readonly: true, visible: false },
+        key: { value: key, readonly: false, visible: true },
+      },
+      displayedSubject: displayedSubject,
+    });
+
   const handleEditStart = async () => {
     setValues(value);
   };
@@ -106,11 +118,7 @@ export function InlineEditTags({
     performAction({
       actionGroupKey: "tag",
       actionKey: "tag_local_create",
-      params: {
-        scopeRef: { value: scope, readonly: true },
-        key: { value: key, readonly: false },
-      },
-      displayedSubject: displayedSubject,
+      ctx: actionCtxTag(key),
     });
   };
 

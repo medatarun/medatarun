@@ -29,8 +29,7 @@ import {
 import type {
   ActionPerformerRequest,
   ActionPerformerRequestParams,
-  ActionPerformerState,
-} from "./ActionPerformer.tsx";
+} from "./ActionPerformerRequest.tsx";
 import ReactMarkdown from "react-markdown";
 import {
   combineValidationResults,
@@ -49,6 +48,7 @@ import {
   ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE,
   ACTION_PERFORMER_INPUT_DEFAULT_COMPONENT,
 } from "./inputs/ActionPerformerInputRegistry.ts";
+import type { ActionPerformerState } from "./ActionPerformer.tsx";
 
 const DEBUG = false;
 
@@ -69,10 +69,10 @@ export function ActionPerformerView() {
   const defaultFormData: FormDataType = {};
   for (const actionParam of action.parameters) {
     defaultFormData[actionParam.name] =
-      state.request.params[actionParam.name]?.value ?? null;
+      state.request.ctx.actionParams[actionParam.name]?.value ?? null;
   }
 
-  const formFields = createFormFields(action, state.request.params);
+  const formFields = createFormFields(action, state.request.ctx.actionParams);
 
   return (
     <ActionPerformerViewLoaded
@@ -326,7 +326,7 @@ function createFormFields(
       type: param.type,
       order: param.order,
       readonly: isNil(prefilledValue) ? false : prefilledValue.readonly,
-      visible: isNil(prefilledValue) ? true : !prefilledValue.readonly,
+      visible: isNil(prefilledValue) ? true : prefilledValue.visible,
     };
     formFields.push(field);
   });

@@ -21,7 +21,11 @@ import {
   createActionTemplateRoleList,
   createDisplayedSubjectRole,
 } from "@/components/business/actor/actor.actions.ts";
-import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import {
+  type ActionCtx,
+  createActionCtx,
+  displaySubjectNone,
+} from "@/components/business/actions";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
 import {
@@ -47,6 +51,17 @@ export function AdminRoleListPage() {
     navigate({ to: "/admin/roles/$roleId", params: { roleId } });
   };
 
+  const actionCtxPage = createActionCtx({
+    actionParams: createActionTemplateRoleList(),
+    displayedSubject: displaySubjectNone,
+  });
+
+  const actionCtxRole = (role: AuthRole) =>
+    createActionCtx({
+      actionParams: createActionTemplateRole(role.id),
+      displayedSubject: createDisplayedSubjectRole(role.id),
+    });
+
   const headerProps: ViewLayoutHeaderProps = {
     eyebrow: t("authRolesPage_eyebrow"),
     title: t("authRolesPage_title"),
@@ -54,8 +69,7 @@ export function AdminRoleListPage() {
     actions: {
       label: t("authRolesPage_actions"),
       itemActions: actionRegistry.findActions(ActionUILocations.auth_roles),
-      actionParams: createActionTemplateRoleList(),
-      displayedSubject: displaySubjectNone,
+      actionCtx: actionCtxPage,
     },
   };
 
@@ -67,7 +81,11 @@ export function AdminRoleListPage() {
     >
       <ViewLayoutPageInfo>{t("authRolesPage_description")}</ViewLayoutPageInfo>
       <SectionTable>
-        <AuthRolesTable roles={roleItems} onClickRole={handleClickRole} />
+        <AuthRolesTable
+          roles={roleItems}
+          onClickRole={handleClickRole}
+          actionCtxRole={actionCtxRole}
+        />
       </SectionTable>
     </ViewLayoutContained>
   );
@@ -76,9 +94,11 @@ export function AdminRoleListPage() {
 function AuthRolesTable({
   roles,
   onClickRole,
+  actionCtxRole,
 }: {
   roles: AuthRole[];
   onClickRole: (roleId: string) => void;
+  actionCtxRole: (role: AuthRole) => ActionCtx;
 }) {
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
@@ -108,8 +128,7 @@ function AuthRolesTable({
             <TableCell style={{ width: "3em", textAlign: "right" }}>
               <ActionMenuButton
                 itemActions={detailActions}
-                actionParams={createActionTemplateRole(role.id)}
-                displayedSubject={createDisplayedSubjectRole(role.id)}
+                actionCtx={actionCtxRole(role)}
               />
             </TableCell>
           </TableRow>
