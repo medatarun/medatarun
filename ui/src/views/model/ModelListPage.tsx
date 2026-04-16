@@ -10,13 +10,11 @@ import {
 } from "@/business/model";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { InfoLabel, tokens } from "@fluentui/react-components";
-import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import {
   type ActionCtx,
-  createActionCtx,
-  displaySubjectNone,
+  createActionCtxVoid,
 } from "@/components/business/actions";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { SectionCards } from "@/components/layout/SectionCards.tsx";
@@ -39,10 +37,7 @@ export function ModelListPage({
   );
   const systemModels = data.filter((model) => model.authority !== "canonical");
 
-  const actionCtxPage = createActionCtx({
-    actionParams: createActionTemplateGeneral(),
-    displayedSubject: displaySubjectNone,
-  });
+  const actionCtxPage = createActionCtxVoid();
 
   const headerProps: ViewLayoutHeaderProps = {
     title: t("modelListPage_title"),

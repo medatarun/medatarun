@@ -2,12 +2,7 @@ import {
   ActionUILocations,
   useActionRegistry,
 } from "@/business/action_registry";
-import {
-  type ActionCtx,
-  createActionCtx,
-  displaySubjectNone,
-} from "@/components/business/actions";
-import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
+import { createActionCtxVoid } from "@/components/business/actions";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import {
@@ -21,10 +16,7 @@ export function DashboardPage() {
   const actionRegistry = useActionRegistry();
   const actions = actionRegistry.findActions(ActionUILocations.global);
   const { t } = useAppI18n();
-  const actionCtxPage = createActionCtx({
-    actionParams: createActionTemplateGeneral(),
-    displayedSubject: displaySubjectNone,
-  });
+  const actionCtxPage = createActionCtxVoid();
   const headerProps: ViewLayoutHeaderProps = {
     eyebrow: t("dashboardPage_eyebrow"),
     title: t("dashboardPage_title"),

@@ -12,11 +12,7 @@ import {
   DatabaseRegular,
   LinkRegular,
 } from "@fluentui/react-icons";
-import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
-import {
-  createActionCtx,
-  displaySubjectNone,
-} from "@/components/business/actions";
+import { createActionCtxVoid } from "@/components/business/actions";
 import { CardGrid } from "@/components/layout/CardGrid.tsx";
 import {
   ViewLayoutHeader,
@@ -36,10 +32,7 @@ export function AdminDbDatasourceListPage() {
   const datasources = sortBy(dsRaw ?? [], (it) => it.id);
   const drivers = sortBy(driversRaw ?? [], (it) => it.id);
 
-  const actionCtxPage = createActionCtx({
-    actionParams: createActionTemplateGeneral(),
-    displayedSubject: displaySubjectNone,
-  });
+  const actionCtxPage = createActionCtxVoid();
 
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: undefined,

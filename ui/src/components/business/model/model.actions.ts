@@ -4,7 +4,6 @@ import type {
 } from "@/components/business/actions";
 import { refid } from "@/business/action_runner";
 
-export const createActionTemplateGeneral = () => ({});
 export const createActionTemplateEntity = (
   modelId: string,
   entityId: string,

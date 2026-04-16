@@ -4,13 +4,8 @@ import {
 } from "@/business/action_registry";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { Caption2, Text, tokens } from "@fluentui/react-components";
-import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import {
-  type ActionCtx,
-  createActionCtx,
-  displaySubjectNone,
-} from "@/components/business/actions";
+import { createActionCtxVoid } from "@/components/business/actions";
 import { useDatabaseDrivers } from "@/business/db";
 import {
   ArchiveRegular,
@@ -34,10 +29,7 @@ export function AdminDbDriverListPage() {
   const { t } = useAppI18n();
 
   const data = sortBy(driversRaw ?? [], (it) => it.name);
-  const actionCtxPage = createActionCtx({
-    actionParams: createActionTemplateGeneral(),
-    displayedSubject: displaySubjectNone,
-  });
+  const actionCtxPage = createActionCtxVoid();
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: undefined,
     eyebrow: undefined,

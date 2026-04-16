@@ -91,3 +91,17 @@ export const createActionCtx = (props: {
   actionParams: props.actionParams,
   displayedSubject: props.displayedSubject,
 });
+
+const ACTION_CTX_NOWHERE = {
+  actionParams: {},
+  displayedSubject: displaySubjectNone,
+};
+
+/**
+ * Use that when you have an action button that have no particular
+ * context (screens without a particular object and no parameters to prefill),
+ * for example, dashboards, lists, etc.
+ */
+export const createActionCtxVoid = () => {
+  return createActionCtx(ACTION_CTX_NOWHERE);
+};

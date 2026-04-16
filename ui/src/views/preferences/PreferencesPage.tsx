@@ -5,12 +5,10 @@ import {
   ActionUILocations,
   useActionRegistry,
 } from "@/business/action_registry";
-import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import {
   type ActionCtx,
-  createActionCtx,
-  displaySubjectNone,
+  createActionCtxVoid,
 } from "@/components/business/actions";
 import {
   ViewLayoutHeader,
@@ -27,10 +25,7 @@ export function PreferencesPage() {
     ? t("preferencesPage_modeTech")
     : t("preferencesPage_modeBusiness");
 
-  const actionCtxPage: ActionCtx = createActionCtx({
-    actionParams: createActionTemplateGeneral(),
-    displayedSubject: displaySubjectNone,
-  });
+  const actionCtxPage: ActionCtx = createActionCtxVoid();
 
   const headerProps: ViewLayoutHeaderProps = {
     title: t("preferencesPage_title"),
