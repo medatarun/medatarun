@@ -92,6 +92,26 @@ class ActionInvokerTest {
         assertEquals(mapOf("Pierre" to 1, "Marcel" to 2), cmd.counts)
     }
 
+    @Test
+    fun `list when empty are accepted`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("names", buildJsonArray {
+            })
+            put("counts", buildJsonObject {
+                put("Pierre", JsonPrimitive(1))
+                put("Marcel", JsonPrimitive(2))
+            })
+        }
+
+        runtime.invoke(ACTION_NAME_COLLECTIONS, payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithCollections)
+        assertEquals(emptyList<String>(), cmd.names)
+        assertEquals(mapOf("Pierre" to 1, "Marcel" to 2), cmd.counts)
+    }
+
     // ------------------------------------------------------------------------
     // String
     // ------------------------------------------------------------------------

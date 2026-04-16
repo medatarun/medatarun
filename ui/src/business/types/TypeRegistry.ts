@@ -109,16 +109,20 @@ export class TypeRegistry {
     typeDeclared: TypeDeclaration<unknown>,
     value: unknown,
   ) {
+    // List should not depend on optional.
+    // Optional means null or not null in actions, not how many items are
+    // in the list (0, 1 or more). So if the value is null or undefined or
+    // empty, it is the same, and it is valid.
+    //
+    // When the action is sent to the backend, normalization will transform
+    // nulls and undefined into empty arrays anyway.
+    // The optional in context is for elements in the list (it if it makes any
+    // sense), but actions in general would never say List<X> nullable.
     if (value === undefined || value === null) {
-      if (!ctx.optional) {
-        return invalid(t("formValidation_required"));
-      }
       return valid;
     }
     if (isArray(value)) {
-      if (!ctx.optional && value.length === 0) {
-        return invalid(t("formValidation_required"));
-      } else if (value.length === 0) {
+      if (value.length === 0) {
         return valid;
       } else {
         return combineValidationResults(

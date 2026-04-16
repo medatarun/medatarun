@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { createRegistry, TypeRegistry } from "@/business/types/TypeRegistry.ts";
 import { inspect_type_system_static } from "@/business/types/inspect_type_system.static.ts";
+import { valid } from "@seij/common-validation";
 
 describe("TypeRegistry", () => {
   test("that registry builds", () => {
@@ -69,5 +70,36 @@ describe("TypeRegistry", () => {
     expect(
       r.normalize("List<String>", { optional: true }, ["a", "b", "c"]),
     ).toEqual(["a", "b", "c"]);
+  });
+  describe("that normalize list with whatever optional", () => {
+    for (const optional of [true, false]) {
+      test(`with ${optional}`, () => {
+        const r: TypeRegistry = createRegistry();
+        const opt = { optional: optional };
+        const test = (value: unknown, expected: string[] | null | undefined) =>
+          expect(
+            r.normalize("List<String>", opt, value),
+            `optional=false value=${value} as ${typeof value}`,
+          ).toEqual(expected);
+        test(null, []);
+        test(undefined, []);
+        test(["a"], ["a"]);
+        test(["a", "b"], ["a", "b"]);
+        test(["a", null, "b"], ["a", "b"]);
+        test(["a", undefined, "b"], ["a", "b"]);
+      });
+    }
+  });
+  describe("that validate list with whatever optional", () => {
+    for (const param of [{ optional: true }, { optional: false }]) {
+      test(`with ${param.optional}`, () => {
+        const r: TypeRegistry = createRegistry();
+        expect(r.validate("List<String>", param, [])).toEqual(valid);
+        expect(r.validate("List<String>", param, null)).toEqual(valid);
+        expect(r.validate("List<String>", param, undefined)).toEqual(valid);
+        expect(r.validate("List<String>", param, ["a"])).toEqual(valid);
+        expect(r.validate("List<String>", param, ["a", "b"])).toEqual(valid);
+      });
+    }
   });
 });
