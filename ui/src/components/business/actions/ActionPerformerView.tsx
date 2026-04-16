@@ -29,8 +29,7 @@ import {
 import type {
   ActionPerformerRequest,
   ActionPerformerRequestParams,
-  ActionPerformerState,
-} from "./ActionPerformer.tsx";
+} from "./ActionPerformerRequest.tsx";
 import ReactMarkdown from "react-markdown";
 import {
   combineValidationResults,
@@ -49,6 +48,7 @@ import {
   ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE,
   ACTION_PERFORMER_INPUT_DEFAULT_COMPONENT,
 } from "./inputs/ActionPerformerInputRegistry.ts";
+import type { ActionPerformerState } from "./ActionPerformer.tsx";
 
 const DEBUG = false;
 

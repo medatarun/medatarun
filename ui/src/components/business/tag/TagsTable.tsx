@@ -17,7 +17,7 @@ import {
   detailActionLocation,
 } from "./tag.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { type ActionDisplayedSubject } from "@/components/business/actions/ActionPerformer.tsx";
+import { type ActionDisplayedSubject } from "@/components/business/actions";
 import { Key } from "@/components/core/Key.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";

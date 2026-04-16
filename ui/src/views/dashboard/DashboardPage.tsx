@@ -2,10 +2,9 @@ import {
   ActionUILocations,
   useActionRegistry,
 } from "@/business/action_registry";
-import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import { displaySubjectNone } from "@/components/business/actions";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { ContainedHumanReadable } from "@/components/layout/Contained.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import {
   ViewLayoutHeader,

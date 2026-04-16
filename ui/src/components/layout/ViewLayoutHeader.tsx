@@ -5,7 +5,7 @@ import { ActionDescriptor } from "@/business/action_registry";
 import type {
   ActionDisplayedSubject,
   ActionPerformerRequestParams,
-} from "@/components/business/actions/ActionPerformer.tsx";
+} from "@/components/business/actions";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export interface ViewLayoutHeaderProps {

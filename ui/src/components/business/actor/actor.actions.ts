@@ -2,7 +2,7 @@ import type {
   ActionDisplayedSubject,
   ActionPerformerRequestParam,
   ActionPerformerRequestParams,
-} from "@/components/business/actions/ActionPerformer.tsx";
+} from "@/components/business/actions";
 import { refid } from "@/business/action_runner";
 
 export const createActionTemplateRoleList =

@@ -19,7 +19,7 @@ import { modelTagScope, TagsCondensed } from "@/components/core/Tag.tsx";
 import type {
   ActionDisplayedSubject,
   ActionPerformerRequestParams,
-} from "@/components/business/actions/ActionPerformer.tsx";
+} from "@/components/business/actions";
 import { Key } from "@/components/core/Key.tsx";
 import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
 import {

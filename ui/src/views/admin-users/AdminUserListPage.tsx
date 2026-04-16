@@ -23,7 +23,7 @@ import {
   createActionTemplateUserList,
   createDisplayedSubjectUser,
 } from "@/components/business/auth_user/user.actions.ts";
-import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import { displaySubjectNone } from "@/components/business/actions";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
 import {

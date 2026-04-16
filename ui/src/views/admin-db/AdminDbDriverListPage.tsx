@@ -6,7 +6,7 @@ import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx
 import { Caption2, Text, tokens } from "@fluentui/react-components";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import { displaySubjectNone } from "@/components/business/actions";
 import { useDatabaseDrivers } from "@/business/db";
 import {
   ArchiveRegular,

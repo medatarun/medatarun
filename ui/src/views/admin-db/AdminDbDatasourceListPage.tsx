@@ -13,7 +13,7 @@ import {
   LinkRegular,
 } from "@fluentui/react-icons";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
-import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import { displaySubjectNone } from "@/components/business/actions";
 import { CardGrid } from "@/components/layout/CardGrid.tsx";
 import {
   ViewLayoutHeader,

@@ -7,7 +7,7 @@ import {
 } from "@/business/action_registry";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import { displaySubjectNone } from "@/components/business/actions";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,

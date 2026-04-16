@@ -13,7 +13,7 @@ import { toProblem } from "@seij/common-types";
 import { createActionTemplateTagGroupList } from "@/components/business/tag/tag.actions.ts";
 import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import { displaySubjectNone } from "@/components/business/actions";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,

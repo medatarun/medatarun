@@ -3,7 +3,7 @@ import {
   type ActionDisplayedSubject,
   type ActionPerformerRequestParams,
   displaySubjectNone,
-} from "@/components/business/actions/ActionPerformer.tsx";
+} from "@/components/business/actions";
 import { useActionPerformer } from "@/components/business/actions/ActionPerformerHook.tsx";
 import {
   Button,

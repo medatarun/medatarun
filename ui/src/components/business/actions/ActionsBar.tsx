@@ -10,7 +10,7 @@ import {
   type ActionDisplayedSubject,
   type ActionPerformerRequestParams,
   displaySubjectNone,
-} from "./ActionPerformer.tsx";
+} from "./ActionPerformerRequest.tsx";
 
 type ActionBarProps = {
   location: ActionUILocation;

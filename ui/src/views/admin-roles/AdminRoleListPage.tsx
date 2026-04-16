@@ -21,7 +21,7 @@ import {
   createActionTemplateRoleList,
   createDisplayedSubjectRole,
 } from "@/components/business/actor/actor.actions.ts";
-import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import { displaySubjectNone } from "@/components/business/actions";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
 import {

@@ -63,7 +63,7 @@ import { useAppI18n } from "@/services/appI18n.tsx";
 import {
   type ActionDisplayedSubject,
   displaySubjectNone,
-} from "@/components/business/actions/ActionPerformer.tsx";
+} from "@/components/business/actions";
 import { InlineEditBoolean } from "@/components/core/InlineEditBoolean.tsx";
 import { InlineEditCombobox } from "@/components/core/InlineEditCombobox.tsx";
 import {

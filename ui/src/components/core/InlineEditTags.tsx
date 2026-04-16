@@ -22,7 +22,7 @@ import { InlineEditSingleLineLayout } from "./InlineEditSingleLineLayout.tsx";
 import { Tags, type TagScopeRef, useTags } from "@/business/tag";
 import { useActionPerformer } from "@/components/business/actions/ActionPerformerHook.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { type ActionDisplayedSubject } from "@/components/business/actions/ActionPerformer.tsx";
+import { type ActionDisplayedSubject } from "@/components/business/actions";
 
 const CREATE_OPTION_PREFIX = "__create__:";
 

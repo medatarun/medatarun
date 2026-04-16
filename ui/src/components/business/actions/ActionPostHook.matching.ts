@@ -1,5 +1,5 @@
 import type { ActionPostNavigationContext } from "./ActionPostHook.ts";
-import type { ActionPerformerRequestParam } from "./ActionPerformer.tsx";
+import type { ActionPerformerRequestParam } from "./ActionPerformerRequest.tsx";
 
 /**
  * Decodes an action request parameter value into a plain id when possible.

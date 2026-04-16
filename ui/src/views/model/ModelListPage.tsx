@@ -13,7 +13,7 @@ import { InfoLabel, tokens } from "@fluentui/react-components";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import { displaySubjectNone } from "@/components/business/actions";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { SectionCards } from "@/components/layout/SectionCards.tsx";
 import {
