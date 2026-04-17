@@ -17,6 +17,5 @@ internal data class ActionDescriptorImpl(
     override val resultType: KType = base.resultType
     override val parameters: List<ActionDescriptorParam> = params
     override val accessType: ActionAccessType = base.accessType
-    override val uiLocations: Set<String> = base.uiLocations
     override val securityRule: String = base.securityRule
 }

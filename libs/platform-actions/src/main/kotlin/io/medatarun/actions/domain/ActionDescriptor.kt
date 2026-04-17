@@ -45,12 +45,6 @@ interface ActionDescriptor {
      */
     val accessType: ActionAccessType
     /**
-     * Hint for UI to know where to display the command
-     * Known values are "" (no location, hidden), "models" in the list of models, "entity" on an entity, etc.
-     * This is tight to the UI. To know possible values, you need to look at the UI pages' code
-     */
-    val uiLocations: Set<String>
-    /**
      * Name of security rule tied to this action
      */
     val securityRule: String

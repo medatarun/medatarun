@@ -1,8 +1,4 @@
 import { useDatabaseDatasources, useDatabaseDrivers } from "@/business/db";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
@@ -23,27 +19,16 @@ import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 export function AdminDbDatasourceListPage() {
   const { data: dsRaw } = useDatabaseDatasources();
   const { data: driversRaw } = useDatabaseDrivers();
-  const actionRegistry = useActionRegistry();
-  const actions = actionRegistry.findActions(
-    ActionUILocations.admin_database_drivers,
-  );
   const { t } = useAppI18n();
 
   const datasources = sortBy(dsRaw ?? [], (it) => it.id);
   const drivers = sortBy(driversRaw ?? [], (it) => it.id);
-
-  const actionCtxPage = createActionCtxVoid();
 
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: undefined,
     eyebrow: undefined,
     title: t("adminDbDatasourceListPage_title"),
     titleIcon: <DatabaseRegular />,
-    actions: {
-      label: t("adminDbDatasourceListPage_actions"),
-      itemActions: actions,
-      actionCtx: actionCtxPage,
-    },
   };
   return (
     <ViewLayoutContained

@@ -1,6 +1,5 @@
 package io.medatarun.auth.actions
 
-import io.medatarun.actions.actions.ActionUILocation
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionDocSemantics
 import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
@@ -9,7 +8,6 @@ import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.auth.actions.dto.UserListResp
 import io.medatarun.auth.domain.PermissionKey
 import io.medatarun.auth.domain.actor.ActorId
-import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.auth.domain.role.RoleKey
 import io.medatarun.auth.domain.role.RoleRef
 import io.medatarun.auth.domain.user.Fullname
@@ -23,7 +21,6 @@ sealed interface AuthAction<R> {
         key = "admin_bootstrap",
         title = "Creates admin user",
         description = "Creates admin user account and bootstrap credentials. Consumes the one-time secret generated at install. This will automatically make the admin available as an actor and able to connect with tokens.",
-        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.PUBLIC,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
@@ -60,7 +57,6 @@ sealed interface AuthAction<R> {
         key = "user_create",
         title = "Create user",
         description = "Create a new user. This will automatically make this user available as an actor and able to connect with security tokens.",
-        uiLocations = [ActionUILocation.users],
         securityRule = SecurityRuleNames.ADMIN
     )
     class UserCreate(
@@ -95,7 +91,6 @@ sealed interface AuthAction<R> {
         key = "login",
         title = "Login user",
         description = "Generates a JWT Access Token for API calls that users can reuse to authenticate themselves in API or CLI calls (OAuth format, not OIDC)",
-        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.PUBLIC,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
@@ -119,7 +114,6 @@ sealed interface AuthAction<R> {
         key="whoami",
         title="Who am i",
         description = "Tells who is the connected user. Allow you to know if you have the credentials you need",
-        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.SIGNED_IN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
@@ -129,7 +123,6 @@ sealed interface AuthAction<R> {
         key="change_my_password",
         title="Change own password",
         description = "Change connected user password. Must provide current password and a new password. Only available to authentified user.",
-        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.SIGNED_IN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
@@ -152,7 +145,6 @@ sealed interface AuthAction<R> {
         key="user_change_password",
         title="Change user password",
         description = "Change a user password. Only available for admins.",
-        uiLocations = [ActionUILocation.user],
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
@@ -175,7 +167,6 @@ sealed interface AuthAction<R> {
         key="user_disable",
         title="Disable user",
         description = "Disable a user account. Only available for admins. This will automatically make the corresponding actor disabled and unable to connect with tokens.",
-        uiLocations = [ActionUILocation.user],
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
@@ -192,7 +183,6 @@ sealed interface AuthAction<R> {
         key="user_enable",
         title="Enable user",
         description = "Enable a user account. Only available for admins. This will automatically make the corresponding actor enabled and able to connect with tokens.",
-        uiLocations = [ActionUILocation.user],
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
@@ -209,7 +199,6 @@ sealed interface AuthAction<R> {
         key="user_change_fullname",
         title="Change user full name",
         description = "Change user full name. Only available for admins. This will automatically change the corresponding actor fullname.",
-        uiLocations = [ActionUILocation.user],
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
@@ -232,7 +221,6 @@ sealed interface AuthAction<R> {
         key="user_list",
         title="User list",
         description = "Lists available users. Only available for admins.",
-        uiLocations = [ActionUILocation.users],
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(mode = ActionDocSemanticsMode.DECLARED, intent = ActionDocSemanticsIntent.READ, subjects = [], returns = ["user"])
     )
@@ -242,7 +230,6 @@ sealed interface AuthAction<R> {
         key = "role_create",
         title = "Create role",
         description = "Create a new role.",
-        uiLocations = [ActionUILocation.auth_roles],
         securityRule = SecurityRuleNames.ADMIN
     )
     class RoleCreate(
@@ -270,7 +257,6 @@ sealed interface AuthAction<R> {
         key = "role_list",
         title = "List roles",
         description = "List all roles.",
-        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.ADMIN
     )
     class RoleList : AuthAction<RoleListDto>
@@ -279,7 +265,6 @@ sealed interface AuthAction<R> {
         key = "role_get",
         title = "Get role",
         description = "Get a role and its permissions.",
-        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.ADMIN
     )
     class RoleGet(
@@ -295,7 +280,6 @@ sealed interface AuthAction<R> {
         key = "role_update_name",
         title = "Update role name",
         description = "Update a role name.",
-        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.ADMIN
     )
     class RoleUpdateName(
@@ -317,7 +301,6 @@ sealed interface AuthAction<R> {
         key = "role_update_key",
         title = "Update role key",
         description = "Update a role key.",
-        uiLocations = [ActionUILocation.auth_role],
         securityRule = SecurityRuleNames.ADMIN
     )
     class RoleUpdateKey(
@@ -339,7 +322,6 @@ sealed interface AuthAction<R> {
         key = "role_update_description",
         title = "Update role description",
         description = "Update a role description.",
-        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.ADMIN
     )
     class RoleUpdateDescription(
@@ -361,7 +343,6 @@ sealed interface AuthAction<R> {
         key = "role_add_permission",
         title = "Add role permission",
         description = "Add a permission to a role.",
-        uiLocations = [ActionUILocation.auth_role_permissions],
         securityRule = SecurityRuleNames.ADMIN
     )
     class RoleAddPermission(
@@ -383,7 +364,6 @@ sealed interface AuthAction<R> {
         key = "role_delete_permission",
         title = "Delete role permission",
         description = "Delete a permission from a role.",
-        uiLocations = [ActionUILocation.auth_role_permission],
         securityRule = SecurityRuleNames.ADMIN
     )
     class RoleDeletePermission(
@@ -405,7 +385,6 @@ sealed interface AuthAction<R> {
         key = "role_delete",
         title = "Delete role",
         description = "Delete a role.",
-        uiLocations = [ActionUILocation.auth_role],
         securityRule = SecurityRuleNames.ADMIN
     )
     class RoleDelete(
@@ -421,7 +400,6 @@ sealed interface AuthAction<R> {
         key="actor_list",
         title="List actors",
         description = "List all known actors: all actors maintained by Medatarun and also all external actor that have connected at least once. Only available for admins.",
-        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.ADMIN
     )
     class ActorList : AuthAction<List<ActorInfoDto>>
@@ -430,7 +408,6 @@ sealed interface AuthAction<R> {
         key="actor_get",
         title="Get actor",
         description = "Get an actor by identifier. Only available for admins.",
-        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.ADMIN
     )
     class ActorGet(
@@ -446,7 +423,6 @@ sealed interface AuthAction<R> {
         key="actor_add_role",
         title="Add actor role",
         description = "Add role to actor.",
-        uiLocations = [ActionUILocation.auth_actor_roles],
         securityRule = SecurityRuleNames.ADMIN
     )
     class Actor_AddRole(
@@ -468,7 +444,6 @@ sealed interface AuthAction<R> {
         key="actor_delete_role",
         title="Delete actor role",
         description = "Delete role from actor.",
-        uiLocations = [ActionUILocation.auth_actor_role],
         securityRule = SecurityRuleNames.ADMIN
     )
     class Actor_DeleteRole(
@@ -491,7 +466,6 @@ sealed interface AuthAction<R> {
         key="actor_disable",
         title="Disable actor",
         description = "Disable an actor. Only available for admins.",
-        uiLocations = [ActionUILocation.auth_actor],
         securityRule = SecurityRuleNames.ADMIN
     )
     class ActorDisable(
@@ -507,7 +481,6 @@ sealed interface AuthAction<R> {
         key="actor_enable",
         title="Enable actor",
         description = "Enable an actor. Only available for admins.",
-        uiLocations = [ActionUILocation.auth_actor],
         securityRule = SecurityRuleNames.ADMIN
     )
     class ActorEnable(

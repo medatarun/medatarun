@@ -10,7 +10,6 @@ data class ActionDescriptorDto(
     val title: String,
     val description: String?,
     val parameters: List<ActionParamDescriptorDto>,
-    val uiLocations: Set<String>,
     val securityRule: String,
     val semantics: ActionDescriptorSemanticsDto
 )

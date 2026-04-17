@@ -10,7 +10,10 @@ export function formDataNormalize(
   formData: FormDataType,
   actionRegistry: ActionRegistry,
 ): ActionPayload {
-  const action = actionRegistry.findAction(actionGroupKey, actionKey);
+  const action = actionRegistry.findActionByGroupKeyAndActionKey(
+    actionGroupKey,
+    actionKey,
+  );
   const payload = formDataToPayload(action, formData);
   return payload;
 }

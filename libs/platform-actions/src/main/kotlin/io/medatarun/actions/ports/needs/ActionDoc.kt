@@ -11,7 +11,6 @@ annotation class ActionDoc(
      * Description intended for end-users (API developers, cli users). Can contain Markdown.
      */
     val description: String = "",
-    val uiLocations: Array<String>,
     val securityRule: String,
     val semantics: ActionDocSemantics = ActionDocSemantics(
         mode = ActionDocSemanticsMode.AUTO

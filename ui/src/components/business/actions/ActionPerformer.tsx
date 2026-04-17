@@ -91,7 +91,10 @@ export class ActionPerformer {
     payload: ActionPayload,
   ): Promise<ActionResp> {
     const resp = await executeAction(actionGroupKey, actionKey, payload);
-    const action = this.actionRegistry.findAction(actionGroupKey, actionKey);
+    const action = this.actionRegistry.findActionByGroupKeyAndActionKey(
+      actionGroupKey,
+      actionKey,
+    );
     const request = this.state.kind === "running" ? this.state.request : null;
     let cachesHandled = false;
     if (request) {

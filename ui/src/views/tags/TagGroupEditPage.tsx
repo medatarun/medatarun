@@ -1,8 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import {
   createActionCtxTag,
   createActionCtxTagGroup,
@@ -54,9 +51,10 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
       <ErrorBox error={toProblem(t("tagGroupEdit_notFound", { tagGroupId }))} />
     );
 
-  const actions = actionRegistry.findActions(
-    ActionUILocations.tag_group_detail,
-  );
+  const actions = actionRegistry.findActionDescriptors([
+    "tag_group_update_key",
+    "tag_group_delete",
+  ]);
 
   const handleClickTagGroups = () => {
     navigate({ to: "/tag-groups" });
@@ -136,7 +134,7 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
 
       <SectionTitle
         icon={<TagGroupIcon />}
-        location={ActionUILocations.tag_global_list}
+        actions={["tag_global_create"]}
         actionCtx={actionCtxPage}
       >
         {t("tagGroupEdit_tagsTitle")}

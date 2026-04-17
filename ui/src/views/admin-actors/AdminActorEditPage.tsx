@@ -1,8 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import {
   ActorDetails,
   AuthRole,
@@ -53,7 +50,10 @@ export function AdminActorEditPage({ actorId }: { actorId: string }) {
     return <ErrorBox error={toProblem(actorResult.error)} />;
 
   const actor = actorResult.data;
-  const actorActions = actionRegistry.findActions(ActionUILocations.auth_actor);
+  const actorActions = actionRegistry.findActionDescriptors([
+    "actor_enable",
+    "actor_disable",
+  ]);
 
   const displayedSubject = createDisplayedSubjectActor(actor.id);
   const actionCtxPage = createActionCtxActor(actor, displayedSubject);
@@ -131,7 +131,7 @@ export function AdminActorEditPage({ actorId }: { actorId: string }) {
       </SectionPaper>
       <SectionTitle
         icon={undefined}
-        location={ActionUILocations.auth_actor_roles}
+        actions={["actor_add_role"]}
         actionCtx={actionCtxPage}
       >
         {t("adminActorPage_rolesTitle")}
@@ -156,9 +156,9 @@ function ActorRolesTable({
   const actionRegistry = useActionRegistry();
 
   // Derived
-  const roleActions = actionRegistry.findActions(
-    ActionUILocations.auth_actor_role,
-  );
+  const roleActions = actionRegistry.findActionDescriptors([
+    "actor_delete_role",
+  ]);
   const rolesItems = roleRegistry.searchRolesByIdsSorted(actor.roles);
 
   if (rolesItems.length === 0) {

@@ -1,15 +1,7 @@
 import { SwitchButton } from "@seij/common-ui";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import {
-  type ActionCtx,
-  createActionCtxVoid,
-} from "@/components/business/actions";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
@@ -18,23 +10,14 @@ import { SettingsCogMultipleRegular } from "@fluentui/react-icons";
 
 export function PreferencesPage() {
   const { isDetailLevelTech, toggle } = useDetailLevelContext();
-  const actionRegistry = useActionRegistry();
-  const actions = actionRegistry.findActions(ActionUILocations.preferences);
   const { t } = useAppI18n();
   const mode = isDetailLevelTech
     ? t("preferencesPage_modeTech")
     : t("preferencesPage_modeBusiness");
 
-  const actionCtxPage: ActionCtx = createActionCtxVoid();
-
   const headerProps: ViewLayoutHeaderProps = {
     title: t("preferencesPage_title"),
     titleIcon: <SettingsCogMultipleRegular />,
-    actions: {
-      label: t("preferencesPage_actions"),
-      itemActions: actions,
-      actionCtx: actionCtxPage,
-    },
   };
   return (
     <ViewLayoutContained

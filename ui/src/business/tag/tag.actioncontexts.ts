@@ -64,7 +64,7 @@ export const createActionCtxTag = (
     tag?: Tag;
   },
 ) => {
-  const tagId = options?.tag ?? undefined;
+  const tagId = options?.tag?.id ?? undefined;
   const tagName = options?.tag?.name;
   const tagDescription = options?.tag?.description;
   const tagKey = options?.tag?.key;

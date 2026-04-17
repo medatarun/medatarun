@@ -9,7 +9,6 @@ export interface ActionDescriptorDto {
   readonly title: string | null;
   readonly description: string | null;
   readonly parameters: ActionParamDescriptorDto[];
-  readonly uiLocations: string[];
   readonly securityRule: string;
   readonly semantics: ActionDescriptorSemanticsDto;
 }

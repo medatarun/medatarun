@@ -11,7 +11,6 @@ sealed interface BatchAction {
         key = "batch_run",
         title = "Batch commands",
         description = "Process a list of commands all at once",
-        uiLocations = [ActionUILocation.global],
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(mode = ActionDocSemanticsMode.NONE)
     )

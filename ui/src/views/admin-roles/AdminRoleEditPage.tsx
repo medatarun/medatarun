@@ -1,8 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import {
   AuthRoleDetails,
   useRole,
@@ -106,7 +103,10 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
     ),
     actions: {
       label: t("authRolePage_actions"),
-      itemActions: actionRegistry.findActions(ActionUILocations.auth_role),
+      itemActions: actionRegistry.findActionDescriptors([
+        "role_update_key",
+        "role_delete",
+      ]),
       actionCtx: actionCtxPage,
     },
   };
@@ -126,7 +126,7 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
       </SectionPaper>
       <SectionTitle
         icon={undefined}
-        location={ActionUILocations.auth_role_permissions}
+        actions={["role_add_permission"]}
         actionCtx={actionCtxPage}
       >
         {t("authRolePage_permissionsLabel")}
@@ -157,9 +157,9 @@ function PermissionTable({
 }) {
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
-  const permissionActions = actionRegistry.findActions(
-    ActionUILocations.auth_role_permission,
-  );
+  const permissionActions = actionRegistry.findActionDescriptors([
+    "role_delete_permission",
+  ]);
   const { registry: permissionRegistry } = usePermissionRegistry();
 
   if (permissions.length === 0) {

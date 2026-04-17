@@ -9,10 +9,7 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { RelationshipDescription } from "./RelationshipDescription.tsx";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import type { RelationshipDto } from "@/business/model";
 import { useModelContext } from "./ModelContext.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
@@ -55,9 +52,9 @@ export function RelationshipsTable({
   const { t } = useAppI18n();
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
-  const itemActions = actionRegistry.findActions(
-    ActionUILocations.relationship,
-  );
+  const itemActions = actionRegistry.findActionDescriptors([
+    "relationship_delete",
+  ]);
   const { isDetailLevelTech } = useDetailLevelContext();
   const styles = useStyles();
   return (

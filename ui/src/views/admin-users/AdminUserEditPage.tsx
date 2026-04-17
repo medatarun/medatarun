@@ -1,8 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import { useUserList } from "@/business/auth_user";
 import {
   Breadcrumb,
@@ -67,7 +64,12 @@ export function AdminUserEditPage({ userId }: { userId: string }) {
     titleIcon: <PersonRegular />,
     actions: {
       label: t("adminUserPage_actions"),
-      itemActions: actionRegistry.findActions(ActionUILocations.user),
+      itemActions: actionRegistry.findActionDescriptors([
+        "user_enable",
+        "user_disable",
+        "user_change_fullname",
+        "user_change_password",
+      ]),
       actionCtx: actionCtxPage,
     },
   };

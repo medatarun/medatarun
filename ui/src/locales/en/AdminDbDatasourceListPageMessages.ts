@@ -3,7 +3,6 @@ import { type AdminDbDatasourceListPageMessages } from "../contracts/AdminDbData
 export const adminDbDatasourceListPageMessages: AdminDbDatasourceListPageMessages =
   {
     adminDbDatasourceListPage_title: "Databases & datasources",
-    adminDbDatasourceListPage_actions: "Actions",
     adminDbDatasourceListPage_descriptionLine1:
       "Datasources are named connections to your running database (JDBC URL and driver).",
     adminDbDatasourceListPage_descriptionLine2:

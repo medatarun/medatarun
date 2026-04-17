@@ -1,6 +1,5 @@
 package io.medatarun.tags.core.actions
 
-import io.medatarun.actions.actions.ActionUILocation
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionDocSemantics
 import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
@@ -19,7 +18,6 @@ sealed interface TagAction {
         key = "tag_local_create",
         title = "Create a local tag",
         description = "Creates a tag, local to a scope (a model for example), without belonging to a group.",
-        uiLocations = [TagActionUILocation.tag_local_list],
         securityRule = TagSecurityRules.TAG_LOCAL_MANAGE
     )
     data class TagLocalCreate(
@@ -65,7 +63,6 @@ sealed interface TagAction {
         key = "tag_local_update_name",
         title = "Update local tag name",
         description = "Updates the name of a local tag.",
-        uiLocations = [TagActionUILocation.tag_local_detail],
         securityRule = TagSecurityRules.TAG_LOCAL_MANAGE
     )
     class TagLocalUpdateName(
@@ -87,7 +84,6 @@ sealed interface TagAction {
         key = "tag_local_update_description",
         title = "Update local tag description",
         description = "Updates the description of a local tag.",
-        uiLocations = [TagActionUILocation.tag_local_detail],
         securityRule = TagSecurityRules.TAG_LOCAL_MANAGE
     )
     class TagLocalUpdateDescription(
@@ -109,7 +105,6 @@ sealed interface TagAction {
         key = "tag_local_update_key",
         title = "Update local tag key",
         description = "Updates the key of a local tag.",
-        uiLocations = [TagActionUILocation.tag_local_detail],
         securityRule = TagSecurityRules.TAG_LOCAL_MANAGE
     )
     class TagLocalUpdateKey(
@@ -135,7 +130,6 @@ sealed interface TagAction {
         key = "tag_local_delete",
         title = "Delete local tag",
         description = "Deletes a local tag from its scope.",
-        uiLocations = [TagActionUILocation.tag_local_detail],
         securityRule = TagSecurityRules.TAG_LOCAL_MANAGE
     )
     class TagLocalDelete(
@@ -155,7 +149,6 @@ sealed interface TagAction {
         key = "tag_group_create",
         title = "Create a tag group",
         description = "Creates a group used to organize global tags that belong together.",
-        uiLocations = [TagActionUILocation.tag_group_list],
         securityRule = TagSecurityRules.TAG_GROUP_MANAGE
     )
     class TagGroupCreate(
@@ -187,7 +180,6 @@ sealed interface TagAction {
         key = "tag_group_update_name",
         title = "Update global tag group name",
         description = "Updates the name of a tag group.",
-        uiLocations = [TagActionUILocation.tag_group_detail],
         securityRule = TagSecurityRules.TAG_GROUP_MANAGE
     )
     class TagGroupUpdateName(
@@ -209,7 +201,6 @@ sealed interface TagAction {
         key = "tag_group_update_description",
         title = "Update tag group description",
         description = "Updates the description of a tag group.",
-        uiLocations = [TagActionUILocation.tag_group_detail],
         securityRule = TagSecurityRules.TAG_GROUP_MANAGE
     )
     class TagGroupUpdateDescription(
@@ -231,7 +222,6 @@ sealed interface TagAction {
         key = "tag_group_update_key",
         title = "Update tag group key",
         description = "Updates the key of a tag group.",
-        uiLocations = [TagActionUILocation.tag_group_detail],
         securityRule = TagSecurityRules.TAG_GROUP_MANAGE
     )
     class TagGroupUpdateKey(
@@ -257,7 +247,6 @@ sealed interface TagAction {
         key = "tag_group_delete",
         title = "Delete tag group",
         description = "Deletes a tag group.",
-        uiLocations = [TagActionUILocation.tag_group_detail],
         securityRule = TagSecurityRules.TAG_GROUP_MANAGE
     )
     class TagGroupDelete(
@@ -277,7 +266,6 @@ sealed interface TagAction {
         key = "tag_global_create",
         title = "Create a global tag",
         description = "Creates a tag inside a group.",
-        uiLocations = [TagActionUILocation.tag_global_list],
         securityRule = TagSecurityRules.TAG_GLOBAL_MANAGE
     )
     class TagGlobalCreate(
@@ -315,7 +303,6 @@ sealed interface TagAction {
         key = "tag_global_update_name",
         title = "Update global tag name",
         description = "Updates the name of a global tag.",
-        uiLocations = [TagActionUILocation.tag_global_detail],
         securityRule = TagSecurityRules.TAG_GLOBAL_MANAGE
     )
     class TagGlobalUpdateName(
@@ -337,7 +324,6 @@ sealed interface TagAction {
         key = "tag_global_update_description",
         title = "Update global tag description",
         description = "Updates the description of a global tag.",
-        uiLocations = [TagActionUILocation.tag_global_detail],
         securityRule = TagSecurityRules.TAG_GLOBAL_MANAGE
     )
     class TagGlobalUpdateDescription(
@@ -359,7 +345,6 @@ sealed interface TagAction {
         key = "tag_global_update_key",
         title = "Update global tag key",
         description = "Updates the key of a global tag.",
-        uiLocations = [TagActionUILocation.tag_global_detail],
         securityRule = TagSecurityRules.TAG_GLOBAL_MANAGE
     )
     class TagGlobalUpdateKey(
@@ -385,7 +370,6 @@ sealed interface TagAction {
         key = "tag_global_delete",
         title = "Delete global tag",
         description = "Deletes a global tag.",
-        uiLocations = [TagActionUILocation.tag_global_detail],
         securityRule = TagSecurityRules.TAG_GLOBAL_MANAGE
     )
     class TagGlobalDelete(
@@ -407,7 +391,6 @@ sealed interface TagAction {
             If you need to run it, we recommend contacting us on the project GitHub because it
             usually means you identified a bug.
         """,
-        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(mode = ActionDocSemanticsMode.NONE)
     )
@@ -421,7 +404,6 @@ sealed interface TagAction {
         key = "tag_search",
         title = "Tag search",
         description = "Searches known tags. Without filters, returns all tags. Use filters to narrow the result.",
-        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     class TagSearch(
@@ -437,7 +419,6 @@ sealed interface TagAction {
         key = "tag_group_list",
         title = "Tag group list",
         description = "Lists all tag groups.",
-        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     class TagGroupList : TagAction

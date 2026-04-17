@@ -25,7 +25,6 @@ import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
-import { detailActionLocation } from "@/components/business/tag/tag.actions.ts";
 import { TagGroupIcon, TagIcon } from "@/components/business/tag/tag.icons.tsx";
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
@@ -53,7 +52,11 @@ export function TagEditPage({ tagId }: { tagId: string }) {
 
   const isGlobalTag = tag.isGlobal;
 
-  const actions = actionRegistry.findActions(detailActionLocation(tag));
+  const actions = actionRegistry.findActionDescriptors(
+    tag.isLocal
+      ? ["tag_local_update_key", "tag_local_delete"]
+      : ["tag_global_update_key", "tag_global_delete"],
+  );
 
   const handleChangeName = (value: string) => {
     if (isGlobalTag) {

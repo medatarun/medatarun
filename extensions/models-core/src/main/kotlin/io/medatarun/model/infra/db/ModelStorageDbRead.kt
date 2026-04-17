@@ -534,12 +534,12 @@ class ModelStorageDbRead(
             otherColumn = ModelSnapshotTable.id
         ).join(
             RelationshipRoleTable,
-            JoinType.INNER,
+            JoinType.LEFT,
             onColumn = RelationshipTable.id,
             otherColumn = RelationshipRoleTable.relationshipSnapshotId
         ).join(
             roleEntityTable,
-            JoinType.INNER,
+            JoinType.LEFT,
             onColumn = RelationshipRoleTable.entitySnapshotId,
             otherColumn = roleEntityTable[EntityTable.id]
         ).selectAll().where { SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and criterion }
@@ -552,6 +552,7 @@ class ModelStorageDbRead(
 
         val relationshipRecord = RelationshipRecord.read(relationshipRows.first())
         val roles = relationshipRows
+            .filter { row -> row.getOrNull(RelationshipRoleTable.id) != null }
             .distinctBy { it[RelationshipRoleTable.id] }
             .map { row ->
                 toRelationshipRole(

@@ -31,7 +31,6 @@ class ActionSemanticsResolverTest {
                 description = null,
                 resultType = Unit::class.createType(),
                 accessType = ActionAccessType.DISPATCH,
-                uiLocations = emptySet(),
                 securityRule = "",
             )
             val parameters = emptyList<ActionDescriptorParamImpl>()
@@ -157,7 +156,6 @@ class ActionSemanticsResolverTest {
                     description = null,
                     resultType = Unit::class.createType(),
                     accessType = ActionAccessType.DISPATCH,
-                    uiLocations = emptySet(),
                     securityRule = "test",
                 ),
                 params = paramNames.mapIndexed { index, paramName ->

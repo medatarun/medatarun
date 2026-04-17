@@ -1,8 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import { AuthRole, useRoleList } from "@/business/actor";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
@@ -57,7 +54,7 @@ export function AdminRoleListPage() {
     titleIcon: <LockClosedRegular />,
     actions: {
       label: t("authRolesPage_actions"),
-      itemActions: actionRegistry.findActions(ActionUILocations.auth_roles),
+      itemActions: actionRegistry.findActionDescriptors(["role_create"]),
       actionCtx: actionCtxPage,
     },
   };
@@ -91,7 +88,12 @@ function AuthRolesTable({
 }) {
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
-  const detailActions = actionRegistry.findActions(ActionUILocations.auth_role);
+  const detailActions = actionRegistry.findActionDescriptors([
+    "role_update_key",
+    "role_update_name",
+    "role_update_description",
+    "role_delete",
+  ]);
 
   if (roles.length === 0) {
     return (

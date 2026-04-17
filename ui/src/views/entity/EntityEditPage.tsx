@@ -1,8 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import {
   type AttributeDto,
   createActionCtxEntity,
@@ -77,7 +74,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
   const entityUpdateName = useEntityUpdateName();
   const { t } = useAppI18n();
 
-  const actions = actionRegistry.findActions(ActionUILocations.entity);
+  const actions = actionRegistry.findActionDescriptors(["entity_delete"]);
   const relationshipsInvolved = model.dto.relationships.filter((it) =>
     it.roles.some((r) => r.entityId === entity.id),
   );
@@ -190,7 +187,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
       <SectionTitle
         icon={<AttributeIcon />}
         actionCtx={actionCtxPage}
-        location={ActionUILocations.entity_attributes}
+        actions={["entity_attribute_create"]}
       >
         {t("entityEditPage_attributesTitle")}
       </SectionTitle>
@@ -198,7 +195,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
       <SectionTable>
         <AttributesTable
           attributes={entity.attributes}
-          actionUILocation={ActionUILocations.entity_attribute}
+          actions={["entity_attribute_delete"]}
           parentId={entity.id}
           onClickAttribute={handleClickAttribute}
           actionCtxAttribute={actionCtxAttribute}
@@ -208,7 +205,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
       <SectionTitle
         icon={<RelationshipIcon />}
         actionCtx={actionCtxPage}
-        location={ActionUILocations.entity_relationships}
+        actions={["relationship_create"]}
       >
         {t("entityEditPage_relationshipsTitle")}
       </SectionTitle>

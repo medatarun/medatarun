@@ -8,10 +8,7 @@ import {
   tokens,
   Tooltip,
 } from "@fluentui/react-components";
-import {
-  type ActionUILocation,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import type { AttributeDto } from "@/business/model";
 import { useModelContext } from "./ModelContext.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
@@ -25,6 +22,7 @@ import {
   SquareHintRegular,
 } from "@fluentui/react-icons";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import type { ActionKey } from "@/business/action_registry/actionRegistry.dictionnary.ts";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -47,21 +45,21 @@ const useStyles = makeStyles({
 
 export function AttributesTable({
   attributes,
-  actionUILocation,
   onClickAttribute,
   parentId,
   actionCtxAttribute,
+  actions,
 }: {
   attributes: AttributeDto[];
   parentId: string;
-  actionUILocation: ActionUILocation;
   onClickAttribute: (id: string) => void;
   actionCtxAttribute: (attr: AttributeDto) => ActionCtx;
+  actions: ActionKey[];
 }) {
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
   const { isDetailLevelTech } = useDetailLevelContext();
-  const itemActions = actionRegistry.findActions(actionUILocation);
+  const itemActions = actionRegistry.findActionDescriptors(actions);
   const styles = useStyles();
   const handleClickAttribute = (id: string) => {
     onClickAttribute(id);
