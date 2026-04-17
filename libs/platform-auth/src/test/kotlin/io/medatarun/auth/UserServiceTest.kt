@@ -4,6 +4,8 @@ import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import com.auth0.jwt.JWT
 import io.medatarun.auth.domain.AuthNotAuthenticatedException
 import io.medatarun.auth.domain.UserAlreadyExistsException
+import io.medatarun.auth.domain.UserDisableSelfException
+import io.medatarun.auth.domain.UserEnableSelfException
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
@@ -126,7 +128,7 @@ class UserServiceTest {
     fun `admin can change disable john`() {
         val env = AuthEnvTest()
         createJohn(env)
-        env.userService.disableUser(johnUsername)
+        env.userService.disableUser(johnUsername, null)
         // login shall fail
         assertThrows<AuthNotAuthenticatedException> {
             env.oauthService.oauthLogin(johnUsername, johnPassword)
@@ -137,16 +139,25 @@ class UserServiceTest {
     }
 
     @Test
+    fun `admin can not disable itself`() {
+        val env = AuthEnvTest()
+        val admin = env.userService.findAll().firstOrNull { it.username == env.adminUsername }
+        assertThrows<UserDisableSelfException> {
+            env.userService.disableUser(env.adminUsername, admin?.id)
+        }
+    }
+
+    @Test
     fun `admin can enable john`() {
         val env = AuthEnvTest()
         createJohn(env)
-        env.userService.disableUser(johnUsername)
+        env.userService.disableUser(johnUsername, null)
         // login shall fail while disabled
         assertThrows<AuthNotAuthenticatedException> {
             env.oauthService.oauthLogin(johnUsername, johnPassword)
         }
 
-        env.userService.enableUser(johnUsername)
+        env.userService.enableUser(johnUsername, null)
 
         val token = env.oauthService.oauthLogin(johnUsername, johnPassword)
         assertNotNull(token)
@@ -157,10 +168,20 @@ class UserServiceTest {
     }
 
     @Test
+    fun `john can not enable itself`() {
+        val env = AuthEnvTest()
+        createJohn(env)
+        val john = assertNotNull(env.userService.findAll().firstOrNull { it.username == johnUsername })
+        assertThrows<UserEnableSelfException> {
+            env.userService.enableUser(johnUsername, john?.id)
+        }
+    }
+
+    @Test
     fun `can not reuse login of disabled john`() {
         val env = AuthEnvTest()
         createJohn(env)
-        env.userService.disableUser(johnUsername)
+        env.userService.disableUser(johnUsername, null)
         assertThrows<UserAlreadyExistsException> {
             env.userService.createEmbeddedUser(
                 johnUsername, Fullname("Another User"),

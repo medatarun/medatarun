@@ -83,9 +83,13 @@ class UserFullnameEmptyException :
 class UserFullnameTooLongException :
     UserFullnameException("fullname is too long")
 
-
 class UserFullnameInvalidFormatException :
     UserFullnameException("invalid fullname format")
+
+class UserDisableSelfException: MedatarunException("You can not disable yourself", StatusCode.BAD_REQUEST)
+class UserEnableSelfException: MedatarunException("You can not disable yourself", StatusCode.BAD_REQUEST)
+class ActorDisableSelfException: MedatarunException("You can not disable yourself", StatusCode.BAD_REQUEST)
+class ActorEnableSelfException: MedatarunException("You can not disable yourself", StatusCode.BAD_REQUEST)
 
 class RoleAdminCanNotBeDeletedException: MedatarunException("Can not delete special admin role", StatusCode.BAD_REQUEST)
 class RoleAdminKeyCanNotBeUsedToCreateRoleException: MedatarunException("Can not create a new role with [admin] as key", StatusCode.BAD_REQUEST)

@@ -5,9 +5,13 @@ import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.actions.dto.UserDto
 import io.medatarun.auth.actions.dto.UserListResp
+import io.medatarun.auth.adapters.AppActorIdAdapter
+import io.medatarun.auth.domain.ActorDisableSelfException
+import io.medatarun.auth.domain.ActorEnableSelfException
 import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.UserNotFoundException
 import io.medatarun.auth.domain.role.Role
+import io.medatarun.auth.domain.user.UserId
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OAuthService
@@ -23,7 +27,7 @@ class AuthEmbeddedActionsProvider(
     private val actorService: ActorService,
     private val clock: AuthClock
 ) : ActionProvider<AuthAction<*>> {
-    override val actionGroupKey: String = "auth"
+    override val actionGroupKey: String = ACTION_GROUP_KEY
     override fun findCommandClass(): KClass<AuthAction<*>> {
         return AuthAction::class
     }
@@ -70,6 +74,9 @@ class AuthEmbeddedActionsProvider(
         }
     }
 
+    companion object {
+        const val ACTION_GROUP_KEY = "auth"
+    }
 }
 
 
@@ -143,15 +150,11 @@ class AuthEmbeddedActionsLauncher(
     }
 
     fun disableUser(cmd: AuthAction.UserDisable) {
-        return userService.disableUser(
-            cmd.username
-        )
+        return userService.disableUser(cmd.username, findPrincipalAsUserId())
     }
 
     fun enableUser(cmd: AuthAction.UserEnable) {
-        return userService.enableUser(
-            cmd.username
-        )
+        return userService.enableUser(cmd.username, findPrincipalAsUserId())
     }
 
     fun changeUserFullname(cmd: AuthAction.UserChangeFullname) {
@@ -279,8 +282,10 @@ class AuthEmbeddedActionsLauncher(
 
     fun disableActor(cmd: AuthAction.ActorDisable) {
         val actor = actorService.findById(cmd.actorId)
+        if (actor.id == AppActorIdAdapter.fromAppActorId(principal.ensureSignedIn().id))
+            throw ActorDisableSelfException()
         if (actor.issuer == oidcService.oidcIssuer()) {
-            userService.disableUser(Username(actor.subject).validate())
+            userService.disableUser(Username(actor.subject).validate(), findPrincipalAsUserId())
         } else {
             actorService.actorDisable(actor.id, clock.now())
         }
@@ -288,11 +293,22 @@ class AuthEmbeddedActionsLauncher(
 
     fun enableActor(cmd: AuthAction.ActorEnable) {
         val actor = actorService.findById(cmd.actorId)
+        if (actor.id == AppActorIdAdapter.fromAppActorId(principal.ensureSignedIn().id))
+            throw ActorEnableSelfException()
         if (actor.issuer == oidcService.oidcIssuer()) {
-            userService.enableUser(Username(actor.subject).validate())
+            userService.enableUser(Username(actor.subject).validate(), findPrincipalAsUserId())
         } else {
             actorService.actorDisable(actor.id, null)
         }
+    }
+
+    fun findPrincipalAsUserId(): UserId? {
+        // Try to get the user from our internal database, can be null if
+        // connected user is not from our internal IdP
+        val principalSafe = principal.ensureSignedIn()
+        val isInternalUser = (oidcService.oidcIssuer() == principalSafe.issuer)
+        val userId = if (isInternalUser) userService.findByUsername(Username(principalSafe.subject)).id else null
+        return userId
     }
 
 
@@ -306,6 +322,7 @@ class AuthEmbeddedActionsLauncher(
             lastUpdatedAt = role.lastUpdatedAt
         )
     }
+
 
 
 }

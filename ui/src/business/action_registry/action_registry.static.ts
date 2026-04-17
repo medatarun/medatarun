@@ -20,7 +20,6 @@ export const actionRegistryStatic = {
           order: 0,
         },
       ],
-      uiLocations: ["global"],
       securityRule: "admin",
       semantics: {
         intent: "other",
@@ -45,7 +44,6 @@ export const actionRegistryStatic = {
           order: 1,
         },
       ],
-      uiLocations: ["auth_actor"],
       securityRule: "admin",
       semantics: {
         intent: "update",
@@ -80,7 +78,6 @@ export const actionRegistryStatic = {
           order: 1,
         },
       ],
-      uiLocations: ["auth_actor"],
       securityRule: "admin",
       semantics: {
         intent: "update",
@@ -115,7 +112,6 @@ export const actionRegistryStatic = {
           order: 1,
         },
       ],
-      uiLocations: ["hidden"],
       securityRule: "admin",
       semantics: {
         intent: "read",
@@ -131,7 +127,6 @@ export const actionRegistryStatic = {
       description:
         "List all known actors: all actors maintained by Medatarun and also all external actor that have connected at least once. Only available for admins.",
       parameters: [],
-      uiLocations: ["hidden"],
       securityRule: "admin",
       semantics: {
         intent: "read",
@@ -165,7 +160,6 @@ export const actionRegistryStatic = {
           order: 2,
         },
       ],
-      uiLocations: ["auth_actor_roles"],
       securityRule: "admin",
       semantics: {
         intent: "update",
@@ -213,7 +207,6 @@ export const actionRegistryStatic = {
           order: 2,
         },
       ],
-      uiLocations: ["auth_actor_role"],
       securityRule: "admin",
       semantics: {
         intent: "update",
@@ -280,7 +273,6 @@ export const actionRegistryStatic = {
           order: 2,
         },
       ],
-      uiLocations: ["hidden"],
       securityRule: "public",
       semantics: {
         intent: "other",
@@ -315,7 +307,6 @@ export const actionRegistryStatic = {
           order: 1,
         },
       ],
-      uiLocations: ["hidden"],
       securityRule: "signed_in",
       semantics: {
         intent: "other",
@@ -350,7 +341,6 @@ export const actionRegistryStatic = {
           order: 1,
         },
       ],
-      uiLocations: ["hidden"],
       securityRule: "public",
       semantics: {
         intent: "other",
@@ -384,7 +374,6 @@ export const actionRegistryStatic = {
           order: 1,
         },
       ],
-      uiLocations: ["auth_role.permissions"],
       securityRule: "admin",
       semantics: {
         intent: "update",
@@ -443,7 +432,6 @@ export const actionRegistryStatic = {
           order: 1,
         },
       ],
-      uiLocations: ["auth_roles"],
       securityRule: "admin",
       semantics: {
         intent: "create",
@@ -478,7 +466,6 @@ export const actionRegistryStatic = {
           order: 1,
         },
       ],
-      uiLocations: ["auth_role"],
       securityRule: "admin",
       semantics: {
         intent: "delete",
@@ -522,7 +509,6 @@ export const actionRegistryStatic = {
           order: 1,
         },
       ],
-      uiLocations: ["auth_role.permission"],
       securityRule: "admin",
       semantics: {
         intent: "update",
@@ -561,7 +547,6 @@ export const actionRegistryStatic = {
           order: 1,
         },
       ],
-      uiLocations: ["hidden"],
       securityRule: "admin",
       semantics: {
         intent: "read",
@@ -576,7 +561,6 @@ export const actionRegistryStatic = {
       title: "List roles",
       description: "List all roles.",
       parameters: [],
-      uiLocations: ["hidden"],
       securityRule: "admin",
       semantics: {
         intent: "read",
@@ -610,7 +594,6 @@ export const actionRegistryStatic = {
           order: 2,
         },
       ],
-      uiLocations: ["hidden"],
       securityRule: "admin",
       semantics: {
         intent: "update",
@@ -654,7 +637,6 @@ export const actionRegistryStatic = {
           order: 2,
         },
       ],
-      uiLocations: ["auth_role"],
       securityRule: "admin",
       semantics: {
         intent: "update",
@@ -698,7 +680,6 @@ export const actionRegistryStatic = {
           order: 2,
         },
       ],
-      uiLocations: ["hidden"],
       securityRule: "admin",
       semantics: {
         intent: "update",
@@ -743,7 +724,6 @@ export const actionRegistryStatic = {
           order: 1,
         },
       ],
-      uiLocations: ["user"],
       securityRule: "admin",
       semantics: {
         intent: "other",
@@ -777,7 +757,6 @@ export const actionRegistryStatic = {
           order: 1,
         },
       ],
-      uiLocations: ["user"],
       securityRule: "admin",
       semantics: {
         intent: "other",
@@ -833,7 +812,6 @@ export const actionRegistryStatic = {
           order: 1,
         },
       ],
-      uiLocations: ["users"],
       securityRule: "admin",
       semantics: {
         intent: "create",
@@ -864,7 +842,6 @@ export const actionRegistryStatic = {
           order: 1,
         },
       ],
-      uiLocations: ["user"],
       securityRule: "admin",
       semantics: {
         intent: "other",
@@ -890,7 +867,6 @@ export const actionRegistryStatic = {
           order: 1,
         },
       ],
-      uiLocations: ["user"],
       securityRule: "admin",
       semantics: {
         intent: "other",
@@ -905,7 +881,6 @@ export const actionRegistryStatic = {
       title: "User list",
       description: "Lists available users. Only available for admins.",
       parameters: [],
-      uiLocations: ["users"],
       securityRule: "admin",
       semantics: {
         intent: "read",
@@ -921,7 +896,6 @@ export const actionRegistryStatic = {
       description:
         "Tells who is the connected user. Allow you to know if you have the credentials you need",
       parameters: [],
-      uiLocations: ["hidden"],
       securityRule: "signed_in",
       semantics: {
         intent: "other",
@@ -937,7 +911,6 @@ export const actionRegistryStatic = {
       description:
         "\n            Rebuilds tag application caches from stored events.\n            \n            Use this only as an exceptional maintenance action when data appears out of date.\n            If you need to run it, we recommend contacting us on the project GitHub because it\n            usually means you identified a bug.\n        ",
       parameters: [],
-      uiLocations: ["hidden"],
       securityRule: "admin",
       semantics: {
         intent: "other",
@@ -991,7 +964,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["tag_global_list"],
       securityRule: "tag_global_manage",
       semantics: {
         intent: "create",
@@ -1030,7 +1002,6 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      uiLocations: ["tag_global_detail"],
       securityRule: "tag_global_manage",
       semantics: {
         intent: "delete",
@@ -1075,7 +1046,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["tag_global_detail"],
       securityRule: "tag_global_manage",
       semantics: {
         intent: "update",
@@ -1120,7 +1090,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["tag_global_detail"],
       securityRule: "tag_global_manage",
       semantics: {
         intent: "update",
@@ -1164,7 +1133,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["tag_global_detail"],
       securityRule: "tag_global_manage",
       semantics: {
         intent: "update",
@@ -1220,7 +1188,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["tag_group_list"],
       securityRule: "tag_group_manage",
       semantics: {
         intent: "create",
@@ -1255,7 +1222,6 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      uiLocations: ["tag_group_detail"],
       securityRule: "tag_group_manage",
       semantics: {
         intent: "delete",
@@ -1280,7 +1246,6 @@ export const actionRegistryStatic = {
       title: "Tag group list",
       description: "Lists all tag groups.",
       parameters: [],
-      uiLocations: ["hidden"],
       securityRule: "signed_in",
       semantics: {
         intent: "read",
@@ -1315,7 +1280,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["tag_group_detail"],
       securityRule: "tag_group_manage",
       semantics: {
         intent: "update",
@@ -1360,7 +1324,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["tag_group_detail"],
       securityRule: "tag_group_manage",
       semantics: {
         intent: "update",
@@ -1404,7 +1367,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["tag_group_detail"],
       securityRule: "tag_group_manage",
       semantics: {
         intent: "update",
@@ -1469,7 +1431,6 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      uiLocations: ["tag_local_list"],
       securityRule: "tag_local_manage",
       semantics: {
         intent: "create",
@@ -1508,7 +1469,6 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      uiLocations: ["tag_local_detail"],
       securityRule: "tag_local_manage",
       semantics: {
         intent: "delete",
@@ -1553,7 +1513,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["tag_local_detail"],
       securityRule: "tag_local_manage",
       semantics: {
         intent: "update",
@@ -1598,7 +1557,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["tag_local_detail"],
       securityRule: "tag_local_manage",
       semantics: {
         intent: "update",
@@ -1642,7 +1600,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["tag_local_detail"],
       securityRule: "tag_local_manage",
       semantics: {
         intent: "update",
@@ -1678,7 +1635,6 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      uiLocations: ["hidden"],
       securityRule: "signed_in",
       semantics: {
         intent: "read",
@@ -1751,7 +1707,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["entity.business_keys"],
       securityRule: "signed_in",
       semantics: {
         intent: "create",
@@ -1804,7 +1759,6 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      uiLocations: ["entity.business_key"],
       securityRule: "signed_in",
       semantics: {
         intent: "delete",
@@ -1861,7 +1815,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["entity.business_key"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -1918,7 +1871,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["entity.business_key"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -1975,7 +1927,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["entity.business_key"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -2034,7 +1985,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["entity.business_key"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -2112,7 +2062,6 @@ export const actionRegistryStatic = {
           order: 50,
         },
       ],
-      uiLocations: ["global"],
       securityRule: "signed_in",
       semantics: {
         intent: "other",
@@ -2165,7 +2114,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["entity.attribute.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -2267,7 +2215,6 @@ export const actionRegistryStatic = {
           order: 50,
         },
       ],
-      uiLocations: ["entity.attributes"],
       securityRule: "signed_in",
       semantics: {
         intent: "create",
@@ -2329,7 +2276,6 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      uiLocations: ["entity.attribute"],
       securityRule: "signed_in",
       semantics: {
         intent: "delete",
@@ -2400,7 +2346,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["entity.attribute.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -2472,7 +2417,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["entity.attribute.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -2544,7 +2488,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["entity.attribute.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -2615,7 +2558,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["entity.attribute.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -2687,7 +2629,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["entity.attribute.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -2759,7 +2700,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["entity.attribute.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -2822,7 +2762,6 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      uiLocations: ["entity"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -2883,7 +2822,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["entity.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -2960,7 +2898,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["model.entities"],
       securityRule: "signed_in",
       semantics: {
         intent: "create",
@@ -3009,7 +2946,6 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      uiLocations: ["entity"],
       securityRule: "signed_in",
       semantics: {
         intent: "delete",
@@ -3066,7 +3002,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["entity.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -3124,7 +3059,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["entity.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -3181,7 +3115,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["entity.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -3239,7 +3172,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["entity.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -3296,7 +3228,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["entity.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -3346,7 +3277,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["hidden"],
       securityRule: "signed_in",
       semantics: {
         intent: "read",
@@ -3378,7 +3308,6 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      uiLocations: ["hidden"],
       securityRule: "signed_in",
       semantics: {
         intent: "read",
@@ -3431,7 +3360,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["models"],
       securityRule: "signed_in",
       semantics: {
         intent: "other",
@@ -3447,7 +3375,6 @@ export const actionRegistryStatic = {
       description:
         "Returns the registered models, entities, and attributes with all metadata encoded as JSON. Preferred method for AI agents to understand the model.",
       parameters: [],
-      uiLocations: ["global"],
       securityRule: "signed_in",
       semantics: {
         intent: "other",
@@ -3463,7 +3390,6 @@ export const actionRegistryStatic = {
       description:
         "\n            Rebuilds model application caches from stored events.\n            \n            Use this only as an exceptional maintenance action when data appears out of date.\n            If you need to run it, we recommend contacting us on the project GitHub because it\n            usually means you identified a bug.\n        ",
       parameters: [],
-      uiLocations: ["hidden"],
       securityRule: "admin",
       semantics: {
         intent: "other",
@@ -3497,7 +3423,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["model.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -3543,7 +3468,6 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      uiLocations: ["model.overview"],
       securityRule: "signed_in",
       semantics: {
         intent: "create",
@@ -3613,7 +3537,6 @@ export const actionRegistryStatic = {
           order: 50,
         },
       ],
-      uiLocations: ["models"],
       securityRule: "signed_in",
       semantics: {
         intent: "create",
@@ -3648,7 +3571,6 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      uiLocations: ["model.overview"],
       securityRule: "signed_in",
       semantics: {
         intent: "delete",
@@ -3692,7 +3614,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["model.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -3727,7 +3648,6 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      uiLocations: ["hidden"],
       securityRule: "signed_in",
       semantics: {
         intent: "read",
@@ -3762,7 +3682,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["hidden"],
       securityRule: "signed_in",
       semantics: {
         intent: "read",
@@ -3777,7 +3696,6 @@ export const actionRegistryStatic = {
       title: "Models list",
       description: "Returns a summary list of the models.",
       parameters: [],
-      uiLocations: ["hidden"],
       securityRule: "signed_in",
       semantics: {
         intent: "read",
@@ -3812,7 +3730,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["model.overview"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -3858,7 +3775,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["model.overview"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -3903,7 +3819,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["model.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -3947,7 +3862,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["model.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -3992,7 +3906,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["model.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -4036,7 +3949,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["model.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -4098,7 +4010,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["relationship.attribute.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -4199,7 +4110,6 @@ export const actionRegistryStatic = {
           order: 50,
         },
       ],
-      uiLocations: ["relationship.attributes"],
       securityRule: "signed_in",
       semantics: {
         intent: "create",
@@ -4260,7 +4170,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["relationship.attribute"],
       securityRule: "signed_in",
       semantics: {
         intent: "delete",
@@ -4330,7 +4239,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["relationship.attribute.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -4401,7 +4309,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["relationship.attribute.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -4472,7 +4379,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["relationship.attribute.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -4542,7 +4448,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["relationship.attribute.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -4613,7 +4518,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["relationship.attribute.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -4684,7 +4588,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["relationship.attribute.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -4776,7 +4679,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["relationship.roles"],
       securityRule: "signed_in",
       semantics: {
         intent: "create",
@@ -4842,7 +4744,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["relationship.role"],
       securityRule: "signed_in",
       semantics: {
         intent: "delete",
@@ -4913,7 +4814,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["relationship.role"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -4985,7 +4885,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["relationship.role"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -5056,7 +4955,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["relationship.role"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -5127,7 +5025,6 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      uiLocations: ["relationship.role"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -5188,7 +5085,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["relationship.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -5336,7 +5232,6 @@ export const actionRegistryStatic = {
           order: 90,
         },
       ],
-      uiLocations: ["model.relationships", "entity.relationships"],
       securityRule: "signed_in",
       semantics: {
         intent: "create",
@@ -5400,7 +5295,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["relationship"],
       securityRule: "signed_in",
       semantics: {
         intent: "delete",
@@ -5457,7 +5351,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["relationship.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -5515,7 +5408,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["relationship.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -5573,7 +5465,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["relationship.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -5630,7 +5521,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["relationship.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -5680,7 +5570,6 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      uiLocations: ["global"],
       securityRule: "signed_in",
       semantics: {
         intent: "read",
@@ -5741,7 +5630,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["model.types"],
       securityRule: "signed_in",
       semantics: {
         intent: "create",
@@ -5790,7 +5678,6 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      uiLocations: ["type"],
       securityRule: "signed_in",
       semantics: {
         intent: "delete",
@@ -5848,7 +5735,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["type.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -5906,7 +5792,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["type.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -5963,7 +5848,6 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      uiLocations: ["type.hidden_detail"],
       securityRule: "signed_in",
       semantics: {
         intent: "update",
@@ -5993,7 +5877,6 @@ export const actionRegistryStatic = {
       description:
         "Each AI Agent should read that first. Returns a usage guide for AI Agents. Use it for your AGENTS.md files if your agent doesn't support instructions in MCP.",
       parameters: [],
-      uiLocations: ["global"],
       securityRule: "public",
       semantics: {
         intent: "other",
@@ -6009,7 +5892,6 @@ export const actionRegistryStatic = {
       description:
         "Returns a human-readable list of the configuration, including extension contributions and contribution points, what provides what to whom.",
       parameters: [],
-      uiLocations: ["global"],
       securityRule: "admin",
       semantics: {
         intent: "other",
@@ -6025,7 +5907,6 @@ export const actionRegistryStatic = {
       description:
         "Returns all known actions with their parameter descriptions.",
       parameters: [],
-      uiLocations: ["global"],
       securityRule: "public",
       semantics: {
         intent: "other",
@@ -6041,7 +5922,6 @@ export const actionRegistryStatic = {
       description:
         "Returns a Json representation of the configuration, including extension contributions and contribution points, what provides what to whom.",
       parameters: [],
-      uiLocations: ["global"],
       securityRule: "admin",
       semantics: {
         intent: "other",
@@ -6057,7 +5937,6 @@ export const actionRegistryStatic = {
       description:
         "Returns all known permissions registered in application with their descriptions.",
       parameters: [],
-      uiLocations: ["global"],
       securityRule: "public",
       semantics: {
         intent: "other",
@@ -6073,7 +5952,6 @@ export const actionRegistryStatic = {
       description:
         "Returns all known security rules registered in application with their descriptions.",
       parameters: [],
-      uiLocations: ["global"],
       securityRule: "public",
       semantics: {
         intent: "other",
@@ -6089,7 +5967,6 @@ export const actionRegistryStatic = {
       description:
         "Returns all known types declared in application with their description.",
       parameters: [],
-      uiLocations: ["global"],
       securityRule: "public",
       semantics: {
         intent: "other",
@@ -6104,7 +5981,6 @@ export const actionRegistryStatic = {
       title: "Database drivers",
       description: "Lists available database drivers",
       parameters: [],
-      uiLocations: ["global"],
       securityRule: "admin",
       semantics: {
         intent: "other",
@@ -6119,7 +5995,6 @@ export const actionRegistryStatic = {
       title: "Database sources",
       description: "Lists available datasources",
       parameters: [],
-      uiLocations: ["global"],
       securityRule: "admin",
       semantics: {
         intent: "other",
