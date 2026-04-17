@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchActionDescriptors } from "@/business/action_registry/action_registry.api.ts";
 import { ActionRegistry } from "@/business/action_registry/action_registry.biz.tsx";
+import { actionRegistryStatic } from "@/business/action_registry/action_registry.static.ts";
 
 export type ActionAccessScope = "public" | "authenticated";
 
@@ -16,8 +16,7 @@ export function useActionRegistryQuery(actionAccessScope: ActionAccessScope) {
   return useQuery({
     queryKey: ["action-registry", actionAccessScope],
     queryFn: async () => {
-      const dto = await fetchActionDescriptors();
-      return new ActionRegistry(dto);
+      return new ActionRegistry(actionRegistryStatic);
     },
     // Keep current list visible while authenticated list is being loaded.
     placeholderData: (previousData) => previousData,

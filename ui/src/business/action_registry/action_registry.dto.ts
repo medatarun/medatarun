@@ -1,40 +1,41 @@
 export interface ActionRegistryDto {
-  items: ActionDescriptorDto[];
+  readonly items: ActionDescriptorDto[];
 }
 
 export interface ActionDescriptorDto {
-  actionKey: string;
-  groupKey: string;
-  title: string | null;
-  description: string | null;
-  parameters: ActionParamDescriptorDto[];
-  uiLocations: string[];
-  securityRule: string;
-  semantics: ActionDescriptorSemanticsDto;
+  readonly id: string;
+  readonly actionKey: string;
+  readonly groupKey: string;
+  readonly title: string | null;
+  readonly description: string | null;
+  readonly parameters: ActionParamDescriptorDto[];
+  readonly uiLocations: string[];
+  readonly securityRule: string;
+  readonly semantics: ActionDescriptorSemanticsDto;
 }
 
 export interface ActionParamDescriptorDto {
-  name: string;
-  type: string;
-  jsonType: string;
-  optional: boolean;
-  title: string | null;
-  description: string | null;
-  order: number;
+  readonly name: string;
+  readonly type: string;
+  readonly jsonType: string;
+  readonly optional: boolean;
+  readonly title: string | null;
+  readonly description: string | null;
+  readonly order: number;
 }
 
 export interface ActionDescriptorSemanticsDto {
-  intent: string;
-  subjects: ActionDescriptorSemanticsSubjectDto[];
-  returns: string[];
+  readonly intent: string;
+  readonly subjects: ActionDescriptorSemanticsSubjectDto[];
+  readonly returns: string[];
 }
 
 export interface ActionDescriptorSemanticsSubjectDto {
-  type: string;
-  referencingParams: ActionDescriptorSemanticsSubjectReferencingParamDto[];
+  readonly type: string;
+  readonly referencingParams: ActionDescriptorSemanticsSubjectReferencingParamDto[];
 }
 
 export interface ActionDescriptorSemanticsSubjectReferencingParamDto {
-  name: string;
-  kind: string;
+  readonly name: string;
+  readonly kind: string;
 }
