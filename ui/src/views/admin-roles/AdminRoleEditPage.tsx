@@ -10,7 +10,6 @@ import {
   useRoleUpdateName,
 } from "@/business/actor";
 import { usePermissionRegistry } from "@/business/config";
-import { refid } from "@/business/action_runner";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import {
@@ -31,11 +30,6 @@ import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
-import {
-  createActionTemplateRole,
-  createDisplayedSubjectRole,
-  createDisplayedSubjectRolePermission,
-} from "@/components/business/actor/actor.actions.ts";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { Key } from "@/components/core/Key.tsx";
@@ -46,11 +40,12 @@ import {
 import { LockClosedRegular } from "@fluentui/react-icons";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import { type ActionCtx } from "@/components/business/actions";
 import {
-  type ActionCtx,
-  type ActionPerformerRequestParams,
-  createActionCtx,
-} from "@/components/business/actions";
+  createActionCtxRole,
+  createActionCtxRolePermission,
+  createDisplayedSubjectRole,
+} from "@/business/auth_actor/actor.actioncontexts.ts";
 
 export function AdminRoleEditPage({ roleId }: { roleId: string }) {
   const { t } = useAppI18n();
@@ -66,8 +61,6 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
   const details = new AuthRoleDetails(roleResult.data);
   const role = details.role;
 
-  const displayedSubject = createDisplayedSubjectRole(role.id);
-
   const handleChangeName = (value: string) => {
     return roleUpdateName.mutateAsync({ roleId: role.id, value: value });
   };
@@ -78,18 +71,10 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
     });
   };
 
-  const actionCtxPage = createActionCtx({
-    actionParams: createActionTemplateRole(role.id),
-    displayedSubject: displayedSubject,
-  });
+  const displayedSubject = createDisplayedSubjectRole(role.id);
+  const actionCtxPage = createActionCtxRole(role, displayedSubject);
   const actionCtxPermission = (permissionKey: string) =>
-    createActionCtx({
-      actionParams: createActionTemplateRolePermission(roleId, permissionKey),
-      displayedSubject: createDisplayedSubjectRolePermission(
-        roleId,
-        permissionKey,
-      ),
-    });
+    createActionCtxRolePermission(role, permissionKey, displayedSubject);
 
   const breadcrumb = (
     <Breadcrumb size="small">
@@ -148,7 +133,6 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
       </SectionTitle>
       <SectionTable>
         <PermissionTable
-          roleId={role.id}
           permissions={details.permissions}
           actionCtxPermission={actionCtxPermission}
         />
@@ -164,22 +148,10 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
   );
 }
 
-function createActionTemplateRolePermission(
-  roleId: string,
-  permissionKey: string,
-): ActionPerformerRequestParams {
-  return {
-    roleRef: refid(roleId),
-    permissionKey: { value: permissionKey, readonly: true, visible: true },
-  };
-}
-
 function PermissionTable({
-  roleId,
   permissions,
   actionCtxPermission,
 }: {
-  roleId: string;
   permissions: string[];
   actionCtxPermission: (permissionKey: string) => ActionCtx;
 }) {

@@ -2,6 +2,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { useActionRegistry } from "@/business/action_registry";
 import { Model, useModel } from "@/business/model";
 import {
+  createActionCtxTag,
+  createDisplayedSubjectTag,
   type Tag,
   useTagGlobalUpdateDescription,
   useTagGlobalUpdateName,
@@ -23,11 +25,7 @@ import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
-import {
-  createActionTemplateTag,
-  createDisplayedSubjectTag,
-  detailActionLocation,
-} from "@/components/business/tag/tag.actions.ts";
+import { detailActionLocation } from "@/components/business/tag/tag.actions.ts";
 import { TagGroupIcon, TagIcon } from "@/components/business/tag/tag.icons.tsx";
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
@@ -36,7 +34,6 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { createActionCtx } from "@/components/business/actions";
 
 export function TagEditPage({ tagId }: { tagId: string }) {
   const { t } = useAppI18n();
@@ -78,13 +75,13 @@ export function TagEditPage({ tagId }: { tagId: string }) {
     });
   };
 
-  const actionCtxPage = createActionCtx({
-    actionParams: createActionTemplateTag(tag.id),
-    displayedSubject: createDisplayedSubjectTag({
-      tagId: tag.id,
-      tagScopeRef: tag.scope,
-      tagGroupId: tag.groupId,
-    }),
+  const displayedSubject = createDisplayedSubjectTag({
+    tagId: tag.id,
+    tagScopeRef: tag.scope,
+    tagGroupId: tag.groupId,
+  });
+  const actionCtxPage = createActionCtxTag(tag.scope, displayedSubject, {
+    tag: tag,
   });
 
   const headerProps: ViewLayoutHeaderProps = {

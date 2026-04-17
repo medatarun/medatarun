@@ -18,10 +18,9 @@ import {
 } from "@fluentui/react-components";
 import { ErrorBox } from "@seij/common-ui";
 import { formatLocalDateTime, toProblem } from "@seij/common-types";
-import { createActionTemplateActor } from "@/components/business/actor/actor.actions.ts";
 import {
   type ActionCtx,
-  createActionCtx,
+  createActionCtxVoid,
   displaySubjectNone,
 } from "@/components/business/actions";
 import { useAppI18n } from "@/services/appI18n.tsx";
@@ -34,6 +33,7 @@ import {
 import { PersonKeyRegular } from "@fluentui/react-icons";
 import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import { createActionCtxActor } from "@/business/auth_actor/actor.actioncontexts.ts";
 
 export function AdminActorListPage() {
   const { t } = useAppI18n();
@@ -53,15 +53,9 @@ export function AdminActorListPage() {
     navigate({ to: "/admin/actors/$actorId", params: { actorId } });
   };
 
-  const actionCtxPage = createActionCtx({
-    actionParams: {},
-    displayedSubject: displaySubjectNone,
-  });
+  const actionCtxPage = createActionCtxVoid();
   const actionCtxActor = (actor: ActorInfoDto): ActionCtx =>
-    createActionCtx({
-      actionParams: createActionTemplateActor(actor.id),
-      displayedSubject: displaySubjectNone,
-    });
+    createActionCtxActor(actor, displaySubjectNone);
 
   const headerProps: ViewLayoutHeaderProps = {
     eyebrow: t("adminActorsPage_eyebrow"),

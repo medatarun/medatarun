@@ -14,10 +14,6 @@ import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox, InfoBox } from "@seij/common-ui";
 import { formatLocalDateTime, toProblem } from "@seij/common-types";
-import {
-  createActionTemplateUser,
-  createDisplayedSubjectUser,
-} from "@/components/business/auth_user/user.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
 import {
@@ -26,7 +22,10 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { PersonRegular } from "@fluentui/react-icons";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { createActionCtx } from "@/components/business/actions";
+import {
+  createActionCtxUser,
+  createDisplayedSubjectUser,
+} from "@/business/auth_user/user.actioncontexts.ts";
 
 export function AdminUserEditPage({ userId }: { userId: string }) {
   const { t } = useAppI18n();
@@ -43,10 +42,8 @@ export function AdminUserEditPage({ userId }: { userId: string }) {
     return <InfoBox intent="warning">{t("adminUserPage_notFound")}</InfoBox>;
   }
 
-  const actionCtxPage = createActionCtx({
-    actionParams: createActionTemplateUser(user.username),
-    displayedSubject: createDisplayedSubjectUser(user.username),
-  });
+  const displayedSubject = createDisplayedSubjectUser(user.username);
+  const actionCtxPage = createActionCtxUser(user, displayedSubject);
 
   const breadcrumb = (
     <Breadcrumb size="small">

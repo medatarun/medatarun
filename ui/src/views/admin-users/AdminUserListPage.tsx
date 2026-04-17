@@ -19,13 +19,8 @@ import {
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import {
-  createActionTemplateUser,
-  createActionTemplateUserList,
-  createDisplayedSubjectUser,
-} from "@/components/business/auth_user/user.actions.ts";
-import {
   type ActionCtx,
-  createActionCtx,
+  createActionCtxVoid,
   displaySubjectNone,
 } from "@/components/business/actions";
 import { useAppI18n } from "@/services/appI18n.tsx";
@@ -37,6 +32,7 @@ import {
 import { PersonRegular } from "@fluentui/react-icons";
 import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import { createActionCtxUser } from "@/business/auth_user/user.actioncontexts.ts";
 
 export function AdminUserListPage() {
   const { t } = useAppI18n();
@@ -56,16 +52,10 @@ export function AdminUserListPage() {
     navigate({ to: "/admin/users/$userId", params: { userId } });
   };
 
-  const actionCtxPage = createActionCtx({
-    actionParams: createActionTemplateUserList(),
-    displayedSubject: displaySubjectNone,
-  });
+  const actionCtxPage = createActionCtxVoid();
 
   const actionCtxUser = (user: UserInfoDto) =>
-    createActionCtx({
-      actionParams: createActionTemplateUser(user.username),
-      displayedSubject: createDisplayedSubjectUser(user.username),
-    });
+    createActionCtxUser(user, displaySubjectNone);
 
   const headerProps: ViewLayoutHeaderProps = {
     eyebrow: t("adminUsersPage_eyebrow"),

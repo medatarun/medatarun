@@ -27,6 +27,7 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import type {
+  ActionCtx,
   ActionPerformerRequest,
   ActionPerformerRequestParams,
 } from "./ActionPerformerRequest.tsx";
@@ -68,11 +69,14 @@ export function ActionPerformerView() {
 
   const defaultFormData: FormDataType = {};
   for (const actionParam of action.parameters) {
+    // Take the default value from parameters. Normalize the value so that
+    // we always have null (not undefined)
     defaultFormData[actionParam.name] =
-      state.request.ctx.actionParams[actionParam.name]?.value ?? null;
+      state.request.ctx.getDefaultValue(actionParam.name, state.request) ??
+      null;
   }
 
-  const formFields = createFormFields(action, state.request.ctx.actionParams);
+  const formFields = createFormFields(action, state.request.ctx);
 
   return (
     <ActionPerformerViewLoaded
@@ -311,13 +315,12 @@ function FormFieldInput({
   );
 }
 
-function createFormFields(
-  action: ActionDescriptor,
-  prefill: ActionPerformerRequestParams,
-) {
+function createFormFields(action: ActionDescriptor, actionCtx: ActionCtx) {
   const formFields: FormFieldType[] = [];
   action.parameters.forEach((param) => {
-    const prefilledValue = prefill[param.name];
+    const isReadOnly = actionCtx.isReadonly(param.name) ?? false;
+    const isVisible = actionCtx.isVisible(param.name) ?? true;
+    const isPresent = actionCtx.isPresent(param.name);
     const field: FormFieldType = {
       key: param.name,
       title: param.title ?? param.name,
@@ -325,8 +328,12 @@ function createFormFields(
       optional: param.optional,
       type: param.type,
       order: param.order,
-      readonly: isNil(prefilledValue) ? false : prefilledValue.readonly,
-      visible: isNil(prefilledValue) ? true : prefilledValue.visible,
+      // If the parameter has not been specified, the field is always editable.
+      // If the parameter has been specified, take the value of readonly
+      readonly: !isPresent ? false : isReadOnly,
+      // If the parameter has not been specified, always show the field.
+      // If the parameter has been specified, take the value of readonly
+      visible: !isPresent ? true : isVisible,
     };
     formFields.push(field);
   });

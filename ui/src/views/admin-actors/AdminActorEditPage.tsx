@@ -25,13 +25,6 @@ import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { formatLocalDateTime, toProblem } from "@seij/common-types";
-import {
-  createActionTemplateActor,
-  createActionTemplateActorRole,
-  createActionTemplateActorRoleList,
-  createDisplayedSubjectActor,
-  createDisplayedSubjectActorRole,
-} from "@/components/business/actor/actor.actions.ts";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
@@ -42,7 +35,12 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { PersonKeyRegular } from "@fluentui/react-icons";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import { type ActionCtx, createActionCtx } from "@/components/business/actions";
+import { type ActionCtx } from "@/components/business/actions";
+import {
+  createActionCtxActor,
+  createActionCtxActorRole,
+  createDisplayedSubjectActor,
+} from "@/business/auth_actor/actor.actioncontexts.ts";
 
 export function AdminActorEditPage({ actorId }: { actorId: string }) {
   const { t } = useAppI18n();
@@ -57,19 +55,10 @@ export function AdminActorEditPage({ actorId }: { actorId: string }) {
   const actor = actorResult.data;
   const actorActions = actionRegistry.findActions(ActionUILocations.auth_actor);
 
-  const actionCtxPage = createActionCtx({
-    actionParams: createActionTemplateActor(actor.id),
-    displayedSubject: createDisplayedSubjectActor(actor.id),
-  });
-  const actionCtxActorRoleList = createActionCtx({
-    actionParams: createActionTemplateActorRoleList(actor.id),
-    displayedSubject: createDisplayedSubjectActor(actor.id),
-  });
+  const displayedSubject = createDisplayedSubjectActor(actor.id);
+  const actionCtxPage = createActionCtxActor(actor, displayedSubject);
   const actionCtxRole = (role: AuthRole) =>
-    createActionCtx({
-      actionParams: createActionTemplateActorRole(actor.id, role.id),
-      displayedSubject: createDisplayedSubjectActorRole(actor.id, role.id),
-    });
+    createActionCtxActorRole(actor, role, displayedSubject);
 
   const breadcrumb = (
     <Breadcrumb size="small">
@@ -143,7 +132,7 @@ export function AdminActorEditPage({ actorId }: { actorId: string }) {
       <SectionTitle
         icon={undefined}
         location={ActionUILocations.auth_actor_roles}
-        actionCtx={actionCtxActorRoleList}
+        actionCtx={actionCtxPage}
       >
         {t("adminActorPage_rolesTitle")}
       </SectionTitle>

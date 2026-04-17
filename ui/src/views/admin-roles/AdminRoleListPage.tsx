@@ -17,13 +17,8 @@ import {
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import {
-  createActionTemplateRole,
-  createActionTemplateRoleList,
-  createDisplayedSubjectRole,
-} from "@/components/business/actor/actor.actions.ts";
-import {
   type ActionCtx,
-  createActionCtx,
+  createActionCtxVoid,
   displaySubjectNone,
 } from "@/components/business/actions";
 import { useAppI18n } from "@/services/appI18n.tsx";
@@ -35,6 +30,7 @@ import {
 import { LockClosedRegular } from "@fluentui/react-icons";
 import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import { createActionCtxRole } from "@/business/auth_actor/actor.actioncontexts.ts";
 
 export function AdminRoleListPage() {
   const { t } = useAppI18n();
@@ -51,16 +47,9 @@ export function AdminRoleListPage() {
     navigate({ to: "/admin/roles/$roleId", params: { roleId } });
   };
 
-  const actionCtxPage = createActionCtx({
-    actionParams: createActionTemplateRoleList(),
-    displayedSubject: displaySubjectNone,
-  });
-
+  const actionCtxPage = createActionCtxVoid();
   const actionCtxRole = (role: AuthRole) =>
-    createActionCtx({
-      actionParams: createActionTemplateRole(role.id),
-      displayedSubject: createDisplayedSubjectRole(role.id),
-    });
+    createActionCtxRole(role, displaySubjectNone);
 
   const headerProps: ViewLayoutHeaderProps = {
     eyebrow: t("authRolesPage_eyebrow"),

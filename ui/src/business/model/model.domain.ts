@@ -235,4 +235,10 @@ export class Model {
       ) !== undefined
     );
   }
+  findEntityPKAttributes(entityId: string): string[] {
+    return (
+      this.dto.entityPrimaryKeys.find((it) => it.entityId === entityId)
+        ?.participants ?? []
+    );
+  }
 }

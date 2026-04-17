@@ -7,11 +7,7 @@ import type { ActionPerformerRequestParam } from "./ActionPerformerRequest.tsx";
  * - "id:<value>" -> "<value>"
  * - "<value>" -> "<value>"
  */
-export function decodeActionParamId(
-  param: ActionPerformerRequestParam | undefined,
-): string | null {
-  if (!param) return null;
-  const value = param.value;
+export function decodeActionParamId(value: unknown): string | null {
   if (typeof value !== "string") return null;
   if (value.startsWith("id:")) return value.substring(3);
   return value;
@@ -35,7 +31,7 @@ export function actionTargetsDisplayedSubject(
   } else {
     for (const refParam of targetSubject.referencingParams) {
       const expectedId = decodeActionParamId(
-        context.request.ctx.actionParams[refParam.name],
+        context.request.ctx.getDefaultValue(refParam.name, context.request),
       );
       const displayedKey = toDisplayedSubjectIdKey(refParam.name);
       const displayedId = displayedKey

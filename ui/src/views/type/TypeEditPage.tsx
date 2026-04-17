@@ -4,6 +4,8 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import {
+  createActionCtxType,
+  createDisplayedSubjectType,
   Model,
   type TypeDto,
   useModel,
@@ -22,10 +24,7 @@ import {
 } from "@fluentui/react-components";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
-import {
-  createActionTemplateType,
-  createDisplayedSubjectType,
-} from "@/components/business/model/model.actions.ts";
+
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
 import { ErrorBox } from "@seij/common-ui";
@@ -42,7 +41,6 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
-import { createActionCtx } from "@/components/business/actions";
 
 export function TypeEditPage({
   modelId,
@@ -94,10 +92,8 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
     });
   };
 
-  const actionCtxPage = createActionCtx({
-    actionParams: createActionTemplateType(model.id, type.id),
-    displayedSubject: createDisplayedSubjectType(model.id, type.id),
-  });
+  const displayedSubject = createDisplayedSubjectType(model.id, type.id);
+  const actionCtxPage = createActionCtxType(model, type, displayedSubject);
 
   const breadcrumb = (
     <Breadcrumb size="small">

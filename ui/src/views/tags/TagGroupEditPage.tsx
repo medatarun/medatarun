@@ -4,6 +4,9 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import {
+  createActionCtxTag,
+  createActionCtxTagGroup,
+  createDisplayedSubjectTagGroup,
   Tag,
   useTagGroupUpdateDescription,
   useTagGroupUpdateName,
@@ -25,12 +28,6 @@ import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
-import {
-  createActionTemplateTag,
-  createActionTemplateTagGlobalList,
-  createActionTemplateTagGroup,
-  createDisplayedSubjectTagGroup,
-} from "@/components/business/tag/tag.actions.ts";
 import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import {
@@ -38,7 +35,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { type ActionCtx, createActionCtx } from "@/components/business/actions";
+import { type ActionCtx } from "@/components/business/actions";
 
 export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
   const { t } = useAppI18n();
@@ -80,19 +77,9 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
   };
 
   const displayedSubject = createDisplayedSubjectTagGroup(tagGroup.id);
-  const actionCtxPage = createActionCtx({
-    actionParams: createActionTemplateTagGroup(tagGroup.id),
-    displayedSubject: displayedSubject,
-  });
-  const actionCtxTagList = createActionCtx({
-    actionParams: createActionTemplateTagGlobalList(tagGroup.id),
-    displayedSubject: displayedSubject,
-  });
+  const actionCtxPage = createActionCtxTagGroup(tagGroup, displayedSubject);
   const actionCtxTag = (tag: Tag): ActionCtx =>
-    createActionCtx({
-      actionParams: createActionTemplateTag(tag.id),
-      displayedSubject: displayedSubject,
-    });
+    createActionCtxTag(tag.scope, displayedSubject, { tag: tag });
 
   const breadcrumb = (
     <Breadcrumb size="small">
@@ -150,7 +137,7 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
       <SectionTitle
         icon={<TagGroupIcon />}
         location={ActionUILocations.tag_global_list}
-        actionCtx={actionCtxTagList}
+        actionCtx={actionCtxPage}
       >
         {t("tagGroupEdit_tagsTitle")}
       </SectionTitle>
