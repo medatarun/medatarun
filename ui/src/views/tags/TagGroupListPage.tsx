@@ -3,21 +3,17 @@ import {
   ActionUILocations,
   useActionRegistry,
 } from "@/business/action_registry";
-import { TagGroup, useTags } from "@/business/tag";
+import { createActionCtxTagGroup, TagGroup, useTags } from "@/business/tag";
 import { TagGroupsTable } from "./TagGroupsTable.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
-import {
-  createActionTemplateTagGroup,
-  createActionTemplateTagGroupList,
-} from "@/components/business/tag/tag.actions.ts";
 import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import {
-  createActionCtx,
+  createActionCtxVoid,
   displaySubjectNone,
 } from "@/components/business/actions";
 import {
@@ -43,16 +39,10 @@ export function TagGroupListPage() {
   if (tagsResult.isPending) return null;
   if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)} />;
 
-  const actionCtxPage = createActionCtx({
-    actionParams: createActionTemplateTagGroupList(),
-    displayedSubject: displaySubjectNone,
-  });
+  const actionCtxPage = createActionCtxVoid();
 
   const actionCtxTagGroup = (tagGroup: TagGroup) =>
-    createActionCtx({
-      actionParams: createActionTemplateTagGroup(tagGroup.id),
-      displayedSubject: displaySubjectNone,
-    });
+    createActionCtxTagGroup(tagGroup, displaySubjectNone);
 
   const headerProps: ViewLayoutHeaderProps = {
     title: t("tagGroupsPage_title"),

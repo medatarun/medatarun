@@ -76,7 +76,7 @@ sealed interface ModelAction {
         key = "model_export",
         title = "Export model",
         description = "Returns the exported view of a model.",
-        uiLocations = [ActionUILocation.model_overview],
+        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_Export(
@@ -92,7 +92,7 @@ sealed interface ModelAction {
         key = "model_export_version",
         title = "Export model at a specific version",
         description = "Returns the exported view of a model at a specific version.",
-        uiLocations = [ActionUILocation.model_overview],
+        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
 
@@ -1762,7 +1762,7 @@ sealed interface ModelAction {
         key = "business_key_create",
         title = "Create a business key",
         description = "Creates a business key to represent wich attributes of an entity uniquely identifies the objet in a business manner.",
-        uiLocations = [ActionUILocation.entity],
+        uiLocations = [ActionUILocation.entity_business_keys],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class BusinessKey_Create(
@@ -1807,7 +1807,7 @@ sealed interface ModelAction {
         key = "business_key_update_key",
         title = "Update business key's key",
         description = "Changes the key of a business key.",
-        uiLocations = [ActionUILocation.entity],
+        uiLocations = [ActionUILocation.entity_business_key],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class BusinessKey_Update_Key(
@@ -1835,7 +1835,7 @@ sealed interface ModelAction {
         key = "business_key_update_name",
         title = "Update business key name",
         description = "Changes the name of a business key.",
-        uiLocations = [ActionUILocation.entity],
+        uiLocations = [ActionUILocation.entity_business_key],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class BusinessKey_Update_Name(
@@ -1862,7 +1862,7 @@ sealed interface ModelAction {
         key = "business_key_update_description",
         title = "Update business key description",
         description = "Changes the description of a business key.",
-        uiLocations = [ActionUILocation.entity],
+        uiLocations = [ActionUILocation.entity_business_key],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class BusinessKey_Update_Description(
@@ -1890,7 +1890,7 @@ sealed interface ModelAction {
         key = "business_key_update_participants",
         title = "Update business key participants",
         description = "Changes the participants of a business key, meaning all attributes that define the business key meaning.",
-        uiLocations = [ActionUILocation.entity],
+        uiLocations = [ActionUILocation.entity_business_key],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class BusinessKey_Update_Participants(
@@ -1918,7 +1918,7 @@ sealed interface ModelAction {
         key = "business_key_delete",
         title = "Update business key participants",
         description = "Changes the participants of a business key, meaning all attributes that define the business key meaning.",
-        uiLocations = [ActionUILocation.entity],
+        uiLocations = [ActionUILocation.entity_business_key],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class BusinessKey_Delete(
@@ -1977,7 +1977,7 @@ sealed interface ModelAction {
         key = "history_versions",
         title = "Versions",
         description = "Lists the released versions of a model.",
-        uiLocations = [ActionUILocation.model_overview],
+        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.SIGNED_IN,
         semantics = ActionDocSemantics(
             ActionDocSemanticsMode.DECLARED,
@@ -1999,7 +1999,7 @@ sealed interface ModelAction {
         key = "history_version_changes",
         title = "Version changes",
         description = "Lists the changes included in a version. When no version is provided, lists the changes since the last released version.",
-        uiLocations = [ActionUILocation.model_overview],
+        uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.SIGNED_IN,
         semantics = ActionDocSemantics(
             ActionDocSemanticsMode.DECLARED,

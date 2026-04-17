@@ -25,7 +25,6 @@ import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { formatLocalDateTime, toProblem } from "@seij/common-types";
-import { createDisplayedSubjectActor } from "@/components/business/actor/actor.actions.ts";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
@@ -40,7 +39,8 @@ import { type ActionCtx } from "@/components/business/actions";
 import {
   createActionCtxActor,
   createActionCtxActorRole,
-} from "@/components/business/auth_user/auth.actioncontexts.ts";
+  createDisplayedSubjectActor,
+} from "@/business/auth_actor/actor.actioncontexts.ts";
 
 export function AdminActorEditPage({ actorId }: { actorId: string }) {
   const { t } = useAppI18n();
@@ -55,16 +55,10 @@ export function AdminActorEditPage({ actorId }: { actorId: string }) {
   const actor = actorResult.data;
   const actorActions = actionRegistry.findActions(ActionUILocations.auth_actor);
 
-  const actionCtxPage = createActionCtxActor(
-    actor,
-    createDisplayedSubjectActor(actor.id),
-  );
+  const displayedSubject = createDisplayedSubjectActor(actor.id);
+  const actionCtxPage = createActionCtxActor(actor, displayedSubject);
   const actionCtxRole = (role: AuthRole) =>
-    createActionCtxActorRole(
-      actor,
-      role,
-      createDisplayedSubjectActor(actor.id),
-    );
+    createActionCtxActorRole(actor, role, displayedSubject);
 
   const breadcrumb = (
     <Breadcrumb size="small">

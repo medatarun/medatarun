@@ -4,6 +4,10 @@ import {
 } from "@/business/action_registry";
 import {
   type AttributeDto,
+  createActionCtxRelationship,
+  createActionCtxRelationshipAttribute,
+  createActionCtxRelationshipRole,
+  createDisplayedSubjectRelationship,
   Model,
   type RelationshipDto,
   type RelationshipRoleDto,
@@ -17,12 +21,6 @@ import {
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { AttributesTable } from "@/components/business/model/AttributesTable.tsx";
-import {
-  createActionTemplateRelationship,
-  createActionTemplateRelationshipAttribute,
-  createActionTemplateRelationshipRole,
-  createDisplayedSubjectRelationship,
-} from "@/components/business/model/model.actions.ts";
 import {
   AttributeIcon,
   EntityIcon,
@@ -62,7 +60,6 @@ import {
 import { toProblem } from "@seij/common-types";
 import { ErrorBox } from "@seij/common-ui";
 import { useNavigate } from "@tanstack/react-router";
-import { createActionCtx } from "@/components/business/actions";
 
 export function RelationshipEditPage({
   modelId,
@@ -129,38 +126,31 @@ export function RelationshipView({
     });
   };
 
-  const actionParams = createActionTemplateRelationship(
-    model.id,
-    relationship.id,
-  );
   const displayedSubject = createDisplayedSubjectRelationship(
     model.id,
     relationship.id,
   );
-  const actionCtxPage = createActionCtx({
-    actionParams: actionParams,
-    displayedSubject: displayedSubject,
-  });
+  const actionCtxPage = createActionCtxRelationship(
+    model,
+    relationship,
+    displayedSubject,
+  );
 
   const actionCtxAttribute = (attr: AttributeDto) =>
-    createActionCtx({
-      actionParams: createActionTemplateRelationshipAttribute(
-        model.id,
-        relationship.id,
-        attr.id,
-      ),
-      displayedSubject: displayedSubject,
-    });
+    createActionCtxRelationshipAttribute(
+      model,
+      relationship,
+      attr,
+      displayedSubject,
+    );
 
   const actionCtxRole = (role: RelationshipRoleDto) =>
-    createActionCtx({
-      actionParams: createActionTemplateRelationshipRole(
-        model.id,
-        relationship.id,
-        role.id,
-      ),
-      displayedSubject: displayedSubject,
-    });
+    createActionCtxRelationshipRole(
+      model,
+      relationship,
+      role,
+      displayedSubject,
+    );
 
   const breadCrumb = (
     <Breadcrumb size="small">

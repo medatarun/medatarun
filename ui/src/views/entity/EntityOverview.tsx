@@ -16,9 +16,15 @@ import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx
 import { useModelContext } from "@/components/business/model/ModelContext.tsx";
 import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { createDisplayedSubjectEntity } from "@/components/business/model/model.actions.ts";
+import type { ActionDisplayedSubject } from "@/components/business/actions";
 
-export function EntityOverview({ entity }: { entity: EntityDto }) {
+export function EntityOverview({
+  entity,
+  displayedSubject,
+}: {
+  entity: EntityDto;
+  displayedSubject: ActionDisplayedSubject;
+}) {
   const model = useModelContext();
   const { isDetailLevelTech } = useDetailLevelContext();
   const entityUpdateKey = useEntityUpdateKey();
@@ -110,7 +116,7 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
           value={entity.tags}
           scope={modelTagScope(model.id)}
           onChange={handleChangeTags}
-          displayedSubject={createDisplayedSubjectEntity(model.id, entity.id)}
+          displayedSubject={displayedSubject}
         >
           {entity.tags.length === 0 ? (
             <MissingInformation>

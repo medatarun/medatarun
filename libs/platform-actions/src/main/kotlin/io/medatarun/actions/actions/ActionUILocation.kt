@@ -15,6 +15,8 @@ object ActionUILocation {
     const val entity_attribute_hidden="entity.attribute.hidden_detail"
     const val entity_attributes="entity.attributes"
     const val entity_relationships="entity.relationships"
+    const val entity_business_keys="entity.business_keys"
+    const val entity_business_key="entity.business_key"
     const val global="global"
     const val hidden="hidden"
     const val model_entities="model.entities"

@@ -4,6 +4,9 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import {
+  createActionCtxModel,
+  createActionCtxRelationship,
+  createDisplayedSubjectModel,
   type ElementOrigin,
   Model,
   type RelationshipDto,
@@ -40,7 +43,6 @@ import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionCards } from "@/components/layout/SectionCards.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
-import { createDisplayedSubjectModel } from "@/components/business/model/model.actions.ts";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
@@ -53,12 +55,7 @@ import { useAppI18n } from "@/services/appI18n.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { TagIcon } from "@/components/business/tag/tag.icons.tsx";
-import { Tag } from "@/business/tag";
-import {
-  createActionCtxModel,
-  createActionCtxRelationship,
-  createActionCtxTag,
-} from "@/business/model/model.actioncontexts.ts";
+import { createActionCtxTag, Tag } from "@/business/tag";
 
 export function ModelEditPage({ modelId }: { modelId: string }) {
   const { data: model } = useModel(modelId);
@@ -115,7 +112,7 @@ export function ModelView() {
   const actionCtxRelationship = (r: RelationshipDto) =>
     createActionCtxRelationship(model, r, displayedSubject);
   const actionCtxTag = (tag: Tag) =>
-    createActionCtxTag(model, tag, displayedSubject);
+    createActionCtxTag(modelTagScope(model.id), displayedSubject, { tag: tag });
 
   return (
     <ViewLayoutContained

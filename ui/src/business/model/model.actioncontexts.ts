@@ -1,18 +1,88 @@
 import type { Model } from "@/business/model/model.domain.ts";
 import {
-  type ActionCtx,
   ActionCtxMapping,
   type ActionDisplayedSubject,
-  type ActionPerformerRequest,
 } from "@/components/business/actions";
-import type { RelationshipDto } from "@/business/model/model.dto.ts";
-import { Tag } from "@/business/tag";
+import type {
+  AttributeDto,
+  EntityDto,
+  RelationshipDto,
+  RelationshipRoleDto,
+  TypeDto,
+} from "@/business/model/model.dto.ts";
+import { stubFalse } from "lodash-es";
+
+export const createDisplayedSubjectModel = (
+  modelId: string,
+): ActionDisplayedSubject => ({
+  kind: "resource",
+  type: "model",
+  refs: { modelId: modelId },
+});
+
+export const createDisplayedSubjectEntity = (
+  modelId: string,
+  entityId: string,
+): ActionDisplayedSubject => ({
+  kind: "resource",
+  type: "entity",
+  refs: { modelId: modelId, entityId: entityId },
+});
+
+export const createDisplayedSubjectEntityAttribute = (
+  modelId: string,
+  entityId: string,
+  attributeId: string,
+): ActionDisplayedSubject => ({
+  kind: "resource",
+  type: "entity_attribute",
+  refs: {
+    modelId: modelId,
+    entityId: entityId,
+    attributeId: attributeId,
+  },
+});
+
+export const createDisplayedSubjectType = (
+  modelId: string,
+  typeId: string,
+): ActionDisplayedSubject => ({
+  kind: "resource",
+  type: "type",
+  refs: { modelId: modelId, typeId: typeId },
+});
+
+export const createDisplayedSubjectRelationship = (
+  modelId: string,
+  relationshipId: string,
+): ActionDisplayedSubject => ({
+  kind: "resource",
+  type: "relationship",
+  refs: {
+    modelId: modelId,
+    relationshipId: relationshipId,
+  },
+});
+
+export const createDisplayedSubjectRelationshipAttribute = (
+  modelId: string,
+  relationshipId: string,
+  attributeId: string,
+): ActionDisplayedSubject => ({
+  kind: "resource",
+  type: "relationship_attribute",
+  refs: {
+    modelId: modelId,
+    relationshipId: relationshipId,
+    attributeId: attributeId,
+  },
+});
 
 export const createActionCtxModel = (
   model: Model,
   displayedSubject: ActionDisplayedSubject,
 ) => {
-  return new ActionCtxMapping<Model>(
+  return new ActionCtxMapping(
     [
       {
         actionParamKey: "modelRef",
@@ -38,12 +108,80 @@ export const createActionCtxModel = (
   );
 };
 
+export const createActionCtxEntity = (
+  model: Model,
+  entity: EntityDto,
+  displayedSubject: ActionDisplayedSubject,
+) => {
+  return new ActionCtxMapping(
+    [
+      {
+        actionParamKey: "modelRef",
+        defaultValue: () => "id:" + model.id,
+        readonly: true,
+        visible: false,
+      },
+      {
+        actionParamKey: "entityRef",
+        defaultValue: () => "id:" + entity.id,
+        readonly: true,
+        visible: false,
+      },
+      {
+        actionParamKey: "roleAEntityRef",
+        defaultValue: () => "id:" + entity.id,
+        readonly: true,
+        visible: false,
+      },
+      {
+        actionKey: "entity_primary_key_update",
+        actionParamKey: "attributeRef",
+        defaultValue: () => model.findEntityPKAttributes(entity.id),
+        readonly: false,
+        visible: true,
+      },
+    ],
+    displayedSubject,
+  );
+};
+
+export const createActionCtxEntityAttribute = (
+  model: Model,
+  entity: EntityDto,
+  attribute: AttributeDto,
+  displayedSubject: ActionDisplayedSubject,
+) => {
+  return new ActionCtxMapping(
+    [
+      {
+        actionParamKey: "modelRef",
+        defaultValue: () => "id:" + model.id,
+        readonly: true,
+        visible: false,
+      },
+      {
+        actionParamKey: "entityRef",
+        defaultValue: () => "id:" + entity.id,
+        readonly: true,
+        visible: false,
+      },
+      {
+        actionParamKey: "attributeRef",
+        defaultValue: () => "id:" + attribute.id,
+        readonly: true,
+        visible: false,
+      },
+    ],
+    displayedSubject,
+  );
+};
+
 export const createActionCtxRelationship = (
   model: Model,
   relationship: RelationshipDto,
   displayedSubject: ActionDisplayedSubject,
 ) => {
-  return new ActionCtxMapping<Model>(
+  return new ActionCtxMapping(
     [
       {
         actionParamKey: "modelRef",
@@ -62,12 +200,13 @@ export const createActionCtxRelationship = (
   );
 };
 
-export const createActionCtxTag = (
+export const createActionCtxRelationshipAttribute = (
   model: Model,
-  tag: Tag,
+  relationship: RelationshipDto,
+  attribute: AttributeDto,
   displayedSubject: ActionDisplayedSubject,
 ) => {
-  return new ActionCtxMapping<Model>(
+  return new ActionCtxMapping(
     [
       {
         actionParamKey: "modelRef",
@@ -76,8 +215,68 @@ export const createActionCtxTag = (
         visible: false,
       },
       {
-        actionParamKey: "tagRef",
-        defaultValue: () => "id:" + tag.id,
+        actionParamKey: "relationshipRef",
+        defaultValue: () => "id:" + relationship.id,
+        readonly: true,
+        visible: false,
+      },
+      {
+        actionParamKey: "attributeRef",
+        defaultValue: () => "id:" + attribute.id,
+        readonly: true,
+        visible: false,
+      },
+    ],
+    displayedSubject,
+  );
+};
+
+export const createActionCtxRelationshipRole = (
+  model: Model,
+  relationship: RelationshipDto,
+  role: RelationshipRoleDto,
+  displayedSubject: ActionDisplayedSubject,
+) => {
+  return new ActionCtxMapping(
+    [
+      {
+        actionParamKey: "modelRef",
+        defaultValue: () => "id:" + model.id,
+        readonly: true,
+        visible: false,
+      },
+      {
+        actionParamKey: "relationshipRef",
+        defaultValue: () => "id:" + relationship.id,
+        readonly: true,
+        visible: false,
+      },
+      {
+        actionParamKey: "relationshipRoleRef",
+        defaultValue: () => "id:" + role.id,
+        readonly: true,
+        visible: false,
+      },
+    ],
+    displayedSubject,
+  );
+};
+export const createActionCtxType = (
+  model: Model,
+  type: TypeDto,
+  displayedSubject: ActionDisplayedSubject,
+) => {
+  return new ActionCtxMapping(
+    [
+      {
+        actionParamKey: "modelRef",
+        defaultValue: () => "id:" + model.id,
+        readonly: true,
+        visible: false,
+      },
+      {
+        actionParamKey: "typeRef",
+        defaultValue: () => "id:" + type.id,
         readonly: true,
         visible: false,
       },

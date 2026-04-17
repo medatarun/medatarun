@@ -5,6 +5,10 @@ import {
 } from "@/business/action_registry";
 import {
   type AttributeDto,
+  createActionCtxEntity,
+  createActionCtxEntityAttribute,
+  createActionCtxRelationship,
+  createDisplayedSubjectEntity,
   type EntityDto,
   Model,
   type RelationshipDto,
@@ -30,13 +34,6 @@ import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { EntityOverview } from "./EntityOverview.tsx";
 import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import {
-  createActionTemplateEntity,
-  createActionTemplateEntityAttribute,
-  createActionTemplateEntityForRelationships,
-  createActionTemplateRelationship,
-  createDisplayedSubjectEntity,
-} from "@/components/business/model/model.actions.ts";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
@@ -52,7 +49,6 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { createActionCtx } from "@/components/business/actions";
 
 export function EntityEditPage({
   modelId,
@@ -120,34 +116,13 @@ export function EntityView({ entity }: { entity: EntityDto }) {
   };
   const displayedSubject = createDisplayedSubjectEntity(model.id, entity.id);
 
-  const actionCtxPage = createActionCtx({
-    actionParams: createActionTemplateEntity(model.id, entity.id),
-    displayedSubject: displayedSubject,
-  });
+  const actionCtxPage = createActionCtxEntity(model, entity, displayedSubject);
 
   const actionCtxRelationship = (r: RelationshipDto) =>
-    createActionCtx({
-      actionParams: createActionTemplateRelationship(model.id, r.id),
-      displayedSubject: displayedSubject,
-    });
+    createActionCtxRelationship(model, r, displayedSubject);
 
   const actionCtxAttribute = (attr: AttributeDto) =>
-    createActionCtx({
-      actionParams: createActionTemplateEntityAttribute(
-        model.id,
-        entity.id,
-        attr.id,
-      ),
-      displayedSubject: displayedSubject,
-    });
-
-  const actionCtxRelationshipList = createActionCtx({
-    actionParams: createActionTemplateEntityForRelationships(
-      model.id,
-      entity.id,
-    ),
-    displayedSubject: displayedSubject,
-  });
+    createActionCtxEntityAttribute(model, entity, attr, displayedSubject);
 
   const breadcrumb = (
     <Breadcrumb size="small">
@@ -196,7 +171,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
       title={<ViewLayoutHeader {...headerProps} />}
     >
       <SectionPaper>
-        <EntityOverview entity={entity} />
+        <EntityOverview entity={entity} displayedSubject={displayedSubject} />
       </SectionPaper>
       <SectionPaper topspacing="XXXL" nopadding>
         <InlineEditDescription
@@ -232,7 +207,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
 
       <SectionTitle
         icon={<RelationshipIcon />}
-        actionCtx={actionCtxRelationshipList}
+        actionCtx={actionCtxPage}
         location={ActionUILocations.entity_relationships}
       >
         {t("entityEditPage_relationshipsTitle")}

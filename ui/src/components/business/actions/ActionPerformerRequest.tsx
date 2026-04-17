@@ -94,28 +94,6 @@ export type ActionCtx = {
   displayedSubject: ActionDisplayedSubject;
 };
 
-/**
- * Factory to create action ctx. Never try to create an ActionCtx without
- * using one of the provided methods
- * @param props
- */
-export const createActionCtx = (props: {
-  /**
-   * Known predefined parameters for the action, typically what is already
-   * set before starting.
-   */
-  actionParams: ActionPerformerRequestParams;
-  displayedSubject: ActionDisplayedSubject;
-}): ActionCtx => {
-  return {
-    displayedSubject: props.displayedSubject,
-    isReadonly: (key) => props.actionParams[key]?.readonly ?? undefined,
-    isVisible: (key) => props.actionParams[key]?.visible ?? undefined,
-    isPresent: (key) => Object.hasOwn(props.actionParams, key),
-    getDefaultValue: (key) => props.actionParams[key]?.value ?? null,
-  };
-};
-
 const ACTION_CTX_NOWHERE: ActionCtx = {
   isVisible: () => true,
   isReadonly: () => true,
@@ -133,7 +111,7 @@ export const createActionCtxVoid = () => {
   return ACTION_CTX_NOWHERE;
 };
 
-export interface ActionCtxMappingParam<T> {
+export interface ActionCtxMappingParam {
   actionGroupKey?: RegExp | string | undefined;
   actionKey?: RegExp | string | undefined;
   actionParamKey: string;
@@ -142,12 +120,12 @@ export interface ActionCtxMappingParam<T> {
   visible?: boolean;
 }
 
-export class ActionCtxMapping<T> implements ActionCtx {
-  modelMapping: Map<string, ActionCtxMappingParam<T>>;
+export class ActionCtxMapping implements ActionCtx {
+  modelMapping: Map<string, ActionCtxMappingParam>;
   displayedSubject: ActionDisplayedSubject;
-  private mappings: ActionCtxMappingParam<T>[];
+  private mappings: ActionCtxMappingParam[];
   constructor(
-    mappings: ActionCtxMappingParam<T>[],
+    mappings: ActionCtxMappingParam[],
     displayedSubject: ActionDisplayedSubject,
   ) {
     this.displayedSubject = displayedSubject;
@@ -190,7 +168,7 @@ const match = (
   actionGroupKey: string,
   actionKey: string,
   actionParamKey: string,
-  mapping: ActionCtxMappingParam<unknown>,
+  mapping: ActionCtxMappingParam,
 ): boolean => {
   const matchGroup = matchValue(actionGroupKey, mapping.actionGroupKey);
   if (!matchGroup) return false;

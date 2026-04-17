@@ -5,6 +5,10 @@ import {
 } from "@/business/action_registry";
 import {
   type AttributeDto,
+  createActionCtxEntityAttribute,
+  createActionCtxRelationshipAttribute,
+  createDisplayedSubjectEntityAttribute,
+  createDisplayedSubjectRelationshipAttribute,
   type EntityDto,
   Model,
   type RelationshipDto,
@@ -38,13 +42,6 @@ import {
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
-import {
-  createActionTemplateEntityAttribute,
-  createActionTemplateModel,
-  createActionTemplateRelationshipAttribute,
-  createDisplayedSubjectEntityAttribute,
-  createDisplayedSubjectRelationshipAttribute,
-} from "@/components/business/model/model.actions.ts";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
 import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
@@ -62,7 +59,7 @@ import {
 import { useAppI18n } from "@/services/appI18n.tsx";
 import {
   type ActionDisplayedSubject,
-  createActionCtx,
+  createActionCtxVoid,
   displaySubjectNone,
 } from "@/components/business/actions";
 import { InlineEditBoolean } from "@/components/core/InlineEditBoolean.tsx";
@@ -196,23 +193,9 @@ export function AttributeView({
 
   const parentAsEntity: EntityDto | null =
     parentType === "entity" ? (parent as EntityDto) : null;
+
   const parentAsRelationship: RelationshipDto | null =
     parentType === "relationship" ? (parent as RelationshipDto) : null;
-
-  const actionParams =
-    parentAsEntity !== null
-      ? createActionTemplateEntityAttribute(
-          model.id,
-          parentAsEntity.id,
-          attribute.id,
-        )
-      : parentAsRelationship !== null
-        ? createActionTemplateRelationshipAttribute(
-            model.id,
-            parentAsRelationship.id,
-            attribute.id,
-          )
-        : createActionTemplateModel(model.id);
 
   const displayedSubject: ActionDisplayedSubject =
     parentAsEntity !== null
@@ -229,10 +212,22 @@ export function AttributeView({
           )
         : displaySubjectNone;
 
-  const actionCtxPage = createActionCtx({
-    actionParams: actionParams,
-    displayedSubject: displayedSubject,
-  });
+  const actionCtxPage =
+    parentAsEntity != null
+      ? createActionCtxEntityAttribute(
+          model,
+          parentAsEntity,
+          attribute,
+          displayedSubject,
+        )
+      : parentAsRelationship != null
+        ? createActionCtxRelationshipAttribute(
+            model,
+            parentAsRelationship,
+            attribute,
+            displayedSubject,
+          )
+        : createActionCtxVoid();
 
   const handleUpdateName = async (value: string) => {
     if (parentAsEntity != null) {

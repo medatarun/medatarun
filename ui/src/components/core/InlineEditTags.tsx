@@ -19,13 +19,15 @@ import {
   type TagPickerProps,
 } from "@fluentui/react-components";
 import { InlineEditSingleLineLayout } from "./InlineEditSingleLineLayout.tsx";
-import { Tags, type TagScopeRef, useTags } from "@/business/tag";
+import {
+  createActionCtxTag,
+  Tags,
+  type TagScopeRef,
+  useTags,
+} from "@/business/tag";
 import { useActionPerformer } from "@/components/business/actions/ActionPerformerHook.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import {
-  ActionCtxMapping,
-  type ActionDisplayedSubject,
-} from "@/components/business/actions";
+import { type ActionDisplayedSubject } from "@/components/business/actions";
 
 const CREATE_OPTION_PREFIX = "__create__:";
 
@@ -86,22 +88,8 @@ export function InlineEditTags({
     setWaitingCreatedTagResolution(false);
   }, [requestedCreatedTagKey, scope, state, tags, waitingCreatedTagResolution]);
 
-  const actionCtxTag = (key: string) =>
-    new ActionCtxMapping(
-      [
-        {
-          actionParamKey: "scopeRef",
-          defaultValue: () => scope,
-          readonly: true,
-          visible: false,
-        },
-        {
-          actionParamKey: "key",
-          defaultValue: () => key,
-        },
-      ],
-      displayedSubject,
-    );
+  const actionCtxTag = (createKey: string) =>
+    createActionCtxTag(scope, displayedSubject, { tagCreateKey: createKey });
 
   const handleEditStart = async () => {
     setValues(value);
