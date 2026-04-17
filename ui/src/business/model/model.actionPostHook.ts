@@ -13,7 +13,7 @@ export const modelActionPostHook: ActionPostHook = {
 
   onActionSuccess: async (context, queryClient) => {
     const modelId = decodeActionParamId(
-      context.request.ctx.actionParams.modelRef,
+      context.request.ctx.getDefaultValue("modelRef", context.request),
     );
     if (modelId) {
       await queryClient.invalidateQueries({ queryKey: ["model", modelId] });

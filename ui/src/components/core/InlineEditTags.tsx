@@ -23,8 +23,8 @@ import { Tags, type TagScopeRef, useTags } from "@/business/tag";
 import { useActionPerformer } from "@/components/business/actions/ActionPerformerHook.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import {
+  ActionCtxMapping,
   type ActionDisplayedSubject,
-  createActionCtx,
 } from "@/components/business/actions";
 
 const CREATE_OPTION_PREFIX = "__create__:";
@@ -87,13 +87,21 @@ export function InlineEditTags({
   }, [requestedCreatedTagKey, scope, state, tags, waitingCreatedTagResolution]);
 
   const actionCtxTag = (key: string) =>
-    createActionCtx({
-      actionParams: {
-        scopeRef: { value: scope, readonly: true, visible: false },
-        key: { value: key, readonly: false, visible: true },
-      },
-      displayedSubject: displayedSubject,
-    });
+    new ActionCtxMapping(
+      [
+        {
+          actionParamKey: "scopeRef",
+          defaultValue: () => scope,
+          readonly: true,
+          visible: false,
+        },
+        {
+          actionParamKey: "key",
+          defaultValue: () => key,
+        },
+      ],
+      displayedSubject,
+    );
 
   const handleEditStart = async () => {
     setValues(value);

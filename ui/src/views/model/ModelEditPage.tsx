@@ -40,18 +40,10 @@ import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionCards } from "@/components/layout/SectionCards.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
-import {
-  createActionTemplateModel,
-  createActionTemplateRelationship,
-  createDisplayedSubjectModel,
-} from "@/components/business/model/model.actions.ts";
+import { createDisplayedSubjectModel } from "@/components/business/model/model.actions.ts";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
-import {
-  createActionTemplateTag,
-  createActionTemplateTagLocalList,
-} from "@/components/business/tag/tag.actions.ts";
 import {
   EntityIcon,
   RelationshipIcon,
@@ -61,8 +53,12 @@ import { useAppI18n } from "@/services/appI18n.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { TagIcon } from "@/components/business/tag/tag.icons.tsx";
-import { createActionCtx } from "@/components/business/actions";
 import { Tag } from "@/business/tag";
+import {
+  createActionCtxModel,
+  createActionCtxRelationship,
+  createActionCtxTag,
+} from "@/business/model/model.actioncontexts.ts";
 
 export function ModelEditPage({ modelId }: { modelId: string }) {
   const { data: model } = useModel(modelId);
@@ -114,24 +110,12 @@ export function ModelView() {
   };
 
   const displayedSubject = createDisplayedSubjectModel(model.id);
-  const actionCtxPage = createActionCtx({
-    actionParams: createActionTemplateModel(model.id),
-    displayedSubject: displayedSubject,
-  });
-  const actionCtxTagList = createActionCtx({
-    actionParams: createActionTemplateTagLocalList(modelTagScope(model.id)),
-    displayedSubject: displayedSubject,
-  });
+
+  const actionCtxPage = createActionCtxModel(model, displayedSubject);
   const actionCtxRelationship = (r: RelationshipDto) =>
-    createActionCtx({
-      actionParams: createActionTemplateRelationship(model.id, r.id),
-      displayedSubject: displayedSubject,
-    });
+    createActionCtxRelationship(model, r, displayedSubject);
   const actionCtxTag = (tag: Tag) =>
-    createActionCtx({
-      actionParams: createActionTemplateTag(tag.id),
-      displayedSubject: displayedSubject,
-    });
+    createActionCtxTag(model, tag, displayedSubject);
 
   return (
     <ViewLayoutContained
@@ -253,7 +237,7 @@ export function ModelView() {
 
             <SectionTitle
               icon={<TagIcon />}
-              actionCtx={actionCtxTagList}
+              actionCtx={actionCtxPage}
               location={ActionUILocations.tag_local_list}
             >
               {t("modelEditPage_localTagsTitle")}

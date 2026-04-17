@@ -58,10 +58,25 @@ export const displaySubjectNone: ActionDisplayedSubjectNone = { kind: "none" };
 
 export type ActionCtx = {
   /**
-   * Known predefined parameters for the action, typically what is already
-   * set before starting.
+   * Returns true if the param should be readonly
    */
-  actionParams: ActionPerformerRequestParams;
+  isReadonly: (paramKey: string) => boolean | undefined;
+
+  /**
+   * Returns true if the param should be visible
+   */
+  isVisible: (paramKey: string) => boolean | undefined;
+
+  /**
+   * Returns true if the param key is in the request default parameters
+   */
+  isPresent(paramKey: string): boolean;
+
+  /**
+   * Returns the default value for this parameter (or null if it is not present)
+   */
+  getDefaultValue: (paramKey: string, req: ActionPerformerRequest) => unknown;
+
   /**
    * The object the action is about.
    * There is contextual information about where the user launches the action.
@@ -85,15 +100,27 @@ export type ActionCtx = {
  * @param props
  */
 export const createActionCtx = (props: {
+  /**
+   * Known predefined parameters for the action, typically what is already
+   * set before starting.
+   */
   actionParams: ActionPerformerRequestParams;
   displayedSubject: ActionDisplayedSubject;
-}): ActionCtx => ({
-  actionParams: props.actionParams,
-  displayedSubject: props.displayedSubject,
-});
+}): ActionCtx => {
+  return {
+    displayedSubject: props.displayedSubject,
+    isReadonly: (key) => props.actionParams[key]?.readonly ?? undefined,
+    isVisible: (key) => props.actionParams[key]?.visible ?? undefined,
+    isPresent: (key) => Object.hasOwn(props.actionParams, key),
+    getDefaultValue: (key) => props.actionParams[key]?.value ?? null,
+  };
+};
 
-const ACTION_CTX_NOWHERE = {
-  actionParams: {},
+const ACTION_CTX_NOWHERE: ActionCtx = {
+  isVisible: () => true,
+  isReadonly: () => true,
+  getDefaultValue: () => null,
+  isPresent: () => false,
   displayedSubject: displaySubjectNone,
 };
 
@@ -103,5 +130,71 @@ const ACTION_CTX_NOWHERE = {
  * for example, dashboards, lists, etc.
  */
 export const createActionCtxVoid = () => {
-  return createActionCtx(ACTION_CTX_NOWHERE);
+  return ACTION_CTX_NOWHERE;
+};
+
+export interface ActionCtxMappingParam<T> {
+  actionGroupKey?: RegExp | string | undefined;
+  actionKey?: RegExp | string | undefined;
+  actionParamKey: string;
+  defaultValue: () => unknown;
+  readonly?: boolean;
+  visible?: boolean;
+}
+
+export class ActionCtxMapping<T> implements ActionCtx {
+  modelMapping: Map<string, ActionCtxMappingParam<T>>;
+  displayedSubject: ActionDisplayedSubject;
+  private mappings: ActionCtxMappingParam<T>[];
+  constructor(
+    mappings: ActionCtxMappingParam<T>[],
+    displayedSubject: ActionDisplayedSubject,
+  ) {
+    this.displayedSubject = displayedSubject;
+    this.mappings = mappings;
+    this.modelMapping = new Map(mappings.map((it) => [it.actionParamKey, it]));
+  }
+
+  getDefaultValue = (paramKey: string, req: ActionPerformerRequest) => {
+    const found = this.mappings.find((m) =>
+      match(req.actionGroupKey, req.actionKey, paramKey, m),
+    );
+    if (found) {
+      return found.defaultValue();
+    }
+    return undefined;
+  };
+
+  isPresent = (key: string): boolean => {
+    return this.modelMapping.get(key) !== undefined;
+  };
+  isReadonly = (key: string) => {
+    return this.modelMapping.get(key)?.readonly ?? false;
+  };
+  isVisible = (key: string) => {
+    return this.modelMapping.get(key)?.visible ?? true;
+  };
+}
+
+const matchValue = (
+  reference: string,
+  value: RegExp | string | undefined,
+): boolean => {
+  if (value == undefined) return true;
+  if (typeof value == "string") return value === reference;
+  if (value instanceof RegExp) return value.test(reference);
+  return false;
+};
+
+const match = (
+  actionGroupKey: string,
+  actionKey: string,
+  actionParamKey: string,
+  mapping: ActionCtxMappingParam<unknown>,
+): boolean => {
+  const matchGroup = matchValue(actionGroupKey, mapping.actionGroupKey);
+  if (!matchGroup) return false;
+  const matchAction = matchValue(actionKey, mapping.actionKey);
+  if (!matchAction) return false;
+  return actionParamKey === mapping.actionParamKey;
 };
