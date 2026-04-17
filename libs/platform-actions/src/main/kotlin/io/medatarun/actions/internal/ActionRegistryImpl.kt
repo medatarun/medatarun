@@ -86,7 +86,6 @@ internal class ActionRegistryImpl(
             title = doc.title,
             description = doc.description,
             resultType = typeOf<Unit>(),
-            uiLocations = doc.uiLocations.toSet(),
             securityRule = securityRule,
         )
 

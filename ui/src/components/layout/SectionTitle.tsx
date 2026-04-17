@@ -1,24 +1,28 @@
 import type { PropsWithChildren, ReactNode } from "react";
-import {
-  type ActionUILocation,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import { Text, tokens } from "@fluentui/react-components";
-import type { ActionCtx } from "@/components/business/actions";
+import {
+  type ActionCtx,
+  createActionCtxVoid,
+} from "@/components/business/actions";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import type { ActionKey } from "@/business/action_registry/actionRegistry.dictionnary.ts";
 
 export function SectionTitle({
   icon,
-  location,
+  actions,
   actionCtx,
   children,
 }: {
   icon: ReactNode;
-  location: ActionUILocation;
-  actionCtx: ActionCtx;
+  actions?: ActionKey[];
+  actionCtx?: ActionCtx;
 } & PropsWithChildren) {
   const actionRegistry = useActionRegistry();
-  const actions = actionRegistry.findActions(location);
+  const actionDescriptors = actions
+    ? actionRegistry.findActionDescriptors(actions)
+    : [];
+  const actionCtxSafe = actionCtx ? actionCtx : createActionCtxVoid();
 
   return (
     <div
@@ -43,7 +47,10 @@ export function SectionTitle({
         <Text weight="semibold">{children}</Text>
       </div>
       <div>
-        <ActionMenuButton actionCtx={actionCtx} itemActions={actions} />
+        <ActionMenuButton
+          actionCtx={actionCtxSafe}
+          itemActions={actionDescriptors}
+        />
       </div>
     </div>
   );

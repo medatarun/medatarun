@@ -1,8 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import {
   createActionCtxModel,
   createActionCtxRelationship,
@@ -100,7 +97,12 @@ export function ModelView() {
     });
   };
 
-  const actions = actionRegistry.findActions(ActionUILocations.model_overview);
+  const actions = actionRegistry.findActionDescriptors([
+    "model_release",
+    "model_update_authority",
+    "model_copy",
+    "model_delete",
+  ]);
 
   const handleChangeName = (value: string) => {
     return modelUpdateName.mutateAsync({ modelId: model.id, value: value });
@@ -168,7 +170,7 @@ export function ModelView() {
             <SectionTitle
               icon={<EntityIcon />}
               actionCtx={actionCtxPage}
-              location={ActionUILocations.model_entities}
+              actions={["entity_create"]}
             >
               {t("modelEditPage_entitiesTitle")}
             </SectionTitle>
@@ -189,7 +191,7 @@ export function ModelView() {
             <SectionTitle
               icon={<RelationshipIcon />}
               actionCtx={actionCtxPage}
-              location={ActionUILocations.model_relationships}
+              actions={["relationship_create"]}
             >
               {t("modelEditPage_relationshipsTitle")}
             </SectionTitle>
@@ -214,7 +216,7 @@ export function ModelView() {
             <SectionTitle
               icon={<TypeIcon />}
               actionCtx={actionCtxPage}
-              location={ActionUILocations.model_types}
+              actions={["type_create"]}
             >
               {t("modelEditPage_dataTypesTitle")}
             </SectionTitle>
@@ -235,7 +237,7 @@ export function ModelView() {
             <SectionTitle
               icon={<TagIcon />}
               actionCtx={actionCtxPage}
-              location={ActionUILocations.tag_local_list}
+              actions={["tag_local_create"]}
             >
               {t("modelEditPage_localTagsTitle")}
             </SectionTitle>

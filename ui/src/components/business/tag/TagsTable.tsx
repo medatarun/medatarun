@@ -12,7 +12,6 @@ import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import { useActionRegistry } from "@/business/action_registry";
 import { Tag, type TagScopeRef, useTags } from "@/business/tag";
-import { detailActionLocation } from "./tag.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { type ActionCtx } from "@/components/business/actions";
 import { Key } from "@/components/core/Key.tsx";
@@ -58,6 +57,11 @@ export function TagsTable({
     });
   };
 
+  const tagActions = (tag: Tag) =>
+    actionRegistry.findActionDescriptors(
+      tag.isLocal ? ["tag_local_delete"] : ["tag_global_delete"],
+    );
+
   return (
     <div>
       {items.length === 0 ? (
@@ -90,9 +94,7 @@ export function TagsTable({
               </TableCell>
               <TableCell className={styles.actionCell}>
                 <ActionMenuButton
-                  itemActions={actionRegistry.findActions(
-                    detailActionLocation(tag),
-                  )}
+                  itemActions={tagActions(tag)}
                   actionCtx={actionCtxTag(tag)}
                 />
               </TableCell>

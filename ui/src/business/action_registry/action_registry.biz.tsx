@@ -6,12 +6,13 @@ import type {
   ActionParamDescriptorDto,
   ActionRegistryDto,
 } from "./action_registry.dto.ts";
-import type { ActionUILocation } from "./action_registry.uilocations.ts";
 import { throwError } from "@seij/common-types";
+import type { ActionKey } from "@/business/action_registry/actionRegistry.dictionnary.ts";
+import { isNil } from "lodash-es";
 
 export class ActionDescriptor {
   public actionGroupKey: string;
-  public key: string;
+  public key: ActionKey;
   public description: string | null;
   public parameters: ActionDescriptorParam[];
   public title: string;
@@ -24,17 +25,13 @@ export class ActionDescriptor {
   constructor(dto: ActionDescriptorDto) {
     this.dto = dto;
     this.actionGroupKey = dto.groupKey;
-    this.key = dto.actionKey;
+    this.key = dto.actionKey as ActionKey;
     this.description = dto.description;
     this.parameters = dto.parameters.map((it) => new ActionDescriptorParam(it));
     this.title = dto.title ?? dto.groupKey + "/" + dto.actionKey;
     this.path = dto.groupKey + "/" + dto.actionKey;
     this.securityRule = dto.securityRule;
     this.semantics = new ActionDescriptorSemantics(dto.semantics);
-  }
-
-  matchesLocation(location: string): boolean {
-    return this.dto.uiLocations.includes(location);
   }
 }
 
@@ -126,7 +123,14 @@ export class ActionRegistry {
     );
   }
 
-  public findAction(
+  public findActionByActionKey(
+    actionKey: string | undefined | null,
+  ): ActionDescriptor | undefined {
+    if (!actionKey) return undefined;
+    return this.actionDescriptors.find((it) => actionKey == it.key);
+  }
+
+  public findActionByGroupKeyAndActionKey(
     actionGroupKey: string,
     actionKey: string,
   ): ActionDescriptor {
@@ -164,8 +168,10 @@ export class ActionRegistry {
     return buildPayloadTemplate(action);
   }
 
-  public findActions(location: ActionUILocation): ActionDescriptor[] {
-    return this.actionDescriptors.filter((it) => it.matchesLocation(location));
+  public findActionDescriptors(actionKey: ActionKey[]): ActionDescriptor[] {
+    return actionKey
+      .map((it) => this.findActionByActionKey(it))
+      .filter((it) => !isNil(it));
   }
 
   public isNotEmpty(): boolean {

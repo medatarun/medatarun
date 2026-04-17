@@ -1,7 +1,4 @@
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import {
   type AttributeDto,
   createActionCtxRelationship,
@@ -95,7 +92,10 @@ export function RelationshipView({
   const { t } = useAppI18n();
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
-  const actions = actionRegistry.findActions(ActionUILocations.relationship);
+  const actions = actionRegistry.findActionDescriptors([
+    "relationship_update_key",
+    "relationship_delete",
+  ]);
   const { isDetailLevelTech } = useDetailLevelContext();
   const relationshipUpdateDescription = useRelationshipUpdateDescription();
   const updateName = useRelationshipUpdateName();
@@ -223,7 +223,7 @@ export function RelationshipView({
       <SectionTitle
         icon={<AttributeIcon />}
         actionCtx={actionCtxPage}
-        location={ActionUILocations.relationship_roles}
+        actions={["relationship_role_create"]}
       >
         {t("relationshipEditPage_rolesTitle")}
       </SectionTitle>
@@ -270,9 +270,13 @@ export function RelationshipView({
                   }
                   action={
                     <ActionMenuButton
-                      itemActions={actionRegistry.findActions(
-                        ActionUILocations.relationship_role,
-                      )}
+                      itemActions={actionRegistry.findActionDescriptors([
+                        "relationship_role_update_name",
+                        "relationship_role_update_key",
+                        "relationship_role_update_entity",
+                        "relationship_role_update_cardinality",
+                        "relationship_role_delete",
+                      ])}
                       actionCtx={actionCtxRole(role)}
                     />
                   }
@@ -289,7 +293,7 @@ export function RelationshipView({
       <SectionTitle
         icon={<AttributeIcon />}
         actionCtx={actionCtxPage}
-        location={ActionUILocations.relationship_attributes}
+        actions={["relationship_attribute_create"]}
       >
         {t("relationshipEditPage_attributesTitle")}
       </SectionTitle>
@@ -305,7 +309,7 @@ export function RelationshipView({
         <SectionTable>
           <AttributesTable
             attributes={relationship.attributes}
-            actionUILocation={ActionUILocations.relationship_attribute}
+            actions={["relationship_attribute_delete"]}
             actionCtxAttribute={actionCtxAttribute}
             parentId={relationship.id}
             onClickAttribute={handleClickAttribute}

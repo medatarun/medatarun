@@ -1,7 +1,3 @@
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { Caption2, Text, tokens } from "@fluentui/react-components";
 import { useAppI18n } from "@/services/appI18n.tsx";
@@ -22,10 +18,6 @@ import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 
 export function AdminDbDriverListPage() {
   const { data: driversRaw } = useDatabaseDrivers();
-  const actionRegistry = useActionRegistry();
-  const actions = actionRegistry.findActions(
-    ActionUILocations.admin_database_drivers,
-  );
   const { t } = useAppI18n();
 
   const data = sortBy(driversRaw ?? [], (it) => it.name);
@@ -35,11 +27,6 @@ export function AdminDbDriverListPage() {
     eyebrow: undefined,
     title: t("adminDbDriverListPage_title"),
     titleIcon: <DatabaseLinkRegular />,
-    actions: {
-      label: t("adminDbDriverListPage_actions"),
-      itemActions: actions,
-      actionCtx: actionCtxPage,
-    },
   };
 
   return (

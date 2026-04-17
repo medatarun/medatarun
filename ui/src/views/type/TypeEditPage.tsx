@@ -1,8 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import {
   createActionCtxType,
   createDisplayedSubjectType,
@@ -72,7 +69,10 @@ export function TypeEditPage({
 function TypeView({ model, type }: { type: TypeDto; model: Model }) {
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
-  const actions = actionRegistry.findActions(ActionUILocations.type);
+  const actions = actionRegistry.findActionDescriptors([
+    "type_update_key",
+    "type_delete",
+  ]);
   const typeUpdateName = useTypeUpdateName();
   const typeUpdateDescription = useTypeUpdateDescription();
   const { t } = useAppI18n();

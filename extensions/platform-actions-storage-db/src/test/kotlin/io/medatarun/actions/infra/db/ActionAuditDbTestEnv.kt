@@ -88,7 +88,6 @@ class ActionAuditDbTestEnv {
             key = "business-ok",
             title = "Business ok",
             description = "Successful action",
-            uiLocations = [""],
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
@@ -103,7 +102,6 @@ class ActionAuditDbTestEnv {
             key = "security-denied",
             title = "Security denied",
             description = "Rejected by security",
-            uiLocations = [""],
             securityRule = RULE_DENY,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
@@ -118,7 +116,6 @@ class ActionAuditDbTestEnv {
             key = "business-fails",
             title = "Business fails",
             description = "Fails during business invoke",
-            uiLocations = [""],
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )

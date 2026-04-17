@@ -1,8 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import {
   type AttributeDto,
   createActionCtxEntityAttribute,
@@ -164,10 +161,10 @@ export function AttributeView({
     useRelationshipAttributeUpdateDescription();
   const { t } = useAppI18n();
 
-  const actions = actionRegistry.findActions(
+  const actions = actionRegistry.findActionDescriptors(
     parentType == "entity"
-      ? ActionUILocations.entity_attribute
-      : ActionUILocations.relationship_attribute,
+      ? ["entity_attribute_delete"]
+      : ["relationship_attribute_delete"],
   );
 
   const handleClickModel = () => {

@@ -8,10 +8,7 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import type { TagGroup } from "@/business/tag";
 import { type ActionCtx } from "@/components/business/actions";
 import { Key } from "@/components/core/Key.tsx";
@@ -39,9 +36,10 @@ export function TagGroupsTable({
 }) {
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
-  const itemActions = actionRegistry.findActions(
-    ActionUILocations.tag_group_detail,
-  );
+  const itemActions = actionRegistry.findActionDescriptors([
+    "tag_group_update_key",
+    "tag_group_delete",
+  ]);
   const styles = useStyles();
   const detailLevelContext = useDetailLevelContext();
 

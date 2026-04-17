@@ -1,9 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { ActionDescriptor } from "@/business/action_registry";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import { type UserInfoDto, useUserList } from "@/business/auth_user";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
@@ -39,7 +36,11 @@ export function AdminUserListPage() {
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const usersResult = useUserList();
-  const itemActions = actionRegistry.findActions(ActionUILocations.user);
+  const itemActions = actionRegistry.findActionDescriptors([
+    "user_enable",
+    "user_disable",
+    "user_change_fullname",
+  ]);
 
   if (usersResult.isPending) return null;
   if (usersResult.error)
@@ -63,7 +64,7 @@ export function AdminUserListPage() {
     titleIcon: <PersonRegular />,
     actions: {
       label: t("adminUsersPage_actions"),
-      itemActions: actionRegistry.findActions(ActionUILocations.users),
+      itemActions: actionRegistry.findActionDescriptors(["user_create"]),
       actionCtx: actionCtxPage,
     },
   };

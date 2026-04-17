@@ -1,3 +1,5 @@
+import type { ActionKey } from "@/business/action_registry/actionRegistry.dictionnary.ts";
+
 /**
  * Action execution request captured at trigger time.
  *
@@ -113,7 +115,7 @@ export const createActionCtxVoid = () => {
 
 export interface ActionCtxMappingParam {
   actionGroupKey?: RegExp | string | undefined;
-  actionKey?: RegExp | string | undefined;
+  actionKey?: RegExp | ActionKey | undefined;
   actionParamKey: string;
   defaultValue: () => unknown;
   readonly?: boolean;

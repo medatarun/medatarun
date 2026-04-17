@@ -85,7 +85,6 @@ class ConfigActionProvider(
                     groupKey = descriptor.group,
                     title = descriptor.title ?: descriptor.key,
                     description = descriptor.description,
-                    uiLocations = descriptor.uiLocations,
                     securityRule = descriptor.securityRule,
                     parameters = descriptor.parameters.map { parameter ->
                         ActionParamDescriptorDto(

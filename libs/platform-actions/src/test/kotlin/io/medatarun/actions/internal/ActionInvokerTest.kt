@@ -604,7 +604,6 @@ class ActionInvokerTest {
             key = ACTION_NAME_ALPHA,
             title = "Alpha",
             description = "Test action",
-            uiLocations = [""],
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
@@ -633,7 +632,6 @@ class ActionInvokerTest {
             key = ACTION_NAME_DENIED_AUTHORIZATION,
             title = "Denied authorization",
             description = "Action denied by security",
-            uiLocations = [""],
             securityRule = RULE_DENY_AUTHORIZATION,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
@@ -643,7 +641,6 @@ class ActionInvokerTest {
             key = ACTION_NAME_DENIED_AUTHENTICATION,
             title = "Denied authentication",
             description = "Action denied by security",
-            uiLocations = [""],
             securityRule = RULE_DENY_AUTHENTICATION,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
@@ -653,7 +650,6 @@ class ActionInvokerTest {
             key = ACTION_NAME_CRASH,
             title = "Crash",
             description = "Action that throws during business invoke",
-            uiLocations = [""],
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
@@ -663,7 +659,6 @@ class ActionInvokerTest {
             key = ACTION_NAME_COLLECTIONS,
             title = "Collections",
             description = "Action with list and map",
-            uiLocations = [""],
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
@@ -686,7 +681,6 @@ class ActionInvokerTest {
             key = ACTION_NAME_DECIMAL,
             title = "Decimal",
             description = "Action with BigDecimal",
-            uiLocations = [""],
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
@@ -703,7 +697,6 @@ class ActionInvokerTest {
             key = ACTION_NAME_BIG_INTEGER,
             title = "BigInteger",
             description = "Action with BigInteger",
-            uiLocations = [""],
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
@@ -720,7 +713,6 @@ class ActionInvokerTest {
             key = ACTION_NAME_DOUBLE,
             title = "Double",
             description = "Action with Double",
-            uiLocations = [""],
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
@@ -737,7 +729,6 @@ class ActionInvokerTest {
             key = ACTION_NAME_INSTANT,
             title = "Instant",
             description = "Action with Instant",
-            uiLocations = [""],
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
@@ -754,7 +745,6 @@ class ActionInvokerTest {
             key = ACTION_NAME_LOCAL_DATE,
             title = "LocalDate",
             description = "Action with LocalDate",
-            uiLocations = [""],
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
@@ -771,7 +761,6 @@ class ActionInvokerTest {
             key = ACTION_NAME_STRING_OPTIONAL,
             title = "String",
             description = "Action with String",
-            uiLocations = [""],
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
@@ -788,7 +777,6 @@ class ActionInvokerTest {
             key = ACTION_NAME_ABBREVIATION,
             title = "Abbreviation",
             description = "Action with validated abbreviation",
-            uiLocations = [""],
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
@@ -805,7 +793,6 @@ class ActionInvokerTest {
             key = ACTION_NAME_OPTIONAL_ABBREVIATION,
             title = "Optional abbreviation",
             description = "Action with optional abbreviation",
-            uiLocations = [""],
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
@@ -822,7 +809,6 @@ class ActionInvokerTest {
             key = ACTION_NAME_COMPLEX,
             title = "Complex",
             description = "Action with complex payload",
-            uiLocations = [""],
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )

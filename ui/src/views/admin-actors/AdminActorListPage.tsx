@@ -1,9 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { ActionDescriptor } from "@/business/action_registry";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import { useActorList } from "@/business/actor";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
@@ -20,7 +17,6 @@ import { ErrorBox } from "@seij/common-ui";
 import { formatLocalDateTime, toProblem } from "@seij/common-types";
 import {
   type ActionCtx,
-  createActionCtxVoid,
   displaySubjectNone,
 } from "@/components/business/actions";
 import { useAppI18n } from "@/services/appI18n.tsx";
@@ -40,7 +36,10 @@ export function AdminActorListPage() {
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const actorListResult = useActorList();
-  const itemActions = actionRegistry.findActions(ActionUILocations.auth_actor);
+  const itemActions = actionRegistry.findActionDescriptors([
+    "actor_enable",
+    "actor_disable",
+  ]);
 
   if (actorListResult.isPending) return null;
   if (actorListResult.error)
@@ -53,7 +52,6 @@ export function AdminActorListPage() {
     navigate({ to: "/admin/actors/$actorId", params: { actorId } });
   };
 
-  const actionCtxPage = createActionCtxVoid();
   const actionCtxActor = (actor: ActorInfoDto): ActionCtx =>
     createActionCtxActor(actor, displaySubjectNone);
 
@@ -61,11 +59,6 @@ export function AdminActorListPage() {
     eyebrow: t("adminActorsPage_eyebrow"),
     title: t("adminActorsPage_title"),
     titleIcon: <PersonKeyRegular />,
-    actions: {
-      label: t("adminActorsPage_actions"),
-      itemActions: actionRegistry.findActions(ActionUILocations.auth_actors),
-      actionCtx: actionCtxPage,
-    },
   };
 
   return (

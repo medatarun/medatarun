@@ -1,8 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { useActionRegistry } from "@/business/action_registry";
 import { createActionCtxTagGroup, TagGroup, useTags } from "@/business/tag";
 import { TagGroupsTable } from "./TagGroupsTable.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
@@ -27,7 +24,7 @@ export function TagGroupListPage() {
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const tagsResult = useTags();
-  const actions = actionRegistry.findActions(ActionUILocations.tag_group_list);
+  const actions = actionRegistry.findActionDescriptors(["tag_group_create"]);
 
   const handleClickTagGroup = (tagGroupId: string) => {
     navigate({
@@ -64,7 +61,7 @@ export function TagGroupListPage() {
 
       <SectionTitle
         icon={<TagGroupIcon />}
-        location={ActionUILocations.tag_group_list}
+        actions={["tag_group_create"]}
         actionCtx={actionCtxPage}
       >
         {t("tagGroupsPage_sectionTitle")}
