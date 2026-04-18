@@ -1,6 +1,6 @@
 import { api } from "@/services/api.ts";
 import { Problem } from "@seij/common-types";
-import { notifyUnauthorized } from "@/services/unauthorized.ts";
+import { notifyUnauthorized } from "@/services/user-session-expired.ts";
 
 export type ActionResp<T = unknown> =
   | { contentType: "text"; text: string }

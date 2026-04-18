@@ -11,25 +11,29 @@ import { useAuthentication } from "@seij/common-ui-auth";
 import { Button } from "@seij/common-ui";
 import { queryClient } from "@/services/queryClient.ts";
 import {
-  resetUnauthorized,
-  subscribeUnauthorized,
-} from "@/services/unauthorized.ts";
+  resetUserSessionExpiredFlag,
+  subscribeUserSessionExpired,
+} from "@/services/user-session-expired.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
 
-export function UnauthorizedHandler() {
+/**
+ * Dialog that is triggered when the user session expired
+ */
+export function UserSessionExpiredDialog() {
   const authentication = useAuthentication();
   const [isDialogOpen, setDialogOpen] = useState(false);
   const { t } = useAppI18n();
 
   useEffect(() => {
-    return subscribeUnauthorized(() => {
+    return subscribeUserSessionExpired(() => {
       queryClient.clear();
       setDialogOpen(true);
     });
   }, [authentication]);
 
   const handleReconnect = () => {
-    resetUnauthorized();
+    authentication.signOut();
+    resetUserSessionExpiredFlag();
     setDialogOpen(false);
     authentication.signIn();
   };

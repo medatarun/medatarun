@@ -19,7 +19,7 @@ import {
   ApplicationShellSecured,
   useAuthentication,
 } from "@seij/common-ui-auth";
-import { UnauthorizedHandler } from "@/components/auth/UnauthorizedHandler.tsx";
+import { UserSessionExpiredDialog } from "@/components/auth/UserSessionExpiredDialog.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { modelActionPostHook } from "@/business/model";
 import { tagActionPostHook } from "@/business/tag";
@@ -67,7 +67,7 @@ export function Layout() {
 
   return (
     <>
-      <UnauthorizedHandler />
+      <UserSessionExpiredDialog />
       <ApplicationShellSecured
         applicationName={"Medatarun"}
         applicationIcon={

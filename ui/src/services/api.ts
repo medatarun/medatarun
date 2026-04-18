@@ -1,5 +1,5 @@
 import { defaultConnection } from "@seij/common-services";
-import { reportUnauthorizedError } from "@/services/unauthorized.ts";
+import { notifyMaybeUnauthorized } from "@/services/user-session-expired.ts";
 
 const apiConnection = {
   createHeaders() {
@@ -9,7 +9,7 @@ const apiConnection = {
     try {
       return await defaultConnection.get<T>(url);
     } catch (error) {
-      reportUnauthorizedError(error);
+      notifyMaybeUnauthorized(error);
       throw error;
     }
   },
@@ -17,7 +17,7 @@ const apiConnection = {
     try {
       return await defaultConnection.post<T>(url, data);
     } catch (error) {
-      reportUnauthorizedError(error);
+      notifyMaybeUnauthorized(error);
       throw error;
     }
   },
@@ -25,7 +25,7 @@ const apiConnection = {
     try {
       return await defaultConnection.delete<T>(url);
     } catch (error) {
-      reportUnauthorizedError(error);
+      notifyMaybeUnauthorized(error);
       throw error;
     }
   },
