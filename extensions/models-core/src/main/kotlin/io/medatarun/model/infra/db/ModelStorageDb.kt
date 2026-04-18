@@ -9,8 +9,8 @@ import io.medatarun.model.infra.db.records.ModelEventRecord
 import io.medatarun.model.infra.db.snapshots.ModelStorageDbProjection
 import io.medatarun.model.infra.db.snapshots.ModelStorageDbProjection.ProjectionEventCtx
 import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshotCreate
-import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshotWriter
 import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshotHead
+import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshotWriter
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector.CurrentHeadByModelId
 import io.medatarun.model.infra.db.tables.ModelEventTable
 import io.medatarun.model.infra.db.tables.ModelSnapshotTable
@@ -37,7 +37,7 @@ class ModelStorageDb(
     private val snapshotWriter = ModelStorageDbSnapshotWriter(snapshotHead, clock)
     private val snapshotCreate = ModelStorageDbSnapshotCreate(clock, snapshotWriter)
     private val aggregateReader = ModelStorageDbAggregateReader()
-    private val read = ModelStorageDbRead(eventSystem.registry, aggregateReader)
+    private val read = ModelStorageDbRead(eventSystem.registry, aggregateReader, snapshotHead)
     private val projection = ModelStorageDbProjection(
         searchWrite = searchWrite,
         snapshotHead = snapshotHead,
@@ -159,27 +159,6 @@ class ModelStorageDb(
         }
     }
 
-    override fun findBusinessKeyByIdOptional(modelId: ModelId, id: BusinessKeyId): BusinessKey? {
-        return db.withExposed {
-            logger.debug("findBusinessKeyByIdOptional modelId={} id={}", modelId, id)
-            read.findBusinessKeyByIdOptional(modelId, id)
-        }
-    }
-
-    override fun findBusinessKeyByKeyOptional(modelId: ModelId, key: BusinessKeyKey): BusinessKey? {
-        return db.withExposed {
-            logger.debug("findBusinessKeyByKeyOptional modelId={} key={}", modelId, key)
-            read.findBusinessKeyByKeyOptional(modelId, key)
-        }
-    }
-
-    override fun findBusinessKeys(modelId: ModelId): List<BusinessKey> {
-        return db.withExposed {
-            logger.debug("findBusinessKeys modelId={}", modelId)
-            read.findBusinessKeys(modelId)
-        }
-    }
-
     override fun findEntityAttributeByIdOptional(
         modelId: ModelId,
         entityId: EntityId,
@@ -200,6 +179,17 @@ class ModelStorageDb(
         return db.withExposed {
             logger.debug("findEntityAttributeByKeyOptional modelId={} entityId={} key={}", modelId, entityId, key)
             read.findEntityAttributeByKeyOptional(modelId, entityId, key)
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Relationships
+    // -------------------------------------------------------------------------
+
+    override fun findRelationshipList(modelId: ModelId): List<Relationship> {
+        return db.withExposed {
+            logger.debug("findRelationshipList modelId={}", modelId)
+            read.findRelationshipList(modelId)
         }
     }
 
@@ -301,6 +291,32 @@ class ModelStorageDb(
             read.isTypeUsedInRelationshipAttributes(modelId, typeId)
         }
     }
+
+
+    // Business keys
+    // -------------------------------------------------------------------------
+
+    override fun findBusinessKeyByIdOptional(modelId: ModelId, id: BusinessKeyId): BusinessKey? {
+        return db.withExposed {
+            logger.debug("findBusinessKeyByIdOptional modelId={} id={}", modelId, id)
+            read.findBusinessKeyByIdOptional(modelId, id)
+        }
+    }
+
+    override fun findBusinessKeyByKeyOptional(modelId: ModelId, key: BusinessKeyKey): BusinessKey? {
+        return db.withExposed {
+            logger.debug("findBusinessKeyByKeyOptional modelId={} key={}", modelId, key)
+            read.findBusinessKeyByKeyOptional(modelId, key)
+        }
+    }
+
+    override fun findBusinessKeys(modelId: ModelId): List<BusinessKey> {
+        return db.withExposed {
+            logger.debug("findBusinessKeys modelId={}", modelId)
+            read.findBusinessKeys(modelId)
+        }
+    }
+
 
     // -------------------------------------------------------------------------
     // History

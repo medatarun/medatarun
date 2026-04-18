@@ -15,4 +15,8 @@ sealed interface RelationshipRoleRef : Ref<RelationshipRoleRef> {
     ) : RelationshipRoleRef {
         override fun asString() = "key:" + key.value
     }
+
+    companion object {
+        fun roleRefKey(value : String ) = ByKey(RelationshipRoleKey(value))
+    }
 }

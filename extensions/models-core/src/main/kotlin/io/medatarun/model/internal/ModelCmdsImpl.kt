@@ -709,6 +709,9 @@ class ModelCmdsImpl(
 
     private fun deleteEntity(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.DeleteEntity) {
         val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
+        val rels = storage.findRelationshipList(model.id)
+        val used = rels.any { rel -> rel.roles.any { role -> role.entityId == entity.id } }
+        if (used) throw EntityDeleteInRelationshipException(cmd.modelRef, cmd.entityRef)
         storageDispatch(cmdEnv, ModelStorageCmd.DeleteEntity(model.id, entity.id))
     }
 
