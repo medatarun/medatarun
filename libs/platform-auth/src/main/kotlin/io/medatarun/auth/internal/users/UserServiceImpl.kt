@@ -1,5 +1,6 @@
 package io.medatarun.auth.internal.users
 
+import io.medatarun.auth.actions.AuthAction
 import io.medatarun.auth.domain.*
 import io.medatarun.auth.domain.user.*
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle
@@ -19,6 +20,11 @@ class UserServiceImpl(
 
     override fun loadOrCreateBootstrapSecret(runOnce: (secret: String) -> Unit) {
         bootstrapper.loadOrCreateBootstrapSecret(runOnce)
+    }
+
+    override fun findByUsername(username: Username): User {
+        return userStorage.findByLogin(username)
+            ?: throw UserNotFoundException()
     }
 
     override fun adminBootstrap(secret: String, login: Username, fullname: Fullname, password: PasswordClear): User {
@@ -94,19 +100,21 @@ class UserServiceImpl(
         userStorage.updatePassword(user.username, newPasswordHash)
     }
 
-    override fun disableUser(username: Username) {
+    override fun disableUser(username: Username, currentUserId: UserId?) {
         val now = clock.now()
         val user = userStorage.findByLogin(username)
-        userStorage.disable(username, at = now)
         if (user != null) {
+            if (currentUserId == user.id) throw UserDisableSelfException()
+            userStorage.disable(username, at = now)
             userEvents.fire(UserEventDisabledChanged(user.username, now))
         }
     }
 
-    override fun enableUser(username: Username) {
+    override fun enableUser(username: Username, currentUserId: UserId?) {
         val user = userStorage.findByLogin(username)
-        userStorage.enable(username)
         if (user != null) {
+            if (currentUserId == user.id) throw UserEnableSelfException()
+            userStorage.enable(username)
             userEvents.fire(UserEventDisabledChanged(user.username, null))
         }
     }

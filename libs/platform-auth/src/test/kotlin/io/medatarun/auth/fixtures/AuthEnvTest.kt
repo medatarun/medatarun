@@ -5,8 +5,18 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.interfaces.DecodedJWT
 import com.google.common.jimfs.Jimfs
 import io.medatarun.actions.ActionsExtension
+import io.medatarun.actions.adapters.ActionPlatform
+import io.medatarun.actions.domain.ActionInstanceId
+import io.medatarun.actions.ports.needs.*
 import io.medatarun.auth.AuthExtension
 import io.medatarun.auth.AuthExtensionConfig
+import io.medatarun.auth.actions.ActionPrincipalCtxAdapter
+import io.medatarun.auth.actions.AuthAction
+import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
+import io.medatarun.auth.adapters.ActorRoleAdapters
+import io.medatarun.auth.adapters.AppActorIdAdapter
+import io.medatarun.auth.domain.ActorNotFoundException
+import io.medatarun.auth.domain.actor.ActorWithPermissions
 import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.domain.jwt.JwtKeyMaterial
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
@@ -24,12 +34,11 @@ import io.medatarun.platform.db.postgresql.PlatformStorageDbPostgresqlExtension
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
 import io.medatarun.platform.db.testkit.TestDbConfig
 import io.medatarun.platform.kernel.*
-import io.medatarun.security.AppPermission
-import io.medatarun.security.AppPermissionStringBased
-import io.medatarun.security.SecurityExtension
-import io.medatarun.security.SecurityPermissionsProvider
+import io.medatarun.security.*
+import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeSystemExtension
 import java.net.URI
+import kotlin.reflect.full.findAnnotation
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -53,7 +62,7 @@ class AuthEnvTest(
     private val extraProps: Map<String, String> = emptyMap(),
     val publicBaseUrl: URI = URI("https://auth.example.test")
 ) {
-
+    var actionCtx: ActionCtx = ActionCtxWithActor(null)
     val userService: UserService
     val oidcService: OidcService
     val actorService: ActorService
@@ -66,6 +75,10 @@ class AuthEnvTest(
     val adminUsername: Username = Username("admin")
     val adminFullname: Fullname = Fullname("Admin")
     val adminPassword: PasswordClear = PasswordClear("admin." + UuidUtils.generateV4String())
+
+    val johnUsername = Username("john.doe")
+    val johnPassword = PasswordClear("john.doe." + UuidUtils.generateV4String())
+    val johnFullname = Fullname("John Doe")
 
     val jwtKeyMaterial: JwtKeyMaterial
     val jwtConfig: JwtConfig
@@ -103,6 +116,18 @@ class AuthEnvTest(
     ).buildAndStart()
 
     val dbMigrationChecker = runtime.services.getService<DbMigrationChecker>()
+
+    private val actionPlatform
+        get() = runtime.services.getService<ActionPlatform>()
+
+    fun <R> dispatch(action: AuthAction<R>): R {
+        val request = ActionRequest(
+            AuthEmbeddedActionsProvider.ACTION_GROUP_KEY,
+            action::class.findAnnotation<ActionDoc>()!!.key,
+            ActionPayload.AsRaw(action)
+        )
+        return actionPlatform.invoker.handleInvocation(request, actionCtx.requestCtx) as R
+    }
 
 
     init {
@@ -205,9 +230,74 @@ class AuthEnvTest(
      * A fake permission provider with a list of predefined permissions
      * coming from the test area
      */
-    class TestOtherSecurityPermissionsProvider(val otherPermissions: Set<TestOtherPermission>) : SecurityPermissionsProvider {
+    class TestOtherSecurityPermissionsProvider(val otherPermissions: Set<TestOtherPermission>) :
+        SecurityPermissionsProvider {
         override fun getPermissions(): List<AppPermission> = otherPermissions.toList()
     }
 
-    class TestOtherPermission(override val key: String): AppPermission
+    class TestOtherPermission(override val key: String) : AppPermission
+
+
+    fun logout() {
+        this.actionCtx = ActionCtxWithActor(null)
+    }
+
+    fun asAdmin() {
+        val actorService = actorService
+        val actor =
+            actorService.findByIssuerAndSubjectWithPermissionsOptional(oidcService.oidcIssuer(), adminUsername.value)
+                ?: throw ActorNotFoundException()
+        this.actionCtx = ActionCtxWithActor(actor)
+    }
+
+    fun asUser(username: Username) {
+        val actor = actorService.findByIssuerAndSubjectWithPermissionsOptional(oidcService.oidcIssuer(), username.value)
+            ?: throw ActorNotFoundException()
+        this.actionCtx = ActionCtxWithActor(actor)
+    }
+
+    fun createJohn() {
+        asAdmin()
+        dispatch(
+            AuthAction.UserCreate(
+                username = johnUsername,
+                password = johnPassword,
+                fullname = johnFullname,
+                admin = false
+            )
+        )
+        asAdmin()
+
+    }
+
+    class ActionCtxWithActor(
+        private val actor: ActorWithPermissions?
+    ) : ActionCtx {
+        override val actionInstanceId = Id.generate(::ActionInstanceId)
+        private val appPrincipal = if (actor == null) null else toAppPrincipal(actor)
+        private val actionPrincipal = ActionPrincipalCtxAdapter.toActionPrincipalCtx(appPrincipal)
+
+        override fun dispatchAction(req: ActionRequest): Any? {
+            throw IllegalStateException("Should not be called")
+        }
+
+        override val principal: ActionPrincipalCtx = actionPrincipal
+        override val requestCtx: ActionRequestCtx
+            get() = object : ActionRequestCtx {
+                override val principalCtx: ActionPrincipalCtx = actionPrincipal
+                override val source: String = "tests"
+            }
+
+        private fun toAppPrincipal(actor: ActorWithPermissions): AppPrincipal {
+            return object : AppPrincipal {
+                override val id: AppActorId = AppActorIdAdapter.toAppActorId(actor.id)
+                override val issuer: String = actor.issuer
+                override val subject: String = actor.subject
+                override val isAdmin: Boolean = actor.permissions.any { it.isAdminPermission() }
+                override val permissions: Set<AppPermission> =
+                    actor.permissions.map(ActorRoleAdapters::toAppPermission).toSet()
+                override val fullname: String = actor.fullname
+            }
+        }
+    }
 }
