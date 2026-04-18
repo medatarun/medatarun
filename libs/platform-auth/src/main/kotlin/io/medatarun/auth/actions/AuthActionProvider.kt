@@ -122,13 +122,18 @@ class AuthEmbeddedActionsLauncher(
     @Suppress("unused")
     fun whoami(cmd: AuthAction.WhoAmI): WhoAmIRespDto {
         val actor = principal.ensureSignedIn()
+        val permissions: MutableSet<String> = mutableSetOf()
+        actor.permissions.forEach { p ->
+            permissions.add(p.key)
+            p.implies.forEach { implied -> permissions.add(implied.key) }
+        }
         return WhoAmIRespDto(
             issuer = actor.issuer,
             sub = actor.subject,
             admin = actor.isAdmin,
             fullname = actor.fullname,
             roles = actor.permissions.map { it.key },
-            permissions = actor.permissions.map { it.key },
+            permissions = permissions.toList(),
         )
 
     }

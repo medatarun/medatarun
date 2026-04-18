@@ -8,9 +8,11 @@ export function InlineEditSingleLine({
   value,
   children,
   onChange,
+  disabled = false,
 }: {
   value: string | null | undefined;
   onChange: (value: string) => Promise<unknown>;
+  disabled?: boolean;
 } & PropsWithChildren) {
   const [editValue, setEditValue] = useState(value ?? "");
   const ref = useRef<HTMLInputElement>(null);
@@ -31,6 +33,8 @@ export function InlineEditSingleLine({
   const handleEditCancel = async () => {
     setEditValue("");
   };
+
+  if (disabled) return children;
 
   return (
     <InlineEditSingleLineLayout

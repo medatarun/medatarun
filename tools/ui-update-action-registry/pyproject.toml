@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ui-update-action-registry"
+version = "0.1.0"
+description = "Regen action registry in UI"
+readme = "README.md"
+requires-python = ">=3.11"
+
+[project.scripts]
+regen = "ui_update_action_registry:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

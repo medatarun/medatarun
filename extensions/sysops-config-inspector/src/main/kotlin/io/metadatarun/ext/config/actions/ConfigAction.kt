@@ -4,6 +4,7 @@ package io.metadatarun.ext.config.actions
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionDocSemantics
 import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
+import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.security.SecurityRuleNames
 
 sealed interface ConfigAction {
@@ -42,6 +43,16 @@ sealed interface ConfigAction {
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
     class InspectActions : ConfigAction
+
+
+    @ActionDoc(
+        key="inspect_actions_all",
+        title = "Inspect all actions",
+        description = "Returns all known from the system.",
+        securityRule = SecurityRuleNames.PUBLIC,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
+    )
+    class InspectActionsAll : ConfigAction
 
     @ActionDoc(
         key="inspect_security_rules",

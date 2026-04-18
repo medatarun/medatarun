@@ -9,6 +9,7 @@ export interface InlineEditComboboxOption {
 
 export function InlineEditCombobox({
   value,
+  disabled = false,
   options,
   placeholder,
   noOptionsMessage,
@@ -16,6 +17,7 @@ export function InlineEditCombobox({
   onChange,
 }: {
   value: string;
+  disabled?: boolean;
   options: InlineEditComboboxOption[];
   placeholder: string;
   noOptionsMessage?: string;
@@ -48,6 +50,7 @@ export function InlineEditCombobox({
 
   return (
     <InlineEditSingleLineLayout
+      disabled={disabled}
       editor={({ commit, cancel, pending }) => (
         <div>
           <InputCombobox

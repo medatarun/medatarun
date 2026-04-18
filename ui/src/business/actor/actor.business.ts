@@ -5,16 +5,27 @@ import type {
   RoleInfoDto,
   WhoAmIRespDto,
 } from "@/business/actor/actor.dto.ts";
-import { sortBy } from "lodash-es";
+import { includes, sortBy } from "lodash-es";
 
 export class CurrentActor {
+  /** Actor data */
   private readonly dto: WhoAmIRespDto;
+  /** Indicates a real signed-in actor or if it is the placeholder when the actor is not yet signed in */
+  private readonly signedIn: boolean;
 
-  constructor(dto: WhoAmIRespDto) {
+  constructor(dto: WhoAmIRespDto, signedIn: boolean) {
     this.dto = dto;
+    this.signedIn = signedIn;
   }
   isAdmin() {
     return this.dto.admin;
+  }
+  hasPermission(permission: string) {
+    return includes(this.dto.permissions, permission);
+  }
+
+  isSignedIn() {
+    return this.signedIn;
   }
 }
 

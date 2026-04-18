@@ -10,6 +10,8 @@ import {
   MenuTrigger,
 } from "@fluentui/react-components";
 import { Icon } from "@seij/common-ui-icons";
+import { useCurrentActor } from "@/business/actor";
+import { useSecurityContext } from "@/business/security";
 
 export function ActionMenuButton({
   itemActions,
@@ -21,7 +23,11 @@ export function ActionMenuButton({
   actionCtx: ActionCtx;
 }) {
   const actionPerformer = useActionPerformer();
-  if (itemActions.length === 0) return null;
+  const { canExecute } = useSecurityContext();
+  const itemActionsSafe = itemActions.filter((it) =>
+    canExecute(it.securityRule),
+  );
+  if (itemActionsSafe.length === 0) return null;
   return (
     <Menu positioning={{ autoSize: true }}>
       <MenuTrigger disableButtonEnhancement>
@@ -31,7 +37,7 @@ export function ActionMenuButton({
       </MenuTrigger>
       <MenuPopover>
         <MenuList>
-          {itemActions.map((action) => (
+          {itemActionsSafe.map((action) => (
             <MenuItem
               onClick={() => {
                 actionPerformer.performAction({

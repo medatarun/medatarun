@@ -16,8 +16,8 @@ export const useCurrentActor = () => {
   const auth = useAuthentication();
   const { data } = useWhoami(auth.issuer, auth.subject);
   const currentActor = useMemo(() => {
-    if (auth.isAuthenticated && data) return new CurrentActor(data);
-    return new CurrentActor(EMPTY_WHOAMI);
+    if (auth.isAuthenticated && data) return new CurrentActor(data, true);
+    return new CurrentActor(EMPTY_WHOAMI, false);
   }, [auth.isAuthenticated, auth.issuer, auth.subject, data]);
   return currentActor;
 };

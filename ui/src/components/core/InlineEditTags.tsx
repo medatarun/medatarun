@@ -34,12 +34,14 @@ const CREATE_OPTION_PREFIX = "__create__:";
 export function InlineEditTags({
   value,
   scope,
+  disabled = false,
   children,
   onChange,
   displayedSubject,
 }: {
   value: string[];
   scope: TagScopeRef;
+  disabled?: boolean;
   onChange: (value: string[]) => Promise<unknown>;
   displayedSubject: ActionDisplayedSubject;
 } & PropsWithChildren) {
@@ -133,6 +135,7 @@ export function InlineEditTags({
           onCancel={cancel}
         />
       )}
+      disabled={disabled}
       onEditStart={handleEditStart}
       onEditStarted={handleEditStarted}
       onEditOK={handeEditOk}

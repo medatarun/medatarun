@@ -26,7 +26,8 @@ class ConfigActionProvider(
             is ConfigAction.AIAgentsInstructions -> ConfigAgentInstructions().process()
             is ConfigAction.Inspect -> extensionRegistry.inspectHumanReadable()
             is ConfigAction.InspectJson -> extensionRegistry.inspectJson()
-            is ConfigAction.InspectActions -> inspectActions(actionCtx)
+            is ConfigAction.InspectActions -> inspectActions(actionCtx, true)
+            is ConfigAction.InspectActionsAll -> inspectActions(actionCtx, false)
             is ConfigAction.InspectSecurityRules -> inspectSecurityRules(actionCtx)
             is ConfigAction.InspectPermissions -> inspectPermissions(actionCtx)
             is ConfigAction.InspectTypeSystem -> inspectTypeSystem.run(action, actionCtx)
@@ -45,7 +46,8 @@ class ConfigActionProvider(
                     SecurityRuleDescriptionDto(
                         key = it.key,
                         name = it.name,
-                        description = it.description
+                        description = it.description,
+                        associatedRequiredPermissions = it.associatedRequiredPermissions().map { p -> p.key }
                     )
                 }
         )
@@ -57,7 +59,8 @@ class ConfigActionProvider(
             SecurityPermissionDto(
                 it.key,
                 it.name,
-                it.description
+                it.description,
+                it.implies.map { it.key }
             )
         })
     }
@@ -65,11 +68,11 @@ class ConfigActionProvider(
     /**
      * Rebuilds descriptors from extension contributions so UI and CLI rely on one action entry-point.
      */
-    private fun inspectActions(actionCtx: ActionCtx): ActionRegistryDto {
+    private fun inspectActions(actionCtx: ActionCtx, secured: Boolean): ActionRegistryDto {
 
         val items = actionRegistry.value.findAllActions()
             .filter {
-                actionInvoker.value.evaluateSecurity(
+                if (!secured) true else actionInvoker.value.evaluateSecurity(
                     it.descriptor.group,
                     it.descriptor.key,
                     actionCtx.requestCtx
@@ -129,5 +132,6 @@ data class SecurityRulesDescriptionsResp(
 data class SecurityRuleDescriptionDto(
     val key: String,
     val name: String,
-    val description: String
+    val description: String,
+    val associatedRequiredPermissions: List<String>
 )

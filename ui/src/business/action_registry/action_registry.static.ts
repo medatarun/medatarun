@@ -3,7 +3,7 @@ import type { ActionRegistryDto } from "@/business/action_registry/action_regist
 export const actionRegistryStatic = {
   items: [
     {
-      id: "019d9b05-2495-717c-8697-51c3c71c9ce6",
+      id: "019da071-ff59-7126-b4ec-a98fe09aee0b",
       groupKey: "batch",
       actionKey: "batch_run",
       title: "Batch commands",
@@ -28,7 +28,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-249f-7c87-8125-aafc02670142",
+      id: "019da071-ff63-75ce-938e-d2268e013427",
       groupKey: "auth",
       actionKey: "actor_disable",
       title: "Disable actor",
@@ -62,7 +62,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24a1-7fc2-aa9b-4aa3eba0a693",
+      id: "019da071-ff65-7839-8b1d-cefb1c95fd46",
       groupKey: "auth",
       actionKey: "actor_enable",
       title: "Enable actor",
@@ -96,7 +96,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24a3-774b-9911-990b82e13d36",
+      id: "019da071-ff66-733b-90d9-564770be9891",
       groupKey: "auth",
       actionKey: "actor_get",
       title: "Get actor",
@@ -120,7 +120,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24a5-75e3-ab4a-b3d0af284dd1",
+      id: "019da071-ff68-75f3-8377-6323ea038a18",
       groupKey: "auth",
       actionKey: "actor_list",
       title: "List actors",
@@ -135,7 +135,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24a6-720c-8b28-7039f0bb653a",
+      id: "019da071-ff69-77ce-9746-917c7dc16d0d",
       groupKey: "auth",
       actionKey: "actor_add_role",
       title: "Add actor role",
@@ -182,7 +182,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24a7-7266-afe3-db25efe13947",
+      id: "019da071-ff6a-7912-ab96-63d729466a71",
       groupKey: "auth",
       actionKey: "actor_delete_role",
       title: "Delete actor role",
@@ -229,7 +229,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24a7-7f06-afe4-c0fe37413314",
+      id: "019da071-ff6b-75ba-a04c-513a04cc4952",
       groupKey: "auth",
       actionKey: "admin_bootstrap",
       title: "Creates admin user",
@@ -281,7 +281,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24aa-752b-b0c8-ec2661829e90",
+      id: "019da071-ff6d-772f-80f6-e57123ea2739",
       groupKey: "auth",
       actionKey: "change_my_password",
       title: "Change own password",
@@ -315,7 +315,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24aa-7f6c-b0c9-5ce317ca1b19",
+      id: "019da071-ff6e-71a1-a0b8-2fd8feb634f0",
       groupKey: "auth",
       actionKey: "login",
       title: "Login user",
@@ -349,7 +349,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24ab-7a24-8152-79888b9c0b8a",
+      id: "019da071-ff6f-7039-ba73-f444832b5d0d",
       groupKey: "auth",
       actionKey: "role_add_permission",
       title: "Add role permission",
@@ -396,7 +396,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24ac-7e3d-8c71-15dc4ba3a9f1",
+      id: "019da071-ff70-7b58-b173-17e7d2966bed",
       groupKey: "auth",
       actionKey: "role_create",
       title: "Create role",
@@ -450,7 +450,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24ae-71be-9a5e-78d12e0883ad",
+      id: "019da071-ff71-7bae-8ce1-0510e2cb6069",
       groupKey: "auth",
       actionKey: "role_delete",
       title: "Delete role",
@@ -484,7 +484,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24af-713b-aeca-c1f610d6e837",
+      id: "019da071-ff72-7487-b864-55cb1c475a39",
       groupKey: "auth",
       actionKey: "role_delete_permission",
       title: "Delete role permission",
@@ -531,7 +531,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24b0-713f-b6a6-d3d71f2d7da4",
+      id: "019da071-ff73-765a-9670-fe8530157387",
       groupKey: "auth",
       actionKey: "role_get",
       title: "Get role",
@@ -555,7 +555,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24b1-75b2-b570-1e42064ca3fa",
+      id: "019da071-ff74-747a-8e36-6e0adfc01d47",
       groupKey: "auth",
       actionKey: "role_list",
       title: "List roles",
@@ -569,7 +569,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24b2-7220-834a-da37d846a3d4",
+      id: "019da071-ff74-7de7-8e37-d4ed2a971c05",
       groupKey: "auth",
       actionKey: "role_update_description",
       title: "Update role description",
@@ -612,7 +612,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24b3-767e-a084-ce0919f5cde1",
+      id: "019da071-ff75-7a9f-916d-f81e354972fc",
       groupKey: "auth",
       actionKey: "role_update_key",
       title: "Update role key",
@@ -655,7 +655,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24b4-7418-bdbc-5577a4a854a1",
+      id: "019da071-ff76-7ecc-94da-64d43a5342a8",
       groupKey: "auth",
       actionKey: "role_update_name",
       title: "Update role name",
@@ -698,7 +698,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24b5-79f7-96e3-16dadf564848",
+      id: "019da071-ff77-7a9b-ab69-f07bf2464643",
       groupKey: "auth",
       actionKey: "user_change_fullname",
       title: "Change user full name",
@@ -732,7 +732,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24b6-730a-a5ef-bf9ab31b3ffe",
+      id: "019da071-ff78-7558-8530-486cb48eaf32",
       groupKey: "auth",
       actionKey: "user_change_password",
       title: "Change user password",
@@ -765,7 +765,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24b6-7cbc-a5f0-13c3de98bbf8",
+      id: "019da071-ff79-764d-be55-f04c0fe442ef",
       groupKey: "auth",
       actionKey: "user_create",
       title: "Create user",
@@ -825,7 +825,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24b7-7a8f-b77a-e40190f279f1",
+      id: "019da071-ff7a-731e-a401-e09ae2c577c2",
       groupKey: "auth",
       actionKey: "user_disable",
       title: "Disable user",
@@ -850,7 +850,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24b8-7522-bc00-16c126e985e2",
+      id: "019da071-ff7a-7e6e-a402-81090d4b5674",
       groupKey: "auth",
       actionKey: "user_enable",
       title: "Enable user",
@@ -875,7 +875,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24b9-73be-9720-229d6333f560",
+      id: "019da071-ff7b-7d6c-bb66-54e9c7ab1f0b",
       groupKey: "auth",
       actionKey: "user_list",
       title: "User list",
@@ -889,7 +889,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24ba-787e-9835-0e61d65e7488",
+      id: "019da071-ff7d-70e9-b780-d2f5719c2bc5",
       groupKey: "auth",
       actionKey: "whoami",
       title: "Who am i",
@@ -904,7 +904,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24bc-760c-810b-b3d3f701fc41",
+      id: "019da071-ff7e-793b-a38c-354c9f5334d2",
       groupKey: "tag",
       actionKey: "maintenance_rebuild_caches",
       title: "Maintenance rebuild caches",
@@ -919,7 +919,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24bc-7b6c-810c-29bba6ac2520",
+      id: "019da071-ff7e-7dfb-a38d-9e39c5c5e009",
       groupKey: "tag",
       actionKey: "tag_global_create",
       title: "Create a global tag",
@@ -986,7 +986,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24be-7364-83fe-5b22a824df0b",
+      id: "019da071-ff80-7e5e-889e-214a97ab05d6",
       groupKey: "tag",
       actionKey: "tag_global_delete",
       title: "Delete global tag",
@@ -1020,7 +1020,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24be-7d68-83ff-439f23ce4a86",
+      id: "019da071-ff81-7568-8555-f3369343d244",
       groupKey: "tag",
       actionKey: "tag_global_update_description",
       title: "Update global tag description",
@@ -1064,7 +1064,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24bf-75ef-bb69-e85f2f9b8879",
+      id: "019da071-ff81-7bdb-8556-93fd252651bd",
       groupKey: "tag",
       actionKey: "tag_global_update_key",
       title: "Update global tag key",
@@ -1108,7 +1108,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24c0-7404-96a2-388be238b401",
+      id: "019da071-ff82-7906-a9f4-3476593ce438",
       groupKey: "tag",
       actionKey: "tag_global_update_name",
       title: "Update global tag name",
@@ -1151,7 +1151,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24c1-70a7-9fc6-f256fd48bcdb",
+      id: "019da071-ff83-71e3-a316-7109b074e0b2",
       groupKey: "tag",
       actionKey: "tag_group_create",
       title: "Create a tag group",
@@ -1206,7 +1206,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24c1-7dd2-9fc7-095a1eaf8e10",
+      id: "019da071-ff83-7bf7-a317-6b76fcadbf00",
       groupKey: "tag",
       actionKey: "tag_group_delete",
       title: "Delete tag group",
@@ -1240,7 +1240,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24c2-76f1-9850-c2fa9c98556e",
+      id: "019da071-ff84-7147-9b75-04ef599d10b5",
       groupKey: "tag",
       actionKey: "tag_group_list",
       title: "Tag group list",
@@ -1254,7 +1254,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24c2-7aed-9851-947785353937",
+      id: "019da071-ff84-7451-9b76-56ac1a1838dc",
       groupKey: "tag",
       actionKey: "tag_group_update_description",
       title: "Update tag group description",
@@ -1298,7 +1298,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24c3-70d0-9482-0bd5cbd039ee",
+      id: "019da071-ff84-79ba-9b77-3d5072ed7bd5",
       groupKey: "tag",
       actionKey: "tag_group_update_key",
       title: "Update tag group key",
@@ -1342,7 +1342,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24c3-7835-9483-98585a732236",
+      id: "019da071-ff85-7404-9f1c-d222b4d106ea",
       groupKey: "tag",
       actionKey: "tag_group_update_name",
       title: "Update global tag group name",
@@ -1385,7 +1385,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24c4-7287-94de-6fc6114173ad",
+      id: "019da071-ff86-7391-ba6a-4766dfeccddb",
       groupKey: "tag",
       actionKey: "tag_local_create",
       title: "Create a local tag",
@@ -1453,7 +1453,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24c5-7d4b-8c63-43786f08559d",
+      id: "019da071-ff89-7164-8443-0d670592bb08",
       groupKey: "tag",
       actionKey: "tag_local_delete",
       title: "Delete local tag",
@@ -1487,7 +1487,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24c6-7b81-a5f8-1b73953597fd",
+      id: "019da071-ff89-7d70-8444-6a4f41768ee5",
       groupKey: "tag",
       actionKey: "tag_local_update_description",
       title: "Update local tag description",
@@ -1531,7 +1531,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24c7-744d-be1a-6669888409ad",
+      id: "019da071-ff8a-780c-bbcf-3cb667a09db0",
       groupKey: "tag",
       actionKey: "tag_local_update_key",
       title: "Update local tag key",
@@ -1575,7 +1575,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24c7-7bfb-be1b-a7c213389dad",
+      id: "019da071-ff8b-707e-90fd-d1dbb05d3733",
       groupKey: "tag",
       actionKey: "tag_local_update_name",
       title: "Update local tag name",
@@ -1618,7 +1618,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24c8-7256-b6aa-1b035ff2a1fa",
+      id: "019da071-ff8b-763d-90fe-cc8362c89003",
       groupKey: "tag",
       actionKey: "tag_search",
       title: "Tag search",
@@ -1643,7 +1643,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24cd-7cd9-ab4b-2e249a8bf624",
+      id: "019da071-ff91-7697-a338-8628e791df54",
       groupKey: "model",
       actionKey: "business_key_create",
       title: "Create a business key",
@@ -1707,7 +1707,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "create",
         subjects: [
@@ -1733,7 +1733,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24d0-7d68-8d23-60b9449cfb11",
+      id: "019da071-ff94-787e-b4da-4037880efc25",
       groupKey: "model",
       actionKey: "business_key_delete",
       title: "Update business key participants",
@@ -1759,7 +1759,7 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "delete",
         subjects: [
@@ -1781,7 +1781,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24d2-73ba-a329-5de1031d116b",
+      id: "019da071-ff95-75ce-9b5f-50600ab999e5",
       groupKey: "model",
       actionKey: "business_key_update_description",
       title: "Update business key description",
@@ -1815,7 +1815,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -1837,7 +1837,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24d4-7553-8670-82ba485f849e",
+      id: "019da071-ff97-75c2-a47f-5f6f6b21500d",
       groupKey: "model",
       actionKey: "business_key_update_key",
       title: "Update business key's key",
@@ -1871,7 +1871,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -1893,7 +1893,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24d5-7210-89c8-3f7ab34c3e5b",
+      id: "019da071-ff98-72fd-ab5f-91d0a9dad952",
       groupKey: "model",
       actionKey: "business_key_update_name",
       title: "Update business key name",
@@ -1927,7 +1927,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -1949,7 +1949,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24d6-7487-9414-b0821d25fec6",
+      id: "019da071-ff99-75d7-a1ce-9bbd062e3121",
       groupKey: "model",
       actionKey: "business_key_update_participants",
       title: "Update business key participants",
@@ -1985,7 +1985,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -2007,7 +2007,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24d7-7585-bc6e-92049ea2bfa4",
+      id: "019da071-ff9a-77ba-b811-e1e8f84ceb73",
       groupKey: "model",
       actionKey: "model_compare",
       title: "Compare models",
@@ -2062,7 +2062,7 @@ export const actionRegistryStatic = {
           order: 50,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_read",
       semantics: {
         intent: "other",
         subjects: [],
@@ -2070,7 +2070,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24d9-7414-8fe3-fa9f867e12ce",
+      id: "019da071-ff9c-756c-be53-dcc38e7318b9",
       groupKey: "model",
       actionKey: "entity_attribute_add_tag",
       title: "Add tag to entity attribute",
@@ -2114,7 +2114,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -2140,7 +2140,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24da-75be-9fb6-4e5684d74019",
+      id: "019da071-ff9d-756c-936c-069fe3d1d2ba",
       groupKey: "model",
       actionKey: "entity_attribute_create",
       title: "Create entity attribute",
@@ -2215,7 +2215,7 @@ export const actionRegistryStatic = {
           order: 50,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "create",
         subjects: [
@@ -2241,7 +2241,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24dc-760c-8282-d6dfa9649444",
+      id: "019da071-ff9f-76c0-8f97-3527ed30683b",
       groupKey: "model",
       actionKey: "entity_attribute_delete",
       title: "Delete entity attribute",
@@ -2276,7 +2276,7 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "delete",
         subjects: [
@@ -2302,7 +2302,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24de-7ca3-939c-67e4f7752cc1",
+      id: "019da071-ffa1-7d58-b052-24050dad1df8",
       groupKey: "model",
       actionKey: "entity_attribute_delete_tag",
       title: "Delete tag from entity attribute",
@@ -2346,7 +2346,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -2372,7 +2372,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24df-79ce-863d-4b43fb8656f2",
+      id: "019da071-ffa2-7b68-8663-b304ad5eb41c",
       groupKey: "model",
       actionKey: "entity_attribute_update_description",
       title: "Update entity attribute description",
@@ -2417,7 +2417,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -2443,7 +2443,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24e0-7b4f-bf28-4a6bba2fed51",
+      id: "019da071-ffa3-7b99-95cc-3015ae6f8175",
       groupKey: "model",
       actionKey: "entity_attribute_update_key",
       title: "Update entity attribute key",
@@ -2488,7 +2488,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -2514,7 +2514,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24e1-7fbe-85c1-e0d3110c2458",
+      id: "019da071-ffa4-77ba-a073-7edfe5774844",
       groupKey: "model",
       actionKey: "entity_attribute_update_name",
       title: "Update entity attribute name",
@@ -2558,7 +2558,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -2584,7 +2584,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24e3-7aa3-bbc2-c52513b769bb",
+      id: "019da071-ffa5-78a7-a081-8d00222a594d",
       groupKey: "model",
       actionKey: "entity_attribute_update_optional",
       title: "Update entity attribute optionality",
@@ -2629,7 +2629,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -2655,7 +2655,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24e4-7ad9-9bda-a78536327707",
+      id: "019da071-ffa6-72d9-ae02-d12039482374",
       groupKey: "model",
       actionKey: "entity_attribute_update_type",
       title: "Update entity attribute type",
@@ -2700,7 +2700,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -2726,7 +2726,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24e5-781c-a206-82b2965c031c",
+      id: "019da071-ffa6-7cb0-ae03-21d5e34c317c",
       groupKey: "model",
       actionKey: "entity_primary_key_update",
       title: "Update entity primary key",
@@ -2762,7 +2762,7 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -2788,7 +2788,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24e6-76b0-85ea-e65e8078db46",
+      id: "019da071-ffa7-766e-bdd7-e23178481d61",
       groupKey: "model",
       actionKey: "entity_add_tag",
       title: "Add entity tag",
@@ -2822,7 +2822,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -2844,7 +2844,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24e7-70e5-ad71-d3dca8bc5f92",
+      id: "019da071-ffa7-7e7e-bdd8-3e69ee479496",
       groupKey: "model",
       actionKey: "entity_create",
       title: "Create entity",
@@ -2898,7 +2898,7 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "create",
         subjects: [
@@ -2920,7 +2920,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24e8-7262-9c85-19016b92789f",
+      id: "019da071-ffa9-7195-8305-a25b6a87f12b",
       groupKey: "model",
       actionKey: "entity_delete",
       title: "Delete model entity",
@@ -2946,7 +2946,7 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "delete",
         subjects: [
@@ -2968,7 +2968,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24e8-79ca-9c86-bffacab16116",
+      id: "019da071-ffa9-7b6c-8306-bc6ac7be9947",
       groupKey: "model",
       actionKey: "entity_delete_tag",
       title: "Delete entity tag",
@@ -3002,7 +3002,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -3024,7 +3024,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24e9-727a-8a17-eb7576fb960a",
+      id: "019da071-ffaa-7316-ae4e-f54ad1f6d81e",
       groupKey: "model",
       actionKey: "entity_update_description",
       title: "Update entity description",
@@ -3059,7 +3059,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -3081,7 +3081,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24e9-7c14-8a18-277a5023b375",
+      id: "019da071-ffaa-7bdb-ae4f-8cb392d7f90f",
       groupKey: "model",
       actionKey: "entity_update_documentation_link",
       title: "Update entity external documentation",
@@ -3115,7 +3115,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -3137,7 +3137,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24ea-7493-a1d9-cd7bde9f17b9",
+      id: "019da071-ffab-73f3-8901-f0c2a0342c9c",
       groupKey: "model",
       actionKey: "entity_update_key",
       title: "Update entity key",
@@ -3172,7 +3172,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -3194,7 +3194,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24ea-7e9b-a1da-018cf277d138",
+      id: "019da071-ffab-7c9f-8902-31fc3fa21b75",
       groupKey: "model",
       actionKey: "entity_update_name",
       title: "Update entity name",
@@ -3228,7 +3228,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -3250,7 +3250,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24eb-7a28-9247-4b8f0ee83770",
+      id: "019da071-ffac-74bc-8532-4851cbbe3367",
       groupKey: "model",
       actionKey: "history_version_changes",
       title: "Version changes",
@@ -3277,7 +3277,7 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_read",
       semantics: {
         intent: "read",
         subjects: [],
@@ -3292,7 +3292,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24ec-71b2-8cb0-8a1ca91c688d",
+      id: "019da071-ffac-7e93-8533-105af0440a76",
       groupKey: "model",
       actionKey: "history_versions",
       title: "Versions",
@@ -3308,7 +3308,7 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_read",
       semantics: {
         intent: "read",
         subjects: [],
@@ -3323,7 +3323,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24ec-7c35-8cb1-a4e7ce82877f",
+      id: "019da071-ffad-75b2-adef-2e0ee293a910",
       groupKey: "model",
       actionKey: "import",
       title: "Import model",
@@ -3360,7 +3360,7 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_import",
       semantics: {
         intent: "other",
         subjects: [],
@@ -3368,14 +3368,14 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24ee-7c97-8f41-fe31e8f7dfc9",
+      id: "019da071-ffaf-712f-bb03-3c82803b0294",
       groupKey: "model",
       actionKey: "inspect_models_json",
       title: "Inspect models (JSON)",
       description:
         "Returns the registered models, entities, and attributes with all metadata encoded as JSON. Preferred method for AI agents to understand the model.",
       parameters: [],
-      securityRule: "signed_in",
+      securityRule: "model_read",
       semantics: {
         intent: "other",
         subjects: [],
@@ -3383,7 +3383,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24ee-7fc2-8f42-cf1b6f94b1ff",
+      id: "019da071-ffaf-749f-bb04-f0b1f9cf5baf",
       groupKey: "model",
       actionKey: "maintenance_rebuild_caches",
       title: "Maintenance rebuild caches",
@@ -3398,7 +3398,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24ef-7199-8f69-8e2c1df0a8d6",
+      id: "019da071-ffaf-76dd-bb05-b1ea2ab75859",
       groupKey: "model",
       actionKey: "model_add_tag",
       title: "Add tag to model",
@@ -3423,7 +3423,7 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -3441,7 +3441,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24ef-795c-8f6a-1d6714428296",
+      id: "019da071-ffaf-7f1e-bb06-cd7f14ee9ee2",
       groupKey: "model",
       actionKey: "model_copy",
       title: "Copy model",
@@ -3468,7 +3468,7 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_copy",
       semantics: {
         intent: "create",
         subjects: [
@@ -3490,7 +3490,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f0-70b4-934f-775e43c33184",
+      id: "019da071-ffb0-76e9-b0aa-a0ee85564f66",
       groupKey: "model",
       actionKey: "model_create",
       title: "Create model",
@@ -3537,7 +3537,7 @@ export const actionRegistryStatic = {
           order: 50,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_create_manual",
       semantics: {
         intent: "create",
         subjects: [
@@ -3555,7 +3555,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f0-79df-9350-5d328f2c5aa1",
+      id: "019da071-ffb1-71ba-9e25-2ff950a80e52",
       groupKey: "model",
       actionKey: "model_delete",
       title: "Delete model",
@@ -3571,7 +3571,7 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_delete",
       semantics: {
         intent: "delete",
         subjects: [
@@ -3589,7 +3589,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f0-7ee1-9351-0bad14ad1fbf",
+      id: "019da071-ffb1-7c6e-9e26-102f2fdc0edd",
       groupKey: "model",
       actionKey: "model_delete_tag",
       title: "Delete tag from model",
@@ -3614,7 +3614,7 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -3632,7 +3632,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f1-7849-b203-e0197c39cb14",
+      id: "019da071-ffb2-7ab0-bcdf-3f1ddfff7af4",
       groupKey: "model",
       actionKey: "model_export",
       title: "Export model",
@@ -3648,7 +3648,7 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_read",
       semantics: {
         intent: "read",
         subjects: [],
@@ -3656,7 +3656,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f1-7c87-b204-6542c6be2cd6",
+      id: "019da071-ffb2-7f37-bce0-77a2bf234351",
       groupKey: "model",
       actionKey: "model_export_version",
       title: "Export model at a specific version",
@@ -3682,7 +3682,7 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_read",
       semantics: {
         intent: "read",
         subjects: [],
@@ -3690,13 +3690,13 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f3-705a-a0b0-75c7cc747cde",
+      id: "019da071-ffb3-7578-a77c-deb0f6280773",
       groupKey: "model",
       actionKey: "model_list",
       title: "Models list",
       description: "Returns a summary list of the models.",
       parameters: [],
-      securityRule: "signed_in",
+      securityRule: "model_read",
       semantics: {
         intent: "read",
         subjects: [],
@@ -3704,7 +3704,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f3-75df-a0b1-be0b38d0bcc7",
+      id: "019da071-ffb3-7824-a77d-cf92f8b27fbd",
       groupKey: "model",
       actionKey: "model_release",
       title: "Release version",
@@ -3730,7 +3730,7 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_release",
       semantics: {
         intent: "update",
         subjects: [
@@ -3748,7 +3748,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f4-70a7-aae1-b8694b1d39de",
+      id: "019da071-ffb3-7e66-a77e-da3279895a7e",
       groupKey: "model",
       actionKey: "model_update_authority",
       title: "Update model authority",
@@ -3775,7 +3775,7 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_update_authority",
       semantics: {
         intent: "update",
         subjects: [
@@ -3793,7 +3793,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f5-765e-bd2f-502f2751a596",
+      id: "019da071-ffb4-76c8-9fde-b52625465494",
       groupKey: "model",
       actionKey: "model_update_description",
       title: "Update model description",
@@ -3819,7 +3819,7 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -3837,7 +3837,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f6-7010-9636-4fc8685a089c",
+      id: "019da071-ffb6-70c8-8163-33c7381c1054",
       groupKey: "model",
       actionKey: "model_update_documentation_link",
       title: "Update model external documentation",
@@ -3862,7 +3862,7 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -3880,7 +3880,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f6-7712-9637-7653bcc3e8fb",
+      id: "019da071-ffb6-7ac4-8164-0c4958457f12",
       groupKey: "model",
       actionKey: "model_update_key",
       title: "Update model key",
@@ -3906,7 +3906,7 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -3924,7 +3924,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f6-7d70-9638-3f0002304729",
+      id: "019da071-ffb7-7160-b944-d826c8e8cf83",
       groupKey: "model",
       actionKey: "model_update_name",
       title: "Update model name",
@@ -3949,7 +3949,7 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -3967,7 +3967,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f7-7410-93ef-0d1061be1a46",
+      id: "019da071-ffb7-77a5-b945-58e02ac18edb",
       groupKey: "model",
       actionKey: "relationship_attribute_add_tag",
       title: "Add tag to relationship attribute",
@@ -4010,7 +4010,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -4036,7 +4036,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f7-7ddf-93f0-2b858dbe0d30",
+      id: "019da071-ffb8-71ef-99c8-32b41f5ec1ca",
       groupKey: "model",
       actionKey: "relationship_attribute_create",
       title: "Create relationship attribute",
@@ -4110,7 +4110,7 @@ export const actionRegistryStatic = {
           order: 50,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "create",
         subjects: [
@@ -4136,7 +4136,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f8-78b8-bb72-85e078ec5b36",
+      id: "019da071-ffb8-7d02-99c9-e95de293f43f",
       groupKey: "model",
       actionKey: "relationship_attribute_delete",
       title: "Delete relationship attribute",
@@ -4170,7 +4170,7 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "delete",
         subjects: [
@@ -4196,7 +4196,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f9-7439-9ffe-0b8dc4a038bd",
+      id: "019da071-ffb9-7828-9b04-d5f56f9d5c19",
       groupKey: "model",
       actionKey: "relationship_attribute_delete_tag",
       title: "Delete tag from relationship attribute",
@@ -4239,7 +4239,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -4265,7 +4265,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24f9-7cd9-9fff-88cbf6a90dfa",
+      id: "019da071-ffba-72cc-a159-e70f29d45d85",
       groupKey: "model",
       actionKey: "relationship_attribute_update_description",
       title: "Update relationship attribute description",
@@ -4309,7 +4309,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -4335,7 +4335,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24fa-754b-9199-2daffec90884",
+      id: "019da071-ffba-7bce-a15a-d8bb22ec11dc",
       groupKey: "model",
       actionKey: "relationship_attribute_update_key",
       title: "Update relationship attribute key",
@@ -4379,7 +4379,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -4405,7 +4405,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24fb-701c-9c95-2860e82ac758",
+      id: "019da071-ffbb-78a7-b3f3-8dd81d3cbd32",
       groupKey: "model",
       actionKey: "relationship_attribute_update_name",
       title: "Update relationship attribute name",
@@ -4448,7 +4448,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -4474,7 +4474,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24fb-7926-9c96-3d405b007ea7",
+      id: "019da071-ffbc-712b-913b-9e30fc30f028",
       groupKey: "model",
       actionKey: "relationship_attribute_update_optional",
       title: "Update relationship attribute optionality",
@@ -4518,7 +4518,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -4544,7 +4544,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24fc-729f-bd2a-88ace320232b",
+      id: "019da071-ffbc-7a28-913c-a76ae32ba91c",
       groupKey: "model",
       actionKey: "relationship_attribute_update_type",
       title: "Update relationship attribute type",
@@ -4588,7 +4588,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -4614,7 +4614,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24fc-7b70-bd2b-bcb1d3a2174f",
+      id: "019da071-ffbd-728f-84db-40212f2ab012",
       groupKey: "model",
       actionKey: "relationship_role_create",
       title: "Create relationship role",
@@ -4679,7 +4679,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "create",
         subjects: [
@@ -4709,7 +4709,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-24fd-794b-8887-0878988a6ca9",
+      id: "019da071-ffbd-7fb6-84dc-4dc2962b3eb5",
       groupKey: "model",
       actionKey: "relationship_role_delete",
       title: "Delete relationship role",
@@ -4744,7 +4744,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "delete",
         subjects: [
@@ -4770,7 +4770,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2501-7ab8-a1b7-7607c1a72eac",
+      id: "019da071-ffc1-7fc2-92d9-1d0ef84dcddb",
       groupKey: "model",
       actionKey: "relationship_role_update_cardinality",
       title: "Update relationship role cardinality",
@@ -4814,7 +4814,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -4840,7 +4840,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2502-783d-8371-5a4a2195e9f0",
+      id: "019da071-ffc2-7f3f-98c7-aad7af476646",
       groupKey: "model",
       actionKey: "relationship_role_update_entity",
       title: "Update relationship role entity",
@@ -4885,7 +4885,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -4911,7 +4911,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2504-7a18-ae33-02fd9292fcbf",
+      id: "019da071-ffc4-76d0-9b1d-af2b538a2dbe",
       groupKey: "model",
       actionKey: "relationship_role_update_key",
       title: "Update relationship role key",
@@ -4955,7 +4955,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -4981,7 +4981,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2505-7656-8c2a-7ceb1063a2a2",
+      id: "019da071-ffc5-72c0-a2dc-9b090aaf2302",
       groupKey: "model",
       actionKey: "relationship_role_update_name",
       title: "Update relationship role name",
@@ -5025,7 +5025,7 @@ export const actionRegistryStatic = {
           order: 40,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -5051,7 +5051,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2505-7ec4-8c2b-171c82f1ea81",
+      id: "019da071-ffc5-7c72-a2dd-f9f2cac100e8",
       groupKey: "model",
       actionKey: "relationship_add_tag",
       title: "Add tag to relationship",
@@ -5085,7 +5085,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -5107,7 +5107,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2506-7712-b1e3-52c61ba6bc08",
+      id: "019da071-ffc6-7316-8ec0-f8ea0048def0",
       groupKey: "model",
       actionKey: "relationship_create",
       title: "Create relationship",
@@ -5232,7 +5232,7 @@ export const actionRegistryStatic = {
           order: 90,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "create",
         subjects: [
@@ -5270,7 +5270,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2508-7c72-8520-a5546333e72d",
+      id: "019da071-ffc8-71f7-b5ea-ed4499b168ef",
       groupKey: "model",
       actionKey: "relationship_delete",
       title: "Delete relationship",
@@ -5295,7 +5295,7 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "delete",
         subjects: [
@@ -5317,7 +5317,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2509-72c8-b2e6-d2a626b5bdc9",
+      id: "019da071-ffc8-7a5a-b5eb-74b6b5e3fb12",
       groupKey: "model",
       actionKey: "relationship_delete_tag",
       title: "Delete relationship tag",
@@ -5351,7 +5351,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -5373,7 +5373,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2509-792b-b2e7-388939efcf0c",
+      id: "019da071-ffc9-706a-b6ad-196aac8a62f5",
       groupKey: "model",
       actionKey: "relationship_update_description",
       title: "Update relationship description",
@@ -5408,7 +5408,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -5430,7 +5430,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-250a-7028-be80-70c886023ac4",
+      id: "019da071-ffc9-76ed-b6ae-ce8df692a1c5",
       groupKey: "model",
       actionKey: "relationship_update_key",
       title: "Update relationship key",
@@ -5465,7 +5465,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -5487,7 +5487,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-250a-7ae9-be81-54ce40d78a8b",
+      id: "019da071-ffcb-74f5-80de-7bed86042d0e",
       groupKey: "model",
       actionKey: "relationship_update_name",
       title: "Update relationship name",
@@ -5521,7 +5521,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -5543,7 +5543,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-250b-7293-b3c8-701812e14a1c",
+      id: "019da071-ffcb-7dae-80df-9c636c11102b",
       groupKey: "model",
       actionKey: "search",
       title: "Search",
@@ -5570,7 +5570,7 @@ export const actionRegistryStatic = {
           order: 10,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_read",
       semantics: {
         intent: "read",
         subjects: [],
@@ -5585,7 +5585,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-250c-7aa3-a2cd-47f22c9a4ddd",
+      id: "019da071-ffcc-7db6-8b85-619996a6f79a",
       groupKey: "model",
       actionKey: "type_create",
       title: "Create type",
@@ -5630,7 +5630,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "create",
         subjects: [
@@ -5652,7 +5652,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-250d-7410-8915-5bedb78dbcbe",
+      id: "019da071-ffcd-77fb-83fa-880a7461a4ba",
       groupKey: "model",
       actionKey: "type_delete",
       title: "Delete type",
@@ -5678,7 +5678,7 @@ export const actionRegistryStatic = {
           order: 20,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "delete",
         subjects: [
@@ -5700,7 +5700,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-250d-7b22-8916-f615fc5155cd",
+      id: "019da071-ffce-74e5-84ec-1e911513c82b",
       groupKey: "model",
       actionKey: "type_update_description",
       title: "Update type description",
@@ -5735,7 +5735,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -5757,7 +5757,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-250e-7220-a831-669e04b51bb7",
+      id: "019da071-ffcf-7d78-91a2-f81b6a681149",
       groupKey: "model",
       actionKey: "type_update_key",
       title: "Update type key",
@@ -5792,7 +5792,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -5814,7 +5814,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-250e-7bc2-a832-baca0e8143b2",
+      id: "019da071-ffd0-744d-b3c9-d4f1512bc257",
       groupKey: "model",
       actionKey: "type_update_name",
       title: "Update type name",
@@ -5848,7 +5848,7 @@ export const actionRegistryStatic = {
           order: 30,
         },
       ],
-      securityRule: "signed_in",
+      securityRule: "model_write",
       semantics: {
         intent: "update",
         subjects: [
@@ -5870,7 +5870,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-250f-7acc-a306-8b0e75fedcc1",
+      id: "019da071-ffd1-7502-8013-d8e708fba903",
       groupKey: "config",
       actionKey: "ai_agents_instructions",
       title: "AI Agents Instructions",
@@ -5885,7 +5885,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2510-7160-aa20-273bffecba9e",
+      id: "019da071-ffd1-7926-8014-dce51278b542",
       groupKey: "config",
       actionKey: "inspect_config_text",
       title: "Inspect config as text file",
@@ -5900,7 +5900,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2510-76a3-aa21-7eb78fb715b3",
+      id: "019da071-ffd2-70cc-b7b8-60528cc21dd7",
       groupKey: "config",
       actionKey: "inspect_actions",
       title: "Inspect actions",
@@ -5915,7 +5915,21 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2510-78fd-aa22-0b89d7253022",
+      id: "019da071-ffd2-742d-b7b9-76ef318320d1",
+      groupKey: "config",
+      actionKey: "inspect_actions_all",
+      title: "Inspect all actions",
+      description: "Returns all known from the system.",
+      parameters: [],
+      securityRule: "public",
+      semantics: {
+        intent: "other",
+        subjects: [],
+        returns: [],
+      },
+    },
+    {
+      id: "019da071-ffd2-76d4-b7ba-5f48a2c45ed1",
       groupKey: "config",
       actionKey: "inspect_config",
       title: "Inspect config",
@@ -5930,7 +5944,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2510-7c28-aa23-bfdd33025afc",
+      id: "019da071-ffd2-78f5-b7bb-210a737e02c6",
       groupKey: "config",
       actionKey: "inspect_permissions",
       title: "Inspect permissions",
@@ -5945,7 +5959,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2510-7ebc-aa24-5b1e105c656f",
+      id: "019da071-ffd2-7c5a-b7bc-3f1e43c7acef",
       groupKey: "config",
       actionKey: "inspect_security_rules",
       title: "Inspect security rules",
@@ -5960,7 +5974,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2511-70f1-8392-c58ce61aa199",
+      id: "019da071-ffd2-7e72-b7bd-ef6f406da6a3",
       groupKey: "config",
       actionKey: "inspect_type_system",
       title: "Inspect type system",
@@ -5975,7 +5989,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2511-79ce-8393-7601b1b9a2b7",
+      id: "019da071-ffd3-7570-b3d2-88c6224f9c32",
       groupKey: "databases",
       actionKey: "driver_list",
       title: "Database drivers",
@@ -5989,7 +6003,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019d9b05-2511-7d2b-8394-e5d668d61389",
+      id: "019da071-ffd3-787a-b3d3-69cf3a2c1cbe",
       groupKey: "databases",
       actionKey: "datasource_list",
       title: "Database sources",

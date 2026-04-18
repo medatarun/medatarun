@@ -1,5 +1,6 @@
 package io.medatarun.tags.core.adapters.security
 
+import io.medatarun.security.AppPermission
 import io.medatarun.security.SecurityRuleCtx
 import io.medatarun.security.SecurityRuleEvaluator
 import io.medatarun.security.SecurityRulesProvider
@@ -14,6 +15,9 @@ class TagSecurityRulesprovider : SecurityRulesProvider {
                     "Actors (users and tools) can manage global tags.\n\n" +
                         "Required permission: `${TagGlobalManagePermission.key}`."
                 override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensurePermission(TagGlobalManagePermission)
+                override fun associatedRequiredPermissions(): List<AppPermission> {
+                    return listOf(TagGlobalManagePermission)
+                }
             },
             object : SecurityRuleEvaluator {
                 override val key: String = TagSecurityRules.TAG_LOCAL_MANAGE
@@ -22,6 +26,9 @@ class TagSecurityRulesprovider : SecurityRulesProvider {
                     "Actors (users and tools) can manage local tags.\n\n" +
                         "Required permission: `${TagLocalManagePermission.key}`."
                 override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensurePermission(TagLocalManagePermission)
+                override fun associatedRequiredPermissions(): List<AppPermission> {
+                    return listOf(TagLocalManagePermission)
+                }
             },
             object : SecurityRuleEvaluator {
                 override val key: String = TagSecurityRules.TAG_GROUP_MANAGE
@@ -30,6 +37,9 @@ class TagSecurityRulesprovider : SecurityRulesProvider {
                     "Actors (users and tools) can manage tag groups.\n\n" +
                         "Required permission: `${TagGroupManagePermission.key}`."
                 override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensurePermission(TagGroupManagePermission)
+                override fun associatedRequiredPermissions(): List<AppPermission> {
+                    return listOf(TagGroupManagePermission)
+                }
             }
         )
     }

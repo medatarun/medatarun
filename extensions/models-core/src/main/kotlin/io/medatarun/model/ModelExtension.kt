@@ -20,11 +20,15 @@ import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.model.ports.needs.ModelStorage
 import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeType
+import io.medatarun.model.security.ModelSecurityPermissionsProvider
+import io.medatarun.model.security.ModelSecurityRulesProvider
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbTransactionManager
 import io.medatarun.platform.kernel.*
 import io.medatarun.security.AppActorResolver
+import io.medatarun.security.SecurityPermissionsProvider
+import io.medatarun.security.SecurityRulesProvider
 import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
@@ -82,6 +86,7 @@ open class ModelExtension(
         ctx.register(ModelQueries::class, modelQueriesImpl)
 
 
+
     }
 
     override fun initContributions(ctx: MedatarunExtensionCtx) {
@@ -129,6 +134,9 @@ open class ModelExtension(
         ctx.registerContribution(TypeDescriptor::class, SearchFiltersDescriptor())
         ctx.registerContribution(TypeDescriptor::class, TypeKeyDescriptor())
         ctx.registerContribution(TypeDescriptor::class, TypeRefDescriptor())
+        ctx.registerContribution(SecurityPermissionsProvider::class, ModelSecurityPermissionsProvider())
+        ctx.registerContribution(SecurityRulesProvider::class, ModelSecurityRulesProvider())
+
     }
 
     companion object {

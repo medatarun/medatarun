@@ -14,7 +14,7 @@ class ActionDefinitionWithoutDocException(group: String, name: String) :
     MedatarunException("All actions must have a documentation annotation. Issue in $group/$name")
 
 class ActionDefinitionWithUnknownSecurityRule(group: String, name: String, rule: String) :
-    MedatarunException("Unknown or undefined security rule on action $group,/$name: [$rule]")
+    MedatarunException("Unknown or undefined security rule on action $group/$name: [$rule]")
 
 class UndefinedMultiplatformTypeException(type: KType) : MedatarunException(
     "Type $type has no multiplatform equivalent"

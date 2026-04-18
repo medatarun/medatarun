@@ -2,6 +2,7 @@ import { type ReactElement, type ReactNode, useEffect, useState } from "react";
 import { type Problem, toProblem } from "@seij/common-types";
 import {
   makeStyles,
+  mergeClasses,
   Popover,
   PopoverSurface,
   PopoverTrigger,
@@ -11,6 +12,7 @@ import {
 import { EditRegular as EditIcon } from "@fluentui/react-icons";
 import { Button, ButtonBar, ErrorBox } from "@seij/common-ui";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import { merge } from "lodash-es";
 
 const useStyles = makeStyles({
   readRoot: {
@@ -18,6 +20,8 @@ const useStyles = makeStyles({
     cursor: "text",
     boxSizing: "border-box",
     width: "100%",
+  },
+  editable: {
     "&:hover": {
       backgroundColor: tokens.colorBrandBackground2Hover,
     },
@@ -74,6 +78,10 @@ export interface InlineEditSingleLineLayoutProps {
     pending: boolean;
   }) => ReactElement;
   /**
+   * Indicates this is disabled for editing
+   */
+  disabled?: boolean;
+  /**
    * Called before the editor mode is switched to "on" (prepare data)
    * If the promise rejects, we will display an error before the editor
    * (don't really know if error handling is correct yet)
@@ -114,6 +122,7 @@ export interface InlineEditSingleLineLayoutProps {
 export const InlineEditSingleLineLayout = ({
   children,
   editor,
+  disabled = false,
   onEditStarted,
   onEditStart,
   onEditOK,
@@ -173,22 +182,29 @@ export const InlineEditSingleLineLayout = ({
     }
   }, [editing, onEditStarted, editStartedCalled]);
 
-  if (!editing)
+  if (!editing || disabled) {
+    const className = mergeClasses(
+      styles.readRoot,
+      !disabled && styles.editable,
+    );
     return (
-      <div className={styles.readRoot} onClick={handleEdit}>
+      <div className={className} onClick={handleEdit}>
         <div>
           {children}
-          <div className={styles.editIcon} data-edit-icon>
-            <Tooltip
-              content={t("inlineEditSingleLineLayout_editTooltip")}
-              relationship="label"
-            >
-              <EditIcon name="edit" />
-            </Tooltip>
-          </div>
+          {!disabled && (
+            <div className={styles.editIcon} data-edit-icon>
+              <Tooltip
+                content={t("inlineEditSingleLineLayout_editTooltip")}
+                relationship="label"
+              >
+                <EditIcon name="edit" />
+              </Tooltip>
+            </div>
+          )}
         </div>
       </div>
     );
+  }
 
   const Editor = editor({
     commit: handleEditOK,
