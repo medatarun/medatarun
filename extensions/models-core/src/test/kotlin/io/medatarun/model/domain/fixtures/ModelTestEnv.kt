@@ -147,7 +147,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         modelRef: ModelRef,
         entityRef: EntityRef,
         attributeKey: AttributeKey,
-        type: TypeRef = typeRefKey("String"),
+        type: TypeRef,
         name: LocalizedText? = null,
         optional: Boolean = false,
         description: LocalizedMarkdown? = null

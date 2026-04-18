@@ -22,7 +22,7 @@ interface ModelStorage {
     fun existsModelByKey(key: ModelKey): Boolean
 
     fun existsModel(ref: ModelRef): Boolean {
-        return when(ref) {
+        return when (ref) {
             is ModelRef.ById -> existsModelById(ref.id)
             is ModelRef.ByKey -> existsModelByKey(ref.key)
         }
@@ -45,12 +45,16 @@ interface ModelStorage {
         return findModelOptional(ref) ?: throw ModelNotFoundException(ref)
     }
 
-    fun findModelTags(modelId:ModelId): List<TagId>
+    fun findModelTags(modelId: ModelId): List<TagId>
 
     fun findModelAggregateVersionOptional(modelId: ModelId, modelVersion: ModelVersion): ModelAggregate?
 
-    fun findModelAggregateVersion(modelId: ModelId, modelVersion: ModelVersion): ModelAggregate=
-        findModelAggregateVersionOptional(modelId, modelVersion) ?: throw ModelNotFoundException(ModelRef.modelRefId(modelId))
+    fun findModelAggregateVersion(modelId: ModelId, modelVersion: ModelVersion): ModelAggregate =
+        findModelAggregateVersionOptional(modelId, modelVersion) ?: throw ModelNotFoundException(
+            ModelRef.modelRefId(
+                modelId
+            )
+        )
 
     fun findLatestModelReleaseVersionOptional(modelId: ModelId): ModelVersion?
 
@@ -81,6 +85,7 @@ interface ModelStorage {
             is TypeRef.ByKey -> findTypeByKeyOptional(modelId, typeRef.key)
         }
     }
+
     fun findType(modelId: ModelId, typeRef: TypeRef): ModelType {
         val type = findTypeOptional(modelId, typeRef)
             ?: throw TypeNotFoundException(ModelRef.ById(modelId), typeRef)
@@ -96,14 +101,17 @@ interface ModelStorage {
     fun findEntityByKeyOptional(modelId: ModelId, entityKey: EntityKey): Entity?
 
     fun findEntityOptional(modelId: ModelId, entityRef: EntityRef): Entity? {
-        return when(entityRef) {
+        return when (entityRef) {
             is EntityRef.ById -> findEntityByIdOptional(modelId, entityRef.id)
             is EntityRef.ByKey -> findEntityByKeyOptional(modelId, entityRef.key)
         }
     }
 
     fun findEntity(modelId: ModelId, entityRef: EntityRef): Entity {
-        return findEntityOptional(modelId, entityRef) ?: throw EntityNotFoundException(ModelRef.ById(modelId), entityRef)
+        return findEntityOptional(modelId, entityRef) ?: throw EntityNotFoundException(
+            ModelRef.ById(modelId),
+            entityRef
+        )
     }
 
     fun findEntityPrimaryKeyOptional(modelId: ModelId, entityId: EntityId): EntityPrimaryKey?
@@ -129,8 +137,12 @@ interface ModelStorage {
 
     fun findEntityAttributeByKeyOptional(modelId: ModelId, entityId: EntityId, key: AttributeKey): Attribute?
 
-    fun findEntityAttributeOptional(modelId: ModelId, entityid: EntityId, attributeRef: EntityAttributeRef): Attribute? {
-        return when(attributeRef) {
+    fun findEntityAttributeOptional(
+        modelId: ModelId,
+        entityid: EntityId,
+        attributeRef: EntityAttributeRef
+    ): Attribute? {
+        return when (attributeRef) {
             is EntityAttributeRef.ById -> findEntityAttributeByIdOptional(modelId, entityid, attributeRef.id)
             is EntityAttributeRef.ByKey -> findEntityAttributeByKeyOptional(modelId, entityid, attributeRef.key)
         }
@@ -141,7 +153,9 @@ interface ModelStorage {
             ?: throw EntityAttributeNotFoundException(ModelRef.ById(modelId), EntityRef.ById(entityid), attributeRef)
     }
 
-    // Relationship
+    // Relationships
+
+    fun findRelationshipList(modelId: ModelId): List<Relationship>
 
     fun findRelationshipByIdOptional(modelId: ModelId, relationshipId: RelationshipId): Relationship?
 
@@ -161,38 +175,87 @@ interface ModelStorage {
 
     // Relationship role
 
-    fun findRelationshipRoleByIdOptional(modelId: ModelId, relationshipId: RelationshipId, roleId: RelationshipRoleId): RelationshipRole?
+    fun findRelationshipRoleByIdOptional(
+        modelId: ModelId,
+        relationshipId: RelationshipId,
+        roleId: RelationshipRoleId
+    ): RelationshipRole?
 
-    fun findRelationshipRoleByKeyOptional(modelId: ModelId, relationshipId: RelationshipId, roleKey: RelationshipRoleKey): RelationshipRole?
+    fun findRelationshipRoleByKeyOptional(
+        modelId: ModelId,
+        relationshipId: RelationshipId,
+        roleKey: RelationshipRoleKey
+    ): RelationshipRole?
 
-    fun findRelationshipRoleOptional(modelId: ModelId, relationshipId: RelationshipId, roleRef: RelationshipRoleRef): RelationshipRole? {
-        return when(roleRef) {
+    fun findRelationshipRoleOptional(
+        modelId: ModelId,
+        relationshipId: RelationshipId,
+        roleRef: RelationshipRoleRef
+    ): RelationshipRole? {
+        return when (roleRef) {
             is RelationshipRoleRef.ById -> findRelationshipRoleByIdOptional(modelId, relationshipId, roleRef.id)
             is RelationshipRoleRef.ByKey -> findRelationshipRoleByKeyOptional(modelId, relationshipId, roleRef.key)
         }
     }
 
-    fun findRelationshipRole(modelId: ModelId, relationshipId: RelationshipId, roleRef: RelationshipRoleRef): RelationshipRole {
+    fun findRelationshipRole(
+        modelId: ModelId,
+        relationshipId: RelationshipId,
+        roleRef: RelationshipRoleRef
+    ): RelationshipRole {
         return findRelationshipRoleOptional(modelId, relationshipId, roleRef)
-            ?: throw RelationshipRoleNotFoundException(ModelRef.ById(modelId), RelationshipRef.ById(relationshipId), roleRef)
+            ?: throw RelationshipRoleNotFoundException(
+                ModelRef.ById(modelId),
+                RelationshipRef.ById(relationshipId),
+                roleRef
+            )
     }
 
     // Relationship attribute
 
-    fun findRelationshipAttributeByIdOptional(modelId: ModelId, relationshipId: RelationshipId, attributeId: AttributeId): Attribute?
+    fun findRelationshipAttributeByIdOptional(
+        modelId: ModelId,
+        relationshipId: RelationshipId,
+        attributeId: AttributeId
+    ): Attribute?
 
-    fun findRelationshipAttributeByKeyOptional(modelId: ModelId, relationshipId: RelationshipId, key: AttributeKey): Attribute?
+    fun findRelationshipAttributeByKeyOptional(
+        modelId: ModelId,
+        relationshipId: RelationshipId,
+        key: AttributeKey
+    ): Attribute?
 
-    fun findRelationshipAttributeOptional(modelId: ModelId, relationshipId: RelationshipId, attributeRef: RelationshipAttributeRef): Attribute? {
-        return when(attributeRef) {
-            is RelationshipAttributeRef.ById ->  findRelationshipAttributeByIdOptional(modelId, relationshipId, attributeRef.id)
-            is RelationshipAttributeRef.ByKey ->  findRelationshipAttributeByKeyOptional(modelId, relationshipId, attributeRef.key)
+    fun findRelationshipAttributeOptional(
+        modelId: ModelId,
+        relationshipId: RelationshipId,
+        attributeRef: RelationshipAttributeRef
+    ): Attribute? {
+        return when (attributeRef) {
+            is RelationshipAttributeRef.ById -> findRelationshipAttributeByIdOptional(
+                modelId,
+                relationshipId,
+                attributeRef.id
+            )
+
+            is RelationshipAttributeRef.ByKey -> findRelationshipAttributeByKeyOptional(
+                modelId,
+                relationshipId,
+                attributeRef.key
+            )
         }
     }
 
-    fun findRelationshipAttribute(modelId: ModelId, relationshipId: RelationshipId, attributeRef: RelationshipAttributeRef): Attribute {
+    fun findRelationshipAttribute(
+        modelId: ModelId,
+        relationshipId: RelationshipId,
+        attributeRef: RelationshipAttributeRef
+    ): Attribute {
         return findRelationshipAttributeOptional(modelId, relationshipId, attributeRef)
-            ?: throw RelationshipAttributeNotFoundException(ModelRef.ById(modelId), RelationshipRef.ById(relationshipId), attributeRef)
+            ?: throw RelationshipAttributeNotFoundException(
+                ModelRef.ById(modelId),
+                RelationshipRef.ById(relationshipId),
+                attributeRef
+            )
     }
 
     fun findDomainTagLocationsByTagId(tagId: TagId): List<DomainTagLocation>
@@ -205,6 +268,7 @@ interface ModelStorage {
     fun findAllModelChangeEvent(modelId: ModelId): List<ModelChangeEvent>
     fun findModelChangeEventsInVersion(modelId: ModelId, version: ModelVersion): List<ModelChangeEvent>
     fun findModelChangeEventsSinceLastReleaseEvent(modelId: ModelId): List<ModelChangeEvent>
+
     /**
      * Finds the latest known model change event
      */

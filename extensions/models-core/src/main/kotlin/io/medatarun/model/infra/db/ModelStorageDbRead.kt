@@ -12,6 +12,7 @@ import io.medatarun.model.infra.db.ModelStorageAdapters.toType
 import io.medatarun.model.infra.db.aggregate.ModelStorageDbAggregateReader
 import io.medatarun.model.infra.db.events.ModelEventKnownTypes
 import io.medatarun.model.infra.db.records.*
+import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshotHead
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.tables.*
 import io.medatarun.model.infra.inmemory.BusinessKeyInMemory
@@ -24,15 +25,13 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 
 class ModelStorageDbRead(
     private val modelEventKnownTypes: ModelEventKnownTypes,
-    private val aggregateReader: ModelStorageDbAggregateReader
+    private val aggregateReader: ModelStorageDbAggregateReader,
+    private val snapHead: ModelStorageDbSnapshotHead
 ) {
 
-
     // -------------------------------------------------------------------------
-    // Queries
-    // -------------------------------------------------------------------------
-
     // Model
+    // -------------------------------------------------------------------------
 
     fun existsModelById(id: ModelId): Boolean {
         return ModelTable.select(ModelTable.id).where { ModelTable.id eq id }.limit(1).any()
@@ -67,13 +66,6 @@ class ModelStorageDbRead(
         )
     }
 
-    fun findAllModelChangeEvent(modelId: ModelId): List<ModelChangeEvent> {
-        return ModelEventTable.selectAll()
-            .where { ModelEventTable.modelId eq modelId }
-            .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
-            .map(ModelEventRecord::read)
-            .map { record -> toModelChangeEvent(record) }
-    }
 
     fun findModelByKeyOptional(key: ModelKey): Model? {
         val row = ModelSnapshotTable.selectAll().where {
@@ -188,6 +180,12 @@ class ModelStorageDbRead(
                 attributeId = row[EntityAttributeTable.lineageId]
             )
         }
+    }
+
+    fun findRelationshipList(modelId: ModelId): List<Relationship> {
+        return aggregateReader.loadRelationships(
+            snapHead.toModelSnapshotId(modelId)
+        )
     }
 
     private fun findRelationshipLocationsByTagId(tagId: io.medatarun.tags.core.domain.TagId): List<DomainTagLocation> {
@@ -738,6 +736,10 @@ class ModelStorageDbRead(
         }.any()
     }
 
+    // -------------------------------------------------------------------------
+    // History
+    // -------------------------------------------------------------------------
+
     fun findModelVersions(modelId: ModelId): List<ModelChangeEvent> {
         return ModelEventTable.selectAll()
             .where {
@@ -814,6 +816,14 @@ class ModelStorageDbRead(
             .map { record -> toModelChangeEvent(record) }
     }
 
+    fun findAllModelChangeEvent(modelId: ModelId): List<ModelChangeEvent> {
+        return ModelEventTable.selectAll()
+            .where { ModelEventTable.modelId eq modelId }
+            .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
+            .map(ModelEventRecord::read)
+            .map { record -> toModelChangeEvent(record) }
+    }
+
     fun findLastModelChangeEventOptional(modelId: ModelId): ModelChangeEvent? {
         val record = ModelEventTable.selectAll()
             .where { ModelEventTable.modelId eq modelId }
@@ -824,6 +834,7 @@ class ModelStorageDbRead(
             ?: return null
         return toModelChangeEvent(record)
     }
+
 
 
 }

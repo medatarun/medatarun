@@ -137,7 +137,7 @@ class ModelStorageDbAggregateReader {
             }
     }
 
-    private fun loadRelationships(modelSnapshotId: ModelSnapshotId): List<RelationshipInMemory> {
+    fun loadRelationships(modelSnapshotId: ModelSnapshotId): List<RelationshipInMemory> {
         val relationshipIds =
             RelationshipTable.select(RelationshipTable.id)
                 .where { RelationshipTable.modelSnapshotId eq modelSnapshotId }
