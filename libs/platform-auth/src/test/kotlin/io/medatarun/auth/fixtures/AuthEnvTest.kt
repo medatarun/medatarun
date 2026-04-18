@@ -76,6 +76,10 @@ class AuthEnvTest(
     val adminFullname: Fullname = Fullname("Admin")
     val adminPassword: PasswordClear = PasswordClear("admin." + UuidUtils.generateV4String())
 
+    val johnUsername = Username("john.doe")
+    val johnPassword = PasswordClear("john.doe." + UuidUtils.generateV4String())
+    val johnFullname = Fullname("John Doe")
+
     val jwtKeyMaterial: JwtKeyMaterial
     val jwtConfig: JwtConfig
     var bootstrapSecretKeeper = ""
@@ -116,7 +120,7 @@ class AuthEnvTest(
     private val actionPlatform
         get() = runtime.services.getService<ActionPlatform>()
 
-    fun <R> dispatch(action: AuthAction<R>):R {
+    fun <R> dispatch(action: AuthAction<R>): R {
         val request = ActionRequest(
             AuthEmbeddedActionsProvider.ACTION_GROUP_KEY,
             action::class.findAnnotation<ActionDoc>()!!.key,
@@ -226,11 +230,12 @@ class AuthEnvTest(
      * A fake permission provider with a list of predefined permissions
      * coming from the test area
      */
-    class TestOtherSecurityPermissionsProvider(val otherPermissions: Set<TestOtherPermission>) : SecurityPermissionsProvider {
+    class TestOtherSecurityPermissionsProvider(val otherPermissions: Set<TestOtherPermission>) :
+        SecurityPermissionsProvider {
         override fun getPermissions(): List<AppPermission> = otherPermissions.toList()
     }
 
-    class TestOtherPermission(override val key: String): AppPermission
+    class TestOtherPermission(override val key: String) : AppPermission
 
 
     fun logout() {
@@ -239,8 +244,9 @@ class AuthEnvTest(
 
     fun asAdmin() {
         val actorService = actorService
-        val actor = actorService.findByIssuerAndSubjectWithPermissionsOptional(oidcService.oidcIssuer(), adminUsername.value)
-            ?: throw ActorNotFoundException()
+        val actor =
+            actorService.findByIssuerAndSubjectWithPermissionsOptional(oidcService.oidcIssuer(), adminUsername.value)
+                ?: throw ActorNotFoundException()
         this.actionCtx = ActionCtxWithActor(actor)
     }
 
@@ -249,6 +255,21 @@ class AuthEnvTest(
             ?: throw ActorNotFoundException()
         this.actionCtx = ActionCtxWithActor(actor)
     }
+
+    fun createJohn() {
+        asAdmin()
+        dispatch(
+            AuthAction.UserCreate(
+                username = johnUsername,
+                password = johnPassword,
+                fullname = johnFullname,
+                admin = false
+            )
+        )
+        asAdmin()
+
+    }
+
     class ActionCtxWithActor(
         private val actor: ActorWithPermissions?
     ) : ActionCtx {
@@ -273,7 +294,8 @@ class AuthEnvTest(
                 override val issuer: String = actor.issuer
                 override val subject: String = actor.subject
                 override val isAdmin: Boolean = actor.permissions.any { it.isAdminPermission() }
-                override val permissions: Set<AppPermission> = actor.permissions.map(ActorRoleAdapters::toAppPermission).toSet()
+                override val permissions: Set<AppPermission> =
+                    actor.permissions.map(ActorRoleAdapters::toAppPermission).toSet()
                 override val fullname: String = actor.fullname
             }
         }

@@ -14,27 +14,18 @@ class ActorGet_Test {
     @Test
     fun actorGet() {
         val env = AuthEnvTest()
-        env.asAdmin()
-
-        env.dispatch(
-            AuthAction.UserCreate(
-                username = Username("jane.doe"),
-                password = PasswordClear("jane.doe.0123456789"),
-                fullname = Fullname("Jane Doe"),
-                admin = false
-            )
-        )
+        env.createJohn()
 
         val actor = env.actorService.findByIssuerAndSubjectOptional(
             env.oidcService.oidcIssuer(),
-            "jane.doe"
+            env.johnUsername.value
         )
         assertNotNull(actor)
 
         val actorInfo: ActorDetailDto = env.dispatch(AuthAction.ActorGet(actor.id))
         assertEquals(actor.id.value.toString(), actorInfo.id)
-        assertEquals("jane.doe", actorInfo.subject)
-        assertEquals("Jane Doe", actorInfo.fullname)
+        assertEquals(env.johnUsername.value, actorInfo.subject)
+        assertEquals(env.johnFullname.value, actorInfo.fullname)
         assertEquals(env.oidcService.oidcIssuer(), actorInfo.issuer)
     }
 
