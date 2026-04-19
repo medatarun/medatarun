@@ -127,14 +127,6 @@ export class Model {
     return authority === "canonical" ? "🟩" : "🟦";
   }
 
-  get authorityEmoji() {
-    return Model.authorityEmoji(this.dto.authority);
-  }
-
-  get nameOrKeyWithAuthorityEmoji() {
-    return `${this.authorityEmoji} ${this.nameOrKey}`;
-  }
-
   findTypeNameOrKey(typeId: string) {
     const type = this.dto.types.find((it) => it.id === typeId);
     return type?.name ?? type?.key ?? type?.id;

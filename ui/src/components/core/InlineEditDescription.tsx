@@ -11,10 +11,12 @@ export function InlineEditDescription({
   value,
   placeholder,
   onChange,
+  disabled = false,
 }: {
   value: string | null | undefined;
   placeholder: string;
   onChange: (value: string) => Promise<unknown>;
+  disabled?: boolean;
 }) {
   const editorRef = useRef<MarkdownEditorHandle>(null);
   const [editValue, setEditValue] = useState(value ?? "");
@@ -44,6 +46,7 @@ export function InlineEditDescription({
           onChange={setEditValue}
         />
       }
+      disabled={disabled}
       onEditStart={handleEditStart}
       onEditStarted={handleEditStarted}
       onEditOK={handleEditOk}

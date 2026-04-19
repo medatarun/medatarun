@@ -20,7 +20,19 @@ interface SecurityRuleEvaluator {
      * Used in operator-facing UIs and docs.
      */
     val description: String
+
+    /**
+     * Dynamically evaluate the rule with its context
+     */
     fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult
+
+    /**
+     * Returns a list of permissions associated to the rule.
+     * It helps frontend or client applications to filter what the user
+     * can do or not, even if not a lot of details, but roughtly to avoid
+     *  displaying things the current user cannot do.
+     */
+    fun associatedRequiredPermissions(): List<AppPermission> = emptyList()
 }
 
 sealed interface SecurityRuleEvaluatorResult {

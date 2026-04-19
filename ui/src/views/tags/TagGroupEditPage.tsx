@@ -33,6 +33,7 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { type ActionCtx } from "@/components/business/actions";
+import { useSecurityContext } from "@/business/security";
 
 export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
   const { t } = useAppI18n();
@@ -41,6 +42,7 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
   const tagsResult = useTags();
   const tagGroupUpdateName = useTagGroupUpdateName();
   const tagGroupUpdateDescription = useTagGroupUpdateDescription();
+  const sec = useSecurityContext();
 
   if (tagsResult.isPending) return null;
   if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)} />;
@@ -55,6 +57,11 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
     "tag_group_update_key",
     "tag_group_delete",
   ]);
+
+  const updateNameDisabled = !sec.canExecuteAction("tag_group_update_name");
+  const updateDescriptionDisabled = !sec.canExecuteAction(
+    "tag_group_update_description",
+  );
 
   const handleClickTagGroups = () => {
     navigate({ to: "/tag-groups" });
@@ -101,6 +108,7 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
     title: (
       <InlineEditSingleLine
         value={tagGroup.name ?? ""}
+        disabled={updateNameDisabled}
         onChange={handleChangeName}
       >
         {tagGroup.name ? (
@@ -127,6 +135,7 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
       <SectionPaper topspacing="XXXL" nopadding>
         <InlineEditDescription
           value={tagGroup.description}
+          disabled={updateDescriptionDisabled}
           placeholder={t("tagGroupEdit_descriptionPlaceholder")}
           onChange={handleChangeDescription}
         />

@@ -17,6 +17,7 @@ import { useModelContext } from "@/components/business/model/ModelContext.tsx";
 import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import type { ActionDisplayedSubject } from "@/components/business/actions";
+import { useSecurityContext } from "@/business/security";
 
 export function EntityOverview({
   entity,
@@ -31,7 +32,18 @@ export function EntityOverview({
   const entityUpdateDocumentationHome = useEntityUpdateDocumentationHome();
   const entityAddTag = useEntityAddTag();
   const entityDeleteTag = useEntityDeleteTag();
+  const securityContext = useSecurityContext();
   const { t } = useAppI18n();
+
+  const changeKeyDisabled =
+    !securityContext.canExecuteAction("entity_update_key");
+  const changeDocumentationHomeDisabled = !securityContext.canExecuteAction(
+    "entity_update_documentation_link",
+  );
+  const changeTagsDisabled = !securityContext.canExecuteActions(
+    "entity_add_tag",
+    "entity_delete_tag",
+  );
 
   const handleChangeKey = (value: string) => {
     return entityUpdateKey.mutateAsync({
@@ -74,7 +86,11 @@ export function EntityOverview({
       )}
       {isDetailLevelTech && (
         <div>
-          <InlineEditSingleLine value={entity.key} onChange={handleChangeKey}>
+          <InlineEditSingleLine
+            value={entity.key}
+            disabled={changeKeyDisabled}
+            onChange={handleChangeKey}
+          >
             <Text>
               <code>{entity.key}</code>
             </Text>
@@ -96,6 +112,7 @@ export function EntityOverview({
       <div>
         <InlineEditSingleLine
           value={entity.documentationHome ?? ""}
+          disabled={changeDocumentationHomeDisabled}
           onChange={handleChangeDocumentationHome}
         >
           {!entity.documentationHome ? (
@@ -115,6 +132,7 @@ export function EntityOverview({
         <InlineEditTags
           value={entity.tags}
           scope={modelTagScope(model.id)}
+          disabled={changeTagsDisabled}
           onChange={handleChangeTags}
           displayedSubject={displayedSubject}
         >

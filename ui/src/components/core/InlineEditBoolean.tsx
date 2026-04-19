@@ -4,12 +4,14 @@ import { SwitchButton } from "@seij/common-ui";
 
 export function InlineEditBoolean({
   value,
+  disabled = false,
   children,
   labelTrue,
   labelFalse,
   onChange,
 }: {
   value: boolean;
+  disabled?: boolean;
   children: ReactNode;
   labelTrue: string;
   labelFalse: string;
@@ -31,6 +33,7 @@ export function InlineEditBoolean({
 
   return (
     <InlineEditSingleLineLayout
+      disabled={disabled}
       editor={({ pending }) => (
         <div>
           <SwitchButton

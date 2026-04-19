@@ -7,6 +7,7 @@ const useStyles = makeStyles({
     gridTemplateColumns: "max-content auto",
     columnGap: tokens.spacingVerticalM,
     rowGap: tokens.spacingVerticalS,
+    alignItems: "baseline",
     "& > div": {
       boxSizing: "border-box",
       minHeight: "2.3em",

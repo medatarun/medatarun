@@ -31,7 +31,7 @@ export function ResultPath({ location }: { location: SearchResultLocation }) {
     <Breadcrumb>
       <BreadcrumbItem>
         <BreadcrumbButton
-          icon={<ModelIcon />}
+          icon={<ModelIcon authority={undefined} />}
           onClick={() =>
             navigate({
               to: "/model/$modelId",

@@ -57,6 +57,7 @@ import {
 import { toProblem } from "@seij/common-types";
 import { ErrorBox } from "@seij/common-ui";
 import { useNavigate } from "@tanstack/react-router";
+import { useSecurityContext } from "@/business/security";
 
 export function RelationshipEditPage({
   modelId,
@@ -99,6 +100,12 @@ export function RelationshipView({
   const { isDetailLevelTech } = useDetailLevelContext();
   const relationshipUpdateDescription = useRelationshipUpdateDescription();
   const updateName = useRelationshipUpdateName();
+  const sec = useSecurityContext();
+
+  const updateNameDisabled = !sec.canExecuteAction("relationship_update_name");
+  const updateDescriptionDisabled = !sec.canExecuteAction(
+    "relationship_update_description",
+  );
 
   const handleChangeName = (value: string) => {
     return updateName.mutateAsync({
@@ -155,13 +162,19 @@ export function RelationshipView({
   const breadCrumb = (
     <Breadcrumb size="small">
       <BreadcrumbItem>
-        <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
-          {model.nameOrKeyWithAuthorityEmoji}
+        <BreadcrumbButton
+          icon={<ModelIcon authority={model.authority} />}
+          onClick={handleClickModel}
+        >
+          {model.nameOrKey}
         </BreadcrumbButton>
       </BreadcrumbItem>
       <BreadcrumbDivider />
       <BreadcrumbItem>
-        <BreadcrumbButton icon={<ModelIcon />} current={true}>
+        <BreadcrumbButton
+          icon={<ModelIcon authority={model.authority} />}
+          current={true}
+        >
           {t("relationshipEditPage_eyebrow")}
         </BreadcrumbButton>
       </BreadcrumbItem>
@@ -173,6 +186,7 @@ export function RelationshipView({
     title: (
       <InlineEditSingleLine
         value={relationship.name ?? ""}
+        disabled={updateNameDisabled}
         onChange={handleChangeName}
       >
         {relationship.name ? (
@@ -209,6 +223,7 @@ export function RelationshipView({
       <SectionPaper topspacing="XXXL" nopadding>
         <InlineEditDescription
           value={relationship.description}
+          disabled={updateDescriptionDisabled}
           placeholder={t("relationshipEditPage_descriptionPlaceholder")}
           onChange={(v) =>
             relationshipUpdateDescription.mutateAsync({
@@ -338,6 +353,13 @@ export function RelationshipOverview({
   const relationshipUpdateKey = useRelationshipUpdateKey();
   const relationshipAddTag = useRelationshipAddTag();
   const relationshipDeleteTag = useRelationshipDeleteTag();
+  const sec = useSecurityContext();
+
+  const updateKeyDisabled = !sec.canExecuteAction("relationship_update_key");
+  const updateTagDisabled = !sec.canExecuteActions(
+    "relationship_add_tag",
+    "relationship_delete_tag",
+  );
   const handleChangeKey = (value: string) => {
     return relationshipUpdateKey.mutateAsync({
       modelId: model.id,
@@ -375,6 +397,7 @@ export function RelationshipOverview({
       {isDetailLevelTech && (
         <InlineEditSingleLine
           value={relationship.key}
+          disabled={updateKeyDisabled}
           onChange={handleChangeKey}
         >
           <Text>
@@ -389,6 +412,7 @@ export function RelationshipOverview({
         <InlineEditTags
           value={relationship.tags}
           scope={modelTagScope(model.id)}
+          disabled={updateTagDisabled}
           onChange={handleChangeTags}
           displayedSubject={createDisplayedSubjectRelationship(
             model.id,

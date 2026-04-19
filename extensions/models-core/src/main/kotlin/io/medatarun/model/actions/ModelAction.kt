@@ -5,6 +5,7 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.domain.diff.ModelDiffScope
 import io.medatarun.model.domain.search.SearchFields
 import io.medatarun.model.domain.search.SearchFilters
+import io.medatarun.model.security.ModelSecurityRules
 import io.medatarun.security.SecurityRuleNames
 import io.medatarun.tags.core.domain.TagRef
 
@@ -18,7 +19,7 @@ sealed interface ModelAction {
         key = "import",
         title = "Import model",
         description = "Imports a model from various locations.",
-        securityRule = SecurityRuleNames.SIGNED_IN,
+        securityRule = ModelSecurityRules.MODEL_IMPORT,
         semantics = ActionDocSemantics(mode = ActionDocSemanticsMode.NONE)
     )
     data class Import(
@@ -55,7 +56,7 @@ sealed interface ModelAction {
         key = "inspect_models_json",
         title = "Inspect models (JSON)",
         description = "Returns the registered models, entities, and attributes with all metadata encoded as JSON. Preferred method for AI agents to understand the model.",
-        securityRule = SecurityRuleNames.SIGNED_IN,
+        securityRule = ModelSecurityRules.MODEL_READ,
         semantics = ActionDocSemantics(mode = ActionDocSemanticsMode.NONE)
     )
     class Inspect_Json : ModelAction
@@ -64,7 +65,7 @@ sealed interface ModelAction {
         key = "model_list",
         title = "Models list",
         description = "Returns a summary list of the models.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_READ
     )
     class Model_List : ModelAction
 
@@ -72,7 +73,7 @@ sealed interface ModelAction {
         key = "model_export",
         title = "Export model",
         description = "Returns the exported view of a model.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_READ
     )
     data class Model_Export(
         @ActionParamDoc(
@@ -87,7 +88,7 @@ sealed interface ModelAction {
         key = "model_export_version",
         title = "Export model at a specific version",
         description = "Returns the exported view of a model at a specific version.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_READ
     )
 
     data class Model_Export_Version(
@@ -109,7 +110,7 @@ sealed interface ModelAction {
         key = "model_compare",
         title = "Compare models",
         description = "Compares two model states and returns their differences.",
-        securityRule = SecurityRuleNames.SIGNED_IN,
+        securityRule = ModelSecurityRules.MODEL_READ,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
     data class Compare(
@@ -153,7 +154,7 @@ sealed interface ModelAction {
         key = "model_create",
         title = "Create model",
         description = "Creates a new model with a key, a name, an optional description, and an optional version.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_CREATE_MANUAL
     )
     data class Model_Create(
         @ActionParamDoc(
@@ -187,7 +188,7 @@ sealed interface ModelAction {
         key = "model_copy",
         title = "Copy model",
         description = "Creates a copy of a model with a new key. The copied model keeps the same name and has its own lifecycle.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_COPY
     )
     data class Model_Copy(
         @ActionParamDoc(
@@ -208,7 +209,7 @@ sealed interface ModelAction {
         key = "model_update_key",
         title = "Update model key",
         description = "Updates the key of a model.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Model_UpdateKey(
         @ActionParamDoc(
@@ -229,7 +230,7 @@ sealed interface ModelAction {
         key = "model_update_name",
         title = "Update model name",
         description = "Updates the name of a model.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Model_UpdateName(
         @ActionParamDoc(
@@ -250,7 +251,7 @@ sealed interface ModelAction {
         key = "model_update_description",
         title = "Update model description",
         description = "Updates the description of a model.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Model_UpdateDescription(
         @ActionParamDoc(
@@ -271,7 +272,7 @@ sealed interface ModelAction {
         key = "model_update_authority",
         title = "Update model authority",
         description = "Updates whether this model serves as a canonical business reference or describes an existing system.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_UPDATE_AUTHORITY
     )
     data class Model_UpdateAuthority(
         @ActionParamDoc(
@@ -293,7 +294,7 @@ sealed interface ModelAction {
         key = "model_update_documentation_link",
         title = "Update model external documentation",
         description = "Updates the external documentation link of a model.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Model_UpdateDocumentationHome(
         @ActionParamDoc(
@@ -315,7 +316,7 @@ sealed interface ModelAction {
         key = "model_release",
         title = "Release version",
         description = "Releases a new version of a model. The new version must be greater than the previous one.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_RELEASE
     )
     data class Model_Release(
         @ActionParamDoc(
@@ -336,7 +337,7 @@ sealed interface ModelAction {
         key = "model_add_tag",
         title = "Add tag to model",
         description = "Adds a tag to a model.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Model_AddTag(
         @ActionParamDoc(
@@ -357,7 +358,7 @@ sealed interface ModelAction {
         key = "model_delete_tag",
         title = "Delete tag from model",
         description = "Removes a tag from a model.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Model_DeleteTag(
         @ActionParamDoc(
@@ -378,7 +379,7 @@ sealed interface ModelAction {
         key = "model_delete",
         title = "Delete model",
         description = "Removes a model and all of its entities from the runtime.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_DELETE
     )
     data class Model_Delete(
         @ActionParamDoc(
@@ -397,7 +398,7 @@ sealed interface ModelAction {
         key = "type_create",
         title = "Create type",
         description = "Creates a data type in an existing model.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Type_Create(
         @ActionParamDoc(
@@ -431,7 +432,7 @@ sealed interface ModelAction {
         key = "type_update_key",
         title = "Update type key",
         description = "Updates the key of a data type.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Type_UpdateKey(
         @ActionParamDoc(
@@ -458,7 +459,7 @@ sealed interface ModelAction {
         key = "type_update_name",
         title = "Update type name",
         description = "Updates the name of a data type.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Type_UpdateName(
         @ActionParamDoc(
@@ -485,7 +486,7 @@ sealed interface ModelAction {
         key = "type_update_description",
         title = "Update type description",
         description = "Updates the description of a data type.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Type_UpdateDescription(
         @ActionParamDoc(
@@ -513,7 +514,7 @@ sealed interface ModelAction {
         key = "type_delete",
         title = "Delete type",
         description = "Deletes a data type from a model. This action fails if the data type is still used by entity attributes.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Type_Delete(
         @ActionParamDoc(
@@ -538,7 +539,7 @@ sealed interface ModelAction {
         key = "entity_create",
         title = "Create entity",
         description = "Creates an entity in an existing model.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Entity_Create(
         @ActionParamDoc(
@@ -577,7 +578,7 @@ sealed interface ModelAction {
         key = "entity_update_key",
         title = "Update entity key",
         description = "Updates the key of an entity.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Entity_UpdateKey(
         @ActionParamDoc(
@@ -605,7 +606,7 @@ sealed interface ModelAction {
         key = "entity_update_name",
         title = "Update entity name",
         description = "Updates the name of an entity.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Entity_UpdateName(
         @ActionParamDoc(
@@ -632,7 +633,7 @@ sealed interface ModelAction {
         key = "entity_update_description",
         title = "Update entity description",
         description = "Updates the description of an entity.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Entity_UpdateDescription(
         @ActionParamDoc(
@@ -659,7 +660,7 @@ sealed interface ModelAction {
         key = "entity_update_documentation_link",
         title = "Update entity external documentation",
         description = "Updates the external documentation link of an entity.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Entity_UpdateDocumentationHome(
         @ActionParamDoc(
@@ -686,7 +687,7 @@ sealed interface ModelAction {
         key = "entity_add_tag",
         title = "Add entity tag",
         description = "Adds a tag to an entity.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Entity_AddTag(
         @ActionParamDoc(
@@ -714,7 +715,7 @@ sealed interface ModelAction {
         key = "entity_delete_tag",
         title = "Delete entity tag",
         description = "Removes a tag from an entity.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Entity_DeleteTag(
         @ActionParamDoc(
@@ -742,7 +743,7 @@ sealed interface ModelAction {
         key = "entity_delete",
         title = "Delete model entity",
         description = "Removes an entity and all its attributes from the given model.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Entity_Delete(
         @ActionParamDoc(
@@ -768,7 +769,7 @@ sealed interface ModelAction {
         key = "entity_attribute_create",
         title = "Create entity attribute",
         description = "Creates an attribute on an entity.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class EntityAttribute_Create(
         @ActionParamDoc(
@@ -820,7 +821,7 @@ sealed interface ModelAction {
         key = "entity_attribute_update_key",
         title = "Update entity attribute key",
         description = "Updates the key of an entity attribute.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class EntityAttribute_UpdateKey(
         @ActionParamDoc(
@@ -853,7 +854,7 @@ sealed interface ModelAction {
         key = "entity_attribute_update_name",
         title = "Update entity attribute name",
         description = "Updates the name of an entity attribute.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class EntityAttribute_UpdateName(
         @ActionParamDoc(
@@ -887,7 +888,7 @@ sealed interface ModelAction {
         key = "entity_attribute_update_description",
         title = "Update entity attribute description",
         description = "Updates the description of an entity attribute.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class EntityAttribute_UpdateDescription(
         @ActionParamDoc(
@@ -921,7 +922,7 @@ sealed interface ModelAction {
         key = "entity_attribute_update_type",
         title = "Update entity attribute type",
         description = "Updates the data type of an entity attribute.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class EntityAttribute_UpdateType(
         @ActionParamDoc(
@@ -955,7 +956,7 @@ sealed interface ModelAction {
         key = "entity_attribute_update_optional",
         title = "Update entity attribute optionality",
         description = "Updates whether an entity attribute is optional.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class EntityAttribute_UpdateOptional(
         @ActionParamDoc(
@@ -988,7 +989,7 @@ sealed interface ModelAction {
         key = "entity_attribute_add_tag",
         title = "Add tag to entity attribute",
         description = "Adds a tag to an entity attribute.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class EntityAttribute_AddTag(
         @ActionParamDoc(
@@ -1021,7 +1022,7 @@ sealed interface ModelAction {
         key = "entity_attribute_delete_tag",
         title = "Delete tag from entity attribute",
         description = "Removes a tag from an entity attribute.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class EntityAttribute_DeleteTag(
         @ActionParamDoc(
@@ -1054,7 +1055,7 @@ sealed interface ModelAction {
         key = "entity_attribute_delete",
         title = "Delete entity attribute",
         description = "Deletes an attribute from an entity.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class EntityAttribute_Delete(
         @ActionParamDoc(
@@ -1081,7 +1082,7 @@ sealed interface ModelAction {
         key = "entity_primary_key_update",
         title = "Update entity primary key",
         description = "Defines the primary key of an entity. Note that if the list of attributes is empty, the primary key will be removed.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class EntityPrimaryKey_Update(
         @ActionParamDoc(
@@ -1112,7 +1113,7 @@ sealed interface ModelAction {
         key = "relationship_create",
         title = "Create relationship",
         description = "Creates a relationship between entities in a model.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Relationship_Create(
         @ActionParamDoc(
@@ -1193,7 +1194,7 @@ sealed interface ModelAction {
         key = "relationship_update_key",
         title = "Update relationship key",
         description = "Updates the key of a relationship.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Relationship_UpdateKey(
         @ActionParamDoc(
@@ -1220,7 +1221,7 @@ sealed interface ModelAction {
         key = "relationship_update_name",
         title = "Update relationship name",
         description = "Updates the name of a relationship.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Relationship_UpdateName(
         @ActionParamDoc(
@@ -1247,7 +1248,7 @@ sealed interface ModelAction {
         key = "relationship_update_description",
         title = "Update relationship description",
         description = "Updates the description of a relationship.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Relationship_UpdateDescription(
         @ActionParamDoc(
@@ -1274,7 +1275,7 @@ sealed interface ModelAction {
         key = "relationship_role_create",
         title = "Create relationship role",
         description = "Creates a role in a relationship.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class RelationshipRole_Create(
         @ActionParamDoc(
@@ -1319,7 +1320,7 @@ sealed interface ModelAction {
         key = "relationship_role_update_key",
         title = "Update relationship role key",
         description = "Updates the key of a relationship role.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class RelationshipRole_UpdateKey(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1340,7 +1341,7 @@ sealed interface ModelAction {
         key = "relationship_role_update_entity",
         title = "Update relationship role entity",
         description = "Updates which entity participates through a relationship role.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class RelationshipRole_UpdateEntity(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1361,7 +1362,7 @@ sealed interface ModelAction {
         key = "relationship_role_update_name",
         title = "Update relationship role name",
         description = "Updates the name of a relationship role.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class RelationshipRole_UpdateName(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1382,7 +1383,7 @@ sealed interface ModelAction {
         key = "relationship_role_update_cardinality",
         title = "Update relationship role cardinality",
         description = "Updates the cardinality of a relationship role.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class RelationshipRole_UpdateCardinality(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1403,7 +1404,7 @@ sealed interface ModelAction {
         key = "relationship_role_delete",
         title = "Delete relationship role",
         description = "Deletes a role from a relationship. This action fails if fewer than two roles would remain.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class RelationshipRole_Delete(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1418,7 +1419,7 @@ sealed interface ModelAction {
         key = "relationship_add_tag",
         title = "Add tag to relationship",
         description = "Adds a tag to a relationship.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Relationship_AddTag(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1433,7 +1434,7 @@ sealed interface ModelAction {
         key = "relationship_delete_tag",
         title = "Delete relationship tag",
         description = "Removes a tag from a relationship.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Relationship_DeleteTag(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1448,7 +1449,7 @@ sealed interface ModelAction {
         key = "relationship_delete",
         title = "Delete relationship",
         description = "Deletes a relationship.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class Relationship_Delete(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1462,7 +1463,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_create",
         title = "Create relationship attribute",
         description = "Creates an attribute on a relationship.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class RelationshipAttribute_Create(
         @ActionParamDoc(
@@ -1513,7 +1514,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_update_key",
         title = "Update relationship attribute key",
         description = "Updates the key of a relationship attribute.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class RelationshipAttribute_UpdateKey(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1538,7 +1539,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_update_name",
         title = "Update relationship attribute name",
         description = "Updates the name of a relationship attribute.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class RelationshipAttribute_UpdateName(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1559,7 +1560,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_update_description",
         title = "Update relationship attribute description",
         description = "Updates the description of a relationship attribute.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class RelationshipAttribute_UpdateDescription(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1584,7 +1585,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_update_type",
         title = "Update relationship attribute type",
         description = "Updates the data type of a relationship attribute.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class RelationshipAttribute_UpdateType(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1609,7 +1610,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_update_optional",
         title = "Update relationship attribute optionality",
         description = "Updates whether a relationship attribute is optional.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class RelationshipAttribute_UpdateOptional(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1634,7 +1635,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_add_tag",
         title = "Add tag to relationship attribute",
         description = "Adds a tag to a relationship attribute.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class RelationshipAttribute_AddTag(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1655,7 +1656,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_delete_tag",
         title = "Delete tag from relationship attribute",
         description = "Removes a tag from a relationship attribute.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class RelationshipAttribute_DeleteTag(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1676,7 +1677,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_delete",
         title = "Delete relationship attribute",
         description = "Deletes an attribute from a relationship.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class RelationshipAttribute_Delete(
         @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
@@ -1699,7 +1700,7 @@ sealed interface ModelAction {
         key = "business_key_create",
         title = "Create a business key",
         description = "Creates a business key to represent wich attributes of an entity uniquely identifies the objet in a business manner.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class BusinessKey_Create(
         @ActionParamDoc(
@@ -1743,7 +1744,7 @@ sealed interface ModelAction {
         key = "business_key_update_key",
         title = "Update business key's key",
         description = "Changes the key of a business key.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class BusinessKey_Update_Key(
         @ActionParamDoc(
@@ -1770,7 +1771,7 @@ sealed interface ModelAction {
         key = "business_key_update_name",
         title = "Update business key name",
         description = "Changes the name of a business key.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class BusinessKey_Update_Name(
         @ActionParamDoc(
@@ -1796,7 +1797,7 @@ sealed interface ModelAction {
         key = "business_key_update_description",
         title = "Update business key description",
         description = "Changes the description of a business key.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class BusinessKey_Update_Description(
         @ActionParamDoc(
@@ -1823,7 +1824,7 @@ sealed interface ModelAction {
         key = "business_key_update_participants",
         title = "Update business key participants",
         description = "Changes the participants of a business key, meaning all attributes that define the business key meaning.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class BusinessKey_Update_Participants(
         @ActionParamDoc(
@@ -1850,7 +1851,7 @@ sealed interface ModelAction {
         key = "business_key_delete",
         title = "Update business key participants",
         description = "Changes the participants of a business key, meaning all attributes that define the business key meaning.",
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class BusinessKey_Delete(
         @ActionParamDoc(
@@ -1876,7 +1877,7 @@ sealed interface ModelAction {
         key = "search",
         title = "Search",
         description = "Searches models and model objects.",
-        securityRule = SecurityRuleNames.SIGNED_IN,
+        securityRule = ModelSecurityRules.MODEL_READ,
         semantics = ActionDocSemantics(
             ActionDocSemanticsMode.DECLARED,
             ActionDocSemanticsIntent.READ,
@@ -1907,7 +1908,7 @@ sealed interface ModelAction {
         key = "history_versions",
         title = "Versions",
         description = "Lists the released versions of a model.",
-        securityRule = SecurityRuleNames.SIGNED_IN,
+        securityRule = ModelSecurityRules.MODEL_READ,
         semantics = ActionDocSemantics(
             ActionDocSemanticsMode.DECLARED,
             ActionDocSemanticsIntent.READ,
@@ -1928,7 +1929,7 @@ sealed interface ModelAction {
         key = "history_version_changes",
         title = "Version changes",
         description = "Lists the changes included in a version. When no version is provided, lists the changes since the last released version.",
-        securityRule = SecurityRuleNames.SIGNED_IN,
+        securityRule = ModelSecurityRules.MODEL_READ,
         semantics = ActionDocSemantics(
             ActionDocSemanticsMode.DECLARED,
             ActionDocSemanticsIntent.READ,

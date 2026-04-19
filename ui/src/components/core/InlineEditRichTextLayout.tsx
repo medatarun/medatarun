@@ -1,6 +1,11 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { type Problem, toProblem } from "@seij/common-types";
-import { makeStyles, tokens, Tooltip } from "@fluentui/react-components";
+import {
+  makeStyles,
+  mergeClasses,
+  tokens,
+  Tooltip,
+} from "@fluentui/react-components";
 import { Icon } from "@seij/common-ui-icons";
 import { Button, ButtonBar, ErrorBox } from "@seij/common-ui";
 import { useAppI18n } from "@/services/appI18n.tsx";
@@ -13,6 +18,8 @@ const useStyles = makeStyles({
     paddingBottom: tokens.spacingVerticalM,
     paddingLeft: tokens.spacingHorizontalM,
     paddingRight: tokens.spacingHorizontalM,
+  },
+  editable: {
     "&:hover": {
       backgroundColor: tokens.colorBrandBackground2Hover,
     },
@@ -48,6 +55,10 @@ export interface InlineEditRichTextLayoutProps {
    * Editor to display in EditMode
    */
   editor: ReactNode;
+  /**
+   * Indicates if disabled or not
+   */
+  disabled?: boolean;
   /**
    * Called before the editor mode is switched to "on" (prepare data)
    * If the promise rejects, we will display an error before the editor
@@ -93,6 +104,7 @@ export function InlineEditRichTextLayout({
   onEditStart,
   onEditOK,
   onEditCancel,
+  disabled = false,
 }: InlineEditRichTextLayoutProps) {
   const { t } = useAppI18n();
   const styles = useStyles();
@@ -146,21 +158,27 @@ export function InlineEditRichTextLayout({
     }
   }, [editing, onEditStarted, editStartedCalled]);
 
-  if (!editing)
+  if (!editing || disabled) {
+    const rootClassName = mergeClasses(
+      styles.readRoot,
+      !disabled && styles.editable,
+    );
     return (
-      <div className={styles.readRoot} onClick={handleEdit}>
-        <div className={styles.editIcon}>
-          <Tooltip
-            content={t("inlineEditRichTextLayout_editTooltip")}
-            relationship="label"
-          >
-            <Icon name="edit" />
-          </Tooltip>
-        </div>
+      <div className={rootClassName} onClick={handleEdit}>
+        {!disabled && (
+          <div className={styles.editIcon}>
+            <Tooltip
+              content={t("inlineEditRichTextLayout_editTooltip")}
+              relationship="label"
+            >
+              <Icon name="edit" />
+            </Tooltip>
+          </div>
+        )}
         <div>{children}</div>
       </div>
     );
-
+  }
   return (
     <div>
       <div className={styles.editorRoot}>

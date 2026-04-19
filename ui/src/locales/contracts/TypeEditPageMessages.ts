@@ -4,6 +4,5 @@ export interface TypeEditPageMessages {
   typeEditPage_actions: string;
   typeEditPage_descriptionPlaceholder: string;
   typeEditPage_keyLabel: string;
-  typeEditPage_fromModelLabel: string;
   typeEditPage_identifierLabel: string;
 }

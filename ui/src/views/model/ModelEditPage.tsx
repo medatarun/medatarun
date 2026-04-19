@@ -27,15 +27,9 @@ import { RelationshipsTable } from "@/components/business/model/RelationshipsTab
 import { TypesTable } from "@/components/business/model/TypesTable.tsx";
 import { TagsTable } from "@/components/business/tag/TagsTable.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
 import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionCards } from "@/components/layout/SectionCards.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
@@ -45,14 +39,19 @@ import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx
 import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
 import {
   EntityIcon,
+  ModelIcon,
   RelationshipIcon,
   TypeIcon,
 } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { TagIcon } from "@/components/business/tag/tag.icons.tsx";
 import { createActionCtxTag, Tag } from "@/business/tag";
+import { useSecurityContext } from "@/business/security";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
 
 export function ModelEditPage({ modelId }: { modelId: string }) {
   const { data: model } = useModel(modelId);
@@ -74,9 +73,10 @@ export function ModelView() {
   const navigate = useNavigate();
   const modelUpdateDescription = useModelUpdateDescription();
   const modelUpdateName = useModelUpdateName();
+  const sec = useSecurityContext();
   const { t } = useAppI18n();
 
-  const displayNameWithAuthority = model.nameOrKeyWithAuthorityEmoji;
+  const displayNameWithAuthority = model.nameOrKey;
 
   const handleClickType = (typeId: string) => {
     navigate({
@@ -116,148 +116,140 @@ export function ModelView() {
   const actionCtxTag = (tag: Tag) =>
     createActionCtxTag(modelTagScope(model.id), displayedSubject, { tag: tag });
 
+  const updateDescriptionDisabled = !sec.canExecuteAction(
+    "model_update_description",
+  );
+  const handleChangeDescription = (v: string) => {
+    return modelUpdateDescription.mutateAsync({
+      modelId: model.id,
+      value: v,
+    });
+  };
+
+  const headerProps: ViewLayoutHeaderProps = {
+    eyebrow: t("modelEditPage_eyebrow"),
+    titleIcon: <ModelIcon authority={model.authority} />,
+    title: (
+      <InlineEditSingleLine
+        value={model.name ?? ""}
+        onChange={handleChangeName}
+      >
+        {displayNameWithAuthority}{" "}
+      </InlineEditSingleLine>
+    ),
+    actions: {
+      label: t("modelEditPage_actions"),
+      itemActions: actions,
+      actionCtx: actionCtxPage,
+    },
+  };
+
   return (
     <ViewLayoutContained
-      title={
-        <div>
-          <ViewTitle eyebrow={<span>{t("modelEditPage_eyebrow")}</span>}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                paddingRight: tokens.spacingHorizontalL,
-              }}
-            >
-              <div style={{ width: "100%" }}>
-                <InlineEditSingleLine
-                  value={model.name ?? ""}
-                  onChange={handleChangeName}
-                >
-                  {displayNameWithAuthority}{" "}
-                </InlineEditSingleLine>
-              </div>
-              <div>
-                <ActionMenuButton
-                  label={t("modelEditPage_actions")}
-                  itemActions={actions}
-                  actionCtx={actionCtxPage}
-                />
-              </div>
-            </div>
-          </ViewTitle>
-        </div>
-      }
+      scrollable={true}
+      contained={true}
+      title={<ViewLayoutHeader {...headerProps} />}
     >
-      <ContainedMixedScrolling>
-        <ContainedScrollable>
-          <ContainedHumanReadable>
-            <SectionPaper>
-              <ModelOverview />
-            </SectionPaper>
-            <SectionPaper topspacing="XXXL" nopadding>
-              <InlineEditDescription
-                value={model.description}
-                placeholder={t("modelEditPage_descriptionPlaceholder")}
-                onChange={(v) =>
-                  modelUpdateDescription.mutateAsync({
-                    modelId: model.id,
-                    value: v,
-                  })
-                }
-              />
-            </SectionPaper>
+      <SectionPaper>
+        <ModelOverview />
+      </SectionPaper>
+      <SectionPaper topspacing="XXXL" nopadding>
+        <InlineEditDescription
+          value={model.description}
+          placeholder={t("modelEditPage_descriptionPlaceholder")}
+          disabled={updateDescriptionDisabled}
+          onChange={handleChangeDescription}
+        />
+      </SectionPaper>
 
-            <SectionTitle
-              icon={<EntityIcon />}
-              actionCtx={actionCtxPage}
-              actions={["entity_create"]}
-            >
-              {t("modelEditPage_entitiesTitle")}
-            </SectionTitle>
+      <SectionTitle
+        icon={<EntityIcon />}
+        actionCtx={actionCtxPage}
+        actions={["entity_create"]}
+      >
+        {t("modelEditPage_entitiesTitle")}
+      </SectionTitle>
 
-            {!model.hasEntities && (
-              <p>
-                <MissingInformation>
-                  {t("modelEditPage_entitiesEmpty")}
-                </MissingInformation>
-              </p>
-            )}
-            {model.hasEntities && (
-              <SectionCards>
-                <EntitiesCardList onClick={handleClickEntity} />
-              </SectionCards>
-            )}
+      {!model.hasEntities && (
+        <p>
+          <MissingInformation>
+            {t("modelEditPage_entitiesEmpty")}
+          </MissingInformation>
+        </p>
+      )}
+      {model.hasEntities && (
+        <SectionCards>
+          <EntitiesCardList onClick={handleClickEntity} />
+        </SectionCards>
+      )}
 
-            <SectionTitle
-              icon={<RelationshipIcon />}
-              actionCtx={actionCtxPage}
-              actions={["relationship_create"]}
-            >
-              {t("modelEditPage_relationshipsTitle")}
-            </SectionTitle>
+      <SectionTitle
+        icon={<RelationshipIcon />}
+        actionCtx={actionCtxPage}
+        actions={["relationship_create"]}
+      >
+        {t("modelEditPage_relationshipsTitle")}
+      </SectionTitle>
 
-            {!model.hasRelationships && (
-              <p>
-                <MissingInformation>
-                  {t("modelEditPage_relationshipsEmpty")}
-                </MissingInformation>
-              </p>
-            )}
-            {model.hasRelationships && (
-              <SectionTable>
-                <RelationshipsTable
-                  onClick={handleClickRelationship}
-                  relationships={model.relationships}
-                  actionCtxRelationship={actionCtxRelationship}
-                />
-              </SectionTable>
-            )}
+      {!model.hasRelationships && (
+        <p>
+          <MissingInformation>
+            {t("modelEditPage_relationshipsEmpty")}
+          </MissingInformation>
+        </p>
+      )}
+      {model.hasRelationships && (
+        <SectionTable>
+          <RelationshipsTable
+            onClick={handleClickRelationship}
+            relationships={model.relationships}
+            actionCtxRelationship={actionCtxRelationship}
+          />
+        </SectionTable>
+      )}
 
-            <SectionTitle
-              icon={<TypeIcon />}
-              actionCtx={actionCtxPage}
-              actions={["type_create"]}
-            >
-              {t("modelEditPage_dataTypesTitle")}
-            </SectionTitle>
+      <SectionTitle
+        icon={<TypeIcon />}
+        actionCtx={actionCtxPage}
+        actions={["type_create"]}
+      >
+        {t("modelEditPage_dataTypesTitle")}
+      </SectionTitle>
 
-            {!model.hasTypes && (
-              <p>
-                <MissingInformation>
-                  {t("modelEditPage_dataTypesEmpty")}
-                </MissingInformation>
-              </p>
-            )}
-            {model.hasTypes && (
-              <SectionCards>
-                <TypesTable onClick={handleClickType} types={model.types} />
-              </SectionCards>
-            )}
+      {!model.hasTypes && (
+        <p>
+          <MissingInformation>
+            {t("modelEditPage_dataTypesEmpty")}
+          </MissingInformation>
+        </p>
+      )}
+      {model.hasTypes && (
+        <SectionCards>
+          <TypesTable onClick={handleClickType} types={model.types} />
+        </SectionCards>
+      )}
 
-            <SectionTitle
-              icon={<TagIcon />}
-              actionCtx={actionCtxPage}
-              actions={["tag_local_create"]}
-            >
-              {t("modelEditPage_localTagsTitle")}
-            </SectionTitle>
+      <SectionTitle
+        icon={<TagIcon />}
+        actionCtx={actionCtxPage}
+        actions={["tag_local_create"]}
+      >
+        {t("modelEditPage_localTagsTitle")}
+      </SectionTitle>
 
-            <SectionTable>
-              <TagsTable
-                scope={modelTagScope(model.id)}
-                actionCtxTag={actionCtxTag}
-              />
-            </SectionTable>
+      <SectionTable>
+        <TagsTable
+          scope={modelTagScope(model.id)}
+          actionCtxTag={actionCtxTag}
+        />
+      </SectionTable>
 
-            <ViewLayoutTechnicalInfos
-              technicalKey={model.key}
-              keyLabel={t("modelEditPage_keyLabel")}
-              id={model.id}
-              idLabel={t("modelEditPage_identifierLabel")}
-            ></ViewLayoutTechnicalInfos>
-          </ContainedHumanReadable>
-        </ContainedScrollable>
-      </ContainedMixedScrolling>
+      <ViewLayoutTechnicalInfos
+        technicalKey={model.key}
+        keyLabel={t("modelEditPage_keyLabel")}
+        id={model.id}
+        idLabel={t("modelEditPage_identifierLabel")}
+      ></ViewLayoutTechnicalInfos>
     </ViewLayoutContained>
   );
 }
@@ -270,11 +262,22 @@ export function ModelOverview() {
   const modelUpdateAddTag = useModelAddTag();
   const modelUpdateDeleteTag = useModelDeleteTag();
   const { t } = useAppI18n();
+  const sec = useSecurityContext();
+
   const displayedSubject = createDisplayedSubjectModel(model.id);
   const authorityLabel =
     model.authority === "canonical"
       ? t("modelEditPage_authorityCanonical")
       : t("modelEditPage_authoritySystem");
+
+  const updateKeyDisabled = !sec.canExecuteAction("model_update_key");
+  const updateDocumentationHomeDisabled = !sec.canExecuteAction(
+    "model_update_documentation_link",
+  );
+  const updateTagDisabled = !sec.canExecuteActions(
+    "model_add_tag",
+    "model_delete_tag",
+  );
 
   const handleChangeKey = (value: string) => {
     return modelUpdateKey.mutateAsync({ modelId: model.id, value: value });
@@ -308,7 +311,11 @@ export function ModelOverview() {
       )}
       {isDetailLevelTech && (
         <div>
-          <InlineEditSingleLine value={model.key} onChange={handleChangeKey}>
+          <InlineEditSingleLine
+            value={model.key}
+            disabled={updateKeyDisabled}
+            onChange={handleChangeKey}
+          >
             <Text>
               <code>{model.key}</code>
             </Text>
@@ -317,7 +324,9 @@ export function ModelOverview() {
       )}
 
       <div>{t("modelEditPage_authorityLabel")}</div>
-      <div>{`${model.authorityEmoji} ${authorityLabel}`}</div>
+      <div>
+        <ModelIcon authority={model.authority} /> {authorityLabel}
+      </div>
 
       <div>{t("modelEditPage_versionLabel")}</div>
       <div
@@ -346,6 +355,7 @@ export function ModelOverview() {
       <div>
         <InlineEditSingleLine
           value={model.documentationHome ?? ""}
+          disabled={updateDocumentationHomeDisabled}
           onChange={handleChangeDocumentationHome}
         >
           {!model.documentationHome ? (
@@ -363,6 +373,7 @@ export function ModelOverview() {
         <InlineEditTags
           value={model.tags}
           scope={modelTagScope(model.id)}
+          disabled={updateTagDisabled}
           onChange={handleChangeTags}
           displayedSubject={displayedSubject}
         >

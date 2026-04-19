@@ -2,6 +2,7 @@ import type {
   SecurityPermissionDto,
   SecurityRuleDescriptionDto,
 } from "./config.dto.ts";
+import { includes } from "lodash-es";
 
 export class SecurityRuleDescriptionRegistry {
   private readonly itemsByKey: Map<string, SecurityRuleDescriptionDto>;
@@ -57,16 +58,34 @@ export class SecurityPermissionRegistry {
   findAll(): SecurityPermission[] {
     return [...this.items];
   }
+
+  findImpliedPermissions(permissions: string[]): string[] {
+    const collect: string[] = [];
+    for (const pkey of permissions) {
+      const impliedKeys = this.find(pkey)?.implies ?? [];
+      for (const pImpliedKey of impliedKeys) {
+        if (
+          !includes(collect, pImpliedKey) &&
+          !includes(permissions, pImpliedKey)
+        ) {
+          collect.push(pImpliedKey);
+        }
+      }
+    }
+    return collect;
+  }
 }
 
 export class SecurityPermission {
   readonly id: string;
   readonly name: string | null;
   readonly description: string | null;
+  readonly implies: string[];
 
   constructor(dto: SecurityPermissionDto) {
     this.id = dto.id;
     this.name = dto.name;
     this.description = dto.description;
+    this.implies = dto.implies;
   }
 }

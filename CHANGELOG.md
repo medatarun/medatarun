@@ -4,6 +4,8 @@
 
 ### Added
 
+**Primary keys optional and business keys**
+
 - Entities can have composite primary keys.
 - Entities primary keys are no longer required, you can have entities without
   primary keys to better reflect real models.
@@ -11,11 +13,39 @@
   entity attributes, have name and description as well as its own identiier key.
 - Model JSON schema version 3.0.0 released for import/export
 
+**Fine-grained permissions**
+
+- Fine-grained permissions introduced on Models
+- Screens have been upgraded with those new permissions. Mecanisms have been
+  added to remove automatically inline edits and action buttons from the
+  screens, where the user doesn't have permissions. It avoids usages of actions
+  that would end up with a forbidden response anyway.
+
+**Implied permissions**
+
+- Because when you have a lot of permissions, you can have issues to fill a role
+  with a consistent set of permissions. Added a concept of implied permissions.
+- When you add a permission to a role, for example, `model_write`, automatically
+  `model_read` is added, because otherwise it has no sense.
+- Implied permissions are automatically removed when no other permission
+  requires it.
+- Role management screen now displays those permissions so that admin can have
+  the full picture of what is authorized or not for the role.
+
 ### Changes
 
+- Enforce delete constraints on entities so that you can't mistakely delete an
+  entity if a relationship uses it.
 - JDBC imports now create composite primary keys and don't fail with no primary
   key exists
 - Frictionless-data now supports composite primary keys detection
+- Fixed issues with session expiration
+- Action registry is now statically compiled in UI for performance but also to
+  provide to screens static typings for actions
+- Reorganized order and which action buttons are displayed on screens to make it
+  more intuitive.
+- Action forms are now prefilled with values when available. For example, for
+  editing a key or a name, previous values are set on input fields.
 
 ### Breaking changes
 
@@ -25,6 +55,7 @@
   set it as a primary key participant.
 - `inspect_models_json` action removed `identifierAttribute`, added
   `businessKeys` in the model, `primaryKey` in each Entity.
+- `inspect_actions` do not return `uiLocations` anymore
 
 ## [0.9.0]
 

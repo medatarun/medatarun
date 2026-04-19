@@ -1,10 +1,13 @@
 export interface AuthRolePageMessages {
-  authRolePage_breadcrumb: string;
-  authRolePage_eyebrow: string;
   authRolePage_actions: string;
-  authRolePage_keyLabel: string;
-  authRolePage_identifierLabel: string;
-  authRolePage_permissionsLabel: string;
-  authRolePage_permissionsEmpty: string;
+  authRolePage_breadcrumb: string;
   authRolePage_descriptionPlaceholder: string;
+  authRolePage_eyebrow: string;
+  authRolePage_identifierLabel: string;
+  authRolePage_keyLabel: string;
+  authRolePage_permissionsEmpty: string;
+  authRolePage_permissionsImpliedDescription: string;
+  authRolePage_permissionsImpliedEmpty: string;
+  authRolePage_permissionsImpliedLabel: string;
+  authRolePage_permissionsLabel: string;
 }

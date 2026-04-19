@@ -46,6 +46,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { useSecurityContext } from "@/business/security";
 
 export function EntityEditPage({
   modelId,
@@ -72,12 +73,16 @@ export function EntityView({ entity }: { entity: EntityDto }) {
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const entityUpdateName = useEntityUpdateName();
+  const sec = useSecurityContext();
   const { t } = useAppI18n();
 
   const actions = actionRegistry.findActionDescriptors(["entity_delete"]);
   const relationshipsInvolved = model.dto.relationships.filter((it) =>
     it.roles.some((r) => r.entityId === entity.id),
   );
+
+  const canChangeName = sec.canExecuteAction("entity_update_name");
+  const canEditDescription = sec.canExecuteAction("entity_update_description");
 
   const handleClickModel = () => {
     navigate({
@@ -124,8 +129,11 @@ export function EntityView({ entity }: { entity: EntityDto }) {
   const breadcrumb = (
     <Breadcrumb size="small">
       <BreadcrumbItem>
-        <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
-          {model.nameOrKeyWithAuthorityEmoji}
+        <BreadcrumbButton
+          icon={<ModelIcon authority={model.authority} />}
+          onClick={handleClickModel}
+        >
+          {model.nameOrKey}
         </BreadcrumbButton>
       </BreadcrumbItem>
       <BreadcrumbDivider />
@@ -143,6 +151,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
       <InlineEditSingleLine
         value={entity.name ?? ""}
         onChange={handleChangeName}
+        disabled={!canChangeName}
       >
         {entity.name ? (
           model.findEntityNameOrKey(entity.id)
@@ -174,6 +183,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
         <InlineEditDescription
           value={entity.description}
           placeholder={t("entityEditPage_descriptionPlaceholder")}
+          disabled={!canEditDescription}
           onChange={(v) =>
             entityUpdateDescription.mutateAsync({
               modelId: model.id,

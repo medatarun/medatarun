@@ -66,6 +66,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { useSecurityContext } from "@/business/security";
 
 export function AttributeEditPage({
   modelId,
@@ -160,6 +161,7 @@ export function AttributeView({
   const relationshipAttributeUpdateDescription =
     useRelationshipAttributeUpdateDescription();
   const { t } = useAppI18n();
+  const sec = useSecurityContext();
 
   const actions = actionRegistry.findActionDescriptors(
     parentType == "entity"
@@ -193,6 +195,14 @@ export function AttributeView({
 
   const parentAsRelationship: RelationshipDto | null =
     parentType === "relationship" ? (parent as RelationshipDto) : null;
+
+  const updateNameDisabled = parentAsEntity
+    ? !sec.canExecuteAction("entity_attribute_update_name")
+    : !sec.canExecuteAction("relationship_attribute_update_name");
+
+  const updateDescriptionDisabled = parentAsEntity
+    ? !sec.canExecuteAction("entity_attribute_update_description")
+    : !sec.canExecuteAction("relationship_attribute_update_description");
 
   const displayedSubject: ActionDisplayedSubject =
     parentAsEntity !== null
@@ -268,8 +278,11 @@ export function AttributeView({
   const breadcrumb = (
     <Breadcrumb size="small">
       <BreadcrumbItem>
-        <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
-          {model.nameOrKeyWithAuthorityEmoji}
+        <BreadcrumbButton
+          icon={<ModelIcon authority={model.authority} />}
+          onClick={handleClickModel}
+        >
+          {model.nameOrKey}
         </BreadcrumbButton>
       </BreadcrumbItem>
       <BreadcrumbDivider />
@@ -307,6 +320,7 @@ export function AttributeView({
       <InlineEditSingleLine
         value={attribute.name ?? ""}
         onChange={handleUpdateName}
+        disabled={updateNameDisabled}
       >
         {attribute.name ? (
           attribute.name
@@ -341,6 +355,7 @@ export function AttributeView({
         <InlineEditDescription
           value={attribute.description}
           placeholder={t("attributeEditPage_descriptionPlaceholder")}
+          disabled={updateDescriptionDisabled}
           onChange={handleUpdateDescription}
         />
       </SectionPaper>
@@ -381,9 +396,33 @@ export function AttributeOverview({
   const relationshipAttributeUpdateOptional =
     useRelationshipAttributeUpdateOptional();
 
+  const sec = useSecurityContext();
+
   const isPKParticipant =
     parentAsEntity &&
     model.isEntityAttributePK(parentAsEntity.id, attribute.id);
+
+  const updateKeyDisabled = parentAsEntity
+    ? !sec.canExecuteAction("entity_attribute_update_key")
+    : !sec.canExecuteAction("relationship_attribute_update_key");
+
+  const updateTypeDisabled = parentAsEntity
+    ? !sec.canExecuteAction("entity_attribute_update_type")
+    : !sec.canExecuteAction("relationship_attribute_update_type");
+
+  const updateTagDisabled = parentAsEntity
+    ? !sec.canExecuteActions(
+        "entity_attribute_add_tag",
+        "entity_attribute_delete_tag",
+      )
+    : !sec.canExecuteActions(
+        "relationship_attribute_add_tag",
+        "relationship_attribute_delete_tag",
+      );
+
+  const updateOptionalDisabled = parentAsEntity
+    ? !sec.canExecuteAction("entity_attribute_update_optional")
+    : !sec.canExecuteAction("relationship_attribute_update_optional");
 
   const handleChangeKey = (value: string) => {
     if (parentAsEntity) {
@@ -524,6 +563,7 @@ export function AttributeOverview({
         <InlineEditCombobox
           value={attribute.type}
           options={typeOptions}
+          disabled={updateTypeDisabled}
           placeholder={t("attributeEditPage_typeLabel")}
           onChange={handleChangeType}
         >
@@ -555,6 +595,7 @@ export function AttributeOverview({
           value={!attribute.optional}
           labelTrue={t("attributeEditPage_requiredYes")}
           labelFalse={t("attributeEditPage_requiredNo")}
+          disabled={updateOptionalDisabled}
           onChange={handleChangeRequired}
         >
           <Text>
@@ -575,6 +616,7 @@ export function AttributeOverview({
         <div>
           <InlineEditSingleLine
             value={attribute.key}
+            disabled={updateKeyDisabled}
             onChange={handleChangeKey}
           >
             <Text>
@@ -590,6 +632,7 @@ export function AttributeOverview({
         <InlineEditTags
           value={attribute.tags}
           scope={modelTagScope(model.id)}
+          disabled={updateTagDisabled}
           onChange={handleChangeTags}
           displayedSubject={attributeDisplayedSubject}
         >
