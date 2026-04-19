@@ -1849,8 +1849,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         key = "business_key_delete",
-        title = "Update business key participants",
-        description = "Changes the participants of a business key, meaning all attributes that define the business key meaning.",
+        title = "Delete business key",
+        description = "Delete the business key. Attributes are kept in entity.",
         securityRule = ModelSecurityRules.MODEL_WRITE
     )
     data class BusinessKey_Delete(

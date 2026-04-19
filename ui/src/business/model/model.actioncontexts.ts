@@ -5,6 +5,7 @@ import {
 } from "@/components/business/actions";
 import type {
   AttributeDto,
+  BusinessKeyDto,
   EntityDto,
   RelationshipDto,
   RelationshipRoleDto,
@@ -170,6 +171,57 @@ export const createActionCtxEntityAttribute = (
         defaultValue: () => "id:" + attribute.id,
         readonly: true,
         visible: false,
+      },
+    ],
+    displayedSubject,
+  );
+};
+export const createActionCtxBusinessKey = (
+  model: Model,
+  entity: EntityDto,
+  businessKey: BusinessKeyDto,
+  displayedSubject: ActionDisplayedSubject,
+) => {
+  return new ActionCtxMapping(
+    [
+      {
+        actionParamKey: "modelRef",
+        defaultValue: () => "id:" + model.id,
+        readonly: true,
+        visible: false,
+      },
+      {
+        actionParamKey: "entityRef",
+        defaultValue: () => "id:" + entity.id,
+        readonly: true,
+        visible: false,
+      },
+      {
+        actionParamKey: "businessKeyRef",
+        defaultValue: () => "id:" + businessKey.id,
+        readonly: true,
+        visible: false,
+      },
+      {
+        actionKey: "business_key_update_key",
+        actionParamKey: "value",
+        defaultValue: () => businessKey.key,
+      },
+      {
+        actionKey: "business_key_update_name",
+        actionParamKey: "value",
+        defaultValue: () => businessKey.name,
+      },
+      {
+        actionKey: "business_key_update_description",
+        actionParamKey: "value",
+        defaultValue: () => businessKey.description,
+      },
+      {
+        actionKey: "business_key_update_participants",
+        actionParamKey: "value",
+        defaultValue: () =>
+          businessKey.participants.map((it) => "id:" + it) ?? [],
       },
     ],
     displayedSubject,

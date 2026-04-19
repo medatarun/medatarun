@@ -37,7 +37,7 @@ const useStyles = makeStyles({
   actionCell: {
     paddingTop: tokens.spacingVerticalM,
     paddingBottom: tokens.spacingVerticalM,
-    width: "2em",
+    width: "3em",
     verticalAlign: "baseline",
     textAlign: "right",
   },
