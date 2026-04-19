@@ -3,6 +3,8 @@ import { type EntityEditPageMessages } from "../contracts/EntityEditPageMessages
 export const entityEditPageMessages: EntityEditPageMessages = {
   entityEditPage_eyebrow: "Entity",
   entityEditPage_actions: "Actions",
+  entityEditPage_businessKeyNoParticipant: "Empty, no attribute participate",
+  entityEditPage_businessKeysTitle: "Business keys",
   entityEditPage_descriptionPlaceholder: "add description",
   entityEditPage_attributesTitle: "Attributes",
   entityEditPage_relationshipsTitle: "Relationships",

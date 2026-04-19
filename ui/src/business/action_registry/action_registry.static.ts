@@ -3,7 +3,7 @@ import type { ActionRegistryDto } from "@/business/action_registry/action_regist
 export const actionRegistryStatic = {
   items: [
     {
-      id: "019da071-ff59-7126-b4ec-a98fe09aee0b",
+      id: "019da648-2a13-7ad9-9c09-42a745c7d582",
       groupKey: "batch",
       actionKey: "batch_run",
       title: "Batch commands",
@@ -28,7 +28,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff63-75ce-938e-d2268e013427",
+      id: "019da648-2a1d-75be-96df-fb3d6530d678",
       groupKey: "auth",
       actionKey: "actor_disable",
       title: "Disable actor",
@@ -62,7 +62,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff65-7839-8b1d-cefb1c95fd46",
+      id: "019da648-2a1f-74fd-9e32-a585b94e0a2d",
       groupKey: "auth",
       actionKey: "actor_enable",
       title: "Enable actor",
@@ -96,7 +96,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff66-733b-90d9-564770be9891",
+      id: "019da648-2a20-79db-9afb-bce43d86e009",
       groupKey: "auth",
       actionKey: "actor_get",
       title: "Get actor",
@@ -120,7 +120,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff68-75f3-8377-6323ea038a18",
+      id: "019da648-2a22-7a4d-9d9f-7aba0002250e",
       groupKey: "auth",
       actionKey: "actor_list",
       title: "List actors",
@@ -135,7 +135,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff69-77ce-9746-917c7dc16d0d",
+      id: "019da648-2a23-774b-baf3-e9c00ebb3f79",
       groupKey: "auth",
       actionKey: "actor_add_role",
       title: "Add actor role",
@@ -182,7 +182,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff6a-7912-ab96-63d729466a71",
+      id: "019da648-2a24-7476-a90b-151525bf2fd3",
       groupKey: "auth",
       actionKey: "actor_delete_role",
       title: "Delete actor role",
@@ -229,7 +229,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff6b-75ba-a04c-513a04cc4952",
+      id: "019da648-2a24-7df3-a90c-b9ed7fbf0bbb",
       groupKey: "auth",
       actionKey: "admin_bootstrap",
       title: "Creates admin user",
@@ -281,7 +281,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff6d-772f-80f6-e57123ea2739",
+      id: "019da648-2a26-79ba-8bd3-7ca8ce76841a",
       groupKey: "auth",
       actionKey: "change_my_password",
       title: "Change own password",
@@ -315,7 +315,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff6e-71a1-a0b8-2fd8feb634f0",
+      id: "019da648-2a27-7456-812d-a7fa8380a853",
       groupKey: "auth",
       actionKey: "login",
       title: "Login user",
@@ -349,7 +349,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff6f-7039-ba73-f444832b5d0d",
+      id: "019da648-2a27-7f64-812e-9d2a56222afc",
       groupKey: "auth",
       actionKey: "role_add_permission",
       title: "Add role permission",
@@ -396,7 +396,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff70-7b58-b173-17e7d2966bed",
+      id: "019da648-2a29-75ce-b72f-48e8972862f1",
       groupKey: "auth",
       actionKey: "role_create",
       title: "Create role",
@@ -450,7 +450,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff71-7bae-8ce1-0510e2cb6069",
+      id: "019da648-2a2a-785a-8bae-a9d5e75a6492",
       groupKey: "auth",
       actionKey: "role_delete",
       title: "Delete role",
@@ -484,7 +484,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff72-7487-b864-55cb1c475a39",
+      id: "019da648-2a2b-770a-b702-44508807b49f",
       groupKey: "auth",
       actionKey: "role_delete_permission",
       title: "Delete role permission",
@@ -531,7 +531,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff73-765a-9670-fe8530157387",
+      id: "019da648-2a2c-7249-b451-0ccdbefbb73f",
       groupKey: "auth",
       actionKey: "role_get",
       title: "Get role",
@@ -555,7 +555,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff74-747a-8e36-6e0adfc01d47",
+      id: "019da648-2a2c-7f06-b452-b12e15d16e64",
       groupKey: "auth",
       actionKey: "role_list",
       title: "List roles",
@@ -569,7 +569,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff74-7de7-8e37-d4ed2a971c05",
+      id: "019da648-2a2d-77a9-8976-5ea72e52acba",
       groupKey: "auth",
       actionKey: "role_update_description",
       title: "Update role description",
@@ -612,7 +612,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff75-7a9f-916d-f81e354972fc",
+      id: "019da648-2a2e-75b2-9848-3816254529c3",
       groupKey: "auth",
       actionKey: "role_update_key",
       title: "Update role key",
@@ -655,7 +655,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff76-7ecc-94da-64d43a5342a8",
+      id: "019da648-2a2e-7f58-9849-a38647051a87",
       groupKey: "auth",
       actionKey: "role_update_name",
       title: "Update role name",
@@ -698,7 +698,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff77-7a9b-ab69-f07bf2464643",
+      id: "019da648-2a2f-7ed0-9694-b71b51fbf54f",
       groupKey: "auth",
       actionKey: "user_change_fullname",
       title: "Change user full name",
@@ -732,7 +732,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff78-7558-8530-486cb48eaf32",
+      id: "019da648-2a30-783d-9202-f673dc87ac8b",
       groupKey: "auth",
       actionKey: "user_change_password",
       title: "Change user password",
@@ -765,7 +765,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff79-764d-be55-f04c0fe442ef",
+      id: "019da648-2a31-7381-bdc1-62a865fc3ea9",
       groupKey: "auth",
       actionKey: "user_create",
       title: "Create user",
@@ -825,7 +825,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff7a-731e-a401-e09ae2c577c2",
+      id: "019da648-2a32-71b2-b706-93ec1c614072",
       groupKey: "auth",
       actionKey: "user_disable",
       title: "Disable user",
@@ -850,7 +850,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff7a-7e6e-a402-81090d4b5674",
+      id: "019da648-2a32-7b64-b707-7270ee6e749b",
       groupKey: "auth",
       actionKey: "user_enable",
       title: "Enable user",
@@ -875,7 +875,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff7b-7d6c-bb66-54e9c7ab1f0b",
+      id: "019da648-2a33-7ab8-81df-39356373bfce",
       groupKey: "auth",
       actionKey: "user_list",
       title: "User list",
@@ -889,7 +889,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff7d-70e9-b780-d2f5719c2bc5",
+      id: "019da648-2a34-7abc-b8ea-40e40b876235",
       groupKey: "auth",
       actionKey: "whoami",
       title: "Who am i",
@@ -904,7 +904,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff7e-793b-a38c-354c9f5334d2",
+      id: "019da648-2a36-73a9-91d9-f0aafa427ef4",
       groupKey: "tag",
       actionKey: "maintenance_rebuild_caches",
       title: "Maintenance rebuild caches",
@@ -919,7 +919,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff7e-7dfb-a38d-9e39c5c5e009",
+      id: "019da648-2a36-7876-91da-7f5528ac8684",
       groupKey: "tag",
       actionKey: "tag_global_create",
       title: "Create a global tag",
@@ -986,7 +986,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff80-7e5e-889e-214a97ab05d6",
+      id: "019da648-2a38-7008-8498-f92e48efed46",
       groupKey: "tag",
       actionKey: "tag_global_delete",
       title: "Delete global tag",
@@ -1020,7 +1020,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff81-7568-8555-f3369343d244",
+      id: "019da648-2a38-77c6-8499-e517bd32ba9e",
       groupKey: "tag",
       actionKey: "tag_global_update_description",
       title: "Update global tag description",
@@ -1064,7 +1064,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff81-7bdb-8556-93fd252651bd",
+      id: "019da648-2a38-7f22-849a-c0afb5ec519b",
       groupKey: "tag",
       actionKey: "tag_global_update_key",
       title: "Update global tag key",
@@ -1108,7 +1108,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff82-7906-a9f4-3476593ce438",
+      id: "019da648-2a39-7be3-967a-862c144965d5",
       groupKey: "tag",
       actionKey: "tag_global_update_name",
       title: "Update global tag name",
@@ -1151,7 +1151,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff83-71e3-a316-7109b074e0b2",
+      id: "019da648-2a3a-7791-ae4b-d6b00a936319",
       groupKey: "tag",
       actionKey: "tag_group_create",
       title: "Create a tag group",
@@ -1206,7 +1206,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff83-7bf7-a317-6b76fcadbf00",
+      id: "019da648-2a3b-7147-a01c-028f76925974",
       groupKey: "tag",
       actionKey: "tag_group_delete",
       title: "Delete tag group",
@@ -1240,7 +1240,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff84-7147-9b75-04ef599d10b5",
+      id: "019da648-2a3b-766a-a01d-af6f8ac11f0d",
       groupKey: "tag",
       actionKey: "tag_group_list",
       title: "Tag group list",
@@ -1254,7 +1254,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff84-7451-9b76-56ac1a1838dc",
+      id: "019da648-2a3b-7985-a01e-727ab60fa9e1",
       groupKey: "tag",
       actionKey: "tag_group_update_description",
       title: "Update tag group description",
@@ -1298,7 +1298,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff84-79ba-9b77-3d5072ed7bd5",
+      id: "019da648-2a3b-7f33-a01f-5af3cb8ceb35",
       groupKey: "tag",
       actionKey: "tag_group_update_key",
       title: "Update tag group key",
@@ -1342,7 +1342,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff85-7404-9f1c-d222b4d106ea",
+      id: "019da648-2a3c-76fd-a349-f479aff5f495",
       groupKey: "tag",
       actionKey: "tag_group_update_name",
       title: "Update global tag group name",
@@ -1385,7 +1385,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff86-7391-ba6a-4766dfeccddb",
+      id: "019da648-2a3d-703d-94b1-bb5e9bf03bda",
       groupKey: "tag",
       actionKey: "tag_local_create",
       title: "Create a local tag",
@@ -1453,7 +1453,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff89-7164-8443-0d670592bb08",
+      id: "019da648-2a3f-71e3-b4f8-4f51d1710965",
       groupKey: "tag",
       actionKey: "tag_local_delete",
       title: "Delete local tag",
@@ -1487,7 +1487,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff89-7d70-8444-6a4f41768ee5",
+      id: "019da648-2a3f-7b3f-b4f9-8311bb45d3fb",
       groupKey: "tag",
       actionKey: "tag_local_update_description",
       title: "Update local tag description",
@@ -1531,7 +1531,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff8a-780c-bbcf-3cb667a09db0",
+      id: "019da648-2a40-7497-8536-3414e4fe25cd",
       groupKey: "tag",
       actionKey: "tag_local_update_key",
       title: "Update local tag key",
@@ -1575,7 +1575,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff8b-707e-90fd-d1dbb05d3733",
+      id: "019da648-2a40-7add-8537-37c39cf84e93",
       groupKey: "tag",
       actionKey: "tag_local_update_name",
       title: "Update local tag name",
@@ -1618,7 +1618,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff8b-763d-90fe-cc8362c89003",
+      id: "019da648-2a41-70f9-bcfc-472954dc312a",
       groupKey: "tag",
       actionKey: "tag_search",
       title: "Tag search",
@@ -1643,7 +1643,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff91-7697-a338-8628e791df54",
+      id: "019da648-2a46-7ddf-a766-2872b015a6e8",
       groupKey: "model",
       actionKey: "business_key_create",
       title: "Create a business key",
@@ -1733,12 +1733,11 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff94-787e-b4da-4037880efc25",
+      id: "019da648-2a49-779d-b143-01fc7ac81641",
       groupKey: "model",
       actionKey: "business_key_delete",
-      title: "Update business key participants",
-      description:
-        "Changes the participants of a business key, meaning all attributes that define the business key meaning.",
+      title: "Delete business key",
+      description: "Delete the business key. Attributes are kept in entity.",
       parameters: [
         {
           name: "businessKeyRef",
@@ -1781,7 +1780,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff95-75ce-9b5f-50600ab999e5",
+      id: "019da648-2a4a-759d-b8d1-cc2db5c669f6",
       groupKey: "model",
       actionKey: "business_key_update_description",
       title: "Update business key description",
@@ -1837,7 +1836,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff97-75c2-a47f-5f6f6b21500d",
+      id: "019da648-2a4c-74c4-93d2-23dcf785a51c",
       groupKey: "model",
       actionKey: "business_key_update_key",
       title: "Update business key's key",
@@ -1893,7 +1892,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff98-72fd-ab5f-91d0a9dad952",
+      id: "019da648-2a4d-73f7-bbe2-2c74ba51e5af",
       groupKey: "model",
       actionKey: "business_key_update_name",
       title: "Update business key name",
@@ -1949,7 +1948,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff99-75d7-a1ce-9bbd062e3121",
+      id: "019da648-2a4e-721c-abd1-b83b590f4830",
       groupKey: "model",
       actionKey: "business_key_update_participants",
       title: "Update business key participants",
@@ -2007,7 +2006,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff9a-77ba-b811-e1e8f84ceb73",
+      id: "019da648-2a4e-7ffb-abd2-84521e40ba28",
       groupKey: "model",
       actionKey: "model_compare",
       title: "Compare models",
@@ -2070,7 +2069,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff9c-756c-be53-dcc38e7318b9",
+      id: "019da648-2a50-7bc2-a437-5bf5450df79c",
       groupKey: "model",
       actionKey: "entity_attribute_add_tag",
       title: "Add tag to entity attribute",
@@ -2140,7 +2139,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff9d-756c-936c-069fe3d1d2ba",
+      id: "019da648-2a51-7b74-aabf-c9ba4e4216cd",
       groupKey: "model",
       actionKey: "entity_attribute_create",
       title: "Create entity attribute",
@@ -2241,7 +2240,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ff9f-76c0-8f97-3527ed30683b",
+      id: "019da648-2a53-7a66-80a0-075c167888a5",
       groupKey: "model",
       actionKey: "entity_attribute_delete",
       title: "Delete entity attribute",
@@ -2302,7 +2301,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffa1-7d58-b052-24050dad1df8",
+      id: "019da648-2a54-7666-bf10-e2e99c8dd9ce",
       groupKey: "model",
       actionKey: "entity_attribute_delete_tag",
       title: "Delete tag from entity attribute",
@@ -2372,7 +2371,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffa2-7b68-8663-b304ad5eb41c",
+      id: "019da648-2a56-7ea3-9152-47d69e21821e",
       groupKey: "model",
       actionKey: "entity_attribute_update_description",
       title: "Update entity attribute description",
@@ -2443,7 +2442,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffa3-7b99-95cc-3015ae6f8175",
+      id: "019da648-2a58-7543-8db6-6293f21862a0",
       groupKey: "model",
       actionKey: "entity_attribute_update_key",
       title: "Update entity attribute key",
@@ -2514,7 +2513,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffa4-77ba-a073-7edfe5774844",
+      id: "019da648-2a59-7574-b241-fbd10340bb0d",
       groupKey: "model",
       actionKey: "entity_attribute_update_name",
       title: "Update entity attribute name",
@@ -2584,7 +2583,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffa5-78a7-a081-8d00222a594d",
+      id: "019da648-2a5a-7d33-8231-c0d4fb6158b4",
       groupKey: "model",
       actionKey: "entity_attribute_update_optional",
       title: "Update entity attribute optionality",
@@ -2655,7 +2654,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffa6-72d9-ae02-d12039482374",
+      id: "019da648-2a5b-77db-b91d-97d3b4bc704f",
       groupKey: "model",
       actionKey: "entity_attribute_update_type",
       title: "Update entity attribute type",
@@ -2726,7 +2725,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffa6-7cb0-ae03-21d5e34c317c",
+      id: "019da648-2a5c-7241-9ad5-2e89ab6489a3",
       groupKey: "model",
       actionKey: "entity_primary_key_update",
       title: "Update entity primary key",
@@ -2788,7 +2787,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffa7-766e-bdd7-e23178481d61",
+      id: "019da648-2a5c-7e8f-9ad6-7341b202d713",
       groupKey: "model",
       actionKey: "entity_add_tag",
       title: "Add entity tag",
@@ -2844,7 +2843,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffa7-7e7e-bdd8-3e69ee479496",
+      id: "019da648-2a5d-7631-aa0c-353a3b6d4fdd",
       groupKey: "model",
       actionKey: "entity_create",
       title: "Create entity",
@@ -2920,7 +2919,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffa9-7195-8305-a25b6a87f12b",
+      id: "019da648-2a5e-7912-90ef-b96e7bab1d7f",
       groupKey: "model",
       actionKey: "entity_delete",
       title: "Delete model entity",
@@ -2968,7 +2967,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffa9-7b6c-8306-bc6ac7be9947",
+      id: "019da648-2a5f-7224-8d81-1159fb6ccdd4",
       groupKey: "model",
       actionKey: "entity_delete_tag",
       title: "Delete entity tag",
@@ -3024,7 +3023,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffaa-7316-ae4e-f54ad1f6d81e",
+      id: "019da648-2a5f-79f3-8d82-8f28cac45af8",
       groupKey: "model",
       actionKey: "entity_update_description",
       title: "Update entity description",
@@ -3081,7 +3080,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffaa-7bdb-ae4f-8cb392d7f90f",
+      id: "019da648-2a60-7235-bced-88a9f72105ba",
       groupKey: "model",
       actionKey: "entity_update_documentation_link",
       title: "Update entity external documentation",
@@ -3137,7 +3136,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffab-73f3-8901-f0c2a0342c9c",
+      id: "019da648-2a60-7a1c-bcee-05d3b887f4a3",
       groupKey: "model",
       actionKey: "entity_update_key",
       title: "Update entity key",
@@ -3194,7 +3193,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffab-7c9f-8902-31fc3fa21b75",
+      id: "019da648-2a61-7245-ae04-b3fdcfba0efb",
       groupKey: "model",
       actionKey: "entity_update_name",
       title: "Update entity name",
@@ -3250,7 +3249,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffac-74bc-8532-4851cbbe3367",
+      id: "019da648-2a61-79f3-ae05-f16c070d6bd7",
       groupKey: "model",
       actionKey: "history_version_changes",
       title: "Version changes",
@@ -3292,7 +3291,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffac-7e93-8533-105af0440a76",
+      id: "019da648-2a62-7178-be09-b151518c5087",
       groupKey: "model",
       actionKey: "history_versions",
       title: "Versions",
@@ -3323,7 +3322,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffad-75b2-adef-2e0ee293a910",
+      id: "019da648-2a62-77a5-be0a-d881de227396",
       groupKey: "model",
       actionKey: "import",
       title: "Import model",
@@ -3368,7 +3367,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffaf-712f-bb03-3c82803b0294",
+      id: "019da648-2a64-725a-9f7e-caf67991781d",
       groupKey: "model",
       actionKey: "inspect_models_json",
       title: "Inspect models (JSON)",
@@ -3383,7 +3382,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffaf-749f-bb04-f0b1f9cf5baf",
+      id: "019da648-2a64-754b-9f7f-f6cf6bacd8f0",
       groupKey: "model",
       actionKey: "maintenance_rebuild_caches",
       title: "Maintenance rebuild caches",
@@ -3398,7 +3397,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffaf-76dd-bb05-b1ea2ab75859",
+      id: "019da648-2a64-7747-9f80-8344e9cd1da2",
       groupKey: "model",
       actionKey: "model_add_tag",
       title: "Add tag to model",
@@ -3441,7 +3440,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffaf-7f1e-bb06-cd7f14ee9ee2",
+      id: "019da648-2a64-7f6c-9f81-d1d25c43de01",
       groupKey: "model",
       actionKey: "model_copy",
       title: "Copy model",
@@ -3490,7 +3489,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb0-76e9-b0aa-a0ee85564f66",
+      id: "019da648-2a65-75f7-9dc8-085947c19da7",
       groupKey: "model",
       actionKey: "model_create",
       title: "Create model",
@@ -3555,7 +3554,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb1-71ba-9e25-2ff950a80e52",
+      id: "019da648-2a66-71ef-9927-ab4ad25cbdb7",
       groupKey: "model",
       actionKey: "model_delete",
       title: "Delete model",
@@ -3589,7 +3588,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb1-7c6e-9e26-102f2fdc0edd",
+      id: "019da648-2a66-7a41-9928-35454e41a5bf",
       groupKey: "model",
       actionKey: "model_delete_tag",
       title: "Delete tag from model",
@@ -3632,7 +3631,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb2-7ab0-bcdf-3f1ddfff7af4",
+      id: "019da648-2a67-707a-ad0d-fe528f4a9a1d",
       groupKey: "model",
       actionKey: "model_export",
       title: "Export model",
@@ -3656,7 +3655,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb2-7f37-bce0-77a2bf234351",
+      id: "019da648-2a67-74b4-ad0e-714c8ae5ac15",
       groupKey: "model",
       actionKey: "model_export_version",
       title: "Export model at a specific version",
@@ -3690,7 +3689,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb3-7578-a77c-deb0f6280773",
+      id: "019da648-2a68-7ab4-98c6-57d7af26e704",
       groupKey: "model",
       actionKey: "model_list",
       title: "Models list",
@@ -3704,7 +3703,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb3-7824-a77d-cf92f8b27fbd",
+      id: "019da648-2a68-7db6-98c7-80e07a6a4a26",
       groupKey: "model",
       actionKey: "model_release",
       title: "Release version",
@@ -3748,7 +3747,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb3-7e66-a77e-da3279895a7e",
+      id: "019da648-2a69-743d-8c98-5061a1616792",
       groupKey: "model",
       actionKey: "model_update_authority",
       title: "Update model authority",
@@ -3793,7 +3792,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb4-76c8-9fde-b52625465494",
+      id: "019da648-2a6a-7b9d-8f5f-e7e5e35dbf27",
       groupKey: "model",
       actionKey: "model_update_description",
       title: "Update model description",
@@ -3837,7 +3836,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb6-70c8-8163-33c7381c1054",
+      id: "019da648-2a6b-7358-8dc7-cbc924de0812",
       groupKey: "model",
       actionKey: "model_update_documentation_link",
       title: "Update model external documentation",
@@ -3880,7 +3879,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb6-7ac4-8164-0c4958457f12",
+      id: "019da648-2a6b-799d-8dc8-dbf617c91bce",
       groupKey: "model",
       actionKey: "model_update_key",
       title: "Update model key",
@@ -3924,7 +3923,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb7-7160-b944-d826c8e8cf83",
+      id: "019da648-2a6c-7087-bd3c-afbf8efb8ff3",
       groupKey: "model",
       actionKey: "model_update_name",
       title: "Update model name",
@@ -3967,7 +3966,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb7-77a5-b945-58e02ac18edb",
+      id: "019da648-2a6c-75c2-bd3d-b2dc9da98d53",
       groupKey: "model",
       actionKey: "relationship_attribute_add_tag",
       title: "Add tag to relationship attribute",
@@ -4036,7 +4035,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb8-71ef-99c8-32b41f5ec1ca",
+      id: "019da648-2a6c-7e8b-bd3e-5170628d4b8c",
       groupKey: "model",
       actionKey: "relationship_attribute_create",
       title: "Create relationship attribute",
@@ -4136,7 +4135,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb8-7d02-99c9-e95de293f43f",
+      id: "019da648-2a6d-7a39-a5f7-2676f34e7cee",
       groupKey: "model",
       actionKey: "relationship_attribute_delete",
       title: "Delete relationship attribute",
@@ -4196,7 +4195,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffb9-7828-9b04-d5f56f9d5c19",
+      id: "019da648-2a6e-74fd-91a7-cff52bbe956a",
       groupKey: "model",
       actionKey: "relationship_attribute_delete_tag",
       title: "Delete tag from relationship attribute",
@@ -4265,7 +4264,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffba-72cc-a159-e70f29d45d85",
+      id: "019da648-2a6e-7dca-91a8-37f440cf323c",
       groupKey: "model",
       actionKey: "relationship_attribute_update_description",
       title: "Update relationship attribute description",
@@ -4335,7 +4334,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffba-7bce-a15a-d8bb22ec11dc",
+      id: "019da648-2a6f-7618-bb14-b1858598860f",
       groupKey: "model",
       actionKey: "relationship_attribute_update_key",
       title: "Update relationship attribute key",
@@ -4405,7 +4404,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffbb-78a7-b3f3-8dd81d3cbd32",
+      id: "019da648-2a6f-7f26-bb15-83c0a9331486",
       groupKey: "model",
       actionKey: "relationship_attribute_update_name",
       title: "Update relationship attribute name",
@@ -4474,7 +4473,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffbc-712b-913b-9e30fc30f028",
+      id: "019da648-2a70-76e5-bebe-b48e8edfb8e0",
       groupKey: "model",
       actionKey: "relationship_attribute_update_optional",
       title: "Update relationship attribute optionality",
@@ -4544,7 +4543,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffbc-7a28-913c-a76ae32ba91c",
+      id: "019da648-2a70-7ea3-bebf-96c79a3c43aa",
       groupKey: "model",
       actionKey: "relationship_attribute_update_type",
       title: "Update relationship attribute type",
@@ -4614,7 +4613,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffbd-728f-84db-40212f2ab012",
+      id: "019da648-2a71-76b8-be1c-c4da84f55daa",
       groupKey: "model",
       actionKey: "relationship_role_create",
       title: "Create relationship role",
@@ -4709,7 +4708,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffbd-7fb6-84dc-4dc2962b3eb5",
+      id: "019da648-2a75-79a1-86d4-99c8c4ec7f1a",
       groupKey: "model",
       actionKey: "relationship_role_delete",
       title: "Delete relationship role",
@@ -4770,7 +4769,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffc1-7fc2-92d9-1d0ef84dcddb",
+      id: "019da648-2a76-7441-9ea6-a69c29c15d12",
       groupKey: "model",
       actionKey: "relationship_role_update_cardinality",
       title: "Update relationship role cardinality",
@@ -4840,7 +4839,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffc2-7f3f-98c7-aad7af476646",
+      id: "019da648-2a76-7ec8-9ea7-5911fed8ac1e",
       groupKey: "model",
       actionKey: "relationship_role_update_entity",
       title: "Update relationship role entity",
@@ -4911,7 +4910,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffc4-76d0-9b1d-af2b538a2dbe",
+      id: "019da648-2a78-7b26-8ff1-4d17fe48f960",
       groupKey: "model",
       actionKey: "relationship_role_update_key",
       title: "Update relationship role key",
@@ -4981,7 +4980,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffc5-72c0-a2dc-9b090aaf2302",
+      id: "019da648-2a79-76b8-9b8a-a780eb23d20b",
       groupKey: "model",
       actionKey: "relationship_role_update_name",
       title: "Update relationship role name",
@@ -5051,7 +5050,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffc5-7c72-a2dd-f9f2cac100e8",
+      id: "019da648-2a7a-7378-ac47-dcc60423d51e",
       groupKey: "model",
       actionKey: "relationship_add_tag",
       title: "Add tag to relationship",
@@ -5107,7 +5106,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffc6-7316-8ec0-f8ea0048def0",
+      id: "019da648-2a7b-79a1-86d1-38e4c67b6b1b",
       groupKey: "model",
       actionKey: "relationship_create",
       title: "Create relationship",
@@ -5270,7 +5269,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffc8-71f7-b5ea-ed4499b168ef",
+      id: "019da648-2a7c-7662-8303-e0cee2b02657",
       groupKey: "model",
       actionKey: "relationship_delete",
       title: "Delete relationship",
@@ -5317,7 +5316,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffc8-7a5a-b5eb-74b6b5e3fb12",
+      id: "019da648-2a7c-7c5a-8304-041cfdea9872",
       groupKey: "model",
       actionKey: "relationship_delete_tag",
       title: "Delete relationship tag",
@@ -5373,7 +5372,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffc9-706a-b6ad-196aac8a62f5",
+      id: "019da648-2a7d-7191-83e7-436c5e36d96d",
       groupKey: "model",
       actionKey: "relationship_update_description",
       title: "Update relationship description",
@@ -5430,7 +5429,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffc9-76ed-b6ae-ce8df692a1c5",
+      id: "019da648-2a7d-773b-83e8-bdbfe8d5482a",
       groupKey: "model",
       actionKey: "relationship_update_key",
       title: "Update relationship key",
@@ -5487,7 +5486,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffcb-74f5-80de-7bed86042d0e",
+      id: "019da648-2a7e-71ae-b992-3e1e31e41de5",
       groupKey: "model",
       actionKey: "relationship_update_name",
       title: "Update relationship name",
@@ -5543,7 +5542,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffcb-7dae-80df-9c636c11102b",
+      id: "019da648-2a7e-7849-b993-d8ec836a871b",
       groupKey: "model",
       actionKey: "search",
       title: "Search",
@@ -5585,7 +5584,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffcc-7db6-8b85-619996a6f79a",
+      id: "019da648-2a7f-7164-a7c4-deb74a88d15c",
       groupKey: "model",
       actionKey: "type_create",
       title: "Create type",
@@ -5652,7 +5651,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffcd-77fb-83fa-880a7461a4ba",
+      id: "019da648-2a7f-7f99-a7c5-d0ff2587887c",
       groupKey: "model",
       actionKey: "type_delete",
       title: "Delete type",
@@ -5700,7 +5699,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffce-74e5-84ec-1e911513c82b",
+      id: "019da648-2a80-75b2-8d66-57a029866538",
       groupKey: "model",
       actionKey: "type_update_description",
       title: "Update type description",
@@ -5757,7 +5756,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffcf-7d78-91a2-f81b6a681149",
+      id: "019da648-2a80-7dba-8d67-9af540bdf623",
       groupKey: "model",
       actionKey: "type_update_key",
       title: "Update type key",
@@ -5814,7 +5813,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffd0-744d-b3c9-d4f1512bc257",
+      id: "019da648-2a81-7672-b227-144d4eeef1c1",
       groupKey: "model",
       actionKey: "type_update_name",
       title: "Update type name",
@@ -5870,7 +5869,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffd1-7502-8013-d8e708fba903",
+      id: "019da648-2a82-761c-b996-8b666d1f0601",
       groupKey: "config",
       actionKey: "ai_agents_instructions",
       title: "AI Agents Instructions",
@@ -5885,7 +5884,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffd1-7926-8014-dce51278b542",
+      id: "019da648-2a82-7c62-b997-ea82313fae50",
       groupKey: "config",
       actionKey: "inspect_config_text",
       title: "Inspect config as text file",
@@ -5900,7 +5899,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffd2-70cc-b7b8-60528cc21dd7",
+      id: "019da648-2a83-7102-8a99-37576a7a4fd3",
       groupKey: "config",
       actionKey: "inspect_actions",
       title: "Inspect actions",
@@ -5915,7 +5914,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffd2-742d-b7b9-76ef318320d1",
+      id: "019da648-2a83-739d-8a9a-d7009db7cd68",
       groupKey: "config",
       actionKey: "inspect_actions_all",
       title: "Inspect all actions",
@@ -5929,7 +5928,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffd2-76d4-b7ba-5f48a2c45ed1",
+      id: "019da648-2a83-75df-8a9b-73fc59758cdc",
       groupKey: "config",
       actionKey: "inspect_config",
       title: "Inspect config",
@@ -5944,7 +5943,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffd2-78f5-b7bb-210a737e02c6",
+      id: "019da648-2a83-78e9-8a9c-3bfcba76ee00",
       groupKey: "config",
       actionKey: "inspect_permissions",
       title: "Inspect permissions",
@@ -5959,7 +5958,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffd2-7c5a-b7bc-3f1e43c7acef",
+      id: "019da648-2a83-7c04-8a9d-ce485e64592c",
       groupKey: "config",
       actionKey: "inspect_security_rules",
       title: "Inspect security rules",
@@ -5974,7 +5973,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffd2-7e72-b7bd-ef6f406da6a3",
+      id: "019da648-2a83-7edd-8a9e-b4f86730ce90",
       groupKey: "config",
       actionKey: "inspect_type_system",
       title: "Inspect type system",
@@ -5989,7 +5988,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffd3-7570-b3d2-88c6224f9c32",
+      id: "019da648-2a84-7628-84ed-43841ab61ced",
       groupKey: "databases",
       actionKey: "driver_list",
       title: "Database drivers",
@@ -6003,7 +6002,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      id: "019da071-ffd3-787a-b3d3-69cf3a2c1cbe",
+      id: "019da648-2a84-7f85-84ee-b108fbb3fdc9",
       groupKey: "databases",
       actionKey: "datasource_list",
       title: "Database sources",

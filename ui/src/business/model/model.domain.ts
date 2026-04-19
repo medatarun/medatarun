@@ -1,4 +1,4 @@
-import type { ModelDto, TypeDto } from "./model.dto.ts";
+import type { BusinessKeyDto, ModelDto, TypeDto } from "./model.dto.ts";
 import { includes } from "lodash-es";
 
 export interface TypeOption {
@@ -232,5 +232,9 @@ export class Model {
       this.dto.entityPrimaryKeys.find((it) => it.entityId === entityId)
         ?.participants ?? []
     );
+  }
+
+  findBusinessKeysByEntityId(id: string): BusinessKeyDto[] {
+    return this.dto.businessKeys.filter((it) => it.entityId == id);
   }
 }

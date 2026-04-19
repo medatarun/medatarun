@@ -2,6 +2,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { useActionRegistry } from "@/business/action_registry";
 import {
   type AttributeDto,
+  type BusinessKeyDto,
+  createActionCtxBusinessKey,
   createActionCtxEntity,
   createActionCtxEntityAttribute,
   createActionCtxRelationship,
@@ -22,6 +24,10 @@ import {
   BreadcrumbButton,
   BreadcrumbDivider,
   BreadcrumbItem,
+  Table,
+  TableCell,
+  TableRow,
+  tokens,
 } from "@fluentui/react-components";
 import { AttributesTable } from "@/components/business/model/AttributesTable.tsx";
 import { RelationshipsTable } from "@/components/business/model/RelationshipsTable.tsx";
@@ -47,6 +53,11 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { useSecurityContext } from "@/business/security";
+import { KeyRegular } from "@fluentui/react-icons";
+import { Key } from "@/components/core/Key.tsx";
+import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 
 export function EntityEditPage({
   modelId,
@@ -74,6 +85,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
   const actionRegistry = useActionRegistry();
   const entityUpdateName = useEntityUpdateName();
   const sec = useSecurityContext();
+  const { isDetailLevelTech } = useDetailLevelContext();
   const { t } = useAppI18n();
 
   const actions = actionRegistry.findActionDescriptors(["entity_delete"]);
@@ -125,6 +137,9 @@ export function EntityView({ entity }: { entity: EntityDto }) {
 
   const actionCtxAttribute = (attr: AttributeDto) =>
     createActionCtxEntityAttribute(model, entity, attr, displayedSubject);
+
+  const actionCtxBusinessKey = (bk: BusinessKeyDto) =>
+    createActionCtxBusinessKey(model, entity, bk, displayedSubject);
 
   const breadcrumb = (
     <Breadcrumb size="small">
@@ -226,6 +241,69 @@ export function EntityView({ entity }: { entity: EntityDto }) {
           relationships={relationshipsInvolved}
           actionCtxRelationship={actionCtxRelationship}
         />
+      </SectionTable>
+
+      <SectionTitle
+        icon={<KeyRegular />}
+        actionCtx={actionCtxPage}
+        actions={["business_key_create"]}
+      >
+        {t("entityEditPage_businessKeysTitle")}
+      </SectionTitle>
+
+      <SectionTable>
+        <Table>
+          {model.findBusinessKeysByEntityId(entity.id).map((bk) => {
+            const participantsJoined = bk.participants
+              .map((it) => model.findEntityAttributeNameOrKey(entity.id, it))
+              .join(", ");
+            return (
+              <TableRow key={bk.id}>
+                <TableCell>
+                  <div>{bk.name ?? <Key value={bk.key} />}</div>
+                  {bk.name && isDetailLevelTech && (
+                    <div>
+                      <Key value={bk.key} />
+                    </div>
+                  )}
+                  {bk.description && (
+                    <MarkdownSummary value={bk.description} maxChars={150} />
+                  )}
+                </TableCell>
+                <TableCell>
+                  {bk.participants.length > 0 ? (
+                    participantsJoined
+                  ) : (
+                    <MissingInformation>
+                      {t("entityEditPage_businessKeyNoParticipant")}
+                    </MissingInformation>
+                  )}
+                </TableCell>
+                <TableCell
+                  style={{
+                    paddingTop: tokens.spacingVerticalM,
+                    paddingBottom: tokens.spacingVerticalM,
+                    width: "3em",
+                    verticalAlign: "baseline",
+                    textAlign: "right",
+                  }}
+                >
+                  <ActionMenuButton
+                    itemActions={actionRegistry.findActionDescriptors([
+                      "business_key_update_name",
+                      "business_key_update_description",
+                      "business_key_update_key",
+                      "business_key_update_participants",
+                      "business_key_delete",
+                    ])}
+                    actionCtx={actionCtxBusinessKey(bk)}
+                  />
+                </TableCell>
+              </TableRow>
+            );
+          })}
+          <TableRow></TableRow>
+        </Table>
       </SectionTable>
 
       <ViewLayoutTechnicalInfos

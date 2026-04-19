@@ -1,6 +1,8 @@
 export interface EntityEditPageMessages {
   entityEditPage_eyebrow: string;
   entityEditPage_actions: string;
+  entityEditPage_businessKeyNoParticipant: string;
+  entityEditPage_businessKeysTitle: string;
   entityEditPage_descriptionPlaceholder: string;
   entityEditPage_attributesTitle: string;
   entityEditPage_relationshipsTitle: string;
