@@ -2,6 +2,7 @@ package io.medatarun.security
 
 import io.medatarun.platform.kernel.ExtensionRegistry
 
+
 class SecurityRolesRegistryImpl(val extensionRegistry: ExtensionRegistry) : SecurityRolesRegistry {
     override fun findAllRoles(): List<AppPermission> {
         return extensionRegistry.findContributionsFlat(SecurityPermissionsProvider::class).flatMap { it.getPermissions() }

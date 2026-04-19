@@ -1,5 +1,7 @@
 package io.medatarun.security
 
-interface SecurityRulesProvider {
+import io.medatarun.platform.kernel.ServiceContributionPoint
+
+interface SecurityRulesProvider: ServiceContributionPoint {
     fun getRules(): List<SecurityRuleEvaluator>
 }

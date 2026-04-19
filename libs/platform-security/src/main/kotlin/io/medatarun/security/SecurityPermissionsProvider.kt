@@ -1,10 +1,12 @@
 package io.medatarun.security
 
+import io.medatarun.platform.kernel.ServiceContributionPoint
+
 /**
  * Interface that permission providers must implement to declare
  * their permissions in the application.
  */
-interface SecurityPermissionsProvider {
+interface SecurityPermissionsProvider: ServiceContributionPoint {
 
     /**
      * List of permissions provided by this provider

@@ -13,6 +13,7 @@ import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
 import io.medatarun.model.infra.db.ModelStorageDb
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelTagResolver
+import io.medatarun.model.security.ModelSecurityPermissionsProvider
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigrationChecker
 import io.medatarun.platform.db.PlatformStorageDbExtension
@@ -27,9 +28,7 @@ import io.medatarun.security.*
 import io.medatarun.tags.core.TagsCoreExtension
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
-import io.medatarun.tags.core.adapters.security.TagGlobalManagePermission
-import io.medatarun.tags.core.adapters.security.TagGroupManagePermission
-import io.medatarun.tags.core.adapters.security.TagLocalManagePermission
+import io.medatarun.tags.core.adapters.security.TagSecurityPermissionsProvider
 import io.medatarun.tags.core.domain.*
 import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeSystemExtension
@@ -37,6 +36,10 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.test.assertEquals
 
 class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
+
+
+    private val appActorResolver = AppActorResolverTest()
+
     private val extensions = listOf(
         TypeSystemExtension(),
         SecurityExtension(SecurityExtensionConfig(appActorResolver)),
@@ -55,6 +58,8 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         extensions = extensions
     ).buildAndStart()
 
+
+
     val queries
         get() = platform.services.getService(ModelQueries::class)
     val tagQueries
@@ -63,8 +68,12 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         get() = platform.services.getService(DbMigrationChecker::class)
     val dbConnectionFactory
         get() = platform.services.getService(DbConnectionFactory::class)
+
     private val storageDb = ModelStorageDb(dbConnectionFactory, ModelExtensionConfigProd().modelClock)
     private val actionPlatform get() = platform.services.getService<ActionPlatform>()
+
+    val principal
+        get() = appActorResolver.testPrincipal
 
     fun dispatch(action: ModelAction): Any? {
         val request = ActionRequest(
@@ -72,7 +81,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
             action::class.findAnnotation<ActionDoc>()!!.key,
             ActionPayload.AsRaw(action)
         )
-        return actionPlatform.invoker.handleInvocation(request, testActionRequestContext)
+        return actionPlatform.invoker.handleInvocation(request, appActorResolver.testActionRequestContext)
     }
 
     fun dispatchTag(action: TagAction): Any? {
@@ -81,7 +90,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
             action::class.findAnnotation<ActionDoc>()!!.key,
             ActionPayload.AsRaw(action)
         )
-        return actionPlatform.invoker.handleInvocation(request, testActionRequestContext)
+        return actionPlatform.invoker.handleInvocation(request, appActorResolver.testActionRequestContext)
 
     }
 
@@ -269,7 +278,8 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
     // -------------------------------------------------------------------------
 
     fun loginAsAdmin() {
-        testPrincipal = testPrincipalAdmin
+        appActorResolver.loginAsAdmin()
+
     }
 
     /**
@@ -278,12 +288,13 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
      */
     fun replayWithRebuild(block: () -> Unit) {
         block()
-        val previousPrincipal = testPrincipal
+        val previousPrincipal = appActorResolver.testPrincipal
         try {
             loginAsAdmin()
             dispatch(ModelAction.MaintenanceRebuildCaches())
         } finally {
-            testPrincipal = previousPrincipal
+            appActorResolver.loginAs(previousPrincipal)
+
         }
         block()
     }
@@ -359,9 +370,33 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         return storageDb.findAllModelChangeEvent(modelId)
     }
 
+
     companion object {
 
-        val appActorResolver = object : AppActorResolver {
+        private val allPermissions = (TagSecurityPermissionsProvider().getPermissions() + ModelSecurityPermissionsProvider().getPermissions()).toSet()
+
+        private val testPrincipalUser = object : AppPrincipal {
+            override val id: AppActorId = Id.generate(::AppActorId)
+            override val issuer: String = ""
+            override val subject: String = ""
+            override val isAdmin: Boolean = false
+            override val fullname: String = "user"
+            override val permissions = allPermissions
+
+        }
+        private val testPrincipalAdmin = object : AppPrincipal {
+            override val id: AppActorId = Id.generate(::AppActorId)
+            override val issuer: String = ""
+            override val subject: String = ""
+            override val isAdmin: Boolean = true
+            override val fullname: String = "admin"
+            override val permissions = allPermissions
+        }
+        private class AppActorResolverTest: AppActorResolver {
+
+            var testPrincipal: AppPrincipal = testPrincipalUser
+                private set
+
             override fun resolve(appActorId: AppActorId): AppActor {
                 return object : AppActor {
                     override val id: AppActorId
@@ -372,52 +407,34 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
                 }
             }
 
-        }
-
-        private val testPrincipalUser = object : AppPrincipal {
-            override val id: AppActorId = Id.generate(::AppActorId)
-            override val issuer: String = ""
-            override val subject: String = ""
-            override val isAdmin: Boolean = false
-            override val fullname: String = "user"
-            override val permissions = setOf(
-                TagLocalManagePermission,
-                TagGroupManagePermission,
-                TagGlobalManagePermission
-            )
-        }
-        private val testPrincipalAdmin = object : AppPrincipal {
-            override val id: AppActorId = Id.generate(::AppActorId)
-            override val issuer: String = ""
-            override val subject: String = ""
-            override val isAdmin: Boolean = true
-            override val fullname: String = "admin"
-            override val permissions = setOf(
-                TagLocalManagePermission,
-                TagGroupManagePermission,
-                TagGlobalManagePermission
-            )
-        }
-        var testPrincipal: AppPrincipal = testPrincipalUser
-            private set
-        val testPrincipalCtx = object : ActionPrincipalCtx {
-            override fun ensureIsAdmin() {
-
+            fun loginAsAdmin() {
+                testPrincipal = testPrincipalAdmin
             }
 
-            override fun ensureSignedIn(): AppPrincipal {
-                return testPrincipal
+            fun loginAs(other: AppPrincipal) {
+                testPrincipal = other
             }
 
-            override val principal: AppPrincipal
-                get() = testPrincipal
+            val testPrincipalCtx = object : ActionPrincipalCtx {
+                override fun ensureIsAdmin() {
 
+                }
+
+                override fun ensureSignedIn(): AppPrincipal {
+                    return testPrincipal
+                }
+
+                override val principal: AppPrincipal
+                    get() = testPrincipal
+
+            }
+            val testActionRequestContext = object : ActionRequestCtx {
+                override val principalCtx: ActionPrincipalCtx
+                    get() = testPrincipalCtx
+                override val source: String
+                    get() = "test"
+            }
         }
-        val testActionRequestContext = object : ActionRequestCtx {
-            override val principalCtx: ActionPrincipalCtx
-                get() = testPrincipalCtx
-            override val source: String
-                get() = "test"
-        }
+
     }
 }

@@ -5,10 +5,11 @@ import io.medatarun.model.domain.diff.ModelDiff
 import io.medatarun.model.domain.diff.ModelDiffScope
 import io.medatarun.model.domain.search.SearchQuery
 import io.medatarun.model.domain.search.SearchResults
+import io.medatarun.platform.kernel.Service
 import io.medatarun.tags.core.domain.TagId
 import java.util.*
 
-interface ModelQueries {
+interface ModelQueries: Service {
 
     // -------------------------------------------------------------------------
     // Model (just the model, not the full graph)

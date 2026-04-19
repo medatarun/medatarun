@@ -14,6 +14,7 @@ import io.medatarun.auth.infra.db.tables.RolePermissionTable
 import io.medatarun.auth.infra.db.tables.RoleTable
 import io.medatarun.auth.ports.needs.ActorStorage
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.kernel.Service
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
@@ -25,7 +26,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
 
-class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : ActorStorage {
+class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : ActorStorage, Service {
 
     override fun actorCreate(
         id: ActorId,

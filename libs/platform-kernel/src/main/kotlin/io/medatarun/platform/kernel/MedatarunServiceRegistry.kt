@@ -2,7 +2,8 @@ package io.medatarun.platform.kernel
 
 import kotlin.reflect.KClass
 
-interface MedatarunServiceRegistry {
-    fun <T:Any> getService(klass: KClass<T>): T
+
+interface MedatarunServiceRegistry: Service {
+    fun <T:Service> getService(klass: KClass<T>): T
 }
-inline fun <reified T : Any> MedatarunServiceRegistry.getService(): T = getService(T::class)
+inline fun <reified T : Service> MedatarunServiceRegistry.getService(): T = getService(T::class)

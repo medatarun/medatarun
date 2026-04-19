@@ -1,8 +1,9 @@
 package io.medatarun.platform.db
 
+import io.medatarun.platform.kernel.Service
 import java.util.Properties
 
-interface PlatformStorageDbConfigService {
+interface PlatformStorageDbConfigService: Service {
     /**
      * Returns the raw JDBC URL from configuration.
      */

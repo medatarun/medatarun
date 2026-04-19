@@ -7,6 +7,7 @@ import io.medatarun.lang.http.StatusCode
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.MedatarunServiceCtx
+import io.medatarun.platform.kernel.Service
 import io.medatarun.security.SecurityRuleCtx
 import io.medatarun.security.SecurityRuleEvaluator
 import io.medatarun.security.SecurityRuleEvaluatorResult
@@ -862,7 +863,7 @@ class ActionInvokerTest {
     private class TestActionDispatchFailedException :
         MedatarunException("boom")
 
-    private class TestActionProvider : ActionProvider<TestAction> {
+    private class TestActionProvider : ActionProvider<TestAction>, Service {
         override val actionGroupKey: String = "test"
         var lastCommand: TestAction? = null
         var lastActionCtx: ActionCtx? = null
@@ -881,7 +882,7 @@ class ActionInvokerTest {
         }
     }
 
-    private class TestActionAuditRecorder : ActionAuditRecorder {
+    private class TestActionAuditRecorder : ActionAuditRecorder, Service {
         val received = mutableListOf<ActionAuditReceived>()
         val rejected = mutableListOf<ActionAuditRejected>()
         val succeeded = mutableListOf<ActionAuditSucceeded>()

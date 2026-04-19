@@ -8,6 +8,7 @@ import io.medatarun.auth.domain.role.Role
 import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.auth.domain.role.RoleKey
 import io.medatarun.auth.domain.role.RoleRef
+import io.medatarun.platform.kernel.Service
 import io.medatarun.security.AppPermission
 import java.time.Instant
 
@@ -35,7 +36,7 @@ import java.time.Instant
  *     by UserEvents in the matching Actor
  *   - when issuers is not our IdP, then disable/enable is made directly by using ActorService.
  */
-interface ActorService {
+interface ActorService: Service {
     /**
      * When actors appear via a validated Jwt (API, MCP, UI, etc.) it means
      * there is a trusted relationship with an external IdP.

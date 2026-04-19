@@ -1,9 +1,11 @@
 package io.medatarun.platform.kernel.internal
 
-import io.medatarun.platform.kernel.MedatarunServiceRegistry
+import io.medatarun.platform.kernel.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
+
 
 class MedatarunServiceRegistryImpl : MedatarunServiceRegistry {
 
@@ -14,7 +16,7 @@ class MedatarunServiceRegistryImpl : MedatarunServiceRegistry {
         services[service] = implem
     }
 
-    override fun <T : Any> getService(klass: KClass<T>): T {
+    override fun <T : Service> getService(klass: KClass<T>): T {
         @Suppress("UNCHECKED_CAST")
         return services[klass] as? T ?: error("No service registered for $klass")
     }

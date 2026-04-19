@@ -1,5 +1,7 @@
 package io.medatarun.model.ports.exposed
 
+import io.medatarun.platform.kernel.Service
+
 /**
  * Commands to create, delete and changes modes, entity definitions, entity definition's attributes definitions
  * and relationships.
@@ -8,7 +10,7 @@ package io.medatarun.model.ports.exposed
  * list of possible actions)
  *
  */
-interface ModelCmds {
+interface ModelCmds: Service {
 
     /**
      * Execute this command

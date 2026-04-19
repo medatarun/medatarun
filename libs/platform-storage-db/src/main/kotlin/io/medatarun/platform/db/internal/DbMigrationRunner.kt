@@ -3,6 +3,7 @@ package io.medatarun.platform.db.internal
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.platform.db.*
 import io.medatarun.platform.kernel.ExtensionRegistry
+import io.medatarun.platform.kernel.Service
 import org.slf4j.LoggerFactory
 import java.sql.Connection
 import java.time.Instant
@@ -17,7 +18,7 @@ class DbMigrationRunner(
     private val extensionRegistry: ExtensionRegistry,
     private val dbConnectionFactory: DbConnectionFactory,
     private val dbTransactionManager: DbTransactionManager
-) {
+): Service {
     /**
      * Call when the platform just started, just after everything had been
      * initialized (contributions, services, etc.)

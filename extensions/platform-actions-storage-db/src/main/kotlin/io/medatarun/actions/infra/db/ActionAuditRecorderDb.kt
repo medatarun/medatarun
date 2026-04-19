@@ -8,6 +8,7 @@ import io.medatarun.actions.ports.needs.ActionAuditSucceeded
 import io.medatarun.actions.infra.db.records.ActionAuditEventRecord
 import io.medatarun.actions.infra.db.tables.ActionAuditEventTable
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.kernel.Service
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -17,7 +18,7 @@ import java.util.UUID
 class ActionAuditRecorderDb(
     private val dbConnectionFactory: DbConnectionFactory,
     private val clock: ActionAuditClock
-) : ActionAuditRecorder {
+) : ActionAuditRecorder, Service {
 
     override fun onActionReceived(event: ActionAuditReceived) {
         dbConnectionFactory.withExposed {

@@ -1,5 +1,6 @@
 package io.medatarun.tags.core.fixtures
 
+import io.medatarun.platform.kernel.Service
 import io.medatarun.tags.core.TagTestIllegalStateException
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagScopeId
@@ -40,7 +41,7 @@ fun vehicleScopeRef(vehicleId: SampleId): TagScopeRef.Local {
  */
 class VehicleService(
     val onBeforeDelete: (id: SampleId) -> Unit
-) {
+): Service {
     private val vehicles = mutableMapOf<SampleId, Vehicle>()
     private val vehicleParts = mutableMapOf<SampleId, VehiclePart>()
 

@@ -47,17 +47,17 @@ class ModelEventLogTest {
 
         assertEquals(1, rows[0].eventSequenceNumber)
         assertEquals("model_created", rows[0].eventType)
-        assertEquals(ModelTestEnv.testPrincipal.id, rows[0].traceabilityRecord.actorId)
+        assertEquals(env.principal.id, rows[0].traceabilityRecord.actorId)
         assertNotNull(rows[0].traceabilityRecord.origin)
 
         assertEquals(2, rows[1].eventSequenceNumber)
         assertEquals("model_release", rows[1].eventType)
-        assertEquals(ModelTestEnv.testPrincipal.id, rows[1].traceabilityRecord.actorId)
+        assertEquals(env.principal.id, rows[1].traceabilityRecord.actorId)
         assertNotNull(rows[1].traceabilityRecord.origin)
 
         assertEquals(3, rows[2].eventSequenceNumber)
         assertEquals("model_name_updated", rows[2].eventType)
-        assertEquals(ModelTestEnv.testPrincipal.id, rows[2].traceabilityRecord.actorId)
+        assertEquals(env.principal.id, rows[2].traceabilityRecord.actorId)
         assertNotNull(rows[2].traceabilityRecord.origin)
     }
 

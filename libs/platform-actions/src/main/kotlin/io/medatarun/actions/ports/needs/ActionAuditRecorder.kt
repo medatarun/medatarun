@@ -1,6 +1,7 @@
 package io.medatarun.actions.ports.needs
 
 import io.medatarun.actions.domain.ActionInstanceId
+import io.medatarun.platform.kernel.ServiceContributionPoint
 import io.medatarun.security.AppActorId
 
 /**
@@ -12,7 +13,7 @@ import io.medatarun.security.AppActorId
  * - [onActionSucceeded] is emitted when business invocation completes successfully.
  * - [onActionFailed] is emitted when business invocation throws.
  */
-interface ActionAuditRecorder {
+interface ActionAuditRecorder: ServiceContributionPoint {
     fun onActionReceived(event: ActionAuditReceived)
     fun onActionRejected(event: ActionAuditRejected)
     fun onActionSucceeded(event: ActionAuditSucceeded)

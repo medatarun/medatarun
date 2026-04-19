@@ -4,6 +4,7 @@ import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.ext.db.domain.DbConnectionRegistry
 import io.medatarun.ext.db.domain.DbDriverManager
+import io.medatarun.platform.kernel.Service
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -13,7 +14,7 @@ import kotlin.reflect.KClass
 class DatabasesActionProvider(
     private val dbDriverManager: DbDriverManager,
     private val dbConnectionRegistry: DbConnectionRegistry
-) : ActionProvider<DatabasesAction> {
+) : ActionProvider<DatabasesAction>, Service {
     override val actionGroupKey: String = "databases"
 
 

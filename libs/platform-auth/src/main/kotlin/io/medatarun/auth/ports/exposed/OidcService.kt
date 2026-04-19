@@ -6,10 +6,11 @@ import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
 import io.medatarun.auth.domain.oidc.OidcTokenRequest
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
 import io.medatarun.auth.internal.oidc.AuthClient
+import io.medatarun.platform.kernel.Service
 import kotlinx.serialization.json.JsonObject
 import java.net.URI
 
-interface OidcService {
+interface OidcService: Service {
     /**
      * Returns Json object that matches RFC-7517 JSON Web Key (JWK)
      */

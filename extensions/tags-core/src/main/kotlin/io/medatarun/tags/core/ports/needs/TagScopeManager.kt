@@ -1,5 +1,6 @@
 package io.medatarun.tags.core.ports.needs
 
+import io.medatarun.platform.kernel.ServiceContributionPoint
 import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.tags.core.domain.TagScopeType
 
@@ -7,7 +8,7 @@ import io.medatarun.tags.core.domain.TagScopeType
  * Handles tag-related policies and reactions for a given local scope type.
  * Implementations live in consumer modules (or test fixtures) and can veto deletions.
  */
-interface TagScopeManager {
+interface TagScopeManager: ServiceContributionPoint {
     val type: TagScopeType
 
     /**

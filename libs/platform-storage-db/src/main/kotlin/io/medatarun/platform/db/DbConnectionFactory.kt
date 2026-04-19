@@ -1,8 +1,9 @@
 package io.medatarun.platform.db
 
+import io.medatarun.platform.kernel.Service
 import java.sql.Connection
 
-interface DbConnectionFactory {
+interface DbConnectionFactory: Service {
     val dialect: DbDialect
 
     /**

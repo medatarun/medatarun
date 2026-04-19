@@ -1,8 +1,10 @@
 package io.medatarun.tags.core.domain
 
+import io.medatarun.platform.kernel.Service
 import java.time.Instant
 
-interface TagQueries {
+
+interface TagQueries: Service{
     fun findAllTags(): List<Tag>
 
 

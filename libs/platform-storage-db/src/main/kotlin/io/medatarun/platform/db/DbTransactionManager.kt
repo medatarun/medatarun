@@ -1,6 +1,8 @@
 package io.medatarun.platform.db
 
-interface DbTransactionManager {
+import io.medatarun.platform.kernel.Service
+
+interface DbTransactionManager: Service {
     val dialect: DbDialect
 
     /**

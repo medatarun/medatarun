@@ -1,5 +1,6 @@
 package io.medatarun.tags.core.fixtures
 
+import io.medatarun.platform.kernel.Service
 import io.medatarun.tags.core.TagTestIllegalStateException
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagScopeId
@@ -52,7 +53,7 @@ fun recipeScopeRef(recipeId: SampleId): TagScopeRef.Local {
  */
 class RecipeService(
     val onBeforeDelete:(id: SampleId) -> Unit
-) {
+): Service {
     private val recipes = mutableMapOf<SampleId, Recipe>()
     private val ingredients = mutableMapOf<SampleId, Ingredient>()
     private val recipeSteps = mutableMapOf<SampleId, RecipeStep>()

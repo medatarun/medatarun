@@ -1,9 +1,11 @@
 package io.medatarun.platform.db
 
+import io.medatarun.platform.kernel.Service
+
 /**
  * Tool to test migrations happened, mostly for extensions unit tests
  */
-interface DbMigrationChecker {
+interface DbMigrationChecker: Service {
     /**
      * @return true if table exists
      */

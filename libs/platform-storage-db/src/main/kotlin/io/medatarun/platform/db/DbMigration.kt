@@ -1,12 +1,14 @@
 package io.medatarun.platform.db
 
+import io.medatarun.platform.kernel.ServiceContributionPoint
+
 /**
  * Declares the schema evolution owned by one extension.
  *
  * The runner creates one [DbMigrationContext] per plugin and lets the plugin apply whatever versions
  * are still missing from the current database state.
  */
-interface DbMigration {
+interface DbMigration: ServiceContributionPoint {
 
     /**
      * Name of the shard of data that this plugin handles. This must be stable

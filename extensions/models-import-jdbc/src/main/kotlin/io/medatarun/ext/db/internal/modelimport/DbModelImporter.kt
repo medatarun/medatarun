@@ -11,6 +11,7 @@ import io.medatarun.model.infra.inmemory.PBKeyParticipantInMemory
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.model.ports.needs.ModelImporterData
 import io.medatarun.platform.kernel.ResourceLocator
+import io.medatarun.platform.kernel.Service
 import io.medatarun.type.commons.id.Id
 import java.net.URI
 import java.time.Instant
@@ -18,7 +19,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 internal class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry: DbConnectionRegistry) :
-    ModelImporter {
+    ModelImporter, Service {
 
     private val introspect = DbIntrospect(dbDriverManager)
 

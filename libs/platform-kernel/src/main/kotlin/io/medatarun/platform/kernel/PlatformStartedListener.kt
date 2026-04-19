@@ -1,5 +1,5 @@
 package io.medatarun.platform.kernel
 
-interface PlatformStartedListener {
+interface PlatformStartedListener: ServiceContributionPoint {
     fun onPlatformStarted(ctx: PlatformStartedCtx)
 }

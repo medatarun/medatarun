@@ -41,7 +41,7 @@ class PlatformKernelTest {
             ctx.register(RecipeService::class, recipeService)
         }
 
-        class RecipeService(val evt: EventNotifier<RecipeSent>) {
+        class RecipeService(val evt: EventNotifier<RecipeSent>): Service {
             fun sendRecipe(name: String) {
                 evt.fire(RecipeSent(name))
             }
@@ -68,7 +68,7 @@ class PlatformKernelTest {
 
         }
 
-        class VehicleService {
+        class VehicleService: Service {
             val driving = mutableListOf<String>()
             fun drive(name: String) {
                 driving.add(name)

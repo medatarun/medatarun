@@ -4,6 +4,7 @@ import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.User
 import io.medatarun.auth.domain.user.Username
+import io.medatarun.platform.kernel.Service
 import java.io.Serializable
 
 /**
@@ -19,7 +20,7 @@ import java.io.Serializable
  *
  * It is not required at all by protocol but we choose to do so for simplicity.
  */
-interface OAuthService {
+interface OAuthService: Service {
 
     /**
      * Issues a [OAuthTokenResponse] containing an OAuth token (access_token)

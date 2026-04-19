@@ -11,7 +11,7 @@ interface MedatarunServiceCtx : MedatarunExtensionCtxConfig {
      * They are initialized and usable. Be careful still, if they need contributions, yet, contributions
      * are not yet populated. So reference them in your tools, avoid calling them unless you know what they do exactly.
      */
-    fun <T : Any> getService(klass: KClass<T>): T
+    fun <T : Service> getService(klass: KClass<T>): T
 
     /**
      * Register one of your own services.
@@ -20,8 +20,8 @@ interface MedatarunServiceCtx : MedatarunExtensionCtxConfig {
      *
      * You can also pass [implem] in [service] too if you don't have interface.
      */
-    fun <T : Any> register(service: KClass<T>, implem: T)
+    fun <T : Service> register(service: KClass<T>, implem: T)
 }
-inline fun <reified T : Any> MedatarunServiceCtx.getService(): T {
+inline fun <reified T : Service> MedatarunServiceCtx.getService(): T {
     return this.getService(T::class)
 }

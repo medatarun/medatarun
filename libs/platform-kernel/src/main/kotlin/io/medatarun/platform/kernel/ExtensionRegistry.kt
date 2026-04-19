@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
  * User can query the registry to get all contributions for a particular
  * contribution point.
  */
-interface ExtensionRegistry {
+interface ExtensionRegistry: Service {
     /**
      * Find all contributions to a contribution point.
      *
