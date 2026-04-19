@@ -33,6 +33,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { useSecurityContext } from "@/business/security";
 
 export function TagEditPage({ tagId }: { tagId: string }) {
   const { t } = useAppI18n();
@@ -42,6 +43,7 @@ export function TagEditPage({ tagId }: { tagId: string }) {
   const tagGlobalUpdateDescription = useTagGlobalUpdateDescription();
   const tagLocalUpdateName = useTagLocalUpdateName();
   const tagLocalUpdateDescription = useTagLocalUpdateDescription();
+  const sec = useSecurityContext();
 
   if (tagsResult.isPending) return null;
   if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)} />;
@@ -50,6 +52,14 @@ export function TagEditPage({ tagId }: { tagId: string }) {
   if (!tag)
     return <ErrorBox error={toProblem(t("tagEdit_notFound", { tagId }))} />;
 
+  const updateNameDisabled = !sec.canExecuteAction(
+    tag.isLocal ? "tag_local_update_name" : "tag_global_update_name",
+  );
+  const updateDescriptionDisabled = !sec.canExecuteAction(
+    tag.isLocal
+      ? "tag_local_update_description"
+      : "tag_global_update_description",
+  );
   const isGlobalTag = tag.isGlobal;
 
   const actions = actionRegistry.findActionDescriptors(
@@ -90,7 +100,11 @@ export function TagEditPage({ tagId }: { tagId: string }) {
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: <TagEditBreadcrumb tag={tag} />,
     title: (
-      <InlineEditSingleLine value={tag.name ?? ""} onChange={handleChangeName}>
+      <InlineEditSingleLine
+        value={tag.name ?? ""}
+        disabled={updateNameDisabled}
+        onChange={handleChangeName}
+      >
         {tag.name ? (
           tag.name
         ) : (
@@ -115,6 +129,7 @@ export function TagEditPage({ tagId }: { tagId: string }) {
       <SectionPaper topspacing="XXXL" nopadding>
         <InlineEditDescription
           value={tag.description}
+          disabled={updateDescriptionDisabled}
           placeholder={t("tagEdit_descriptionPlaceholder")}
           onChange={handleChangeDescription}
         />
@@ -222,8 +237,11 @@ function LocalModelBreadcrumb({ modelId }: { modelId: string }) {
   return (
     <Breadcrumb size="small">
       <BreadcrumbItem>
-        <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
-          {model.nameOrKeyWithAuthorityEmoji}
+        <BreadcrumbButton
+          icon={<ModelIcon authority={model.authority} />}
+          onClick={handleClickModel}
+        >
+          {model.nameOrKey}
         </BreadcrumbButton>
       </BreadcrumbItem>
       <BreadcrumbDivider />

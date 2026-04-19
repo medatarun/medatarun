@@ -278,8 +278,11 @@ export function AttributeView({
   const breadcrumb = (
     <Breadcrumb size="small">
       <BreadcrumbItem>
-        <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
-          {model.nameOrKeyWithAuthorityEmoji}
+        <BreadcrumbButton
+          icon={<ModelIcon authority={model.authority} />}
+          onClick={handleClickModel}
+        >
+          {model.nameOrKey}
         </BreadcrumbButton>
       </BreadcrumbItem>
       <BreadcrumbDivider />

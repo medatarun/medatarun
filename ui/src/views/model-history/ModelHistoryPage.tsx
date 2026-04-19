@@ -50,8 +50,11 @@ export function ModelHistoryPage({ modelId }: { modelId: string }) {
   const breadCrumb = (
     <Breadcrumb size="small">
       <BreadcrumbItem>
-        <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
-          {model?.nameOrKeyWithAuthorityEmoji ?? ""}
+        <BreadcrumbButton
+          icon={<ModelIcon authority={model?.authority} />}
+          onClick={handleClickModel}
+        >
+          {model?.nameOrKey ?? ""}
         </BreadcrumbButton>
       </BreadcrumbItem>
       <BreadcrumbDivider />

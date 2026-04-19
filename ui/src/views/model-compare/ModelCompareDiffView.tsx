@@ -774,7 +774,8 @@ function groupHeaderLabel(
 }
 
 function toObjectIcon(objectType: string): ReactNode | null {
-  if (objectType === "model") return <ModelIcon fontSize={14} />;
+  if (objectType === "model")
+    return <ModelIcon authority={undefined} fontSize={14} />;
   if (objectType === "type") return <TypeIcon fontSize={14} />;
   if (objectType === "entity") return <EntityIcon fontSize={14} />;
   if (objectType === "entityAttribute") return <AttributeIcon fontSize={14} />;

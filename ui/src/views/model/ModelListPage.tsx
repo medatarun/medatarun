@@ -16,6 +16,7 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
+import type { ReactNode } from "react";
 
 export function ModelListPage({
   onClickModel,
@@ -38,7 +39,7 @@ export function ModelListPage({
 
   const headerProps: ViewLayoutHeaderProps = {
     title: t("modelListPage_title"),
-    titleIcon: <ModelIcon />,
+    titleIcon: <ModelIcon authority={undefined} />,
     actions: {
       label: t("modelListPage_actions"),
       itemActions: actions,
@@ -55,7 +56,8 @@ export function ModelListPage({
       {data.length == 0 ? t("modelListPage_empty") : null}
       {canonicalModels.length > 0 && (
         <ModelsSection
-          title={`${Model.authorityEmoji("canonical")} ${t("modelListPage_canonicalTitle")}`}
+          title={t("modelListPage_canonicalTitle")}
+          titleIcon={<ModelIcon authority={"canonical"} />}
           titleInfo={t("modelListPage_canonicalInfo")}
           models={canonicalModels}
           onClickModel={onClickModel}
@@ -63,7 +65,8 @@ export function ModelListPage({
       )}
       {systemModels.length > 0 && (
         <ModelsSection
-          title={`${Model.authorityEmoji("system")} ${t("modelListPage_systemTitle")}`}
+          title={t("modelListPage_systemTitle")}
+          titleIcon={<ModelIcon authority={"system"} />}
           titleInfo={t("modelListPage_systemInfo")}
           models={systemModels}
           onClickModel={onClickModel}
@@ -76,17 +79,19 @@ export function ModelListPage({
 function ModelsSection({
   title,
   titleInfo,
+  titleIcon,
   models,
   onClickModel,
 }: {
   title: string;
   titleInfo: string;
+  titleIcon: ReactNode;
   models: ModelSummaryDto[];
   onClickModel: (modelId: string) => void;
 }) {
   return (
     <>
-      <SectionTitle icon={undefined}>
+      <SectionTitle icon={titleIcon}>
         <span
           style={{
             display: "inline-flex",

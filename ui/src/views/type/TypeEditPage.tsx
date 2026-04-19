@@ -38,6 +38,8 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
+import { useSecurityContext } from "@/business/security";
+import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 
 export function TypeEditPage({
   modelId,
@@ -76,6 +78,12 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
   const typeUpdateName = useTypeUpdateName();
   const typeUpdateDescription = useTypeUpdateDescription();
   const { t } = useAppI18n();
+  const sec = useSecurityContext();
+
+  const updateNameDisabled = !sec.canExecuteAction("type_update_name");
+  const updateDescriptionDisabled = !sec.canExecuteAction(
+    "type_update_description",
+  );
 
   const handleClickModel = () => {
     navigate({
@@ -98,8 +106,11 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
   const breadcrumb = (
     <Breadcrumb size="small">
       <BreadcrumbItem>
-        <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
-          {model.nameOrKeyWithAuthorityEmoji}
+        <BreadcrumbButton
+          icon={<ModelIcon authority={model.authority} />}
+          onClick={handleClickModel}
+        >
+          {model.nameOrKey}
         </BreadcrumbButton>
       </BreadcrumbItem>
       <BreadcrumbDivider />
@@ -114,7 +125,11 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: breadcrumb,
     title: (
-      <InlineEditSingleLine value={type.name ?? ""} onChange={handleChangeName}>
+      <InlineEditSingleLine
+        value={type.name ?? ""}
+        disabled={updateNameDisabled}
+        onChange={handleChangeName}
+      >
         {type.name ? (
           model.findTypeNameOrKey(type.id)
         ) : (
@@ -149,6 +164,7 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
       <SectionPaper topspacing="XXXL" nopadding>
         <InlineEditDescription
           value={type.description}
+          disabled={updateDescriptionDisabled}
           placeholder={t("typeEditPage_descriptionPlaceholder")}
           onChange={(v) =>
             typeUpdateDescription.mutateAsync({
@@ -159,6 +175,12 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
           }
         />
       </SectionPaper>
+      <ViewLayoutTechnicalInfos
+        technicalKey={type.key}
+        keyLabel={t("typeEditPage_keyLabel")}
+        id={type.id}
+        idLabel={t("typeEditPage_identifierLabel")}
+      />
     </ViewLayoutContained>
   );
 }
@@ -167,6 +189,9 @@ export function TypeOverview({ type, model }: { type: TypeDto; model: Model }) {
   const typeUpdateKey = useTypeUpdateKey();
   const { isDetailLevelTech } = useDetailLevelContext();
   const { t } = useAppI18n();
+  const sec = useSecurityContext();
+
+  const updatekeyDisabled = !sec.canExecuteAction("type_update_key");
 
   const handleChangeKey = (value: string) => {
     return typeUpdateKey.mutateAsync({
@@ -184,31 +209,15 @@ export function TypeOverview({ type, model }: { type: TypeDto; model: Model }) {
         </div>
       )}
       {isDetailLevelTech && (
-        <InlineEditSingleLine value={type.key} onChange={handleChangeKey}>
+        <InlineEditSingleLine
+          value={type.key}
+          disabled={updatekeyDisabled}
+          onChange={handleChangeKey}
+        >
           <Text>
             <code>{type.key}</code>
           </Text>
         </InlineEditSingleLine>
-      )}
-      <div>
-        <Text>{t("typeEditPage_fromModelLabel")}</Text>
-      </div>
-      <div>
-        <Link to="/model/$modelId" params={{ modelId: model.id }}>
-          {model.nameOrKey}
-        </Link>
-      </div>
-      {isDetailLevelTech && (
-        <div>
-          <Text>{t("typeEditPage_identifierLabel")}</Text>
-        </div>
-      )}
-      {isDetailLevelTech && (
-        <div>
-          <Text>
-            <code>{type.id}</code>
-          </Text>
-        </div>
       )}
     </PropertiesForm>
   );

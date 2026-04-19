@@ -6,6 +6,5 @@ export const typeEditPageMessages: TypeEditPageMessages = {
   typeEditPage_actions: "Actions",
   typeEditPage_descriptionPlaceholder: "ajouter une description",
   typeEditPage_keyLabel: "Clé du type",
-  typeEditPage_fromModelLabel: "Issu du modèle",
   typeEditPage_identifierLabel: "Identifiant du type",
 };
