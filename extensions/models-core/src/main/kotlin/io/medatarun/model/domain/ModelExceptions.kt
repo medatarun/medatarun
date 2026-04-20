@@ -220,4 +220,5 @@ class ModelQuerySearchCouldNotResolveTagRef(tagRef: TagRef) :
 
 class ModelActionNotAuthorizedException : MedatarunException("Not authorized", StatusCode.FORBIDDEN)
 class ModelActionNotAuthenticatedException : MedatarunException("Not authenticated", StatusCode.UNAUTHORIZED)
-class EntityDeleteInRelationshipException(val modelRef: ModelRef, val entityRef: EntityRef): MedatarunException("You can not delete an entity used in relationship roles.")
+class EntityDeleteInRelationshipException(val modelRef: ModelRef, val entityRef: EntityRef) :
+    MedatarunException("You can not delete an entity used in relationship roles.", StatusCode.BAD_REQUEST)
