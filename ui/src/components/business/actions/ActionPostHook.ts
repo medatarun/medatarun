@@ -3,6 +3,7 @@ import type { NavigateFn } from "@tanstack/react-router";
 import type { ActionDescriptor } from "@/business/action_registry";
 import type { ActionPerformerState } from "./ActionPerformer.tsx";
 import type {
+  ActionDisplayedSubject,
   ActionDisplayedSubjectResource,
   ActionPerformerRequest,
 } from "./ActionPerformerRequest.tsx";
@@ -17,7 +18,7 @@ export type ActionPostSuccessContext = {
   action: ActionDescriptor;
   request: ActionPerformerRequest;
   state: ActionPerformerState;
-  displayedSubject: ActionDisplayedSubjectResource;
+  displayedSubject: ActionDisplayedSubject;
 };
 
 export type ActionPostNavigationContext = ActionPostSuccessContext & {
@@ -95,21 +96,16 @@ export class ActionPostHooks {
     context: ActionPostBaseContext,
     queryClient: QueryClient,
   ): Promise<boolean> {
-    const resolvedContext = this.resolveSuccessContext(context);
-    if (!resolvedContext) {
-      return false;
-    }
-    let handled = false;
-    for (const hook of this.getMatchingHooks(
-      resolvedContext.displayedSubject,
-    )) {
-      const hookHandled = await hook.onActionSuccess(
+    const resolvedContext = this.toActionPostSuccessContext(context);
+    let cachesHandled = false;
+    for (const hook of this.hooks) {
+      const hookHandledCaches = await hook.onActionSuccess(
         resolvedContext,
         queryClient,
       );
-      handled = handled || hookHandled;
+      cachesHandled = cachesHandled || hookHandledCaches;
     }
-    return handled;
+    return cachesHandled;
   }
 
   resolveNavigationAfterSuccess(
@@ -119,38 +115,31 @@ export class ActionPostHooks {
     if (!resolvedContext) {
       return;
     }
-    for (const hook of this.getMatchingHooks(
-      resolvedContext.displayedSubject,
-    )) {
+
+    const displayedSubject = context.request.ctx.displayedSubject;
+    if (displayedSubject.kind == "none") return;
+
+    const matchingHooks = this.hooks.filter((it) => it.match(displayedSubject));
+    for (const hook of matchingHooks) {
       hook.resolveNavigationAfterSuccess(resolvedContext);
     }
   }
 
-  private getMatchingHooks(
-    subject: ActionDisplayedSubjectResource,
-  ): ActionPostHook[] {
-    return this.hooks.filter((it) => it.match(subject));
-  }
-
-  private resolveSuccessContext(
+  private toActionPostSuccessContext(
     context: ActionPostBaseContext,
-  ): ActionPostSuccessContext | null {
-    const subject = context.request.ctx.displayedSubject;
-    if (subject.kind !== "resource") {
-      return null;
-    }
+  ): ActionPostSuccessContext {
     return {
       action: context.action,
       request: context.request,
       state: context.state,
-      displayedSubject: subject,
+      displayedSubject: context.request.ctx.displayedSubject,
     };
   }
 
   private resolveNavigationContext(
     context: ActionPostBaseContext & { navigate: NavigateFn },
   ): ActionPostNavigationContext | null {
-    const successContext = this.resolveSuccessContext(context);
+    const successContext = this.toActionPostSuccessContext(context);
     if (!successContext) {
       return null;
     }
