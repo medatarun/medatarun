@@ -4,22 +4,61 @@ sidebar_position: 40
 
 # Configure your AI Agent
 
-You can tell your ChatGPT Codex / Claude agent how to connect to Medatarun via the Model Context Protocol (MCP)
+You can connect you AI Agent (ChatGPT Codex, Claude agent, etc.) or any tool
+supporting the Model Context Protocol
+(MCP) to Medatarun.
 
-Depending on the agents, configuration will vary. Refer to your agent documentation to know how to configure it.
-This is often referred as MCP or "tools" in their documentation.
+The configuration method depends on the agents. Refer to your agent
+documentation to know how to configure it.
+This is often referred to as MCP or "tools" in their documentation.
 
-The thing to remember is that the URL your agent needs is `http://localhost:8080/mcp`, it means
-`http(s)://<yourhost>:<yourport>/mcp`, always `/mcp` at the end.
+You need to provide your agent the URL of Medatarun. It is in the form of
+`http(s)://<yourhost>:<yourport>/mcp`, always adding `/mcp` at the end.
 
-Note that we are only compatible with the Streamable Http version of the protocol.
+For example, on your local machine: `http://localhost:8080/mcp`.
 
+Medatarun uses only the Streamable Http version of the protocol (not the
+deprecated SSE transport).
 
-## Example and test with ChatGPT's Codex
+Medatarun also supports OAuth as an authentication protocol. Your AI Agent can
+connect with real credentials.
 
-Be sure that in your environment you have a variable containing an authentication token.
+:::note
+We strongly suggest that you create a specific user for your agent and adjust
+its roles accordingly.
 
-In your `~/.codex/config.toml` add your server address and the token variable name.
+An agent can do a lot of things, sometimes bad. So if you want to know if it was
+_you_ or _your agent_ who did
+things, create an account for it.
+:::
+
+## Connecting agents
+
+### ChatGPT Codex
+
+In the command line interface
+
+```shell
+codex mcp add medatarun --url http://localhost:8080/mcp
+```
+
+It will autodetect the OAuth protocol and ask you to log in. Please prefer using
+a separate account from yours.
+
+To log out the agent use `codex mcp logout medatarun`. To log in again use
+`codex mcp login medatarun`.
+
+### ChatGPT Codex with the config file
+
+This was the old way to do.
+
+Be sure that in your environment you have a variable containing an
+authentication token. When you launch codex, be sure that this variable is set.
+See [Authenticating with CLI](../usages/cli-usage)
+or [use the API](../usages/api-usage).
+
+In your `~/.codex/config.toml` add your server address and the token variable
+name.
 
 ```toml
 [mcp_servers.medatarun]
@@ -27,74 +66,39 @@ url = "http://localhost:8080/mcp"
 bearer_token_env_var = "MEDATARUN_AUTH_TOKEN"
 ```
 
-When you will launch codex, be sure that this variable is set. See [Authenticating with CLI](../usages/cli-usage)
-or [use the API](../usages/api-usage).
+## Communicating with an agent
 
-Try to import something in Medatarun using UI's Import Button, or using CLI.
+### Giving context and how to use
 
-You can try this URL (it's from France public Open Data): https://gitlab.com/opendatafrance/scdl/plats-menus-collectifs/-/raw/master/schema.json
+While Medatarun gives instructions to agents at the start of the session,
+agents do not always follow them as they are mostly driven by what you
+are currently doing.
 
-```
-./medatarun model Import --from="https://gitlab.com/opendatafrance/scdl/plats-menus-collectifs/-/raw/master/schema.json"
-```
+Also, as the conversation or the agent tasks goes on, the agent will lose its
+memory about instructions given, because its context memory will be full of
+other things.
 
-You don't know what it is? neither do I.
+It is not specific to Medatarun, it is just how agents work.
 
-Open Codex and ask this question
+You have several tools at your disposal
 
-```text
-I'm a business user from United States, I don't understand french. Using Medatarun MCP,
-tell me what the model "plats-menus-collectifs" is and what it means,
-what's inside, what it is used for
-```
+### AI Agent Instructions
 
-Answer
+Some AI Agents (like ChatGPT Codex) do not support what is named _MCP
+Instructions_. ([You can check the "Instructions" column of this table](https://modelcontextprotocol.io/clients)).
 
-```markdown
-For a US business user: the plats-menus-collectifs model is a standardized data
-schema for “collective catering” dishes (meals served by public institutions and large
-cafeterias). It defines a consistent way to publish what dishes are served,
-where they come from, and what they contain.
-
-What it means
-
-- A shared data dictionary for dish composition, sourcing, labels, allergens,
-  and publication metadata.
-- Makes datasets comparable and auditable across organizations.
-
-What’s inside
-
-- One dataset/entity with fields covering:
-  - Who publishes the data (organization name + official identifier).
-  - Who produced the dish (establishment name + identifier).
-  - Dish identity (dish code, dish name).
-  - Ingredients/products and suppliers (names, supplier IDs, location codes).
-  - Quality labels (e.g., organic, protected origin), additives, allergens.
-  - GMO/irradiation flags.
-  - Nutrition info (e.g., fat, carbs, salt per 100g).
-  - Publication and last-updated timestamps.
-
-What it’s used for
-
-- Publishing and validating open data for collective catering menus.
-- Compliance reporting on sourcing and quality.
-- Transparency for stakeholders (citizens, auditors, regulators).
-- Analytics across suppliers, regions, and time (sourcing, nutrition, sustainability).
-
-```
-
-### Optional: update your AI AGENTS.md
-
-Some AI Agents (like ChatGPT Codex) do not support what is named _MCP Instructions_. ([You can check the "Instructions" column of this table](https://modelcontextprotocol.io/clients)).
-
-_MCP Instructions_ teach your agent how to functionally (not technically) use Medatarun.
+_MCP Instructions_ teach your agent how to functionally (not technically) use
+Medatarun.
 
 Therefore, agents without this compatibility may not act accordingly.
 
-To compensate that, you can create an `AGENTS.md` file, containing those instructions, in one of the locations
-known from your agents. Often, you can place this file in the directory where you launch the agent.
+To compensate that, you can create an `AGENTS.md` file, containing those
+instructions, in one of the locations
+known from your agents. Often, you can place this file in the directory where
+you launch the agent.
 
-You can fill this file with contents coming from Medatarun's API or command line.
+You can fill this file with contents coming from Medatarun's API or command
+line.
 
 ```bash
 echo "# AGENTS.md" > AGENTS.md
@@ -109,3 +113,89 @@ curl http://localhost:8080/api/config/AIAgentsInstructions
 medatarun config AIAgentsInstructions
 # or use the button in UI to get the text
 ```
+
+### Using skills
+
+Skills appeared recently in agents to make them focus on particular tasks.
+
+It is up to you to create a skill; although you will find some samples on the
+net,
+your agent will help you to do it.
+
+## Usage examples
+
+### Public data explanation
+
+Import something in Medatarun using UI's Import Button, or using CLI.
+We will use this URL containing schema definitions from a French agency (it is
+public Open
+Data): https://gitlab.com/opendatafrance/scdl/plats-menus-collectifs/-/raw/master/schema.json
+
+```
+./medatarun model Import --from="https://gitlab.com/opendatafrance/scdl/plats-menus-collectifs/-/raw/master/schema.json"
+```
+
+You can look at the user interface and see for yourself that you may not
+understand a lot.
+
+Open Codex and ask this question
+
+```text
+I'm a business user from United States, I don't understand french. Using Medatarun MCP,
+tell me what the model "plats-menus-collectifs" is and what it means,
+what's inside, what it is used for
+```
+
+Answer
+
+```markdown
+For a US business user: the plats-menus-collectifs model is a standardized data
+schema for “collective catering” dishes (meals served by public institutions and
+large
+cafeterias). It defines a consistent way to publish what dishes are served,
+where they come from, and what they contain.
+
+What it means
+
+- A shared data dictionary for dish composition, sourcing, labels, allergens,
+  and publication metadata.
+- Makes datasets comparable and auditable across organizations.
+
+What’s inside
+
+- One dataset/entity with fields covering:
+    - Who publishes the data (organization name + official identifier).
+    - Who produced the dish (establishment name + identifier).
+    - Dish identity (dish code, dish name).
+    - Ingredients/products and suppliers (names, supplier IDs, location codes).
+    - Quality labels (e.g., organic, protected origin), additives, allergens.
+    - GMO/irradiation flags.
+    - Nutrition info (e.g., fat, carbs, salt per 100g).
+    - Publication and last-updated timestamps.
+
+What it’s used for
+
+- Publishing and validating open data for collective catering menus.
+- Compliance reporting on sourcing and quality.
+- Transparency for stakeholders (citizens, auditors, regulators).
+- Analytics across suppliers, regions, and time (sourcing, nutrition,
+  sustainability).
+
+```
+
+### Database model explained
+
+Add a Postgresql driver and a data source in Medatarun. Then import one
+of your databases in Medatarun. You'll get the schema.
+
+Now, open your agent in the directory where is the source code of your
+application.
+
+Ask the agent: "We will document entities named in model X of Medatarun, based on
+the source code. Get understanding from the source code of the entities and
+attributes. Propose documentation tailored to business users. Once I validate
+it, update documentation on Medatarun."
+
+This is how we achieved to document Apache Airflow or GLPI software that you can see
+on Medatarun's website.
+

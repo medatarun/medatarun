@@ -316,9 +316,7 @@ export function ModelOverview() {
             disabled={updateKeyDisabled}
             onChange={handleChangeKey}
           >
-            <Text>
-              <code>{model.key}</code>
-            </Text>
+            <Text>{model.key}</Text>
           </InlineEditSingleLine>
         </div>
       )}
