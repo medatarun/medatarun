@@ -108,6 +108,9 @@ export class ActionPerformer {
       );
     }
     if (!cachesHandled) {
+      console.warn(
+        "We will invalidate all caches because no hook could handle the request",
+      );
       await queryClient.invalidateQueries();
     }
     return resp;

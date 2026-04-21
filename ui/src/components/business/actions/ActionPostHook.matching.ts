@@ -1,5 +1,4 @@
 import type { ActionPostNavigationContext } from "./ActionPostHook.ts";
-import type { ActionPerformerRequestParam } from "./ActionPerformerRequest.tsx";
 
 /**
  * Decodes an action request parameter value into a plain id when possible.
@@ -21,6 +20,8 @@ export function actionTargetsDisplayedSubject(
   context: ActionPostNavigationContext,
 ): boolean {
   const displayedSubject = context.displayedSubject;
+  if (displayedSubject.kind == "none") return false;
+
   const targetSubject = context.action.semantics.subjects[0];
   let matches = true;
 

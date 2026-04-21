@@ -25,6 +25,7 @@ import {
   BreadcrumbDivider,
   BreadcrumbItem,
   Table,
+  TableBody,
   TableCell,
   TableRow,
   tokens,
@@ -253,56 +254,57 @@ export function EntityView({ entity }: { entity: EntityDto }) {
 
       <SectionTable>
         <Table>
-          {model.findBusinessKeysByEntityId(entity.id).map((bk) => {
-            const participantsJoined = bk.participants
-              .map((it) => model.findEntityAttributeNameOrKey(entity.id, it))
-              .join(", ");
-            return (
-              <TableRow key={bk.id}>
-                <TableCell>
-                  <div>{bk.name ?? <Key value={bk.key} />}</div>
-                  {bk.name && isDetailLevelTech && (
-                    <div>
-                      <Key value={bk.key} />
-                    </div>
-                  )}
-                  {bk.description && (
-                    <MarkdownSummary value={bk.description} maxChars={150} />
-                  )}
-                </TableCell>
-                <TableCell>
-                  {bk.participants.length > 0 ? (
-                    participantsJoined
-                  ) : (
-                    <MissingInformation>
-                      {t("entityEditPage_businessKeyNoParticipant")}
-                    </MissingInformation>
-                  )}
-                </TableCell>
-                <TableCell
-                  style={{
-                    paddingTop: tokens.spacingVerticalM,
-                    paddingBottom: tokens.spacingVerticalM,
-                    width: "3em",
-                    verticalAlign: "baseline",
-                    textAlign: "right",
-                  }}
-                >
-                  <ActionMenuButton
-                    itemActions={actionRegistry.findActionDescriptors([
-                      "business_key_update_name",
-                      "business_key_update_description",
-                      "business_key_update_key",
-                      "business_key_update_participants",
-                      "business_key_delete",
-                    ])}
-                    actionCtx={actionCtxBusinessKey(bk)}
-                  />
-                </TableCell>
-              </TableRow>
-            );
-          })}
-          <TableRow></TableRow>
+          <TableBody>
+            {model.findBusinessKeysByEntityId(entity.id).map((bk) => {
+              const participantsJoined = bk.participants
+                .map((it) => model.findEntityAttributeNameOrKey(entity.id, it))
+                .join(", ");
+              return (
+                <TableRow key={bk.id}>
+                  <TableCell>
+                    <div>{bk.name ?? <Key value={bk.key} />}</div>
+                    {bk.name && isDetailLevelTech && (
+                      <div>
+                        <Key value={bk.key} />
+                      </div>
+                    )}
+                    {bk.description && (
+                      <MarkdownSummary value={bk.description} maxChars={150} />
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {bk.participants.length > 0 ? (
+                      participantsJoined
+                    ) : (
+                      <MissingInformation>
+                        {t("entityEditPage_businessKeyNoParticipant")}
+                      </MissingInformation>
+                    )}
+                  </TableCell>
+                  <TableCell
+                    style={{
+                      paddingTop: tokens.spacingVerticalM,
+                      paddingBottom: tokens.spacingVerticalM,
+                      width: "3em",
+                      verticalAlign: "baseline",
+                      textAlign: "right",
+                    }}
+                  >
+                    <ActionMenuButton
+                      itemActions={actionRegistry.findActionDescriptors([
+                        "business_key_update_name",
+                        "business_key_update_description",
+                        "business_key_update_key",
+                        "business_key_update_participants",
+                        "business_key_delete",
+                      ])}
+                      actionCtx={actionCtxBusinessKey(bk)}
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
         </Table>
       </SectionTable>
 

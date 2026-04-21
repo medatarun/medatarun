@@ -4,21 +4,39 @@ import type { ActionDisplayedSubjectResource } from "@/components/business/actio
 import { actionTargetsDisplayedSubject } from "@/components/business/actions/ActionPostHook.matching.ts";
 
 export const tagActionPostHook: ActionPostHook = {
-  match: (subject) => {
-    return TAG_SUBJECT_TYPES.has(subject.type);
-  },
-
   onActionSuccess: async (context, queryClient) => {
+    // Read actions do not impact our caches
+    if (context.action.semantics.intent === "read") return true;
+
+    // Try to know if something in our caches may need invalidation
+    const concerned = context.action.semantics.subjects.some((subject) =>
+      TAG_SUBJECT_TYPES.has(subject.type),
+    );
+    if (!concerned) return true;
+
+    // Delete all tag caches
     await queryClient.invalidateQueries({ queryKey: ["action", "tag"] });
+
     return true;
   },
 
+  match: (subject) => {
+    const result = TAG_SUBJECT_TYPES.has(subject.type);
+    console.log("tagActionPostHook match", subject, result);
+    return result;
+  },
+
   resolveNavigationAfterSuccess: (context) => {
+    // Determine what subject is displayed on screen
+    const displayedSubject = context.displayedSubject;
+    // Nothing particular, then exit
+    if (displayedSubject.kind == "none") return;
+    // Try to get from action semantics what the action does
     const intent = context.action.semantics.intent;
     if (intent === "delete") {
       const sameSubject = actionTargetsDisplayedSubject(context);
       if (sameSubject) {
-        navigateAfterDelete(context.navigate, context.displayedSubject);
+        navigateAfterDelete(context.navigate, displayedSubject);
       }
     } else if (intent === "create") {
       // Intentionally no-op for now. Create navigation is defined per use case.

@@ -10,7 +10,6 @@ import {
   MenuTrigger,
 } from "@fluentui/react-components";
 import { Icon } from "@seij/common-ui-icons";
-import { useCurrentActor } from "@/business/actor";
 import { useSecurityContext } from "@/business/security";
 
 export function ActionMenuButton({
@@ -39,6 +38,7 @@ export function ActionMenuButton({
         <MenuList>
           {itemActionsSafe.map((action) => (
             <MenuItem
+              key={action.key}
               onClick={() => {
                 actionPerformer.performAction({
                   actionKey: action.key,
