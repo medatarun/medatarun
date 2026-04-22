@@ -60,21 +60,25 @@ MODULE_SPECS: tuple[ModuleSpec, ...] = (
         name="models",
         table_names=(
             "model",
-            "model_entity_attribute_snapshot",
-            "model_entity_attribute_tag_snapshot",
-            "model_entity_snapshot",
-            "model_entity_tag_snapshot",
             "model_event",
-            "model_relationship_attribute_snapshot",
-            "model_relationship_attribute_tag_snapshot",
-            "model_relationship_role_snapshot",
-            "model_relationship_snapshot",
-            "model_relationship_tag_snapshot",
-            "model_search_item_snapshot",
-            "model_search_item_tag_snapshot",
             "model_snapshot",
             "model_tag_snapshot",
             "model_type_snapshot",
+            "model_entity_snapshot",
+            "model_entity_tag_snapshot",
+            "model_entity_attribute_snapshot",
+            "model_entity_attribute_tag_snapshot",
+            "model_relationship_snapshot",
+            "model_relationship_tag_snapshot",
+            "model_relationship_attribute_snapshot",
+            "model_relationship_attribute_tag_snapshot",
+            "model_relationship_role_snapshot",
+            "model_entity_pk_snapshot",
+            "model_entity_pk_attribute_snapshot",
+            "model_business_key_attribute_snapshot",
+            "model_business_key_snapshot",
+            "model_search_item_snapshot",
+            "model_search_item_tag_snapshot",
         ),
         output_path=pathlib.Path(
             "extensions/models-core/src/main/resources/io/medatarun/model/infra/db/init__models_sqlite.sql"
@@ -227,8 +231,8 @@ def build_auth_system_maintenance_insert_sql() -> str:
             'System maintenance',
             NULL,
             NULL,
-            '2025-01-01 01:00:00.000',
-            '2025-01-01 01:00:00.000'
+            1735689600000,
+            1735689600000
         );
         """
     )

@@ -87,7 +87,7 @@ CREATE TABLE users (
     password_hash TEXT NOT NULL,
     admin INTEGER NOT NULL,
     bootstrap INTEGER NOT NULL,
-    disabled_date INT
+    disabled_date INTEGER
 );
 
 CREATE INDEX idx_auth_actor_created_at ON auth_actor (created_at);
