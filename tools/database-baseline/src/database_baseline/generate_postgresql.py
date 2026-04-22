@@ -99,12 +99,14 @@ def cleanup_pg_dump_output(sql: str, schema: str) -> str:
     filtered_lines: list[str] = []
     for line in sql.splitlines():
         stripped_line = line.strip()
+        # Drop pg_dump comment blocks and metadata directives.
         if stripped_line.startswith("--"):
             continue
         if stripped_line.startswith("\\"):
             continue
 
         upper_line = stripped_line.upper()
+        # Drop session bootstrap statements injected by pg_dump.
         if upper_line.startswith("SET ") and stripped_line.endswith(";"):
             continue
         if upper_line.startswith("SELECT PG_CATALOG.SET_CONFIG(") and stripped_line.endswith(";"):
@@ -112,13 +114,30 @@ def cleanup_pg_dump_output(sql: str, schema: str) -> str:
 
         filtered_lines.append(line)
 
-    cleaned_sql = "\n".join(filtered_lines).strip()
+    compacted_lines = compact_consecutive_blank_lines(filtered_lines)
+    cleaned_sql = "\n".join(compacted_lines).strip()
     if not cleaned_sql:
         raise RuntimeError("pg_dump output is empty after cleanup")
 
+    # Generated scripts must not depend on an environment-specific schema name.
     quoted_schema_prefix_pattern = re.compile(rf'"{re.escape(schema)}"\.')
     unquoted_schema_prefix_pattern = re.compile(rf"\b{re.escape(schema)}\.")
     cleaned_sql = quoted_schema_prefix_pattern.sub("", cleaned_sql)
     cleaned_sql = unquoted_schema_prefix_pattern.sub("", cleaned_sql)
 
     return cleaned_sql + "\n"
+
+
+def compact_consecutive_blank_lines(lines: list[str]) -> list[str]:
+    """
+    Keep at most one blank line between SQL statements to avoid noisy output.
+    """
+    compacted_lines: list[str] = []
+    previous_was_blank = False
+    for line in lines:
+        current_is_blank = line.strip() == ""
+        if current_is_blank and previous_was_blank:
+            continue
+        compacted_lines.append(line)
+        previous_was_blank = current_is_blank
+    return compacted_lines
