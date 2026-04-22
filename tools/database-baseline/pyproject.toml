@@ -13,7 +13,9 @@ dependencies = [
 ]
 
 [project.scripts]
-database-baseline = "database_baseline.__main__:main"
+database-baseline-sqlite = "database_baseline.__main__:main_sqlite"
+database-baseline-postgresql = "database_baseline.__main__:main_postgresql"
+format = "database_baseline.__main__:format"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
