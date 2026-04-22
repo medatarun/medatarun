@@ -16,7 +16,7 @@ Launch medatarun on the latest commit containing database changes before release
 
 ```bash
 cd tools/database-baseline
-uv run database-baseline --db-path $ENV_DEV_SQLITE/data/database.db --dialect sqlite
+uv run database-baseline-sqlite --db-path $ENV_DEV_SQLITE/data/database.db --dialect sqlite
 ```
 
 Check that there is no différence between expected baseline as committed and 
