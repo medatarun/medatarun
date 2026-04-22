@@ -19,3 +19,13 @@ uv run database-baseline \
   --dialect sqlite \
   --db-path /path/to/medatarun/data/database.db
 ```
+
+Generate module init SQL files from a PostgreSQL schema:
+
+```bash
+uv run database-baseline-postgresql \
+  --db-url postgresql://localhost:5432/medatarun \
+  --db-user medatarun \
+  --db-password your_password \
+  --schema your_schema
+```
