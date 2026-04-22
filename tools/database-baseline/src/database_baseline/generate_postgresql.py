@@ -1,9 +1,11 @@
 import os
 import pathlib
+import re
 import subprocess
 from typing import Callable
 
 from database_baseline.module_specs import ModuleSpec
+from database_baseline.utils.sqlfluff_formatter import format_sqlite_with_sqlfluff
 
 OutputCallback = Callable[[str, pathlib.Path], None]
 
@@ -34,7 +36,9 @@ def generate_for_postgresql_modules(
             docker_container=docker_container,
             module_spec=module_spec,
         )
-        output_callback(script, module_spec.output_path_postgresql)
+        cleaned_script = cleanup_pg_dump_output(script, schema)
+        formatted_script = format_sqlite_with_sqlfluff(cleaned_script, "postgres")
+        output_callback(formatted_script, module_spec.output_path_postgresql)
 
 
 def export_module_schema_sql(
@@ -85,3 +89,36 @@ def export_module_schema_sql(
     if not sql:
         raise RuntimeError(f"pg_dump returned an empty output for module [{module_spec.name}]")
     return sql + "\n"
+
+
+def cleanup_pg_dump_output(sql: str, schema: str) -> str:
+    """
+    Remove pg_dump boilerplate statements and comments, then drop schema qualifiers.
+    The generated module scripts keep only portable DDL statements.
+    """
+    filtered_lines: list[str] = []
+    for line in sql.splitlines():
+        stripped_line = line.strip()
+        if stripped_line.startswith("--"):
+            continue
+        if stripped_line.startswith("\\"):
+            continue
+
+        upper_line = stripped_line.upper()
+        if upper_line.startswith("SET ") and stripped_line.endswith(";"):
+            continue
+        if upper_line.startswith("SELECT PG_CATALOG.SET_CONFIG(") and stripped_line.endswith(";"):
+            continue
+
+        filtered_lines.append(line)
+
+    cleaned_sql = "\n".join(filtered_lines).strip()
+    if not cleaned_sql:
+        raise RuntimeError("pg_dump output is empty after cleanup")
+
+    quoted_schema_prefix_pattern = re.compile(rf'"{re.escape(schema)}"\.')
+    unquoted_schema_prefix_pattern = re.compile(rf"\b{re.escape(schema)}\.")
+    cleaned_sql = quoted_schema_prefix_pattern.sub("", cleaned_sql)
+    cleaned_sql = unquoted_schema_prefix_pattern.sub("", cleaned_sql)
+
+    return cleaned_sql + "\n"
