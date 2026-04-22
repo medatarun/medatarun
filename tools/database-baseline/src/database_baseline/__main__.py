@@ -5,6 +5,7 @@ import sqlite3
 from database_baseline.module_specs import MODULE_SPECS
 from database_baseline.generate_postgresql import generate_for_postgresql_modules
 from database_baseline.generate_sqlite import generate_for_sqlite_modules
+from database_baseline.utils.sqlfluff_formatter import format_sqlite_with_sqlfluff
 
 if __name__ == "__main__":
     raise RuntimeError("You should use either main_postgresql() or main_sqlite()")
@@ -66,3 +67,22 @@ def main_sqlite() -> None:
             print(f"Generated {resolved_output_path}")
 
         generate_for_sqlite_modules(connection, output_callback, MODULE_SPECS)
+
+
+def format() -> None:
+    """
+    Format all generated module SQL files in place using sqlfluff.
+    """
+    repo_root = pathlib.Path(__file__).resolve().parents[4]
+
+    def format_file(sql_path: pathlib.Path, dialect: str) -> None:
+        if not sql_path.exists():
+            raise FileNotFoundError(f"Missing file {sql_path}")
+        current_sql = sql_path.read_text(encoding="utf-8")
+        formatted_sql = format_sqlite_with_sqlfluff(current_sql, dialect)
+        sql_path.write_text(formatted_sql, encoding="utf-8")
+        print(f"Formatted {sql_path}")
+
+    for module_spec in MODULE_SPECS:
+        format_file(repo_root / module_spec.output_path_sqlite, "sqlite")
+        format_file(repo_root / module_spec.output_path_postgresql, "postgres")

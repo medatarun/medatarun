@@ -23,15 +23,15 @@ CREATE TABLE auth_role_permission (
     auth_role_id UUID NOT NULL,
     permission VARCHAR(50) NOT NULL,
     PRIMARY KEY (auth_role_id, permission),
-    FOREIGN KEY (auth_role_id) REFERENCES auth_role(id)
+    FOREIGN KEY (auth_role_id) REFERENCES auth_role (id)
 );
 
 CREATE TABLE auth_actor_role (
     auth_actor_id UUID NOT NULL,
     auth_role_id UUID NOT NULL,
     PRIMARY KEY (auth_actor_id, auth_role_id),
-    FOREIGN KEY (auth_actor_id) REFERENCES auth_actor(id),
-    FOREIGN KEY (auth_role_id) REFERENCES auth_role(id)
+    FOREIGN KEY (auth_actor_id) REFERENCES auth_actor (id),
+    FOREIGN KEY (auth_role_id) REFERENCES auth_role (id)
 );
 
 CREATE TABLE auth_client (
@@ -90,11 +90,11 @@ CREATE TABLE users (
     disabled_date TIMESTAMPTZ
 );
 
-CREATE INDEX idx_auth_actor_created_at ON auth_actor(created_at);
-CREATE INDEX idx_auth_actor_issuer_subject ON auth_actor(issuer, subject);
-CREATE UNIQUE INDEX idx_auth_role_key ON auth_role(key);
-CREATE INDEX idx_auth_code_expires_at ON auth_code(expires_at);
-CREATE INDEX idx_auth_ctx_expires_at ON auth_ctx(expires_at);
+CREATE INDEX idx_auth_actor_created_at ON auth_actor (created_at);
+CREATE INDEX idx_auth_actor_issuer_subject ON auth_actor (issuer, subject);
+CREATE UNIQUE INDEX idx_auth_role_key ON auth_role (key);
+CREATE INDEX idx_auth_code_expires_at ON auth_code (expires_at);
+CREATE INDEX idx_auth_ctx_expires_at ON auth_ctx (expires_at);
 
 INSERT INTO auth_actor (id, issuer, subject, full_name, email, disabled_date, created_at, last_seen_at)
 VALUES (

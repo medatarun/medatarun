@@ -3,10 +3,9 @@ import sqlite3
 from dataclasses import dataclass
 from typing import Callable
 
-from sqlfluff.api.simple import fix as sqlfluff_fix
-from sqlfluff.core import FluffConfig
 
 from database_baseline.module_specs import ModuleSpec
+from database_baseline.utils.sqlfluff_formatter import format_sqlite_with_sqlfluff
 from database_baseline.utils.strip_simple_identifier_quotes import strip_simple_identifier_quotes
 
 TableName = str
@@ -33,13 +32,6 @@ class DbInspectionResult:
     indexes: dict[IndexName, CreateSql]
 
 
-SQLFLUFF_CONFIG = FluffConfig.from_strings(
-    """
-    [sqlfluff]
-    dialect = sqlite
-    max_line_length = 140
-    """
-)
 
 def generate_for_sqlite_modules(
         connection: sqlite3.Connection,
@@ -50,7 +42,7 @@ def generate_for_sqlite_modules(
     ensure_all_tables_mapped(db_inspection_result, module_specs)
     for module_spec in module_specs:
         script = build_module_script(connection, db_inspection_result, module_spec)
-        formatted_script = format_sql_with_sqlfluff(script)
+        formatted_script = format_sqlite_with_sqlfluff(script, "sqlite")
         output_callback(formatted_script, module_spec.output_path_sqlite)
 
 
@@ -179,10 +171,3 @@ def normalize_sql(sql: str) -> str:
     if not text.endswith(";"):
         text = text + ";"
     return text
-
-
-def format_sql_with_sqlfluff(sql: str) -> str:
-    formatted_sql = sqlfluff_fix(sql, config=SQLFLUFF_CONFIG)
-    if not formatted_sql.endswith("\n"):
-        return formatted_sql + "\n"
-    return formatted_sql

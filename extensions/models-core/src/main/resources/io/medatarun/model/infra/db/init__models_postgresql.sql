@@ -220,14 +220,14 @@ CREATE TABLE model_search_item_tag_snapshot (
 CREATE INDEX idx_model_event_model_id ON model_event (model_id);
 CREATE INDEX idx_model_type_model_id ON model_type_snapshot (model_snapshot_id);
 CREATE UNIQUE INDEX ux_model_event_release_model_version
-    ON model_event (model_id, model_version)
-    WHERE event_type = 'model_release' AND model_version IS NOT NULL;
+ON model_event (model_id, model_version)
+WHERE event_type = 'model_release' AND model_version IS NOT NULL;
 CREATE UNIQUE INDEX ux_model_snapshot_current_head_key
-    ON model_snapshot (key)
-    WHERE snapshot_kind = 'CURRENT_HEAD';
+ON model_snapshot (key)
+WHERE snapshot_kind = 'CURRENT_HEAD';
 CREATE UNIQUE INDEX ux_model_snapshot_current_head_model_id
-    ON model_snapshot (model_id)
-    WHERE snapshot_kind = 'CURRENT_HEAD';
+ON model_snapshot (model_id)
+WHERE snapshot_kind = 'CURRENT_HEAD';
 CREATE UNIQUE INDEX ux_model_snapshot_version_snapshot_release_event_id
-    ON model_snapshot (model_event_release_id)
-    WHERE snapshot_kind = 'VERSION_SNAPSHOT' AND model_event_release_id IS NOT NULL;
+ON model_snapshot (model_event_release_id)
+WHERE snapshot_kind = 'VERSION_SNAPSHOT' AND model_event_release_id IS NOT NULL;

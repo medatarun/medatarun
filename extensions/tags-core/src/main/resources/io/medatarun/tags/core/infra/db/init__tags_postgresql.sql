@@ -27,7 +27,7 @@ CREATE TABLE tag_view_current_tag (
     key TEXT NOT NULL,
     name TEXT,
     description TEXT,
-    FOREIGN KEY (tag_group_id) REFERENCES tag_view_current_tag_group(id) ON DELETE CASCADE
+    FOREIGN KEY (tag_group_id) REFERENCES tag_view_current_tag_group (id) ON DELETE CASCADE
 );
 
 CREATE TABLE tag_view_history_tag (
@@ -57,8 +57,8 @@ CREATE TABLE tag_view_history_tag_group (
     FOREIGN KEY (tag_event_id) REFERENCES tag_event (id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_tag_view_current_tag__group_key ON tag_view_current_tag(tag_group_id, key);
-CREATE INDEX idx_tag_view_current_tag__scope_key ON tag_view_current_tag(scope_type, scope_id, key);
-CREATE INDEX idx_tag_view_history_tag__lookup ON tag_view_history_tag(tag_id, valid_from, valid_to);
-CREATE INDEX idx_tag_view_history_tag__scope ON tag_view_history_tag(scope_type, scope_id);
-CREATE INDEX idx_tag_view_history_tag_group__lookup ON tag_view_history_tag_group(tag_group_id, valid_from, valid_to);
+CREATE INDEX idx_tag_view_current_tag__group_key ON tag_view_current_tag (tag_group_id, key);
+CREATE INDEX idx_tag_view_current_tag__scope_key ON tag_view_current_tag (scope_type, scope_id, key);
+CREATE INDEX idx_tag_view_history_tag__lookup ON tag_view_history_tag (tag_id, valid_from, valid_to);
+CREATE INDEX idx_tag_view_history_tag__scope ON tag_view_history_tag (scope_type, scope_id);
+CREATE INDEX idx_tag_view_history_tag_group__lookup ON tag_view_history_tag_group (tag_group_id, valid_from, valid_to);
