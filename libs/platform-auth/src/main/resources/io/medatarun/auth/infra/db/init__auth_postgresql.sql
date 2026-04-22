@@ -1,100 +1,137 @@
 CREATE TABLE auth_actor (
-    id UUID PRIMARY KEY,
-    issuer TEXT NOT NULL,
-    subject TEXT NOT NULL,
-    full_name TEXT NOT NULL,
-    email TEXT,
-    disabled_date TIMESTAMPTZ,
-    created_at TIMESTAMPTZ NOT NULL,
-    last_seen_at TIMESTAMPTZ NOT NULL,
-    UNIQUE (issuer, subject)
-);
-
-CREATE TABLE auth_role (
-    id UUID PRIMARY KEY,
-    key VARCHAR(30) NOT NULL,
-    name VARCHAR(30) NOT NULL,
-    description TEXT,
-    created_at TIMESTAMPTZ NOT NULL,
-    last_updated_at TIMESTAMPTZ NOT NULL
-);
-
-CREATE TABLE auth_role_permission (
-    auth_role_id UUID NOT NULL,
-    permission VARCHAR(50) NOT NULL,
-    PRIMARY KEY (auth_role_id, permission),
-    FOREIGN KEY (auth_role_id) REFERENCES auth_role (id)
+    id uuid NOT NULL,
+    issuer text NOT NULL,
+    subject text NOT NULL,
+    full_name text NOT NULL,
+    email text,
+    disabled_date timestamp with time zone,
+    created_at timestamp with time zone NOT NULL,
+    last_seen_at timestamp with time zone NOT NULL
 );
 
 CREATE TABLE auth_actor_role (
-    auth_actor_id UUID NOT NULL,
-    auth_role_id UUID NOT NULL,
-    PRIMARY KEY (auth_actor_id, auth_role_id),
-    FOREIGN KEY (auth_actor_id) REFERENCES auth_actor (id),
-    FOREIGN KEY (auth_role_id) REFERENCES auth_role (id)
+    auth_actor_id uuid NOT NULL,
+    auth_role_id uuid NOT NULL
 );
 
 CREATE TABLE auth_client (
-    client_id TEXT PRIMARY KEY,
-    origin TEXT NOT NULL,
-    original_registration_payload JSONB,
-    redirect_uris_json JSONB NOT NULL,
-    grant_types_json JSONB NOT NULL,
-    response_types_json JSONB NOT NULL,
-    token_endpoint_auth_method TEXT NOT NULL,
-    client_name TEXT,
-    client_uri TEXT,
-    logo_uri TEXT,
-    contacts_json JSONB NOT NULL,
-    software_id TEXT,
-    software_version TEXT,
-    tos_uri TEXT,
-    policy_uri TEXT,
-    created_at TIMESTAMPTZ NOT NULL,
-    last_used_at TIMESTAMPTZ NOT NULL
+    client_id text NOT NULL,
+    origin text NOT NULL,
+    original_registration_payload jsonb,
+    redirect_uris_json jsonb NOT NULL,
+    grant_types_json jsonb NOT NULL,
+    response_types_json jsonb NOT NULL,
+    token_endpoint_auth_method text NOT NULL,
+    client_name text,
+    client_uri text,
+    logo_uri text,
+    contacts_json jsonb NOT NULL,
+    software_id text,
+    software_version text,
+    tos_uri text,
+    policy_uri text,
+    created_at timestamp with time zone NOT NULL,
+    last_used_at timestamp with time zone NOT NULL
 );
 
 CREATE TABLE auth_code (
-    code TEXT PRIMARY KEY,
-    client_id TEXT NOT NULL,
-    redirect_uri TEXT NOT NULL,
-    subject TEXT NOT NULL,
-    scope TEXT NOT NULL,
-    code_challenge TEXT NOT NULL,
-    code_challenge_method TEXT NOT NULL,
-    nonce TEXT,
-    auth_time TIMESTAMPTZ NOT NULL,
-    expires_at TIMESTAMPTZ NOT NULL
+    code text NOT NULL,
+    client_id text NOT NULL,
+    redirect_uri text NOT NULL,
+    subject text NOT NULL,
+    scope text NOT NULL,
+    code_challenge text NOT NULL,
+    code_challenge_method text NOT NULL,
+    nonce text,
+    auth_time timestamp with time zone NOT NULL,
+    expires_at timestamp with time zone NOT NULL
 );
 
 CREATE TABLE auth_ctx (
-    authorize_ctx_code TEXT PRIMARY KEY,
-    client_id TEXT NOT NULL,
-    redirect_uri TEXT NOT NULL,
-    scope TEXT NOT NULL,
-    state TEXT,
-    code_challenge TEXT NOT NULL,
-    code_challenge_method TEXT NOT NULL,
-    nonce TEXT,
-    created_at TIMESTAMPTZ NOT NULL,
-    expires_at TIMESTAMPTZ NOT NULL
+    authorize_ctx_code text NOT NULL,
+    client_id text NOT NULL,
+    redirect_uri text NOT NULL,
+    scope text NOT NULL,
+    state text,
+    code_challenge text NOT NULL,
+    code_challenge_method text NOT NULL,
+    nonce text,
+    created_at timestamp with time zone NOT NULL,
+    expires_at timestamp with time zone NOT NULL
+);
+
+CREATE TABLE auth_role (
+    id uuid NOT NULL,
+    key character varying(30) NOT NULL,
+    name character varying(30) NOT NULL,
+    description text,
+    created_at timestamp with time zone NOT NULL,
+    last_updated_at timestamp with time zone NOT NULL
+);
+
+CREATE TABLE auth_role_permission (
+    auth_role_id uuid NOT NULL,
+    permission character varying(50) NOT NULL
 );
 
 CREATE TABLE users (
-    id UUID PRIMARY KEY,
-    login TEXT NOT NULL UNIQUE,
-    full_name TEXT NOT NULL,
-    password_hash TEXT NOT NULL,
-    admin BOOLEAN NOT NULL,
-    bootstrap BOOLEAN NOT NULL,
-    disabled_date TIMESTAMPTZ
+    id uuid NOT NULL,
+    login text NOT NULL,
+    full_name text NOT NULL,
+    password_hash text NOT NULL,
+    admin boolean NOT NULL,
+    bootstrap boolean NOT NULL,
+    disabled_date timestamp with time zone
 );
 
-CREATE INDEX idx_auth_actor_created_at ON auth_actor (created_at);
-CREATE INDEX idx_auth_actor_issuer_subject ON auth_actor (issuer, subject);
-CREATE UNIQUE INDEX idx_auth_role_key ON auth_role (key);
-CREATE INDEX idx_auth_code_expires_at ON auth_code (expires_at);
-CREATE INDEX idx_auth_ctx_expires_at ON auth_ctx (expires_at);
+ALTER TABLE ONLY auth_actor
+ADD CONSTRAINT auth_actor_issuer_subject_key UNIQUE (issuer, subject);
+
+ALTER TABLE ONLY auth_actor
+ADD CONSTRAINT auth_actor_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY auth_actor_role
+ADD CONSTRAINT auth_actor_role_pkey PRIMARY KEY (auth_actor_id, auth_role_id);
+
+ALTER TABLE ONLY auth_client
+ADD CONSTRAINT auth_client_pkey PRIMARY KEY (client_id);
+
+ALTER TABLE ONLY auth_code
+ADD CONSTRAINT auth_code_pkey PRIMARY KEY (code);
+
+ALTER TABLE ONLY auth_ctx
+ADD CONSTRAINT auth_ctx_pkey PRIMARY KEY (authorize_ctx_code);
+
+ALTER TABLE ONLY auth_role_permission
+ADD CONSTRAINT auth_role_permission_pkey PRIMARY KEY (auth_role_id, permission);
+
+ALTER TABLE ONLY auth_role
+ADD CONSTRAINT auth_role_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY users
+ADD CONSTRAINT users_login_key UNIQUE (login);
+
+ALTER TABLE ONLY users
+ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+CREATE INDEX idx_auth_actor_created_at ON auth_actor USING btree (created_at);
+
+CREATE INDEX idx_auth_actor_issuer_subject ON auth_actor USING btree (issuer, subject);
+
+CREATE INDEX idx_auth_code_expires_at ON auth_code USING btree (expires_at);
+
+CREATE INDEX idx_auth_ctx_expires_at ON auth_ctx USING btree (expires_at);
+
+CREATE UNIQUE INDEX idx_auth_role_key ON auth_role USING btree (key);
+
+ALTER TABLE ONLY auth_actor_role
+ADD CONSTRAINT auth_actor_role_auth_actor_id_fkey FOREIGN KEY (auth_actor_id) REFERENCES auth_actor (id);
+
+ALTER TABLE ONLY auth_actor_role
+ADD CONSTRAINT auth_actor_role_auth_role_id_fkey FOREIGN KEY (auth_role_id) REFERENCES auth_role (id);
+
+ALTER TABLE ONLY auth_role_permission
+ADD CONSTRAINT auth_role_permission_auth_role_id_fkey FOREIGN KEY (auth_role_id) REFERENCES auth_role (id);
 
 INSERT INTO auth_actor (id, issuer, subject, full_name, email, disabled_date, created_at, last_seen_at)
 VALUES (

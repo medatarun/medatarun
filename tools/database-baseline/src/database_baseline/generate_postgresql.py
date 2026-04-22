@@ -37,6 +37,8 @@ def generate_for_postgresql_modules(
             module_spec=module_spec,
         )
         cleaned_script = cleanup_pg_dump_output(script, schema)
+        if module_spec.name == "auth":
+            cleaned_script = cleaned_script + "\n" + build_auth_system_maintenance_insert_postgresql_sql()
         formatted_script = format_sqlite_with_sqlfluff(cleaned_script, "postgres")
         output_callback(formatted_script, module_spec.output_path_postgresql)
 
@@ -141,3 +143,22 @@ def compact_consecutive_blank_lines(lines: list[str]) -> list[str]:
         compacted_lines.append(line)
         previous_was_blank = current_is_blank
     return compacted_lines
+
+
+def build_auth_system_maintenance_insert_postgresql_sql() -> str:
+    """
+    Seed the maintenance actor required by auth module initialization.
+    """
+    return (
+        "INSERT INTO auth_actor (id, issuer, subject, full_name, email, disabled_date, created_at, last_seen_at)\n"
+        "VALUES (\n"
+        "    '01941f29-7c00-7000-9a65-67088ebcbabd',\n"
+        "    'urn:medatarun:system',\n"
+        "    'system-maintenance',\n"
+        "    'System maintenance',\n"
+        "    NULL,\n"
+        "    NULL,\n"
+        "    '2025-01-01T00:00:00Z',\n"
+        "    '2025-01-01T00:00:00Z'\n"
+        ");\n"
+    )
