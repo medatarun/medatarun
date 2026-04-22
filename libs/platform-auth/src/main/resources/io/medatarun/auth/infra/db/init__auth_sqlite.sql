@@ -18,6 +18,22 @@ CREATE TABLE auth_actor_role (
     FOREIGN KEY (auth_role_id) REFERENCES auth_role (id)
 );
 
+CREATE TABLE auth_role (
+    id BINARY(16) PRIMARY KEY UNIQUE,
+    key VARCHAR(30) NOT NULL,
+    name VARCHAR(30) NOT NULL,
+    description TEXT,
+    created_at INTEGER NOT NULL,
+    last_updated_at INTEGER NOT NULL
+);
+
+CREATE TABLE auth_role_permission (
+    auth_role_id BINARY(16) NOT NULL,
+    permission VARCHAR(50) NOT NULL,
+    PRIMARY KEY (auth_role_id, permission),
+    FOREIGN KEY (auth_role_id) REFERENCES auth_role (id)
+);
+
 CREATE TABLE auth_client (
     client_id TEXT PRIMARY KEY,
     origin TEXT NOT NULL,
@@ -64,22 +80,6 @@ CREATE TABLE auth_ctx (
     expires_at INTEGER NOT NULL
 );
 
-CREATE TABLE auth_role (
-    id BINARY(16) PRIMARY KEY UNIQUE,
-    key VARCHAR(30) NOT NULL,
-    name VARCHAR(30) NOT NULL,
-    description TEXT,
-    created_at INTEGER NOT NULL,
-    last_updated_at INTEGER NOT NULL
-);
-
-CREATE TABLE auth_role_permission (
-    auth_role_id BINARY(16) NOT NULL,
-    permission VARCHAR(50) NOT NULL,
-    PRIMARY KEY (auth_role_id, permission),
-    FOREIGN KEY (auth_role_id) REFERENCES auth_role (id)
-);
-
 CREATE TABLE users (
     id BINARY(16) PRIMARY KEY UNIQUE,
     login TEXT NOT NULL UNIQUE,
@@ -97,16 +97,7 @@ CREATE INDEX idx_auth_ctx_expires_at ON auth_ctx (expires_at);
 CREATE UNIQUE INDEX idx_auth_role_key ON auth_role (key);
 
 
-INSERT INTO auth_actor (
-    id,
-    issuer,
-    subject,
-    full_name,
-    email,
-    disabled_date,
-    created_at,
-    last_seen_at
-)
+INSERT INTO auth_actor (id, issuer, subject, full_name, email, disabled_date, created_at, last_seen_at)
 VALUES (
     X'01941F297C0070009A6567088EBCBABD',
     'urn:medatarun:system',

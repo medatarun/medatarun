@@ -40,6 +40,7 @@ class DbInspectionResult:
 
 
 MODULE_SPECS: tuple[ModuleSpec, ...] = (
+    # Order is important as tables will be generated in this order
     ModuleSpec(
         name="auth",
         table_names=(
@@ -56,6 +57,7 @@ MODULE_SPECS: tuple[ModuleSpec, ...] = (
             "libs/platform-auth/src/main/resources/io/medatarun/auth/infra/db/init__auth_sqlite.sql"
         ),
     ),
+    # Order is important as tables will be generated in this order
     ModuleSpec(
         name="models",
         table_names=(
@@ -75,8 +77,8 @@ MODULE_SPECS: tuple[ModuleSpec, ...] = (
             "model_relationship_role_snapshot",
             "model_entity_pk_snapshot",
             "model_entity_pk_attribute_snapshot",
-            "model_business_key_attribute_snapshot",
             "model_business_key_snapshot",
+            "model_business_key_attribute_snapshot",
             "model_search_item_snapshot",
             "model_search_item_tag_snapshot",
         ),
@@ -186,7 +188,7 @@ def build_module_script(
     table_ddls: list[str] = []
     index_ddls: list[str] = []
 
-    for table_name in sorted(module_spec.table_names):
+    for table_name in module_spec.table_names:
         table_sql = db_inspection_result.tables.get(table_name)
         if table_sql is None:
             raise RuntimeError(f"Missing table SQL for [{table_name}] in module [{module_spec.name}]")

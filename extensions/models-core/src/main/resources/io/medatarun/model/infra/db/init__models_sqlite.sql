@@ -60,7 +60,6 @@ CREATE TABLE model_type_snapshot
     UNIQUE (model_snapshot_id, key)
 );
 
-
 CREATE TABLE model_entity_snapshot
 (
     id BINARY(16) PRIMARY KEY UNIQUE,
