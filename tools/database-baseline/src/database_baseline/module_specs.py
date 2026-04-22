@@ -5,7 +5,8 @@ import pathlib
 class ModuleSpec:
     name: str
     table_names: tuple[str, ...]
-    output_path: pathlib.Path
+    output_path_sqlite: pathlib.Path
+    output_path_postgresql: pathlib.Path
 
 
 MODULE_SPECS: tuple[ModuleSpec, ...] = (
@@ -22,9 +23,12 @@ MODULE_SPECS: tuple[ModuleSpec, ...] = (
             "auth_ctx",
             "users",
         ),
-        output_path=pathlib.Path(
+        output_path_sqlite=pathlib.Path(
             "libs/platform-auth/src/main/resources/io/medatarun/auth/infra/db/init__auth_sqlite.sql"
         ),
+        output_path_postgresql=pathlib.Path(
+            "libs/platform-auth/src/main/resources/io/medatarun/auth/infra/db/init__auth_postgresql.sql"
+        )
     ),
     # Order is important as tables will be generated in this order
     ModuleSpec(
@@ -51,9 +55,12 @@ MODULE_SPECS: tuple[ModuleSpec, ...] = (
             "model_search_item_snapshot",
             "model_search_item_tag_snapshot",
         ),
-        output_path=pathlib.Path(
+        output_path_sqlite=pathlib.Path(
             "extensions/models-core/src/main/resources/io/medatarun/model/infra/db/init__models_sqlite.sql"
         ),
+        output_path_postgresql=pathlib.Path(
+            "extensions/models-core/src/main/resources/io/medatarun/model/infra/db/init__models_postgresql.sql"
+        )
     ),
     ModuleSpec(
         name="tags",
@@ -64,16 +71,22 @@ MODULE_SPECS: tuple[ModuleSpec, ...] = (
             "tag_view_history_tag",
             "tag_view_history_tag_group",
         ),
-        output_path=pathlib.Path(
+        output_path_sqlite=pathlib.Path(
             "extensions/tags-core/src/main/resources/io/medatarun/tags/core/infra/db/init__tags_sqlite.sql"
         ),
+        output_path_postgresql=pathlib.Path(
+            "extensions/tags-core/src/main/resources/io/medatarun/tags/core/infra/db/init__tags_postgresql.sql"
+        )
     ),
     ModuleSpec(
         name="actions",
         table_names=("action_audit_event",),
-        output_path=pathlib.Path(
+        output_path_sqlite=pathlib.Path(
             "extensions/platform-actions-storage-db/src/main/resources/io/medatarun/actions/infra/db/init__actions_sqlite.sql"
         ),
+        output_path_postgresql=pathlib.Path(
+            "extensions/platform-actions-storage-db/src/main/resources/io/medatarun/actions/infra/db/init__actions_postgresql.sql"
+        )
     ),
 )
 

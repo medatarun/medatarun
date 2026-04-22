@@ -51,7 +51,7 @@ def generate_for_sqlite_modules(
     for module_spec in module_specs:
         script = build_module_script(connection, db_inspection_result, module_spec)
         formatted_script = format_sql_with_sqlfluff(script)
-        output_callback(formatted_script, module_spec.output_path)
+        output_callback(formatted_script, module_spec.output_path_sqlite)
 
 
 def inspect_database(connection: sqlite3.Connection) -> DbInspectionResult:
