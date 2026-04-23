@@ -32,8 +32,8 @@ class ActionNotFoundByKeysInternalException(actionGroupKey: String, actionKey: S
     StatusCode.INTERNAL_SERVER_ERROR
 )
 
-class ActionSemanticsInvalidSubjectFormatException(subject: String) : MedatarunException(
-    "Invalid action semantics subject format [$subject], expected format is type(param,param)"
+class ActionSemanticsInvalidSubjectFormatException(actionKey: String, subject: String) : MedatarunException(
+    "Invalid action [$actionKey] semantics subject format [$subject], expected format is type(param,param)"
 )
 
 class ActionSemanticsAutoInferenceException(actionKey: String, reason: String) : MedatarunException(

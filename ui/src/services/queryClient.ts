@@ -1,4 +1,4 @@
-import { QueryClient } from "@tanstack/react-query";
+import { MutationCache, QueryClient } from "@tanstack/react-query";
 import { Problem } from "@seij/common-types";
 
 /**
@@ -15,6 +15,13 @@ import { Problem } from "@seij/common-types";
  * - retry transient errors up to 3 attempts.
  */
 export const queryClient = new QueryClient({
+  mutationCache: new MutationCache({
+    onSuccess: () => {
+      // Totally overkill but for now, prefer to invalidate everything
+      // when mutation occurs than stay with outdated screens
+      queryClient.invalidateQueries();
+    },
+  }),
   defaultOptions: {
     queries: {
       retry: (failureCount, error) => {

@@ -1,5 +1,4 @@
 export * from "./tag.actioncontexts.ts";
-export * from "./tag.actionPostHook.ts";
 export * from "./tag.domain.ts";
 export * from "./tag.dto.ts";
 export * from "./tag.hooks.ts";

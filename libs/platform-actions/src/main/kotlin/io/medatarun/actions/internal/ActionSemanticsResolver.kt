@@ -25,7 +25,7 @@ internal class ActionSemanticsResolver(val vocabulary: SemanticsVocabulary) {
     ): ActionSemantics {
         return ActionSemanticsResolved(
             intent = declaration.intent,
-            subjects = subjectDecoder.decodeSubjects(declaration.subjects),
+            subjects = subjectDecoder.decodeSubjects(action.key, declaration.subjects),
             returns = normalizeReturns(declaration.returns)
         )
     }
