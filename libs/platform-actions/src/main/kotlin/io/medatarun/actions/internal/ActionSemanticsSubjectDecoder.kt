@@ -3,29 +3,30 @@ package io.medatarun.actions.internal
 import io.medatarun.actions.domain.ActionSemanticsInvalidSubjectFormatException
 import io.medatarun.actions.domain.ActionSemanticsSubject
 import io.medatarun.actions.domain.ActionSemanticsSubjectReferencingParam
+import io.medatarun.actions.domain.ActionSemanticsSubjectReferencingParamKind
 
 internal class ActionSemanticsSubjectDecoder(val vocabulary: SemanticsVocabulary) {
-    fun decodeSubjects(declaredSubjects: List<String>): List<ActionSemanticsSubject> {
+    fun decodeSubjects(actionKey: String, declaredSubjects: List<String>): List<ActionSemanticsSubject> {
         val subjects = mutableListOf<ActionSemanticsSubject>()
 
         for (declaredSubject in declaredSubjects) {
             val subjectString = declaredSubject.trim()
             if (subjectString.isEmpty()) {
-                throw ActionSemanticsInvalidSubjectFormatException(declaredSubject)
+                throw ActionSemanticsInvalidSubjectFormatException(actionKey, declaredSubject)
             }
 
             val openParenthesisIndex = subjectString.indexOf('(')
             val closeParenthesisIndex = subjectString.lastIndexOf(')')
             if (openParenthesisIndex <= 0 || closeParenthesisIndex <= openParenthesisIndex) {
-                throw ActionSemanticsInvalidSubjectFormatException(declaredSubject)
+                throw ActionSemanticsInvalidSubjectFormatException(actionKey, declaredSubject)
             }
             if (closeParenthesisIndex != subjectString.length - 1) {
-                throw ActionSemanticsInvalidSubjectFormatException(declaredSubject)
+                throw ActionSemanticsInvalidSubjectFormatException(actionKey, declaredSubject)
             }
 
             val subjectType = subjectString.substring(0, openParenthesisIndex).trim()
             if (subjectType.isEmpty()) {
-                throw ActionSemanticsInvalidSubjectFormatException(declaredSubject)
+                throw ActionSemanticsInvalidSubjectFormatException(actionKey, declaredSubject)
             }
 
             val referencingParams = subjectString
@@ -35,7 +36,7 @@ internal class ActionSemanticsSubjectDecoder(val vocabulary: SemanticsVocabulary
                 .filter { it.isNotEmpty() }
                 .map { paramName ->
                     val kind = vocabulary.toReferencingParamKindOptional(paramName)
-                        ?: throw ActionSemanticsInvalidSubjectFormatException(declaredSubject)
+                        ?: ActionSemanticsSubjectReferencingParamKind.KEY
                     ActionSemanticsSubjectReferencingParam(name = paramName, kind = kind)
                 }
 

@@ -1,12 +1,17 @@
 import type { QueryClient } from "@tanstack/react-query";
 import type { NavigateFn } from "@tanstack/react-router";
-import type { ActionDescriptor } from "@/business/action_registry";
+import {
+  type ActionDescriptor,
+  ActionRegistry,
+} from "@/business/action_registry";
 import type { ActionPerformerState } from "./ActionPerformer.tsx";
 import type {
   ActionDisplayedSubject,
   ActionDisplayedSubjectResource,
   ActionPerformerRequest,
 } from "./ActionPerformerRequest.tsx";
+import { actionPostSuccess } from "@/business/action-post/action-post-caches.ts";
+import { resolveNavigationAfterSuccess } from "@/business/action-post/action-post-navigate.ts";
 
 type ActionPostBaseContext = {
   action: ActionDescriptor;
@@ -75,6 +80,35 @@ export interface ActionPostHook {
    * - Do not perform cache work here (handled in onActionSuccess).
    */
   resolveNavigationAfterSuccess: (context: ActionPostNavigationContext) => void;
+}
+
+export class ActionPostHookCompat implements ActionPostHook {
+  private actionRegistry: ActionRegistry;
+  private queryClient: QueryClient;
+
+  constructor(actionRegistry: ActionRegistry, queryClient: QueryClient) {
+    this.actionRegistry = actionRegistry;
+    this.queryClient = queryClient;
+  }
+  match(subject: ActionDisplayedSubjectResource): boolean {
+    return true;
+  }
+
+  async onActionSuccess(
+    context: ActionPostSuccessContext,
+    queryClient: QueryClient,
+  ): Promise<boolean> {
+    await actionPostSuccess(
+      context.action.key,
+      this.queryClient,
+      this.actionRegistry,
+    );
+    return true;
+  }
+
+  resolveNavigationAfterSuccess(context: ActionPostNavigationContext): void {
+    resolveNavigationAfterSuccess(context);
+  }
 }
 
 /**

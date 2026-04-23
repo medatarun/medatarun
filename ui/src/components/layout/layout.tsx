@@ -8,6 +8,7 @@ import { useMemo } from "react";
 import {
   ActionRegistry,
   ActionsContext,
+  useActionRegistry,
   useActionRegistryQuery,
 } from "@/business/action_registry";
 import { ActionPerformerView } from "@/components/business/actions/ActionPerformerView.tsx";
@@ -21,11 +22,13 @@ import {
 } from "@seij/common-ui-auth";
 import { UserSessionExpiredDialog } from "@/components/auth/UserSessionExpiredDialog.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { modelActionPostHook } from "@/business/model";
-import { tagActionPostHook } from "@/business/tag";
-import { ActionPostHooks } from "@/components/business/actions/ActionPostHook.ts";
+import {
+  ActionPostHookCompat,
+  ActionPostHooks,
+} from "@/components/business/actions/ActionPostHook.ts";
 import { toProblem } from "@seij/common-types";
 import { useMenu } from "./menu.tsx";
+import { queryClient } from "@/services/queryClient.ts";
 
 const EMPTY_ACTION_REGISTRY = new ActionRegistry({ items: [] });
 
@@ -41,13 +44,6 @@ export function Layout() {
   // Translations
   const { t } = useAppI18n();
 
-  // Tooling for action managers so they can provide context and adapt their
-  // behavior when action succeeds (post actions)
-  const actionPostHooks = useMemo(
-    () => new ActionPostHooks([modelActionPostHook, tagActionPostHook]),
-    [],
-  );
-
   // Authentication needed to reload actions when user token is refreshed or
   // created, so the action list matches current user permissions.
   const authentication = useAuthentication();
@@ -58,8 +54,15 @@ export function Layout() {
   // Action registry is loaded depending on current authentication state
   // and reloaded when it changes
   const actionsQuery = useActionRegistryQuery(actionAccessScope);
-
   const actions = actionsQuery.data ?? EMPTY_ACTION_REGISTRY;
+
+  // Tooling for action managers so they can provide context and adapt their
+  // behavior when action succeeds (post actions)
+  const actionPostHooks = useMemo(
+    () => new ActionPostHooks([new ActionPostHookCompat(actions, queryClient)]),
+    [actions],
+  );
+
   const error = actionsQuery.error ? toProblem(actionsQuery.error) : null;
 
   const matchPath = (path: string | undefined) =>

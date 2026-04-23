@@ -6,7 +6,7 @@ import type {
   RoleListDto,
   WhoAmIRespDto,
 } from "@/business/actor/actor.dto.ts";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 async function whoami() {
   return executeActionJson<WhoAmIRespDto>("auth", "whoami", {});
@@ -55,14 +55,14 @@ export const useWhoami = (issuer: string | null, subject: string | null) => {
 
 export const useRoleList = () => {
   return useQuery({
-    queryKey: ["action", "auth", "role_list"],
+    queryKey: ["action", "auth", "role", "list"],
     queryFn: roleList,
   });
 };
 
 export const useRole = (roleId: string) => {
   return useQuery({
-    queryKey: ["action", "auth", "role_get", roleId],
+    queryKey: ["action", "auth", "role", "get", roleId],
     enabled: roleId.length > 0,
     queryFn: () => roleGet(roleId),
   });
@@ -70,28 +70,26 @@ export const useRole = (roleId: string) => {
 
 export const useActorList = () => {
   return useQuery({
-    queryKey: ["action", "auth", "actor_list"],
+    queryKey: ["action", "auth", "actor", "list"],
     queryFn: actorList,
   });
 };
 
 export const useActor = (actorId: string) => {
   return useQuery({
-    queryKey: ["action", "auth", "actor_get", actorId],
+    queryKey: ["action", "auth", "actor", "get", actorId],
     enabled: actorId.length > 0,
     queryFn: () => actorGet(actorId),
   });
 };
 
 function useRoleMutation(actionKey: string) {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { roleId: string; value: string }) =>
       executeActionJson("auth", actionKey, {
         roleRef: "id:" + props.roleId,
         value: props.value,
       }),
-    onSuccess: () => queryClient.invalidateQueries(),
   });
 }
 

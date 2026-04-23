@@ -168,7 +168,8 @@ sealed interface AuthAction<R> {
         title="Disable user",
         description = "Disable a user account. Only available for admins. This will automatically make the corresponding actor disabled and unable to connect with tokens.",
         securityRule = SecurityRuleNames.ADMIN,
-        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.UPDATE, ["user(username)"])
+
     )
     class UserDisable(
         @ActionParamDoc(
@@ -184,7 +185,8 @@ sealed interface AuthAction<R> {
         title="Enable user",
         description = "Enable a user account. Only available for admins. This will automatically make the corresponding actor enabled and able to connect with tokens.",
         securityRule = SecurityRuleNames.ADMIN,
-        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.UPDATE, ["user(username)"])
+
     )
     class UserEnable(
         @ActionParamDoc(
@@ -200,7 +202,7 @@ sealed interface AuthAction<R> {
         title="Change user full name",
         description = "Change user full name. Only available for admins. This will automatically change the corresponding actor fullname.",
         securityRule = SecurityRuleNames.ADMIN,
-        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.UPDATE, subjects=["user(username)"], returns=[])
     )
     class UserChangeFullname(
         @ActionParamDoc(
@@ -466,7 +468,8 @@ sealed interface AuthAction<R> {
         key="actor_disable",
         title="Disable actor",
         description = "Disable an actor. Only available for admins.",
-        securityRule = SecurityRuleNames.ADMIN
+        securityRule = SecurityRuleNames.ADMIN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.UPDATE, ["actor(actorId)"])
     )
     class ActorDisable(
         @ActionParamDoc(
@@ -481,7 +484,8 @@ sealed interface AuthAction<R> {
         key="actor_enable",
         title="Enable actor",
         description = "Enable an actor. Only available for admins.",
-        securityRule = SecurityRuleNames.ADMIN
+        securityRule = SecurityRuleNames.ADMIN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.UPDATE, ["actor(actorId)"])
     )
     class ActorEnable(
         @ActionParamDoc(

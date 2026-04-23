@@ -9,6 +9,7 @@ import type {
 import { throwError } from "@seij/common-types";
 import type { ActionKey } from "@/business/action_registry/actionRegistry.dictionnary.ts";
 import { isNil } from "lodash-es";
+import { actionRegistryStatic } from "@/business/action_registry/action_registry.static.ts";
 
 export class ActionDescriptor {
   public actionGroupKey: string;
@@ -186,3 +187,7 @@ function buildPayloadTemplate(action: ActionDescriptor): string {
   });
   return JSON.stringify(payload, null, 2);
 }
+
+export const ActionRegistryInstance: ActionRegistry = new ActionRegistry(
+  actionRegistryStatic,
+);
