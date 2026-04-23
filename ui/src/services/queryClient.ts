@@ -16,7 +16,9 @@ import { Problem } from "@seij/common-types";
  */
 export const queryClient = new QueryClient({
   mutationCache: new MutationCache({
-    onSuccess: (data, query) => {
+    onSuccess: () => {
+      // Totally overkill but for now, prefer to invalidate everything
+      // when mutation occurs than stay with outdated screens
       queryClient.invalidateQueries();
     },
   }),
