@@ -9,5 +9,6 @@ Starting now, you can download our first alpha release here.
 
 Look at [installation documentation](../../docs/installation/install-from-distribution) and the [Overview](../../docs/overview) to get Medatarun on your computer.
 
-<!-- truncate -->
+{/* truncate */}
+
 

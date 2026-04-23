@@ -9,7 +9,7 @@ Medatarun starts.
 
 Medatarun is starting today as an open source project.
 
-<!-- truncate -->
+{/* truncate */}
 
 The code is public, the foundations are in place, and the project is released in version 0.0.0.
 
