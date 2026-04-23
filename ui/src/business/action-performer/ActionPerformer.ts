@@ -13,21 +13,32 @@ import { throwError } from "@seij/common-types";
 
 export type ActionPerformerFormData = Record<string, unknown>;
 
-export type ActionPerformerState =
-  | { kind: "idle" }
-  | { kind: "pendingUser"; request: ActionRequest }
-  | { kind: "running"; request: ActionRequest }
-  | { kind: "done"; request: ActionRequest }
-  | { kind: "error"; request: ActionRequest; error: unknown };
+export type ActionPerformerRequestState =
+  | { requestId: string; kind: "pendingUser"; request: ActionRequest }
+  | { requestId: string; kind: "running"; request: ActionRequest }
+  | { requestId: string; kind: "done"; request: ActionRequest }
+  | {
+      requestId: string;
+      kind: "error";
+      request: ActionRequest;
+      error: unknown;
+    };
+
+export type ActionPerformerState = {
+  requests: ActionPerformerRequestState[];
+};
 
 type Listener = (s: ActionPerformerState) => void;
 
 export class ActionPerformer {
   private actionRegistry: ActionRegistry;
-  private state: ActionPerformerState = { kind: "idle" };
+  private state: ActionPerformerState = {
+    requests: [],
+  };
   private listeners = new Set<Listener>();
   private queryClient: QueryClient;
   private navigate: NavigateFn;
+  private nextRequestSequence = 0;
 
   constructor(
     actionRegistry: ActionRegistry,
@@ -56,11 +67,22 @@ export class ActionPerformer {
     return this.state;
   }
 
-  performAction(request: ActionRequest) {
-    if (this.state.kind !== "idle") {
-      throw new Error("Une action est déjà en cours");
+  getRequestState(requestId: string): ActionPerformerRequestState | null {
+    return findRequestById(this.state, requestId);
+  }
+
+  getLastStartedRequestState(): ActionPerformerRequestState | null {
+    if (this.state.requests.length === 0) {
+      return null;
     }
-    this.setState({ kind: "pendingUser", request });
+    return this.state.requests[this.state.requests.length - 1];
+  }
+
+  performAction(request: ActionRequest): string {
+    const requestId = `req_${++this.nextRequestSequence}`;
+    const requestState = createPendingRequestState(requestId, request);
+    this.setState(appendRequest(this.state, requestState));
+    return requestId;
   }
 
   executeAny<T = unknown>(
@@ -78,51 +100,50 @@ export class ActionPerformer {
     return executeActionJsonInternal(actionGroup, actionName, payload);
   }
 
-  async confirmAction(payload: ActionPayload): Promise<ActionResp> {
-    if (this.state.kind === "idle")
-      throw Error("No pending or waiting request");
-    if (this.state.kind === "running") throw Error("Request already running");
-    if (this.state.kind === "done") throw Error("Request already finished");
-
-    const { request } = this.state;
-    this.setState({ kind: "running", request });
+  async confirmAction(
+    requestId: string,
+    payload: ActionPayload,
+  ): Promise<ActionResp> {
+    const requestState = findRequestByIdOrThrow(this.state, requestId);
+    if (requestState.kind === "running") {
+      throw Error("Request already running");
+    }
+    if (requestState.kind === "done") {
+      throw Error("Request already finished");
+    }
+    this.setState(setRequestRunningState(this.state, requestId));
 
     try {
       const output: ActionResp = await this.execute(
-        request.actionGroupKey,
-        request.actionKey,
+        requestState.request,
         payload,
       );
-      this.setState({ kind: "done", request });
+      this.setState(setRequestDoneState(this.state, requestId));
       return output;
     } catch (e) {
-      this.setState({ kind: "error", request, error: e });
+      this.setState(setRequestErrorState(this.state, requestId, e));
       throw e;
     }
   }
 
-  cancelAction(reason?: unknown) {
-    this.setState({ kind: "idle" });
+  cancelAction(requestId: string, reason?: unknown) {
+    this.setState(removeRequestById(this.state, requestId));
   }
 
-  finishAction() {
-    this.setState({ kind: "idle" });
+  finishAction(requestId: string) {
+    this.setState(removeRequestById(this.state, requestId));
   }
 
   private async execute(
-    actionGroupKey: string,
-    actionKey: string,
+    request: ActionRequest,
     payload: ActionPayload,
   ): Promise<ActionResp> {
     const resp = await executeActionInternal(
-      actionGroupKey,
-      actionKey,
+      request.actionGroupKey,
+      request.actionKey,
       payload,
     );
-    const request = this.state.kind === "running" ? this.state.request : null;
-    if (request) {
-      await this.onActionSuccess(request);
-    }
+    await this.onActionSuccess(request);
     return resp;
   }
 
@@ -169,4 +190,102 @@ export class ActionPerformer {
       this.actionRegistry,
     );
   }
+}
+
+function findRequestByIdOrThrow(
+  state: ActionPerformerState,
+  requestId: string,
+): ActionPerformerRequestState {
+  const request = findRequestById(state, requestId);
+  if (request == null) {
+    throw new Error(`Action request not found: ${requestId}`);
+  }
+  return request;
+}
+
+function findRequestById(
+  state: ActionPerformerState,
+  requestId: string,
+): ActionPerformerRequestState | null {
+  return state.requests.find((it) => it.requestId === requestId) ?? null;
+}
+
+function createPendingRequestState(
+  requestId: string,
+  request: ActionRequest,
+): ActionPerformerRequestState {
+  return {
+    requestId,
+    kind: "pendingUser",
+    request,
+  };
+}
+
+function appendRequest(
+  state: ActionPerformerState,
+  request: ActionPerformerRequestState,
+): ActionPerformerState {
+  return {
+    requests: [...state.requests, request],
+  };
+}
+
+function replaceRequestById(
+  state: ActionPerformerState,
+  nextRequest: ActionPerformerRequestState,
+): ActionPerformerState {
+  return {
+    requests: state.requests.map((request) =>
+      request.requestId === nextRequest.requestId ? nextRequest : request,
+    ),
+  };
+}
+
+function setRequestRunningState(
+  state: ActionPerformerState,
+  requestId: string,
+): ActionPerformerState {
+  const request = findRequestByIdOrThrow(state, requestId);
+  return replaceRequestById(state, {
+    requestId: request.requestId,
+    kind: "running",
+    request: request.request,
+  });
+}
+
+function setRequestDoneState(
+  state: ActionPerformerState,
+  requestId: string,
+): ActionPerformerState {
+  const request = findRequestByIdOrThrow(state, requestId);
+  return replaceRequestById(state, {
+    requestId: request.requestId,
+    kind: "done",
+    request: request.request,
+  });
+}
+
+function setRequestErrorState(
+  state: ActionPerformerState,
+  requestId: string,
+  error: unknown,
+): ActionPerformerState {
+  const request = findRequestByIdOrThrow(state, requestId);
+  return replaceRequestById(state, {
+    requestId: request.requestId,
+    kind: "error",
+    request: request.request,
+    error,
+  });
+}
+
+function removeRequestById(
+  state: ActionPerformerState,
+  requestId: string,
+): ActionPerformerState {
+  return {
+    requests: state.requests.filter(
+      (request) => request.requestId !== requestId,
+    ),
+  };
 }

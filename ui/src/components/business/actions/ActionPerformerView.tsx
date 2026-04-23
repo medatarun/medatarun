@@ -16,7 +16,7 @@ import { type Ref, useEffect, useRef, useState } from "react";
 import { ActionOutputBox } from "./ActionOutput.tsx";
 import {
   type ActionCtx,
-  type ActionPerformerState,
+  type ActionPerformerRequestState,
   type ActionRequest,
   type ActionResp,
 } from "@/business/action-performer";
@@ -51,33 +51,37 @@ const DEBUG = false;
 
 export function ActionPerformerView() {
   // Separate state extraction here, so that when state changes all ActionPerformView is redrawn
-  const { state } = useActionPerformer();
+  const { performer } = useActionPerformer();
   const actionRegistry = useActionRegistry();
 
-  if (state.kind === "idle") return null;
-
-  const { request } = state; // request.location, request.params
+  const state = performer.getLastStartedRequestState();
+  if (state == null) {
+    return null;
+  }
+  const request = state.request;
   const action = actionRegistry.findActionOptional(
     request.actionGroupKey,
     request.actionKey,
   );
-  if (!action) return null;
+  if (!action) {
+    return null;
+  }
 
   const defaultFormData: FormDataType = {};
   for (const actionParam of action.parameters) {
     // Take the default value from parameters. Normalize the value so that
     // we always have null (not undefined)
     defaultFormData[actionParam.name] =
-      state.request.ctx.getDefaultValue(actionParam.name, state.request) ??
-      null;
+      request.ctx.getDefaultValue(actionParam.name, request) ?? null;
   }
 
-  const formFields = createFormFields(action, state.request.ctx);
+  const formFields = createFormFields(action, request.ctx);
 
   return (
     <ActionPerformerViewLoaded
-      request={request}
+      key={state.requestId}
       state={state}
+      request={request}
       action={action}
       defaultFormData={defaultFormData}
       formFields={formFields}
@@ -86,14 +90,14 @@ export function ActionPerformerView() {
 }
 
 export function ActionPerformerViewLoaded({
-  request,
   state,
+  request,
   action,
   defaultFormData,
   formFields,
 }: {
+  state: ActionPerformerRequestState;
   request: ActionRequest;
-  state: ActionPerformerState;
   action: ActionDescriptor;
   defaultFormData: FormDataType;
   formFields: FormFieldType[];
@@ -127,16 +131,16 @@ export function ActionPerformerViewLoaded({
       formData,
       actionRegistry,
     );
-    const output = await confirmAction(payload);
+    const output = await confirmAction(state.requestId, payload);
     setActionResp(output);
   };
 
   const onCancel = () => {
-    cancelAction();
+    cancelAction(state.requestId);
   };
 
   const onFinish = () => {
-    finishAction();
+    finishAction(state.requestId);
   };
 
   const handleChangeFormFieldInput = (field: FormFieldType, value: unknown) => {
@@ -147,9 +151,9 @@ export function ActionPerformerViewLoaded({
     const isDone = state.kind === "done";
     const display = hasResultToDisplay(actionResp);
     if (isDone && !display) {
-      finishAction();
+      finishAction(state.requestId);
     }
-  }, [state.kind, actionResp, finishAction]);
+  }, [state.kind, actionResp, finishAction, state.requestId]);
 
   useEffect(() => {
     if (state.kind !== "done") return;

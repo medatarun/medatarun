@@ -10,10 +10,13 @@ import {
 export interface ActionPerformerContextValue {
   performer: ActionPerformer;
   state: ActionPerformerState;
-  performAction: (req: ActionRequest) => void;
-  confirmAction: (formData: ActionPerformerFormData) => Promise<ActionResp>;
-  cancelAction: (reason?: unknown) => void;
-  finishAction: () => void;
+  performAction: (req: ActionRequest) => string;
+  confirmAction: (
+    requestId: string,
+    formData: ActionPerformerFormData,
+  ) => Promise<ActionResp>;
+  cancelAction: (requestId: string, reason?: unknown) => void;
+  finishAction: (requestId: string) => void;
 }
 
 export const ActionPerformerContext =

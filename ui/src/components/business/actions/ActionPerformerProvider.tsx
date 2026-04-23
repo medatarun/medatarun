@@ -24,12 +24,14 @@ export function ActionPerformerProvider({
   }, [performer]);
 
   const value: ActionPerformerContextValue = {
-    state: state,
-    performer: performer,
+    state,
+    performer,
     performAction: (actionRequest) => performer.performAction(actionRequest),
-    confirmAction: (payload) => performer.confirmAction(payload),
-    cancelAction: (reason) => performer.cancelAction(reason),
-    finishAction: () => performer.finishAction(),
+    confirmAction: (requestId, payload) =>
+      performer.confirmAction(requestId, payload),
+    cancelAction: (requestId, reason) =>
+      performer.cancelAction(requestId, reason),
+    finishAction: (requestId) => performer.finishAction(requestId),
   };
 
   return (
