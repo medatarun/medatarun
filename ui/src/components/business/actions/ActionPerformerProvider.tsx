@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
-import { type ActionPerformerState } from "@/business/action-performer";
+import {
+  ActionPerformer,
+  type ActionPerformerState,
+} from "@/business/action-performer";
 import {
   ActionPerformerContext,
   type ActionPerformerContextValue,
 } from "./ActionPerformerContext.tsx";
-import { ActionPerformerInstance } from "@/business/action-performer/action-performer-factory.ts";
 
-export function ActionProvider({ children }: { children: React.ReactNode }) {
-  const performer = ActionPerformerInstance;
+export function ActionPerformerProvider({
+  performer,
+  children,
+}: {
+  performer: ActionPerformer;
+  children: React.ReactNode;
+}) {
   const [state, setState] = useState<ActionPerformerState>(
     performer.getState(),
   );

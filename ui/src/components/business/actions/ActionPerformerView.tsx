@@ -1,4 +1,3 @@
-import { useActionPerformer } from "./ActionPerformerHook.tsx";
 import {
   Dialog,
   DialogActions,
@@ -13,15 +12,14 @@ import {
   type LabelProps,
   tokens,
 } from "@fluentui/react-components";
-
 import { type Ref, useEffect, useRef, useState } from "react";
 import { ActionOutputBox } from "./ActionOutput.tsx";
-import type {
-  ActionCtx,
-  ActionPerformerState,
-  ActionRequest,
+import {
+  type ActionCtx,
+  type ActionPerformerState,
+  type ActionRequest,
+  type ActionResp,
 } from "@/business/action-performer";
-import { type ActionResp } from "@/business/action-performer";
 import {
   type FormDataType,
   type FormFieldType,
@@ -49,6 +47,7 @@ import {
   ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE,
   ACTION_PERFORMER_INPUT_DEFAULT_COMPONENT,
 } from "./inputs/ActionPerformerInputRegistry.ts";
+import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
 
 const DEBUG = false;
 

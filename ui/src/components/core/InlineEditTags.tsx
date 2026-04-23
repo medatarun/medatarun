@@ -25,9 +25,9 @@ import {
   type TagScopeRef,
   useTags,
 } from "@/business/tag";
-import { useActionPerformer } from "@/components/business/actions/ActionPerformerHook.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
 import { type ActionDisplayedSubject } from "@/business/action-performer";
+import { useAppI18n } from "@/services/appI18n.tsx";
+import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
 
 const CREATE_OPTION_PREFIX = "__create__:";
 
