@@ -1,7 +1,9 @@
-import { actionTargetsDisplayedSubject } from "@/components/business/actions/ActionPostHook.matching.ts";
-import type { ActionPostNavigationContext } from "@/components/business/actions/ActionPostHook.ts";
+import type {
+  ActionDisplayedSubjectResource,
+  ActionPostNavigationContext,
+} from "@/business/action-performer";
+import { actionTargetsDisplayedSubject } from "@/business/action-performer";
 import type { NavigateFn } from "@tanstack/react-router";
-import type { ActionDisplayedSubjectResource } from "@/components/business/actions";
 
 /**
  * Called after onActionSuccess(...) has completed and action state is done.

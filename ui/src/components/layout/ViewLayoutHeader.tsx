@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import { makeStyles, tokens } from "@fluentui/react-components";
 import { ActionDescriptor } from "@/business/action_registry";
-import type { ActionCtx } from "@/components/business/actions";
+import type { ActionCtx } from "@/business/action-performer";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 const useStyles = makeStyles({

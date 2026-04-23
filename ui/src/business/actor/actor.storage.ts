@@ -1,4 +1,4 @@
-import { executeActionJson } from "@/business/action_runner";
+import { executeActionJson } from "@/business/action-performer";
 import type {
   ActorDetailsDto,
   ActorInfoDto,

@@ -32,7 +32,7 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { PersonKeyRegular } from "@fluentui/react-icons";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import { type ActionCtx } from "@/components/business/actions";
+import { type ActionCtx } from "@/business/action-performer";
 import {
   createActionCtxActor,
   createActionCtxActorRole,

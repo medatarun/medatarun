@@ -2,7 +2,7 @@ import { ActorInfo, AuthRole } from "@/business/actor";
 import {
   ActionCtxMapping,
   type ActionDisplayedSubject,
-} from "@/components/business/actions";
+} from "@/business/action-performer";
 
 export const createDisplayedSubjectRole = (
   roleId: string,

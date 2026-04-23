@@ -12,7 +12,7 @@ import { useAppI18n } from "@/services/appI18n.tsx";
 import {
   createActionCtxVoid,
   displaySubjectNone,
-} from "@/components/business/actions";
+} from "@/business/action-performer";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,

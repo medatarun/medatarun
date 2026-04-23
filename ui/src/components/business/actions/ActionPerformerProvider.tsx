@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
+import type { ActionPostHooks } from "@/business/action-performer";
 import {
   ActionPerformer,
   type ActionPerformerState,
-} from "./ActionPerformer.tsx";
+} from "@/business/action-performer";
 import {
   ActionPerformerContext,
   type ActionPerformerContextValue,
 } from "./ActionPerformerContext.tsx";
 import { useActionRegistry } from "@/business/action_registry";
-import type { ActionPostHooks } from "./ActionPostHook.ts";
 
 export function ActionProvider({
   children,

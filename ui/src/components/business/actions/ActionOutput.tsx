@@ -1,4 +1,4 @@
-import { type ActionResp } from "@/business/action_runner";
+import { type ActionResp } from "@/business/action-performer";
 import { makeStyles, tokens } from "@fluentui/react-components";
 
 export function ActionOutput({

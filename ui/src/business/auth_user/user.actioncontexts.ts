@@ -1,7 +1,7 @@
 import {
   ActionCtxMapping,
   type ActionDisplayedSubject,
-} from "@/components/business/actions";
+} from "@/business/action-performer";
 import type { UserInfoDto } from "@/business/auth_user/index.ts";
 
 export const createDisplayedSubjectUser = (

@@ -25,7 +25,7 @@ import { useAppI18n } from "@/services/appI18n.tsx";
 import {
   ActionPostHookCompat,
   ActionPostHooks,
-} from "@/components/business/actions/ActionPostHook.ts";
+} from "@/business/action-performer";
 import { toProblem } from "@seij/common-types";
 import { useMenu } from "./menu.tsx";
 import { queryClient } from "@/services/queryClient.ts";

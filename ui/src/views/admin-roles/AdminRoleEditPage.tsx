@@ -37,7 +37,7 @@ import {
 import { LockClosedRegular } from "@fluentui/react-icons";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import { type ActionCtx } from "@/components/business/actions";
+import { type ActionCtx } from "@/business/action-performer";
 import {
   createActionCtxRole,
   createActionCtxRolePermission,

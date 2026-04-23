@@ -1,15 +1,11 @@
 import { ModelCard } from "@/components/business/model/ModelCard.tsx";
 import { useActionRegistry } from "@/business/action_registry";
-import {
-  Model,
-  type ModelSummaryDto,
-  useModelSummaries,
-} from "@/business/model";
+import { type ModelSummaryDto, useModelSummaries } from "@/business/model";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { InfoLabel, tokens } from "@fluentui/react-components";
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { createActionCtxVoid } from "@/components/business/actions";
+import { createActionCtxVoid } from "@/business/action-performer";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { SectionCards } from "@/components/layout/SectionCards.tsx";
 import {

@@ -1,5 +1,5 @@
 import type { Ref } from "react";
-import type { ActionPerformerRequest } from "../ActionPerformerRequest.tsx";
+import type { ActionPerformerRequest } from "@/business/action-performer";
 
 export interface ActionPerformerInputProps<T = unknown> {
   request: ActionPerformerRequest;

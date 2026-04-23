@@ -6,7 +6,7 @@ import type {
   ModelCompareDto,
   SearchResults,
 } from "./model.dto.ts";
-import { type ActionPayload, executeActionJson } from "../action_runner";
+import { type ActionPayload, executeActionJson } from "../action-performer";
 
 export type ModelSearchOperator = "and" | "or";
 

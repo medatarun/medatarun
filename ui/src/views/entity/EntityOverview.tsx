@@ -16,7 +16,7 @@ import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx
 import { useModelContext } from "@/components/business/model/ModelContext.tsx";
 import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import type { ActionDisplayedSubject } from "@/components/business/actions";
+import type { ActionDisplayedSubject } from "@/business/action-performer";
 import { useSecurityContext } from "@/business/security";
 
 export function EntityOverview({
