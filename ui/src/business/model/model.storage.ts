@@ -158,7 +158,6 @@ export const useModelUpdateName = () => {
         modelRef: "id:" + props.modelId,
         value: props.value,
       }),
-    onSuccess: () => queryClient.invalidateQueries(),
   });
 };
 export const useModelUpdateDescription = () => {
@@ -169,7 +168,6 @@ export const useModelUpdateDescription = () => {
         modelRef: "id:" + props.modelId,
         value: props.value,
       }),
-    onSuccess: () => queryClient.invalidateQueries(),
   });
 };
 export const useModelUpdateDocumentationHome = () => {
@@ -180,7 +178,6 @@ export const useModelUpdateDocumentationHome = () => {
         modelRef: "id:" + props.modelId,
         value: props.value,
       }),
-    onSuccess: () => queryClient.invalidateQueries(),
   });
 };
 export const useModelUpdateKey = () => {
@@ -191,7 +188,6 @@ export const useModelUpdateKey = () => {
         modelRef: "id:" + props.modelId,
         value: props.value,
       }),
-    onSuccess: () => queryClient.invalidateQueries(),
   });
 };
 export const useModelAddTag = () => {
@@ -202,7 +198,6 @@ export const useModelAddTag = () => {
         modelRef: "id:" + props.modelId,
         tag: props.tag,
       }),
-    onSuccess: () => queryClient.invalidateQueries(),
   });
 };
 export const useModelDeleteTag = () => {
@@ -213,7 +208,6 @@ export const useModelDeleteTag = () => {
         modelRef: "id:" + props.modelId,
         tag: props.tag,
       }),
-    onSuccess: () => queryClient.invalidateQueries(),
   });
 };
 
@@ -231,7 +225,6 @@ function useTypeMutation<P extends ActionPayload>(
         ...otherProps,
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(),
   });
 }
 
@@ -259,7 +252,6 @@ function useEntityMutation<P extends ActionPayload>(
         ...otherProps,
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(),
   });
 }
 
@@ -305,7 +297,6 @@ function useEntityAttributeMutation<P extends ActionPayload>(
         ...otherProps,
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(),
   });
 }
 
@@ -366,7 +357,6 @@ function useRelationshipMutation<P extends ActionPayload>(
         ...otherProps,
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(),
   });
 }
 
@@ -422,7 +412,6 @@ function useRelationshipAttributeMutation<P extends ActionPayload>(
         ...otherProps,
       });
     },
-    onSuccess: () => queryClient.invalidateQueries(),
   });
 }
 

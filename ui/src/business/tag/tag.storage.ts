@@ -55,7 +55,6 @@ function useTagGroupMutation(actionKey: string) {
         tagGroupRef: "id:" + props.tagGroupId,
         value: props.value,
       }),
-    onSuccess: () => queryClient.invalidateQueries(),
   });
 }
 
@@ -67,7 +66,6 @@ function useTagGlobalMutation(actionKey: string) {
         tagRef: "id:" + props.tagId,
         value: props.value,
       }),
-    onSuccess: () => queryClient.invalidateQueries(),
   });
 }
 
@@ -79,7 +77,6 @@ function useTagLocalMutation(actionKey: string) {
         tagRef: "id:" + props.tagId,
         value: props.value,
       }),
-    onSuccess: () => queryClient.invalidateQueries(),
   });
 }
 
