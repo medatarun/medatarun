@@ -156,9 +156,8 @@ export function ActionPerformerViewLoaded({
 
     performer.resolveNavigationAfterSuccess({
       request: state.request,
-      navigate: navigate,
     });
-  }, [action, navigate, performer, state]);
+  }, [action, performer, state]);
 
   const focusedFieldKey = formFields.find(
     (it) => it.visible && !it.readonly,
