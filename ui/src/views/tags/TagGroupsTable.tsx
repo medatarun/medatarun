@@ -8,12 +8,12 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { useActionRegistry } from "@/business/action_registry";
 import type { TagGroup } from "@/business/tag";
 import { type ActionCtx } from "@/business/action-performer";
 import { Key } from "@/components/core/Key.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import { useActionRegistry } from "@/components/business/actions";
 
 const useStyles = makeStyles({
   titleCell: {},

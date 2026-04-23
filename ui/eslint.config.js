@@ -22,6 +22,7 @@ export default defineConfig([
     rules: {
       "@typescript-eslint/no-unused-vars": "warn",
       "no-unused-private-class-members": "warn",
+      "no-warning-comments": "error",
     },
   },
 ]);

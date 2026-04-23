@@ -1,13 +1,9 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useActionRegistry } from "@/business/action_registry";
 import {
   createActionCtxTag,
   createActionCtxTagGroup,
   createDisplayedSubjectTagGroup,
   Tag,
-  useTagGroupUpdateDescription,
-  useTagGroupUpdateName,
-  useTags,
 } from "@/business/tag";
 import { TagsTable } from "@/components/business/tag/TagsTable.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
@@ -33,7 +29,13 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { type ActionCtx } from "@/business/action-performer";
-import { useSecurityContext } from "@/business/security";
+import { useSecurityContext } from "@/components/business/security";
+import { useActionRegistry } from "@/components/business/actions";
+import {
+  useTagGroupUpdateDescription,
+  useTagGroupUpdateName,
+  useTags,
+} from "@/components/business/tag";
 
 export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
   const { t } = useAppI18n();

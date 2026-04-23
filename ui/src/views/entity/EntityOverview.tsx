@@ -2,13 +2,13 @@ import { Text } from "@fluentui/react-components";
 import { ExternalUrl, Origin } from "../model/ModelEditPage.tsx";
 import { Link } from "@tanstack/react-router";
 import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
+import { type EntityDto } from "@/business/model";
 import {
-  type EntityDto,
   useEntityAddTag,
   useEntityDeleteTag,
   useEntityUpdateDocumentationHome,
   useEntityUpdateKey,
-} from "@/business/model";
+} from "@/components/business/model";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
@@ -17,7 +17,7 @@ import { useModelContext } from "@/components/business/model/ModelContext.tsx";
 import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import type { ActionDisplayedSubject } from "@/business/action-performer";
-import { useSecurityContext } from "@/business/security";
+import { useSecurityContext } from "@/components/business/security";
 
 export function EntityOverview({
   entity,

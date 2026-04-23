@@ -1,9 +1,7 @@
 import {
   type ModelChangeEventWithVersionDto,
+  type ModelCompareReq,
   type ModelSummaryDto,
-  useModelCompare,
-  useModelHistoryVersions,
-  useModelSummaries,
 } from "@/business/model";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import {
@@ -27,10 +25,15 @@ import { Text, tokens } from "@fluentui/react-components";
 import { ArrowBidirectionalLeftRightRegular } from "@fluentui/react-icons";
 import { Button, InputCombobox } from "@seij/common-ui";
 import { useEffect, useState } from "react";
+import {
+  useModelCompare,
+  useModelHistoryVersions,
+  useModelSummaries,
+} from "@/components/business/model";
 
 export function ModelComparePage() {
   const { data: modelSummaries = [] } = useModelSummaries();
-  const compare = useModelCompare();
+
   const { t } = useAppI18n();
   const [leftModelId, setLeftModelId] = useState("");
   const [leftModelVersion, setLeftModelVersion] = useState<string | null>(null);
@@ -42,23 +45,30 @@ export function ModelComparePage() {
     useState<ComparisonMode>("structural");
   const { data: leftVersionsDto } = useModelHistoryVersions(leftModelId);
   const { data: rightVersionsDto } = useModelHistoryVersions(rightModelId);
+  const [modelCompareCurrent, setModelCompareCurrent] = useState<
+    ModelCompareReq | undefined
+  >();
+  const compare = useModelCompare(modelCompareCurrent);
 
-  useEffect(() => {
-    setLeftModelVersion(null);
-  }, [leftModelId]);
-
-  useEffect(() => {
-    setRightModelVersion(null);
-  }, [rightModelId]);
-
-  const handleCompare = async () => {
-    await compare.mutateAsync({
+  const handleCompare = () => {
+    setModelCompareCurrent({
       leftModelId: leftModelId,
       leftModelVersion: leftModelVersion,
       rightModelId: rightModelId,
       rightModelVersion: rightModelVersion,
       scope: comparisonMode,
     });
+  };
+
+  const handleChangeLeftModelId = (id: string) => {
+    if (id === leftModelId) return;
+    setLeftModelId(id);
+    setLeftModelVersion(null);
+  };
+  const handleChangeRightModelId = (id: string) => {
+    if (id === rightModelId) return;
+    setRightModelId(id);
+    setRightModelVersion(null);
   };
 
   const canCompare =
@@ -91,7 +101,7 @@ export function ModelComparePage() {
               label={t("modelComparePage_leftModelLabel")}
               modelSummaries={modelSummaries}
               value={leftModelId}
-              onChange={setLeftModelId}
+              onChange={handleChangeLeftModelId}
               placeholder={t("modelComparePage_selectModelPlaceholder")}
               noOptionsMessage={t("modelComparePage_modelsNoOptions")}
             />
@@ -107,7 +117,7 @@ export function ModelComparePage() {
               label={t("modelComparePage_rightModelLabel")}
               modelSummaries={modelSummaries}
               value={rightModelId}
-              onChange={setRightModelId}
+              onChange={handleChangeRightModelId}
               placeholder={t("modelComparePage_selectModelPlaceholder")}
               noOptionsMessage={t("modelComparePage_modelsNoOptions")}
             />

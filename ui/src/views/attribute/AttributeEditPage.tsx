@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useActionRegistry } from "@/business/action_registry";
 import {
   type AttributeDto,
   createActionCtxEntityAttribute,
@@ -9,6 +8,8 @@ import {
   type EntityDto,
   Model,
   type RelationshipDto,
+} from "@/business/model";
+import {
   useEntityAttributeAddTag,
   useEntityAttributeDeleteTag,
   useEntityAttributeUpdateDescription,
@@ -24,7 +25,8 @@ import {
   useRelationshipAttributeUpdateName,
   useRelationshipAttributeUpdateOptional,
   useRelationshipAttributeUpdateType,
-} from "@/business/model";
+} from "@/components/business/model";
+
 import {
   ModelContext,
   useModelContext,
@@ -66,7 +68,8 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { useSecurityContext } from "@/business/security";
+import { useSecurityContext } from "@/components/business/security";
+import { useActionRegistry } from "@/components/business/actions";
 
 export function AttributeEditPage({
   modelId,

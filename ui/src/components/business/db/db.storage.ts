@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { executeActionJson } from "@/business/action-performer";
 import type { DatasourceDto, DriverDto } from "@/business/db/db.dto.ts";
+import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
 
 export function useDatabaseDrivers() {
+  const { performer } = useActionPerformer();
   return useQuery({
     queryKey: ["admin", "database", "drivers"],
     queryFn: async () => {
-      const resp = await executeActionJson<{ drivers: DriverDto[] }>(
+      const resp = await performer.executeJson<{ drivers: DriverDto[] }>(
         "databases",
         "driver_list",
         {},
@@ -17,14 +18,13 @@ export function useDatabaseDrivers() {
 }
 
 export function useDatabaseDatasources() {
+  const { performer } = useActionPerformer();
   return useQuery({
     queryKey: ["admin", "database", "datasources"],
     queryFn: async () => {
-      const resp = await executeActionJson<{ datasources: DatasourceDto[] }>(
-        "databases",
-        "datasource_list",
-        {},
-      );
+      const resp = await performer.executeJson<{
+        datasources: DatasourceDto[];
+      }>("databases", "datasource_list", {});
       return resp.datasources;
     },
   });

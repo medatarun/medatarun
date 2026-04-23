@@ -2,7 +2,6 @@ import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx
 import { Caption2, Text, tokens } from "@fluentui/react-components";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { createActionCtxVoid } from "@/business/action-performer";
-import { useDatabaseDrivers } from "@/business/db";
 import {
   ArchiveRegular,
   CodeBlockRegular,
@@ -15,6 +14,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
+import { useDatabaseDrivers } from "@/components/business/db";
 
 export function AdminDbDriverListPage() {
   const { data: driversRaw } = useDatabaseDrivers();

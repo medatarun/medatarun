@@ -1,15 +1,16 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import { useActionRegistry } from "@/business/action_registry";
+import { useNavigate } from "@tanstack/react-router";
 import {
   createActionCtxType,
   createDisplayedSubjectType,
   Model,
   type TypeDto,
+} from "@/business/model";
+import {
   useModel,
   useTypeUpdateDescription,
   useTypeUpdateKey,
   useTypeUpdateName,
-} from "@/business/model";
+} from "@/components/business/model";
 import { ModelContext } from "@/components/business/model/ModelContext.tsx";
 import {
   Breadcrumb,
@@ -38,8 +39,9 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
-import { useSecurityContext } from "@/business/security";
+import { useSecurityContext } from "@/components/business/security";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { useActionRegistry } from "@/components/business/actions";
 
 export function TypeEditPage({
   modelId,

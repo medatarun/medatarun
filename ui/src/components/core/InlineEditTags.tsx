@@ -19,15 +19,11 @@ import {
   type TagPickerProps,
 } from "@fluentui/react-components";
 import { InlineEditSingleLineLayout } from "./InlineEditSingleLineLayout.tsx";
-import {
-  createActionCtxTag,
-  Tags,
-  type TagScopeRef,
-  useTags,
-} from "@/business/tag";
-import { useActionPerformer } from "@/components/business/actions/ActionPerformerHook.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { createActionCtxTag, Tags, type TagScopeRef } from "@/business/tag";
+import { useTags } from "@/components/business/tag";
 import { type ActionDisplayedSubject } from "@/business/action-performer";
+import { useAppI18n } from "@/services/appI18n.tsx";
+import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
 
 const CREATE_OPTION_PREFIX = "__create__:";
 
@@ -48,53 +44,31 @@ export function InlineEditTags({
   const [values, setValues] = useState(value);
   const ref = useRef<HTMLInputElement>(null);
   const { tags } = useTags(scope);
-  const { performAction, state } = useActionPerformer();
-  const [requestedCreatedTagKey, setRequestedCreatedTagKey] = useState<
-    string | null
-  >(null);
-  const [waitingCreatedTagResolution, setWaitingCreatedTagResolution] =
-    useState(false);
-  const previousStateKindRef = useRef(state.kind);
+  const { performAction, performer } = useActionPerformer();
+  const [pendingCreate, setPendingCreate] = useState<{
+    requestId: string;
+    key: string;
+  } | null>(null);
 
-  useEffect(() => {
-    const previousStateKind = previousStateKindRef.current;
-    previousStateKindRef.current = state.kind;
-
-    if (requestedCreatedTagKey == null) {
-      return;
-    }
-    const actionFinished =
-      previousStateKind === "running" &&
-      state.kind === "done" &&
-      state.request.actionGroupKey === "tag" &&
-      state.request.actionKey === "tag_local_create";
-
-    if (actionFinished) {
-      setWaitingCreatedTagResolution(true);
-    }
-
-    if (!waitingCreatedTagResolution && !actionFinished) {
-      return;
-    }
-
-    const createdTag = tags.findTagByScopeAndKey(scope, requestedCreatedTagKey);
-    if (!createdTag) {
-      return;
-    }
-    setValues((previousValues) =>
-      previousValues.includes(createdTag.id)
-        ? previousValues
-        : [...previousValues, createdTag.id],
-    );
-    setRequestedCreatedTagKey(null);
-    setWaitingCreatedTagResolution(false);
-  }, [requestedCreatedTagKey, scope, state, tags, waitingCreatedTagResolution]);
+  const pendingCreateRequest =
+    pendingCreate == null
+      ? null
+      : performer.getRequestState(pendingCreate.requestId);
+  const pendingCreateTag =
+    pendingCreate == null || pendingCreateRequest?.kind !== "done"
+      ? null
+      : (tags.findTagByScopeAndKey(scope, pendingCreate.key) ?? null);
+  const valuesSafe =
+    pendingCreateTag == null || values.includes(pendingCreateTag.id)
+      ? values
+      : [...values, pendingCreateTag.id];
 
   const actionCtxTag = (createKey: string) =>
     createActionCtxTag(scope, displayedSubject, { tagCreateKey: createKey });
 
   const handleEditStart = async () => {
     setValues(value);
+    setPendingCreate(null);
   };
 
   const handleEditStarted = () => {
@@ -102,22 +76,21 @@ export function InlineEditTags({
   };
 
   const handeEditOk = async () => {
-    await onChange(values);
+    await onChange(valuesSafe);
+    setPendingCreate(null);
   };
   const handleEditCancel = async () => {
     setValues(value);
-    setRequestedCreatedTagKey(null);
-    setWaitingCreatedTagResolution(false);
+    setPendingCreate(null);
   };
 
   const handleCreateTag = (key: string) => {
-    setRequestedCreatedTagKey(key);
-    setWaitingCreatedTagResolution(false);
-    performAction({
+    const requestId = performAction({
       actionGroupKey: "tag",
       actionKey: "tag_local_create",
       ctx: actionCtxTag(key),
     });
+    setPendingCreate({ requestId, key });
   };
 
   return (
@@ -128,7 +101,7 @@ export function InlineEditTags({
           disabled={pending}
           scope={scope}
           tags={tags}
-          values={values}
+          values={valuesSafe}
           onCreateTag={handleCreateTag}
           onChange={setValues}
           onCommit={commit}

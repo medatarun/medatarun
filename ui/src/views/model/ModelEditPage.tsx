@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useActionRegistry } from "@/business/action_registry";
 import {
   createActionCtxModel,
   createActionCtxRelationship,
@@ -7,6 +6,8 @@ import {
   type ElementOrigin,
   Model,
   type RelationshipDto,
+} from "@/business/model";
+import {
   useModel,
   useModelAddTag,
   useModelDeleteTag,
@@ -14,7 +15,7 @@ import {
   useModelUpdateDocumentationHome,
   useModelUpdateKey,
   useModelUpdateName,
-} from "@/business/model";
+} from "@/components/business/model";
 import {
   ModelContext,
   useModelContext,
@@ -47,11 +48,12 @@ import { useAppI18n } from "@/services/appI18n.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { TagIcon } from "@/components/business/tag/tag.icons.tsx";
 import { createActionCtxTag, Tag } from "@/business/tag";
-import { useSecurityContext } from "@/business/security";
+import { useSecurityContext } from "@/components/business/security";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
+import { useActionRegistry } from "@/components/business/actions";
 
 export function ModelEditPage({ modelId }: { modelId: string }) {
   const { data: model } = useModel(modelId);

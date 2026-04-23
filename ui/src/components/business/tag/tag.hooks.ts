@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import type { TagScopeRef } from "./tag.dto.ts";
-import { Tags } from "./tag.domain.ts";
+import type { TagScopeRef } from "@/business/tag/tag.dto.ts";
+import { Tags } from "@/business/tag/tag.domain.ts";
 import {
   type TagSearchReq,
   useTagGroupList,

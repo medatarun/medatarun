@@ -12,7 +12,7 @@ import {
   normalizeString,
 } from "./normalize_helpers.ts";
 import type { TagScopeRef, TagSearchFilters } from "@/business/tag";
-import type { ModelDiffScopeCode } from "@/business/model";
+
 import {
   validateBoolean,
   validateKey,
@@ -20,6 +20,7 @@ import {
   validateString,
 } from "./validate_helpers.ts";
 import { valid } from "@seij/common-validation";
+import type { ModelDiffScopeCode } from "@/business/model";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const registeredTypes: TypeDeclaration<any>[] = [

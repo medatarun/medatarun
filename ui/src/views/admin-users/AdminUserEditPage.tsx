@@ -1,6 +1,4 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useActionRegistry } from "@/business/action_registry";
-import { useUserList } from "@/business/auth_user";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -23,6 +21,8 @@ import {
   createActionCtxUser,
   createDisplayedSubjectUser,
 } from "@/business/auth_user/user.actioncontexts.ts";
+import { useActionRegistry } from "@/components/business/actions";
+import { useUserList } from "@/components/business/auth-user";
 
 export function AdminUserEditPage({ userId }: { userId: string }) {
   const { t } = useAppI18n();

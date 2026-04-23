@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useActionRegistry } from "@/business/action_registry";
-import { createActionCtxTagGroup, TagGroup, useTags } from "@/business/tag";
+import { createActionCtxTagGroup, TagGroup } from "@/business/tag";
+import { useTags } from "@/components/business/tag";
 import { TagGroupsTable } from "./TagGroupsTable.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
@@ -18,6 +18,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
+import { useActionRegistry } from "@/components/business/actions";
 
 export function TagGroupListPage() {
   const { t } = useAppI18n();

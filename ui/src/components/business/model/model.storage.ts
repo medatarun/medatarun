@@ -1,44 +1,31 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchModel, fetchModelSummaries } from "./model.api.ts";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   ModelChangeEventListDto,
   ModelChangeEventListWithVersionDto,
   ModelCompareDto,
+  ModelCompareReq,
+  ModelDto,
+  ModelSearchFilter,
+  ModelSearchOperator,
+  ModelSummaryDto,
   SearchResults,
-} from "./model.dto.ts";
-import { type ActionPayload, executeActionJson } from "../action-performer";
-
-export type ModelSearchOperator = "and" | "or";
-
-export type ModelSearchTagFilterCondition =
-  | "anyOf"
-  | "allOf"
-  | "noneOf"
-  | "empty"
-  | "notEmpty";
-
-export type ModelSearchTagFilter = {
-  id: string;
-  type: "tags";
-  condition: ModelSearchTagFilterCondition;
-  tagIds: string[];
-};
-
-export type ModelSearchTextFilter = {
-  id: string;
-  type: "text";
-  condition: "contains";
-  value: string;
-};
-
-export type ModelSearchFilter = ModelSearchTagFilter | ModelSearchTextFilter;
+} from "@/business/model";
+import {
+  type ActionPayload,
+  ActionPerformer,
+} from "@/business/action-performer";
+import { api } from "@/services/api.ts";
+import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
 
 export type ModelSearchReq = {
   operator: ModelSearchOperator;
   items: ModelSearchFilter[];
 };
 
-export async function modelSearch(req: ModelSearchReq): Promise<SearchResults> {
+export async function modelSearch(
+  performer: ActionPerformer,
+  req: ModelSearchReq,
+): Promise<SearchResults> {
   if (req.items.length === 0) return { items: [] };
   const payload = {
     filters: {
@@ -66,76 +53,45 @@ export async function modelSearch(req: ModelSearchReq): Promise<SearchResults> {
     },
     fields: ["location"],
   };
-  return executeActionJson<SearchResults>("model", "search", payload);
+  return performer.executeJson<SearchResults>("model", "search", payload);
 }
 export const useModelSearch = (req: ModelSearchReq) => {
+  const { performer } = useActionPerformer();
   return useQuery({
     queryKey: ["search", req],
-    queryFn: () => modelSearch(req),
+    queryFn: () => modelSearch(performer, req),
   });
 };
 
-export type ModelDiffScopeCode = "structural" | "complete";
-
-export type ModelCompareReq = {
-  leftModelId: string;
-  leftModelVersion: string | null;
-  rightModelId: string;
-  rightModelVersion: string | null;
-  scope: ModelDiffScopeCode;
-};
-
-export async function modelCompare(
-  req: ModelCompareReq,
-): Promise<ModelCompareDto> {
-  return executeActionJson<ModelCompareDto>("model", "model_compare", {
-    leftModelRef: "id:" + req.leftModelId,
-    leftModelVersion: req.leftModelVersion,
-    rightModelRef: "id:" + req.rightModelId,
-    rightModelVersion: req.rightModelVersion,
-    scope: req.scope,
-  });
-}
-
-export const useModelCompare = () => {
-  return useMutation({
-    mutationFn: (req: ModelCompareReq) => modelCompare(req),
-  });
-};
-
-export async function modelHistoryVersions(
-  modelId: string,
-): Promise<ModelChangeEventListWithVersionDto> {
-  return executeActionJson<ModelChangeEventListWithVersionDto>(
-    "model",
-    "history_versions",
-    {
-      modelRef: "id:" + modelId,
+export const useModelCompare = (req: ModelCompareReq | undefined) => {
+  const { performer } = useActionPerformer();
+  return useQuery({
+    queryKey: ["model", "compare", req],
+    queryFn: async () => {
+      if (req === undefined) return undefined;
+      return performer.executeJson<ModelCompareDto>("model", "model_compare", {
+        leftModelRef: "id:" + req.leftModelId,
+        leftModelVersion: req.leftModelVersion,
+        rightModelRef: "id:" + req.rightModelId,
+        rightModelVersion: req.rightModelVersion,
+        scope: req.scope,
+      });
     },
-  );
-}
-
-export async function modelHistoryVersionChanges(
-  modelId: string,
-  version: string | null,
-): Promise<ModelChangeEventListDto> {
-  const payload: ActionPayload = {
-    modelRef: "id:" + modelId,
-  };
-  if (version !== null) {
-    payload.version = version;
-  }
-  return executeActionJson<ModelChangeEventListDto>(
-    "model",
-    "history_version_changes",
-    payload,
-  );
-}
+  });
+};
 
 export function useModelHistoryVersions(modelId: string) {
+  const { performer } = useActionPerformer();
   return useQuery({
     queryKey: ["model", modelId, "history_versions"],
-    queryFn: () => modelHistoryVersions(modelId),
+    queryFn: () =>
+      performer.executeJson<ModelChangeEventListWithVersionDto>(
+        "model",
+        "history_versions",
+        {
+          modelRef: "id:" + modelId,
+        },
+      ),
     enabled: modelId.length > 0,
   });
 }
@@ -144,67 +100,80 @@ export function useModelHistoryVersionChanges(
   modelId: string,
   version: string | null,
 ) {
+  const { performer } = useActionPerformer();
   return useQuery({
     queryKey: ["model", modelId, "history_version_changes", version],
-    queryFn: () => modelHistoryVersionChanges(modelId, version),
+    queryFn: () => {
+      const payload: ActionPayload = {
+        modelRef: "id:" + modelId,
+      };
+      if (version !== null) {
+        payload.version = version;
+      }
+      return performer.executeJson<ModelChangeEventListDto>(
+        "model",
+        "history_version_changes",
+        payload,
+      );
+    },
   });
 }
 
 export const useModelUpdateName = () => {
-  const queryClient = useQueryClient();
+  const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { modelId: string; value: string }) =>
-      executeActionJson("model", "model_update_name", {
+      performer.executeJson("model", "model_update_name", {
         modelRef: "id:" + props.modelId,
         value: props.value,
       }),
   });
 };
 export const useModelUpdateDescription = () => {
-  const queryClient = useQueryClient();
+  const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { modelId: string; value: string }) =>
-      executeActionJson("model", "model_update_description", {
+      performer.executeJson("model", "model_update_description", {
         modelRef: "id:" + props.modelId,
         value: props.value,
       }),
   });
 };
 export const useModelUpdateDocumentationHome = () => {
-  const queryClient = useQueryClient();
+  const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { modelId: string; value: string }) =>
-      executeActionJson("model", "model_update_documentation_link", {
+      performer.executeJson("model", "model_update_documentation_link", {
         modelRef: "id:" + props.modelId,
         value: props.value,
       }),
   });
 };
 export const useModelUpdateKey = () => {
-  const queryClient = useQueryClient();
+  const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { modelId: string; value: string }) =>
-      executeActionJson("model", "model_update_key", {
+      performer.executeJson("model", "model_update_key", {
         modelRef: "id:" + props.modelId,
         value: props.value,
       }),
   });
 };
 export const useModelAddTag = () => {
-  const queryClient = useQueryClient();
+  const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { modelId: string; tag: string }) =>
-      executeActionJson("model", "model_add_tag", {
+      performer.executeJson("model", "model_add_tag", {
         modelRef: "id:" + props.modelId,
         tag: props.tag,
       }),
   });
 };
 export const useModelDeleteTag = () => {
-  const queryClient = useQueryClient();
+  const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { modelId: string; tag: string }) =>
-      executeActionJson("model", "model_delete_tag", {
+      performer.executeJson("model", "model_delete_tag", {
         modelRef: "id:" + props.modelId,
         tag: props.tag,
       }),
@@ -215,11 +184,11 @@ function useTypeMutation<P extends ActionPayload>(
   actionGroupKey: string,
   actionKey: string,
 ) {
-  const queryClient = useQueryClient();
+  const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { modelId: string; typeId: string } & P) => {
       const { modelId, typeId, ...otherProps } = props;
-      return executeActionJson(actionGroupKey, actionKey, {
+      return performer.executeJson(actionGroupKey, actionKey, {
         modelRef: "id:" + modelId,
         typeRef: "id:" + typeId,
         ...otherProps,
@@ -242,11 +211,11 @@ function useEntityMutation<P extends ActionPayload>(
   actionGroupKey: string,
   actionKey: string,
 ) {
-  const queryClient = useQueryClient();
+  const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { modelId: string; entityId: string } & P) => {
       const { modelId, entityId, ...otherProps } = props;
-      return executeActionJson(actionGroupKey, actionKey, {
+      return performer.executeJson(actionGroupKey, actionKey, {
         modelRef: "id:" + modelId,
         entityRef: "id:" + entityId,
         ...otherProps,
@@ -284,13 +253,13 @@ function useEntityAttributeMutation<P extends ActionPayload>(
   actionGroupKey: string,
   actionKey: string,
 ) {
-  const queryClient = useQueryClient();
+  const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (
       props: { modelId: string; entityId: string; attributeId: string } & P,
     ) => {
       const { modelId, entityId, attributeId, ...otherProps } = props;
-      return executeActionJson(actionGroupKey, actionKey, {
+      return performer.executeJson(actionGroupKey, actionKey, {
         modelRef: "id:" + modelId,
         entityRef: "id:" + entityId,
         attributeRef: "id:" + attributeId,
@@ -347,11 +316,11 @@ function useRelationshipMutation<P extends ActionPayload>(
   actionGroupKey: string,
   actionKey: string,
 ) {
-  const queryClient = useQueryClient();
+  const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { modelId: string; relationshipId: string } & P) => {
       const { modelId, relationshipId, ...otherProps } = props;
-      return executeActionJson(actionGroupKey, actionKey, {
+      return performer.executeJson(actionGroupKey, actionKey, {
         modelRef: "id:" + modelId,
         relationshipRef: "id:" + relationshipId,
         ...otherProps,
@@ -395,7 +364,7 @@ function useRelationshipAttributeMutation<P extends ActionPayload>(
   actionGroupKey: string,
   actionKey: string,
 ) {
-  const queryClient = useQueryClient();
+  const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (
       props: {
@@ -405,7 +374,7 @@ function useRelationshipAttributeMutation<P extends ActionPayload>(
       } & P,
     ) => {
       const { modelId, relationshipId, attributeId, ...otherProps } = props;
-      return executeActionJson(actionGroupKey, actionKey, {
+      return performer.executeJson(actionGroupKey, actionKey, {
         modelRef: "id:" + modelId,
         relationshipRef: "id:" + relationshipId,
         attributeRef: "id:" + attributeId,
@@ -458,16 +427,18 @@ export const useRelationshipAttributeDeleteTag = () => {
   );
 };
 
+/* FIXME: do not use api() directly, use actions */
 export function useModelSummaries() {
   return useQuery({
     queryKey: ["model_summaries"],
-    queryFn: fetchModelSummaries,
+    queryFn: () => api().get<ModelSummaryDto[]>("/ui/api/models"),
   });
 }
 
+/* FIXME: do not use api() directly, use actions */
 export function useModel(modelId: string) {
   return useQuery({
     queryKey: ["model", modelId],
-    queryFn: () => fetchModel(modelId),
+    queryFn: () => api().get<ModelDto>("/ui/api/models/" + modelId),
   });
 }

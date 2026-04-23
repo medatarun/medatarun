@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { type ActionResp, executeAction } from "@/business/action-performer";
-import { ActionRegistry, useActionRegistry } from "@/business/action_registry";
+import { type ActionResp } from "@/business/action-performer";
+import { ActionRegistry } from "@/business/action_registry";
 import { ActionOutput } from "@/components/business/actions/ActionOutput.tsx";
 import { SecurityRuleBadge } from "@/views/actions/components/SecurityRuleBadge.tsx";
 import { Markdown } from "@/components/core/Markdown.tsx";
@@ -38,6 +38,8 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
+import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
+import { useActionRegistry } from "@/components/business/actions";
 
 const useActionTreeStyles = makeStyles({
   root: {
@@ -263,6 +265,7 @@ function ActionLaucher({
   const [payload, setPayload] = useState<string>(defaultPayload);
   const [output, setOutput] = useState<ActionResp | null>(null);
   const [errorMessage, setErrorMessage] = useState<Problem | null>(null);
+  const { performer } = useActionPerformer();
 
   const selectedActionDescriptor = useMemo(() => {
     return actionRegistry.findActionOptional(
@@ -326,7 +329,8 @@ function ActionLaucher({
     }
     setErrorMessage(null);
 
-    executeAction(selectedGroupKey, selectedActionKey, parsedPayload)
+    performer
+      .executeAny(selectedGroupKey, selectedActionKey, parsedPayload)
       .then((data) => setOutput(data))
       .catch((err) => {
         const problem =

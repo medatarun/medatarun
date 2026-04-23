@@ -1,4 +1,3 @@
-import { usePermissionRegistry } from "@/business/config";
 import { InputCombobox } from "@seij/common-ui";
 import type { ActionPerformerInputProps } from "./ActionPerformerInputProps.tsx";
 import {
@@ -6,6 +5,7 @@ import {
   normalizeValueStringOrEmpty,
 } from "./ActionPerformerInput.utils.ts";
 import { useEffect, useState } from "react";
+import { usePermissionRegistry } from "@/components/business/config";
 
 export function ActionPerformerInputSecurityPermission(
   props: ActionPerformerInputProps,

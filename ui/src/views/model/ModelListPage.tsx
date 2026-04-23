@@ -1,6 +1,5 @@
 import { ModelCard } from "@/components/business/model/ModelCard.tsx";
-import { useActionRegistry } from "@/business/action_registry";
-import { type ModelSummaryDto, useModelSummaries } from "@/business/model";
+import { type ModelSummaryDto } from "@/business/model";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { InfoLabel, tokens } from "@fluentui/react-components";
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
@@ -13,6 +12,8 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import type { ReactNode } from "react";
+import { useActionRegistry } from "@/components/business/actions";
+import { useModelSummaries } from "@/components/business/model";
 
 export function ModelListPage({
   onClickModel,

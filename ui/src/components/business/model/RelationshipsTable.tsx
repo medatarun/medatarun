@@ -9,7 +9,6 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { RelationshipDescription } from "./RelationshipDescription.tsx";
-import { useActionRegistry } from "@/business/action_registry";
 import type { RelationshipDto } from "@/business/model";
 import { useModelContext } from "./ModelContext.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
@@ -17,6 +16,7 @@ import { useAppI18n } from "@/services/appI18n.tsx";
 import type { ActionCtx } from "@/business/action-performer";
 import { Key } from "@/components/core/Key.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import { useActionRegistry } from "@/components/business/actions";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -50,7 +50,6 @@ export function RelationshipsTable({
   actionCtxRelationship: (r: RelationshipDto) => ActionCtx;
 }) {
   const { t } = useAppI18n();
-  const model = useModelContext();
   const actionRegistry = useActionRegistry();
   const itemActions = actionRegistry.findActionDescriptors([
     "relationship_delete",

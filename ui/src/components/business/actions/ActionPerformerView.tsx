@@ -1,4 +1,3 @@
-import { useActionPerformer } from "./ActionPerformerHook.tsx";
 import {
   Dialog,
   DialogActions,
@@ -13,24 +12,20 @@ import {
   type LabelProps,
   tokens,
 } from "@fluentui/react-components";
-
 import { type Ref, useEffect, useRef, useState } from "react";
 import { ActionOutputBox } from "./ActionOutput.tsx";
-import type {
-  ActionCtx,
-  ActionPerformerRequest,
-  ActionPerformerState,
+import {
+  type ActionCtx,
+  type ActionPerformerRequestState,
+  type ActionRequest,
+  type ActionResp,
 } from "@/business/action-performer";
-import { type ActionResp } from "@/business/action-performer";
 import {
   type FormDataType,
   type FormFieldType,
   validateForm,
 } from "@/business/action_form";
-import {
-  ActionDescriptor,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { ActionDescriptor } from "@/business/action_registry";
 import ReactMarkdown from "react-markdown";
 import {
   combineValidationResults,
@@ -49,38 +44,44 @@ import {
   ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE,
   ACTION_PERFORMER_INPUT_DEFAULT_COMPONENT,
 } from "./inputs/ActionPerformerInputRegistry.ts";
+import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
+import { useActionRegistry } from "@/components/business/actions/action_registry.hooks.ts";
 
 const DEBUG = false;
 
 export function ActionPerformerView() {
   // Separate state extraction here, so that when state changes all ActionPerformView is redrawn
-  const { state } = useActionPerformer();
+  const { performer } = useActionPerformer();
   const actionRegistry = useActionRegistry();
 
-  if (state.kind === "idle") return null;
-
-  const { request } = state; // request.location, request.params
+  const state = performer.getLastStartedRequestState();
+  if (state == null) {
+    return null;
+  }
+  const request = state.request;
   const action = actionRegistry.findActionOptional(
     request.actionGroupKey,
     request.actionKey,
   );
-  if (!action) return null;
+  if (!action) {
+    return null;
+  }
 
   const defaultFormData: FormDataType = {};
   for (const actionParam of action.parameters) {
     // Take the default value from parameters. Normalize the value so that
     // we always have null (not undefined)
     defaultFormData[actionParam.name] =
-      state.request.ctx.getDefaultValue(actionParam.name, state.request) ??
-      null;
+      request.ctx.getDefaultValue(actionParam.name, request) ?? null;
   }
 
-  const formFields = createFormFields(action, state.request.ctx);
+  const formFields = createFormFields(action, request.ctx);
 
   return (
     <ActionPerformerViewLoaded
-      request={request}
+      key={state.requestId}
       state={state}
+      request={request}
       action={action}
       defaultFormData={defaultFormData}
       formFields={formFields}
@@ -89,21 +90,21 @@ export function ActionPerformerView() {
 }
 
 export function ActionPerformerViewLoaded({
-  request,
   state,
+  request,
   action,
   defaultFormData,
   formFields,
 }: {
-  request: ActionPerformerRequest;
-  state: ActionPerformerState;
+  state: ActionPerformerRequestState;
+  request: ActionRequest;
   action: ActionDescriptor;
   defaultFormData: FormDataType;
   formFields: FormFieldType[];
 }) {
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
-  const { confirmAction, cancelAction, finishAction, postHooks } =
+  const { confirmAction, cancelAction, finishAction, performer } =
     useActionPerformer();
   const navigate = useNavigate();
   const [actionResp, setActionResp] = useState<ActionResp | null>(null);
@@ -130,16 +131,16 @@ export function ActionPerformerViewLoaded({
       formData,
       actionRegistry,
     );
-    const output = await confirmAction(payload);
+    const output = await confirmAction(state.requestId, payload);
     setActionResp(output);
   };
 
   const onCancel = () => {
-    cancelAction();
+    cancelAction(state.requestId);
   };
 
   const onFinish = () => {
-    finishAction();
+    finishAction(state.requestId);
   };
 
   const handleChangeFormFieldInput = (field: FormFieldType, value: unknown) => {
@@ -150,20 +151,17 @@ export function ActionPerformerViewLoaded({
     const isDone = state.kind === "done";
     const display = hasResultToDisplay(actionResp);
     if (isDone && !display) {
-      finishAction();
+      finishAction(state.requestId);
     }
-  }, [state.kind, actionResp, finishAction]);
+  }, [state.kind, actionResp, finishAction, state.requestId]);
 
   useEffect(() => {
     if (state.kind !== "done") return;
 
-    postHooks.resolveNavigationAfterSuccess({
-      action: action,
+    performer.resolveNavigationAfterSuccess({
       request: state.request,
-      state: state,
-      navigate: navigate,
     });
-  }, [action, navigate, postHooks, state]);
+  }, [action, performer, state]);
 
   const focusedFieldKey = formFields.find(
     (it) => it.visible && !it.readonly,
@@ -247,7 +245,7 @@ function FormFieldInput({
   inputRef,
   onChange,
 }: {
-  request: ActionPerformerRequest;
+  request: ActionRequest;
   field: FormFieldType;
   value: unknown;
   validationResult: ValidationResult | undefined;

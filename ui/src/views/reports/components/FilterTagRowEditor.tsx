@@ -3,7 +3,7 @@ import {
   type ModelSearchTagFilter,
   type ModelSearchTagFilterCondition,
 } from "@/business/model";
-import { useTags } from "@/business/tag";
+import { useTags } from "@/components/business/tag";
 import {
   Dropdown,
   type DropdownProps,

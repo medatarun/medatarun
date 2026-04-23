@@ -1,16 +1,17 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useActionRegistry } from "@/business/action_registry";
-import { Model, useModel } from "@/business/model";
+import { Model } from "@/business/model";
 import {
   createActionCtxTag,
   createDisplayedSubjectTag,
   type Tag,
+} from "@/business/tag";
+import {
   useTagGlobalUpdateDescription,
   useTagGlobalUpdateName,
   useTagLocalUpdateDescription,
   useTagLocalUpdateName,
   useTags,
-} from "@/business/tag";
+} from "@/components/business/tag";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
@@ -33,7 +34,9 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { useSecurityContext } from "@/business/security";
+import { useSecurityContext } from "@/components/business/security";
+import { useActionRegistry } from "@/components/business/actions";
+import { useModel } from "@/components/business/model";
 
 export function TagEditPage({ tagId }: { tagId: string }) {
   const { t } = useAppI18n();

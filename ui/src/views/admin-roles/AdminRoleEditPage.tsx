@@ -1,12 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useActionRegistry } from "@/business/action_registry";
-import {
-  AuthRoleDetails,
-  useRole,
-  useRoleUpdateDescription,
-  useRoleUpdateName,
-} from "@/business/actor";
-import { usePermissionRegistry } from "@/business/config";
+import { AuthRoleDetails } from "@/business/actor";
+import { usePermissionRegistry } from "@/components/business/config";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import {
@@ -43,6 +37,12 @@ import {
   createActionCtxRolePermission,
   createDisplayedSubjectRole,
 } from "@/business/auth_actor/actor.actioncontexts.ts";
+import { useActionRegistry } from "@/components/business/actions";
+import {
+  useRole,
+  useRoleUpdateDescription,
+  useRoleUpdateName,
+} from "@/components/business/auth-actor";
 
 export function AdminRoleEditPage({ roleId }: { roleId: string }) {
   const { t } = useAppI18n();

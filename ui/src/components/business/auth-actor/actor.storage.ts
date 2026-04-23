@@ -1,4 +1,3 @@
-import { executeActionJson } from "@/business/action-performer";
 import type {
   ActorDetailsDto,
   ActorInfoDto,
@@ -7,28 +6,7 @@ import type {
   WhoAmIRespDto,
 } from "@/business/actor/actor.dto.ts";
 import { useMutation, useQuery } from "@tanstack/react-query";
-
-async function whoami() {
-  return executeActionJson<WhoAmIRespDto>("auth", "whoami", {});
-}
-
-async function roleList() {
-  return executeActionJson<RoleListDto>("auth", "role_list", {});
-}
-
-async function roleGet(roleId: string) {
-  return executeActionJson<RoleDetailsDto>("auth", "role_get", {
-    roleRef: "id:" + roleId,
-  });
-}
-
-async function actorList() {
-  return executeActionJson<ActorInfoDto[]>("auth", "actor_list", {});
-}
-
-async function actorGet(actorId: string) {
-  return executeActionJson<ActorDetailsDto>("auth", "actor_get", { actorId });
-}
+import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
 
 /**
  * Returns the current user details with roles and permissions.
@@ -44,49 +22,63 @@ async function actorGet(actorId: string) {
  *
  */
 export const useWhoami = (issuer: string | null, subject: string | null) => {
+  const { performer } = useActionPerformer();
   return useQuery({
     queryKey: ["whoami", issuer, subject],
     queryFn: async () => {
       if (!issuer || !subject) return null;
-      return whoami();
+      return performer.executeJson<WhoAmIRespDto>("auth", "whoami", {});
     },
   });
 };
 
 export const useRoleList = () => {
+  const { performer } = useActionPerformer();
   return useQuery({
     queryKey: ["action", "auth", "role", "list"],
-    queryFn: roleList,
+    queryFn: () => performer.executeJson<RoleListDto>("auth", "role_list", {}),
   });
 };
 
 export const useRole = (roleId: string) => {
+  const { performer } = useActionPerformer();
   return useQuery({
     queryKey: ["action", "auth", "role", "get", roleId],
     enabled: roleId.length > 0,
-    queryFn: () => roleGet(roleId),
+    queryFn: () =>
+      performer.executeJson<RoleDetailsDto>("auth", "role_get", {
+        roleRef: "id:" + roleId,
+      }),
   });
 };
 
 export const useActorList = () => {
+  const { performer } = useActionPerformer();
   return useQuery({
     queryKey: ["action", "auth", "actor", "list"],
-    queryFn: actorList,
+    queryFn: () =>
+      performer.executeJson<ActorInfoDto[]>("auth", "actor_list", {}),
   });
 };
 
 export const useActor = (actorId: string) => {
+  const { performer } = useActionPerformer();
   return useQuery({
     queryKey: ["action", "auth", "actor", "get", actorId],
     enabled: actorId.length > 0,
-    queryFn: () => actorGet(actorId),
+    queryFn: () => {
+      return performer.executeJson<ActorDetailsDto>("auth", "actor_get", {
+        actorId,
+      });
+    },
   });
 };
 
 function useRoleMutation(actionKey: string) {
+  const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { roleId: string; value: string }) =>
-      executeActionJson("auth", actionKey, {
+      performer.executeJson("auth", actionKey, {
         roleRef: "id:" + props.roleId,
         value: props.value,
       }),

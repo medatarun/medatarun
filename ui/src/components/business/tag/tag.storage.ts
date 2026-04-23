@@ -1,20 +1,15 @@
-import type { TagDto, TagGroupDto, TagScopeRef } from "./tag.dto.ts";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type ActionPayload, executeActionJson } from "../action-performer";
+import type {
+  TagDto,
+  TagGroupDto,
+  TagScopeRef,
+  TagSearchFilters,
+} from "@/business/tag/tag.dto.ts";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { type ActionPayload } from "@/business/action-performer";
+import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
 
 export type TagSearchReq = {
   filters?: TagSearchFilters | null;
-};
-
-export type TagSearchFilters = {
-  operator: "and" | "or";
-  items: TagSearchFilter[];
-};
-
-export type TagSearchFilter = {
-  type: "scopeRef";
-  condition: "is";
-  value: TagScopeRef;
 };
 
 export type TagSearchResp = {
@@ -26,6 +21,7 @@ export type TagGroupListResp = {
 };
 
 export const useTagSearch = (req: TagSearchReq, enabled: boolean = true) => {
+  const { performer } = useActionPerformer();
   return useQuery({
     queryKey: ["action", "tag", "tag_search", req.filters ?? null],
     enabled: enabled,
@@ -34,24 +30,25 @@ export const useTagSearch = (req: TagSearchReq, enabled: boolean = true) => {
       if (req.filters !== undefined) {
         payload.filters = req.filters;
       }
-      return executeActionJson<TagSearchResp>("tag", "tag_search", payload);
+      return performer.executeJson<TagSearchResp>("tag", "tag_search", payload);
     },
   });
 };
 
 export const useTagGroupList = () => {
+  const { performer } = useActionPerformer();
   return useQuery({
     queryKey: ["action", "tag", "tag_group_list"],
     queryFn: () =>
-      executeActionJson<TagGroupListResp>("tag", "tag_group_list", {}),
+      performer.executeJson<TagGroupListResp>("tag", "tag_group_list", {}),
   });
 };
 
 function useTagGroupMutation(actionKey: string) {
-  const queryClient = useQueryClient();
+  const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { tagGroupId: string; value: string }) =>
-      executeActionJson("tag", actionKey, {
+      performer.executeJson("tag", actionKey, {
         tagGroupRef: "id:" + props.tagGroupId,
         value: props.value,
       }),
@@ -59,10 +56,10 @@ function useTagGroupMutation(actionKey: string) {
 }
 
 function useTagGlobalMutation(actionKey: string) {
-  const queryClient = useQueryClient();
+  const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { tagId: string; value: string }) =>
-      executeActionJson("tag", actionKey, {
+      performer.executeJson("tag", actionKey, {
         tagRef: "id:" + props.tagId,
         value: props.value,
       }),
@@ -70,10 +67,10 @@ function useTagGlobalMutation(actionKey: string) {
 }
 
 function useTagLocalMutation(actionKey: string) {
-  const queryClient = useQueryClient();
+  const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { tagId: string; value: string }) =>
-      executeActionJson("tag", actionKey, {
+      performer.executeJson("tag", actionKey, {
         tagRef: "id:" + props.tagId,
         value: props.value,
       }),

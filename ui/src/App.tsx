@@ -49,6 +49,11 @@ import { AdminActorListPage } from "@/views/admin-actors/AdminActorListPage.tsx"
 import { AdminActorEditPage } from "@/views/admin-actors/AdminActorEditPage.tsx";
 import { AdminUserListPage } from "@/views/admin-users/AdminUserListPage.tsx";
 import { AdminUserEditPage } from "@/views/admin-users/AdminUserEditPage.tsx";
+import { ActionRegistry } from "@/business/action_registry";
+import { actionRegistryStatic } from "@/business/action_registry/action_registry.static.ts";
+import { ActionPerformer } from "@/business/action-performer";
+import { ActionPerformerProvider } from "@/components/business/actions/ActionPerformerProvider.tsx";
+import { ActionRegistryContext } from "@/components/business/actions";
 
 function AdminActorListRouteComponent() {
   return <AdminActorListPage />;
@@ -425,19 +430,31 @@ const apiConfig: ConnectionConfig = {
   getApiAccessToken: authenticationConfig.getCurrentAccessToken,
 };
 
+const actionRegistry: ActionRegistry = new ActionRegistry(actionRegistryStatic);
+
+const actionPerformer: ActionPerformer = new ActionPerformer(
+  actionRegistry,
+  queryClient,
+  router.navigate,
+);
+
 defaultConnection.reconfigure(apiConfig);
 
 function App() {
   return (
     <SeijUIProvider>
-      <DetailLevelProvider>
-        <AuthenticationProvider {...authenticationConfig}>
-          <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} />
-            <ReactQueryDevtools initialIsOpen={false} />
-          </QueryClientProvider>
-        </AuthenticationProvider>
-      </DetailLevelProvider>
+      <ActionRegistryContext.Provider value={actionRegistry}>
+        <ActionPerformerProvider performer={actionPerformer}>
+          <DetailLevelProvider>
+            <AuthenticationProvider {...authenticationConfig}>
+              <QueryClientProvider client={queryClient}>
+                <RouterProvider router={router} />
+                <ReactQueryDevtools initialIsOpen={false} />
+              </QueryClientProvider>
+            </AuthenticationProvider>
+          </DetailLevelProvider>
+        </ActionPerformerProvider>
+      </ActionRegistryContext.Provider>
     </SeijUIProvider>
   );
 }
