@@ -58,7 +58,7 @@ import {
   type ActionDisplayedSubject,
   createActionCtxVoid,
   displaySubjectNone,
-} from "@/components/business/actions";
+} from "@/business/action-performer";
 import { InlineEditBoolean } from "@/components/core/InlineEditBoolean.tsx";
 import { InlineEditCombobox } from "@/components/core/InlineEditCombobox.tsx";
 import {

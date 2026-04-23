@@ -4,12 +4,12 @@ import {
   type ActionDescriptor,
   ActionRegistry,
 } from "@/business/action_registry";
-import type { ActionPerformerState } from "./ActionPerformer.tsx";
+import type { ActionPerformerState } from "./ActionPerformer.ts";
 import type {
   ActionDisplayedSubject,
   ActionDisplayedSubjectResource,
   ActionPerformerRequest,
-} from "./ActionPerformerRequest.tsx";
+} from "./ActionPerformerRequest.ts";
 import { actionPostSuccess } from "@/business/action-post/action-post-caches.ts";
 import { resolveNavigationAfterSuccess } from "@/business/action-post/action-post-navigate.ts";
 

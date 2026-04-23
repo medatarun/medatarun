@@ -1,6 +1,6 @@
 import type { FormDataType } from "./action_form.types.ts";
 import { ActionDescriptor, type ActionRegistry } from "../action_registry";
-import type { ActionPayload } from "../action_runner";
+import type { ActionPayload } from "../action-performer";
 import { isNil } from "lodash-es";
 import { TypeRegistryInstance } from "@/business/types/TypeRegistry.ts";
 

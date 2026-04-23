@@ -17,7 +17,7 @@ import {
   type ActionCtx,
   createActionCtxVoid,
   displaySubjectNone,
-} from "@/components/business/actions";
+} from "@/business/action-performer";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
 import {

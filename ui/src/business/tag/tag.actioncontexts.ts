@@ -2,7 +2,7 @@ import type { TagScopeRef } from "@/business/tag/tag.dto.ts";
 import {
   ActionCtxMapping,
   type ActionDisplayedSubject,
-} from "@/components/business/actions";
+} from "@/business/action-performer";
 import { type Tag, TagGroup } from "@/business/tag/tag.domain.ts";
 import { isNil } from "lodash-es";
 

@@ -2,7 +2,7 @@ import type { Model } from "@/business/model/model.domain.ts";
 import {
   ActionCtxMapping,
   type ActionDisplayedSubject,
-} from "@/components/business/actions";
+} from "@/business/action-performer";
 import type {
   AttributeDto,
   BusinessKeyDto,
@@ -11,7 +11,6 @@ import type {
   RelationshipRoleDto,
   TypeDto,
 } from "@/business/model/model.dto.ts";
-import { stubFalse } from "lodash-es";
 
 export const createDisplayedSubjectModel = (
   modelId: string,

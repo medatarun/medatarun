@@ -18,7 +18,7 @@ import { formatLocalDateTime, toProblem } from "@seij/common-types";
 import {
   type ActionCtx,
   displaySubjectNone,
-} from "@/components/business/actions";
+} from "@/business/action-performer";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
 import type { ActorInfoDto } from "@/business/actor/actor.dto.ts";

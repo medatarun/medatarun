@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { executeActionJson } from "@/business/action_runner";
+import { executeActionJson } from "@/business/action-performer";
 import type { DatasourceDto, DriverDto } from "@/business/db/db.dto.ts";
 
 export function useDatabaseDrivers() {

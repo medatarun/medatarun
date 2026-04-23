@@ -1,5 +1,5 @@
 import type { ActionDescriptor } from "@/business/action_registry";
-import { type ActionCtx } from "@/components/business/actions";
+import { type ActionCtx } from "@/business/action-performer";
 import { useActionPerformer } from "@/components/business/actions/ActionPerformerHook.tsx";
 import {
   Button,

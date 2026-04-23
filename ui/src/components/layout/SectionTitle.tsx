@@ -4,7 +4,7 @@ import { Text, tokens } from "@fluentui/react-components";
 import {
   type ActionCtx,
   createActionCtxVoid,
-} from "@/components/business/actions";
+} from "@/business/action-performer";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import type { ActionKey } from "@/business/action_registry/actionRegistry.dictionnary.ts";
 

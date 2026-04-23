@@ -32,7 +32,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { type ActionCtx } from "@/components/business/actions";
+import { type ActionCtx } from "@/business/action-performer";
 import { useSecurityContext } from "@/business/security";
 
 export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {

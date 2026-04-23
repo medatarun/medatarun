@@ -13,7 +13,7 @@ import { toProblem } from "@seij/common-types";
 import { useActionRegistry } from "@/business/action_registry";
 import { Tag, type TagScopeRef, useTags } from "@/business/tag";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { type ActionCtx } from "@/components/business/actions";
+import { type ActionCtx } from "@/business/action-performer";
 import { Key } from "@/components/core/Key.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
