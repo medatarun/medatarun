@@ -9,7 +9,7 @@ tags: [ announcements ]
 
 Object addressing in APIs is a user concern, not just a "purely technical" question. It directly affects ease of use (DX) and integration complexity, and therefore build and maintenance costs: our costs and our users' costs.
 
-<!-- truncate -->
+{/* truncate */}
 
 Using IDs or business keys is not a minor detail. Once the choice is made, it commits clients for the long term, often well after the API has gone into production. 
 
@@ -24,7 +24,7 @@ I took the time to write down the reasoning here:
 These decisions are invisible at launch.
 They only become noticeable when they haven’t been made.
 
-<!--
+{/*
 
 L’adressage des objets dans les API est un sujet client, pas "que technique". Cela conditionne la facilité d’usage et d’intégration, donc directement les coûts de conception et de maintenance : les nôtres, les leurs.
 
@@ -40,4 +40,4 @@ J’ai pris le temps d’écrire le raisonnement ici :
 Ces décisions sont invisibles au lancement.
 On ne les remarque que lorsqu’elles n’ont pas été prises.
 
--->
+*/}
