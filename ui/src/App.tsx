@@ -435,6 +435,7 @@ const actionRegistry: ActionRegistry = new ActionRegistry(actionRegistryStatic);
 const actionPerformer: ActionPerformer = new ActionPerformer(
   actionRegistry,
   queryClient,
+  router.navigate,
 );
 
 defaultConnection.reconfigure(apiConfig);

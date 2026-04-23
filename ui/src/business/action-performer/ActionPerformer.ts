@@ -27,10 +27,16 @@ export class ActionPerformer {
   private state: ActionPerformerState = { kind: "idle" };
   private listeners = new Set<Listener>();
   private queryClient: QueryClient;
+  private navigate: NavigateFn;
 
-  constructor(actionRegistry: ActionRegistry, queryClient: QueryClient) {
+  constructor(
+    actionRegistry: ActionRegistry,
+    queryClient: QueryClient,
+    navigate: NavigateFn,
+  ) {
     this.actionRegistry = actionRegistry;
     this.queryClient = queryClient;
+    this.navigate = navigate;
   }
 
   subscribe(listener: Listener) {
@@ -129,10 +135,7 @@ export class ActionPerformer {
    * - Do nothing to keep the current route.
    * - Do not perform cache work here (handled in onActionSuccess).
    */
-  resolveNavigationAfterSuccess(context: {
-    request: ActionRequest;
-    navigate: NavigateFn;
-  }): void {
+  resolveNavigationAfterSuccess(context: { request: ActionRequest }): void {
     const displayedSubject = context.request.ctx.displayedSubject;
     if (displayedSubject.kind == "none") return;
     actionPostNavigate({
@@ -140,7 +143,7 @@ export class ActionPerformer {
         this.actionRegistry.findActionByActionKey(context.request.actionKey) ??
         throwError("Action not found in registry " + context.request.actionKey),
       request: context.request,
-      navigate: context.navigate,
+      navigate: this.navigate,
       displayedSubject: context.request.ctx.displayedSubject,
     });
   }
