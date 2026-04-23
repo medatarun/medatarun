@@ -1,4 +1,3 @@
-import { useActionRegistry } from "@/business/action_registry";
 import {
   type AttributeDto,
   createActionCtxRelationship,
@@ -58,6 +57,7 @@ import { toProblem } from "@seij/common-types";
 import { ErrorBox } from "@seij/common-ui";
 import { useNavigate } from "@tanstack/react-router";
 import { useSecurityContext } from "@/business/security";
+import { useActionRegistry } from "@/components/business/actions";
 
 export function RelationshipEditPage({
   modelId,

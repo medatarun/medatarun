@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { type ActionResp } from "@/business/action-performer";
-import { ActionRegistry, useActionRegistry } from "@/business/action_registry";
+import { ActionRegistry } from "@/business/action_registry";
 import { ActionOutput } from "@/components/business/actions/ActionOutput.tsx";
 import { SecurityRuleBadge } from "@/views/actions/components/SecurityRuleBadge.tsx";
 import { Markdown } from "@/components/core/Markdown.tsx";
@@ -39,6 +39,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
+import { useActionRegistry } from "@/components/business/actions";
 
 const useActionTreeStyles = makeStyles({
   root: {

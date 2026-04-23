@@ -1,6 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useActionRegistry } from "@/business/action_registry";
-import { AuthRole, useRoleList } from "@/business/actor";
+import { AuthRole } from "@/business/actor";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import {
@@ -28,6 +27,8 @@ import { LockClosedRegular } from "@fluentui/react-icons";
 import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { createActionCtxRole } from "@/business/auth_actor/actor.actioncontexts.ts";
+import { useActionRegistry } from "@/components/business/actions";
+import { useRoleList } from "@/components/business/auth-actor";
 
 export function AdminRoleListPage() {
   const { t } = useAppI18n();

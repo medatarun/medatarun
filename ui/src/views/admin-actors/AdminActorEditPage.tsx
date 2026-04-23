@@ -1,11 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useActionRegistry } from "@/business/action_registry";
-import {
-  ActorDetails,
-  AuthRole,
-  useActor,
-  useRoleRegistry,
-} from "@/business/actor";
+import { ActorDetails, AuthRole } from "@/business/actor";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -38,6 +32,8 @@ import {
   createActionCtxActorRole,
   createDisplayedSubjectActor,
 } from "@/business/auth_actor/actor.actioncontexts.ts";
+import { useActionRegistry } from "@/components/business/actions";
+import { useActor, useRoleRegistry } from "@/components/business/auth-actor";
 
 export function AdminActorEditPage({ actorId }: { actorId: string }) {
   const { t } = useAppI18n();

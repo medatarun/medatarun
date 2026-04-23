@@ -49,14 +49,11 @@ import { AdminActorListPage } from "@/views/admin-actors/AdminActorListPage.tsx"
 import { AdminActorEditPage } from "@/views/admin-actors/AdminActorEditPage.tsx";
 import { AdminUserListPage } from "@/views/admin-users/AdminUserListPage.tsx";
 import { AdminUserEditPage } from "@/views/admin-users/AdminUserEditPage.tsx";
-import {
-  ActionRegistry,
-  ActionRegistryContext,
-} from "@/business/action_registry";
+import { ActionRegistry } from "@/business/action_registry";
 import { actionRegistryStatic } from "@/business/action_registry/action_registry.static.ts";
 import { ActionPerformer } from "@/business/action-performer";
-import { ActionPerformerInstance } from "@/business/action-performer/action-performer-factory.ts";
 import { ActionPerformerProvider } from "@/components/business/actions/ActionPerformerProvider.tsx";
+import { ActionRegistryContext } from "@/components/business/actions";
 
 function AdminActorListRouteComponent() {
   return <AdminActorListPage />;

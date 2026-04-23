@@ -1,7 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { ActionDescriptor } from "@/business/action_registry";
-import { useActionRegistry } from "@/business/action_registry";
-import { useActorList } from "@/business/actor";
+import { useActorList } from "@/components/business/auth-actor";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import {
@@ -30,6 +29,7 @@ import { PersonKeyRegular } from "@fluentui/react-icons";
 import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { createActionCtxActor } from "@/business/auth_actor/actor.actioncontexts.ts";
+import { useActionRegistry } from "@/components/business/actions";
 
 export function AdminActorListPage() {
   const { t } = useAppI18n();

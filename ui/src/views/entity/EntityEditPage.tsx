@@ -1,5 +1,4 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useActionRegistry } from "@/business/action_registry";
 import {
   type AttributeDto,
   type BusinessKeyDto,
@@ -59,6 +58,7 @@ import { Key } from "@/components/core/Key.tsx";
 import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { useActionRegistry } from "@/components/business/actions";
 
 export function EntityEditPage({
   modelId,

@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { ActionRegistry } from "./action_registry.biz.tsx";
+import { ActionRegistry } from "@/business/action_registry";
 
 export const ActionRegistryContext = createContext<ActionRegistry | undefined>(
   undefined,

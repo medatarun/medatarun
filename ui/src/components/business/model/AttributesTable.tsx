@@ -8,7 +8,6 @@ import {
   tokens,
   Tooltip,
 } from "@fluentui/react-components";
-import { useActionRegistry } from "@/business/action_registry";
 import type { AttributeDto } from "@/business/model";
 import { useModelContext } from "./ModelContext.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
@@ -23,6 +22,7 @@ import {
 } from "@fluentui/react-icons";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import type { ActionKey } from "@/business/action_registry/actionRegistry.dictionnary.ts";
+import { useActionRegistry } from "@/components/business/actions";
 
 const useStyles = makeStyles({
   titleCell: {

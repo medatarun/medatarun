@@ -1,5 +1,4 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useActionRegistry } from "@/business/action_registry";
 import {
   createActionCtxType,
   createDisplayedSubjectType,
@@ -40,6 +39,7 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { useSecurityContext } from "@/business/security";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { useActionRegistry } from "@/components/business/actions";
 
 export function TypeEditPage({
   modelId,

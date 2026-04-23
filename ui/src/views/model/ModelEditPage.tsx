@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useActionRegistry } from "@/business/action_registry";
 import {
   createActionCtxModel,
   createActionCtxRelationship,
@@ -52,6 +51,7 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
+import { useActionRegistry } from "@/components/business/actions";
 
 export function ModelEditPage({ modelId }: { modelId: string }) {
   const { data: model } = useModel(modelId);

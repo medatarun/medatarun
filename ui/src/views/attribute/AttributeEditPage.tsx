@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useActionRegistry } from "@/business/action_registry";
 import {
   type AttributeDto,
   createActionCtxEntityAttribute,
@@ -67,6 +66,7 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { useSecurityContext } from "@/business/security";
+import { useActionRegistry } from "@/components/business/actions";
 
 export function AttributeEditPage({
   modelId,

@@ -25,10 +25,7 @@ import {
   type FormFieldType,
   validateForm,
 } from "@/business/action_form";
-import {
-  ActionDescriptor,
-  useActionRegistry,
-} from "@/business/action_registry";
+import { ActionDescriptor } from "@/business/action_registry";
 import ReactMarkdown from "react-markdown";
 import {
   combineValidationResults,
@@ -48,6 +45,7 @@ import {
   ACTION_PERFORMER_INPUT_DEFAULT_COMPONENT,
 } from "./inputs/ActionPerformerInputRegistry.ts";
 import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
+import { useActionRegistry } from "@/components/business/actions/action_registry.hooks.ts";
 
 const DEBUG = false;
 

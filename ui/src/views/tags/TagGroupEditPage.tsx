@@ -1,5 +1,4 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useActionRegistry } from "@/business/action_registry";
 import {
   createActionCtxTag,
   createActionCtxTagGroup,
@@ -34,6 +33,7 @@ import {
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { type ActionCtx } from "@/business/action-performer";
 import { useSecurityContext } from "@/business/security";
+import { useActionRegistry } from "@/components/business/actions";
 
 export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
   const { t } = useAppI18n();

@@ -1,5 +1,4 @@
 import type { PropsWithChildren, ReactNode } from "react";
-import { useActionRegistry } from "@/business/action_registry";
 import { Text, tokens } from "@fluentui/react-components";
 import {
   type ActionCtx,
@@ -7,6 +6,7 @@ import {
 } from "@/business/action-performer";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import type { ActionKey } from "@/business/action_registry/actionRegistry.dictionnary.ts";
+import { useActionRegistry } from "@/components/business/actions";
 
 export function SectionTitle({
   icon,
