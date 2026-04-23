@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
-import { createActionCtxTagGroup, TagGroup, useTags } from "@/business/tag";
+import { createActionCtxTagGroup, TagGroup } from "@/business/tag";
+import { useTags } from "@/components/business/tag";
 import { TagGroupsTable } from "./TagGroupsTable.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";

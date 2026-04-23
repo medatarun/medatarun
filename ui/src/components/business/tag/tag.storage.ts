@@ -1,21 +1,15 @@
-import type { TagDto, TagGroupDto, TagScopeRef } from "./tag.dto.ts";
+import type {
+  TagDto,
+  TagGroupDto,
+  TagScopeRef,
+  TagSearchFilters,
+} from "@/business/tag/tag.dto.ts";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { type ActionPayload } from "../action-performer";
+import { type ActionPayload } from "@/business/action-performer";
 import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
 
 export type TagSearchReq = {
   filters?: TagSearchFilters | null;
-};
-
-export type TagSearchFilters = {
-  operator: "and" | "or";
-  items: TagSearchFilter[];
-};
-
-export type TagSearchFilter = {
-  type: "scopeRef";
-  condition: "is";
-  value: TagScopeRef;
 };
 
 export type TagSearchResp = {

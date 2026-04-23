@@ -1,4 +1,4 @@
-import { Model, useModel } from "@/business/model";
+import { Model } from "@/business/model";
 import {
   ErrorBox,
   InputSelect,
@@ -11,6 +11,7 @@ import {
   adaptPropsRefIdToRawId,
   normalizeValueStringOrEmpty,
 } from "./ActionPerformerInput.utils.ts";
+import { useModel } from "@/components/business/model";
 
 /**
  * Selects a type in the model types.

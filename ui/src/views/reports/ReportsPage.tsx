@@ -20,9 +20,7 @@ import {
 } from "@/components/layout/Contained.tsx";
 import {
   type ModelSearchFilter,
-  type ModelSearchReq,
   type ModelSearchTagFilter,
-  useModelSearch,
 } from "@/business/model";
 import { useState } from "react";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
@@ -38,6 +36,10 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
+import {
+  type ModelSearchReq,
+  useModelSearch,
+} from "@/components/business/model";
 
 const LOCAL_STORAGE_KEY = "reports-query-builder";
 

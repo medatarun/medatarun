@@ -6,6 +6,8 @@ import {
   type ElementOrigin,
   Model,
   type RelationshipDto,
+} from "@/business/model";
+import {
   useModel,
   useModelAddTag,
   useModelDeleteTag,
@@ -13,7 +15,7 @@ import {
   useModelUpdateDocumentationHome,
   useModelUpdateKey,
   useModelUpdateName,
-} from "@/business/model";
+} from "@/components/business/model";
 import {
   ModelContext,
   useModelContext,
@@ -46,7 +48,7 @@ import { useAppI18n } from "@/services/appI18n.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { TagIcon } from "@/components/business/tag/tag.icons.tsx";
 import { createActionCtxTag, Tag } from "@/business/tag";
-import { useSecurityContext } from "@/business/security";
+import { useSecurityContext } from "@/components/business/security";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,

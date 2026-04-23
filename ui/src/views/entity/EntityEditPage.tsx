@@ -10,9 +10,6 @@ import {
   type EntityDto,
   Model,
   type RelationshipDto,
-  useEntityUpdateDescription,
-  useEntityUpdateName,
-  useModel,
 } from "@/business/model";
 import {
   ModelContext,
@@ -52,13 +49,18 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { useSecurityContext } from "@/business/security";
+import { useSecurityContext } from "@/components/business/security";
 import { KeyRegular } from "@fluentui/react-icons";
 import { Key } from "@/components/core/Key.tsx";
 import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { useActionRegistry } from "@/components/business/actions";
+import {
+  useEntityUpdateDescription,
+  useEntityUpdateName,
+  useModel,
+} from "@/components/business/model";
 
 export function EntityEditPage({
   modelId,

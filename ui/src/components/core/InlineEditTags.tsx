@@ -19,12 +19,8 @@ import {
   type TagPickerProps,
 } from "@fluentui/react-components";
 import { InlineEditSingleLineLayout } from "./InlineEditSingleLineLayout.tsx";
-import {
-  createActionCtxTag,
-  Tags,
-  type TagScopeRef,
-  useTags,
-} from "@/business/tag";
+import { createActionCtxTag, Tags, type TagScopeRef } from "@/business/tag";
+import { useTags } from "@/components/business/tag";
 import { type ActionDisplayedSubject } from "@/business/action-performer";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";

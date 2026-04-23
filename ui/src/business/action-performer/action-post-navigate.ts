@@ -1,7 +1,6 @@
 import type {
   ActionDisplayedSubject,
   ActionDisplayedSubjectResource,
-  ActionPerformerState,
   ActionRequest,
 } from "@/business/action-performer/index.ts";
 import type { NavigateFn } from "@tanstack/react-router";

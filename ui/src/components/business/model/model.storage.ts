@@ -3,38 +3,19 @@ import type {
   ModelChangeEventListDto,
   ModelChangeEventListWithVersionDto,
   ModelCompareDto,
+  ModelCompareReq,
   ModelDto,
+  ModelSearchFilter,
+  ModelSearchOperator,
   ModelSummaryDto,
   SearchResults,
-} from "./model.dto.ts";
-import { type ActionPayload, ActionPerformer } from "../action-performer";
+} from "@/business/model";
+import {
+  type ActionPayload,
+  ActionPerformer,
+} from "@/business/action-performer";
 import { api } from "@/services/api.ts";
 import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
-
-export type ModelSearchOperator = "and" | "or";
-
-export type ModelSearchTagFilterCondition =
-  | "anyOf"
-  | "allOf"
-  | "noneOf"
-  | "empty"
-  | "notEmpty";
-
-export type ModelSearchTagFilter = {
-  id: string;
-  type: "tags";
-  condition: ModelSearchTagFilterCondition;
-  tagIds: string[];
-};
-
-export type ModelSearchTextFilter = {
-  id: string;
-  type: "text";
-  condition: "contains";
-  value: string;
-};
-
-export type ModelSearchFilter = ModelSearchTagFilter | ModelSearchTextFilter;
 
 export type ModelSearchReq = {
   operator: ModelSearchOperator;
@@ -80,16 +61,6 @@ export const useModelSearch = (req: ModelSearchReq) => {
     queryKey: ["search", req],
     queryFn: () => modelSearch(performer, req),
   });
-};
-
-export type ModelDiffScopeCode = "structural" | "complete";
-
-export type ModelCompareReq = {
-  leftModelId: string;
-  leftModelVersion: string | null;
-  rightModelId: string;
-  rightModelVersion: string | null;
-  scope: ModelDiffScopeCode;
 };
 
 export const useModelCompare = (req: ModelCompareReq | undefined) => {

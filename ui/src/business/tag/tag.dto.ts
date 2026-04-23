@@ -17,3 +17,14 @@ export type TagDto = {
   name: string | null;
   description: string | null;
 };
+
+export type TagSearchFilters = {
+  operator: "and" | "or";
+  items: TagSearchFilter[];
+};
+
+export type TagSearchFilter = {
+  type: "scopeRef";
+  condition: "is";
+  value: TagScopeRef;
+};

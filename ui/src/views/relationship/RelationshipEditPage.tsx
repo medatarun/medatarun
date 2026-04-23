@@ -7,13 +7,15 @@ import {
   Model,
   type RelationshipDto,
   type RelationshipRoleDto,
+} from "@/business/model";
+import {
   useModel,
   useRelationshipAddTag,
   useRelationshipDeleteTag,
   useRelationshipUpdateDescription,
   useRelationshipUpdateKey,
   useRelationshipUpdateName,
-} from "@/business/model";
+} from "@/components/business/model";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { AttributesTable } from "@/components/business/model/AttributesTable.tsx";
@@ -56,7 +58,7 @@ import {
 import { toProblem } from "@seij/common-types";
 import { ErrorBox } from "@seij/common-ui";
 import { useNavigate } from "@tanstack/react-router";
-import { useSecurityContext } from "@/business/security";
+import { useSecurityContext } from "@/components/business/security";
 import { useActionRegistry } from "@/components/business/actions";
 
 export function RelationshipEditPage({

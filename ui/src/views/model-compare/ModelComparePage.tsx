@@ -2,9 +2,6 @@ import {
   type ModelChangeEventWithVersionDto,
   type ModelCompareReq,
   type ModelSummaryDto,
-  useModelCompare,
-  useModelHistoryVersions,
-  useModelSummaries,
 } from "@/business/model";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import {
@@ -28,6 +25,11 @@ import { Text, tokens } from "@fluentui/react-components";
 import { ArrowBidirectionalLeftRightRegular } from "@fluentui/react-icons";
 import { Button, InputCombobox } from "@seij/common-ui";
 import { useEffect, useState } from "react";
+import {
+  useModelCompare,
+  useModelHistoryVersions,
+  useModelSummaries,
+} from "@/components/business/model";
 
 export function ModelComparePage() {
   const { data: modelSummaries = [] } = useModelSummaries();

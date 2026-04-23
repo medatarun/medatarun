@@ -1,10 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
+import { Model } from "@/business/model";
 import {
-  Model,
   useModel,
   useModelHistoryVersionChanges,
   useModelHistoryVersions,
-} from "@/business/model";
+} from "@/components/business/model";
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
