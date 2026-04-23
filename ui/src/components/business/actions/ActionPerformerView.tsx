@@ -18,8 +18,8 @@ import { type Ref, useEffect, useRef, useState } from "react";
 import { ActionOutputBox } from "./ActionOutput.tsx";
 import type {
   ActionCtx,
-  ActionPerformerRequest,
   ActionPerformerState,
+  ActionRequest,
 } from "@/business/action-performer";
 import { type ActionResp } from "@/business/action-performer";
 import {
@@ -95,7 +95,7 @@ export function ActionPerformerViewLoaded({
   defaultFormData,
   formFields,
 }: {
-  request: ActionPerformerRequest;
+  request: ActionRequest;
   state: ActionPerformerState;
   action: ActionDescriptor;
   defaultFormData: FormDataType;
@@ -103,7 +103,7 @@ export function ActionPerformerViewLoaded({
 }) {
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
-  const { confirmAction, cancelAction, finishAction, postHooks } =
+  const { confirmAction, cancelAction, finishAction, performer } =
     useActionPerformer();
   const navigate = useNavigate();
   const [actionResp, setActionResp] = useState<ActionResp | null>(null);
@@ -157,13 +157,11 @@ export function ActionPerformerViewLoaded({
   useEffect(() => {
     if (state.kind !== "done") return;
 
-    postHooks.resolveNavigationAfterSuccess({
-      action: action,
+    performer.resolveNavigationAfterSuccess({
       request: state.request,
-      state: state,
       navigate: navigate,
     });
-  }, [action, navigate, postHooks, state]);
+  }, [action, navigate, performer, state]);
 
   const focusedFieldKey = formFields.find(
     (it) => it.visible && !it.readonly,
@@ -247,7 +245,7 @@ function FormFieldInput({
   inputRef,
   onChange,
 }: {
-  request: ActionPerformerRequest;
+  request: ActionRequest;
   field: FormFieldType;
   value: unknown;
   validationResult: ValidationResult | undefined;

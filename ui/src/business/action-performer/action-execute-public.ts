@@ -1,4 +1,4 @@
-import { ActionPerformerInstance } from "@/business/action-performer/action-performer-factory.ts";
+import { ActionPerformerInstance } from "./action-performer-factory.ts";
 
 /**
  * Executes an action that, if it returns something, will be a JSON result

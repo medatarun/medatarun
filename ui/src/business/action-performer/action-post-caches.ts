@@ -1,23 +1,17 @@
 import type { QueryClient, QueryKey } from "@tanstack/react-query";
-import type { ActionKey } from "@/business/action_registry/actionRegistry.dictionnary.ts";
+import type { ActionKey } from "@/business/action_registry";
 import { ActionDescriptor, ActionRegistry } from "@/business/action_registry";
 import { ACTION_AUTH_QUERY_KEY_USER_LIST } from "@/business/auth_user";
 
 /**
- * Called after backend action execution succeeded, before the generic
- * `queryClient.invalidateQueries()` fallback is decided.
+ * Called after backend action execution succeeded to handle query caches.
  *
- * Contract for implementers:
- * - Do cache updates/invalidation only for your business scope.
- * - Return true when this hook handled cache refresh responsibility.
- * - Return false when caller should keep the generic fallback invalidation.
- * - Throw on unexpected errors; caller will propagate the failure.
- *
- * Notes:
- * - In a multi-hook setup, several matching hooks can run for the same action.
- * - Returning true does not stop other matching hooks from running.
+ * Look at action semantics and decide which queryClient caches must be
+ * invalidated. For example, when a mutation occurs (item deleted, name
+ * change, ...) The caches of matching subjects must be discared so the
+ * screen can be refreshed.
  */
-export async function actionPostSuccess(
+export async function actionPostCacheManagement(
   actionKey: ActionKey,
   queryClient: QueryClient,
   actionRegistry: ActionRegistry,

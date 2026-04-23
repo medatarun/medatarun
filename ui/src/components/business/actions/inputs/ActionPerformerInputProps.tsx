@@ -1,8 +1,8 @@
 import type { Ref } from "react";
-import type { ActionPerformerRequest } from "@/business/action-performer";
+import type { ActionRequest } from "@/business/action-performer";
 
 export interface ActionPerformerInputProps<T = unknown> {
-  request: ActionPerformerRequest;
+  request: ActionRequest;
   inputRef: Ref<HTMLInputElement> | undefined;
   value: T | null;
   disabled: boolean;

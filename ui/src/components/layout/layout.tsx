@@ -8,7 +8,6 @@ import { useMemo } from "react";
 import {
   ActionRegistry,
   ActionsContext,
-  useActionRegistry,
   useActionRegistryQuery,
 } from "@/business/action_registry";
 import { ActionPerformerView } from "@/components/business/actions/ActionPerformerView.tsx";
@@ -22,10 +21,6 @@ import {
 } from "@seij/common-ui-auth";
 import { UserSessionExpiredDialog } from "@/components/auth/UserSessionExpiredDialog.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import {
-  ActionPostHookCompat,
-  ActionPostHooks,
-} from "@/business/action-performer";
 import { toProblem } from "@seij/common-types";
 import { useMenu } from "./menu.tsx";
 import { queryClient } from "@/services/queryClient.ts";
@@ -56,13 +51,6 @@ export function Layout() {
   const actionsQuery = useActionRegistryQuery(actionAccessScope);
   const actions = actionsQuery.data ?? EMPTY_ACTION_REGISTRY;
 
-  // Tooling for action managers so they can provide context and adapt their
-  // behavior when action succeeds (post actions)
-  const actionPostHooks = useMemo(
-    () => new ActionPostHooks([new ActionPostHookCompat(actions, queryClient)]),
-    [actions],
-  );
-
   const error = actionsQuery.error ? toProblem(actionsQuery.error) : null;
 
   const matchPath = (path: string | undefined) =>
@@ -88,7 +76,7 @@ export function Layout() {
           <>
             {actions.isNotEmpty() && (
               <ActionsContext value={actions}>
-                <ActionProvider postHooks={actionPostHooks}>
+                <ActionProvider>
                   <ErrorBoundary>
                     <Outlet />
                     <ActionPerformerView />

@@ -1,33 +1,36 @@
-import { ActionRegistry } from "@/business/action_registry";
-import { queryClient } from "@/services/queryClient.ts";
-import type { ActionPostHooks } from "./ActionPostHook.ts";
-import type { ActionPerformerRequest } from "./ActionPerformerRequest.ts";
+import { type ActionKey, ActionRegistry } from "@/business/action_registry";
+import type { ActionRequest } from "./action-request.ts";
 import {
   executeActionInternal,
   executeActionJsonInternal,
 } from "./action-execute-internal.ts";
 import type { ActionPayload, ActionResp } from "./action-types.ts";
+import type { QueryClient } from "@tanstack/react-query";
+import { actionPostCacheManagement } from "@/business/action-performer/action-post-caches.ts";
+import { actionPostNavigate } from "@/business/action-performer/action-post-navigate.ts";
+import type { NavigateFn } from "@tanstack/react-router";
+import { throwError } from "@seij/common-types";
 
 export type ActionPerformerFormData = Record<string, unknown>;
 
 export type ActionPerformerState =
   | { kind: "idle" }
-  | { kind: "pendingUser"; request: ActionPerformerRequest }
-  | { kind: "running"; request: ActionPerformerRequest }
-  | { kind: "done"; request: ActionPerformerRequest }
-  | { kind: "error"; request: ActionPerformerRequest; error: unknown };
+  | { kind: "pendingUser"; request: ActionRequest }
+  | { kind: "running"; request: ActionRequest }
+  | { kind: "done"; request: ActionRequest }
+  | { kind: "error"; request: ActionRequest; error: unknown };
 
 type Listener = (s: ActionPerformerState) => void;
 
 export class ActionPerformer {
   private actionRegistry: ActionRegistry;
-  private postHooks: ActionPostHooks;
   private state: ActionPerformerState = { kind: "idle" };
   private listeners = new Set<Listener>();
+  private queryClient: QueryClient;
 
-  constructor(actionRegistry: ActionRegistry, postHooks: ActionPostHooks) {
+  constructor(actionRegistry: ActionRegistry, queryClient: QueryClient) {
     this.actionRegistry = actionRegistry;
-    this.postHooks = postHooks;
+    this.queryClient = queryClient;
   }
 
   subscribe(listener: Listener) {
@@ -47,7 +50,7 @@ export class ActionPerformer {
     return this.state;
   }
 
-  performAction(request: ActionPerformerRequest) {
+  performAction(request: ActionRequest) {
     if (this.state.kind !== "idle") {
       throw new Error("Une action est déjà en cours");
     }
@@ -110,28 +113,57 @@ export class ActionPerformer {
       actionKey,
       payload,
     );
-    const action = this.actionRegistry.findActionByGroupKeyAndActionKey(
-      actionGroupKey,
-      actionKey,
-    );
     const request = this.state.kind === "running" ? this.state.request : null;
-    let cachesHandled = false;
     if (request) {
-      cachesHandled = await this.postHooks.onActionSuccess(
-        {
-          action: action,
-          request: request,
-          state: this.state,
-        },
-        queryClient,
-      );
-    }
-    if (!cachesHandled) {
-      console.warn(
-        "We will invalidate all caches because no hook could handle the request",
-      );
-      await queryClient.invalidateQueries();
+      await this.onActionSuccess(request);
     }
     return resp;
+  }
+
+  /**
+   * Called after onActionSuccess(...) has completed and action state is done.
+   * This method is an optional navigation side-effect handler.
+   *
+   * Contract for implementers:
+   * - Call navigate(...) only when navigation is explicitly required.
+   * - Do nothing to keep the current route.
+   * - Do not perform cache work here (handled in onActionSuccess).
+   */
+  resolveNavigationAfterSuccess(context: {
+    request: ActionRequest;
+    navigate: NavigateFn;
+  }): void {
+    const displayedSubject = context.request.ctx.displayedSubject;
+    if (displayedSubject.kind == "none") return;
+    actionPostNavigate({
+      action:
+        this.actionRegistry.findActionByActionKey(context.request.actionKey) ??
+        throwError("Action not found in registry " + context.request.actionKey),
+      request: context.request,
+      navigate: context.navigate,
+      displayedSubject: context.request.ctx.displayedSubject,
+    });
+  }
+
+  /**
+   * Called after backend action execution succeeded, before the generic
+   * `queryClient.invalidateQueries()` fallback is decided.
+   *
+   * Contract for implementers:
+   * - Do cache updates/invalidation only for your business scope.
+   * - Return true when this hook handled cache refresh responsibility.
+   * - Return false when caller should keep the generic fallback invalidation.
+   * - Throw on unexpected errors; caller will propagate the failure.
+   *
+   * Notes:
+   * - In a multi-hook setup, several matching hooks can run for the same action.
+   * - Returning true does not stop other matching hooks from running.
+   */
+  private async onActionSuccess(request: ActionRequest) {
+    return actionPostCacheManagement(
+      request.actionKey as ActionKey,
+      this.queryClient,
+      this.actionRegistry,
+    );
   }
 }

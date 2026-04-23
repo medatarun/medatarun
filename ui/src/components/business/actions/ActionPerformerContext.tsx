@@ -1,16 +1,16 @@
 import { createContext } from "react";
-import type {
-  ActionPerformerFormData,
-  ActionPerformerRequest,
-  ActionPerformerState,
-  ActionPostHooks,
-  ActionResp,
+import {
+  ActionPerformer,
+  type ActionPerformerFormData,
+  type ActionPerformerState,
+  type ActionRequest,
+  type ActionResp,
 } from "@/business/action-performer";
 
 export interface ActionPerformerContextValue {
+  performer: ActionPerformer;
   state: ActionPerformerState;
-  postHooks: ActionPostHooks;
-  performAction: (req: ActionPerformerRequest) => void;
+  performAction: (req: ActionRequest) => void;
   confirmAction: (formData: ActionPerformerFormData) => Promise<ActionResp>;
   cancelAction: (reason?: unknown) => void;
   finishAction: () => void;

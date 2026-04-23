@@ -1,27 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
-import type { ActionPostHooks } from "@/business/action-performer";
-import {
-  ActionPerformer,
-  type ActionPerformerState,
-} from "@/business/action-performer";
+import { useEffect, useState } from "react";
+import { type ActionPerformerState } from "@/business/action-performer";
 import {
   ActionPerformerContext,
   type ActionPerformerContextValue,
 } from "./ActionPerformerContext.tsx";
-import { useActionRegistry } from "@/business/action_registry";
+import { ActionPerformerInstance } from "@/business/action-performer/action-performer-factory.ts";
 
-export function ActionProvider({
-  children,
-  postHooks,
-}: {
-  children: React.ReactNode;
-  postHooks: ActionPostHooks;
-}) {
-  const actionRegistry = useActionRegistry();
-  const performer = useMemo(
-    () => new ActionPerformer(actionRegistry, postHooks),
-    [actionRegistry, postHooks],
-  );
+export function ActionProvider({ children }: { children: React.ReactNode }) {
+  const performer = ActionPerformerInstance;
   const [state, setState] = useState<ActionPerformerState>(
     performer.getState(),
   );
@@ -32,7 +18,7 @@ export function ActionProvider({
 
   const value: ActionPerformerContextValue = {
     state: state,
-    postHooks: postHooks,
+    performer: performer,
     performAction: (actionRequest) => performer.performAction(actionRequest),
     confirmAction: (payload) => performer.confirmAction(payload),
     cancelAction: (reason) => performer.cancelAction(reason),
