@@ -1,7 +1,7 @@
 import type { QueryClient, QueryKey } from "@tanstack/react-query";
 import type { ActionKey } from "@/business/action_registry";
 import { ActionDescriptor, ActionRegistry } from "@/business/action_registry";
-import { ACTION_AUTH_QUERY_KEY_USER_LIST } from "@/business/auth_user";
+import { ACTION_AUTH_QUERY_KEY_USER_LIST } from "@/components/business/auth-user";
 
 /**
  * Called after backend action execution succeeded to handle query caches.

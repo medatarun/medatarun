@@ -1,7 +1,7 @@
-import { useSecurityRuleDescriptionRegistry } from "@/business/config";
 import type { ActionKey } from "@/business/action_registry/actionRegistry.dictionnary.ts";
 import { useActionRegistry } from "@/components/business/actions";
 import { useCurrentActor } from "@/components/business/auth-actor";
+import { useSecurityRuleDescriptionRegistry } from "@/components/business/config";
 
 export function useSecurityContext() {
   const actor = useCurrentActor();

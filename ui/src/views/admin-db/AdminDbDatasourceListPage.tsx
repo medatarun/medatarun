@@ -1,4 +1,3 @@
-import { useDatabaseDatasources, useDatabaseDrivers } from "@/business/db";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
@@ -14,6 +13,10 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
+import {
+  useDatabaseDatasources,
+  useDatabaseDrivers,
+} from "@/components/business/db";
 
 export function AdminDbDatasourceListPage() {
   const { data: dsRaw } = useDatabaseDatasources();

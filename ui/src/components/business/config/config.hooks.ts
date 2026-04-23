@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import {
   SecurityPermissionRegistry,
   SecurityRuleDescriptionRegistry,
-} from "./config.model.ts";
+} from "@/business/config";
 import {
   useSecurityPermissions,
   useSecurityRuleDescriptions,

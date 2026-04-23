@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { AuthRoleDetails } from "@/business/actor";
-import { usePermissionRegistry } from "@/business/config";
+import { usePermissionRegistry } from "@/components/business/config";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import {

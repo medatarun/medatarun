@@ -1,9 +1,9 @@
 import type {
   SecurityPermissionsResp,
   SecurityRulesDescriptionsResp,
-} from "./config.dto.ts";
+} from "@/business/config";
 import { useQuery } from "@tanstack/react-query";
-import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
+import { useActionPerformer } from "@/components/business/actions";
 
 export const useSecurityRuleDescriptions = () => {
   const { performer } = useActionPerformer();
