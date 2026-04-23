@@ -3,10 +3,10 @@ import { queryClient } from "@/services/queryClient.ts";
 import type { ActionPostHooks } from "./ActionPostHook.ts";
 import type { ActionPerformerRequest } from "./ActionPerformerRequest.ts";
 import {
-  type ActionPayload,
-  type ActionResp,
-  executeAction,
-} from "./action_perform.api.ts";
+  executeActionInternal,
+  executeActionJsonInternal,
+} from "./action-execute-internal.ts";
+import type { ActionPayload, ActionResp } from "./action-types.ts";
 
 export type ActionPerformerFormData = Record<string, unknown>;
 
@@ -54,6 +54,21 @@ export class ActionPerformer {
     this.setState({ kind: "pendingUser", request });
   }
 
+  executeAny<T = unknown>(
+    actionGroup: string,
+    actionName: string,
+    payload: ActionPayload,
+  ): Promise<ActionResp<T>> {
+    return executeActionInternal(actionGroup, actionName, payload);
+  }
+  executeJson<T = unknown>(
+    actionGroup: string,
+    actionName: string,
+    payload: ActionPayload,
+  ): Promise<T> {
+    return executeActionJsonInternal(actionGroup, actionName, payload);
+  }
+
   async confirmAction(payload: ActionPayload): Promise<ActionResp> {
     if (this.state.kind === "idle")
       throw Error("No pending or waiting request");
@@ -90,7 +105,11 @@ export class ActionPerformer {
     actionKey: string,
     payload: ActionPayload,
   ): Promise<ActionResp> {
-    const resp = await executeAction(actionGroupKey, actionKey, payload);
+    const resp = await executeActionInternal(
+      actionGroupKey,
+      actionKey,
+      payload,
+    );
     const action = this.actionRegistry.findActionByGroupKeyAndActionKey(
       actionGroupKey,
       actionKey,

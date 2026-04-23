@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useActionRegistry } from "@/business/action_registry";
 import {
   createActionCtxType,

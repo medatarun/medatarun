@@ -1,5 +1,5 @@
 import type { TagDto, TagGroupDto, TagScopeRef } from "./tag.dto.ts";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ActionPayload, executeActionJson } from "../action-performer";
 
 export type TagSearchReq = {
@@ -48,7 +48,6 @@ export const useTagGroupList = () => {
 };
 
 function useTagGroupMutation(actionKey: string) {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { tagGroupId: string; value: string }) =>
       executeActionJson("tag", actionKey, {
@@ -59,7 +58,6 @@ function useTagGroupMutation(actionKey: string) {
 }
 
 function useTagGlobalMutation(actionKey: string) {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { tagId: string; value: string }) =>
       executeActionJson("tag", actionKey, {
@@ -70,7 +68,6 @@ function useTagGlobalMutation(actionKey: string) {
 }
 
 function useTagLocalMutation(actionKey: string) {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { tagId: string; value: string }) =>
       executeActionJson("tag", actionKey, {

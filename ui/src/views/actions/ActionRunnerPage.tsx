@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { type ActionResp, executeAction } from "@/business/action-performer";
+import { type ActionResp, executeActionAny } from "@/business/action-performer";
 import { ActionRegistry, useActionRegistry } from "@/business/action_registry";
 import { ActionOutput } from "@/components/business/actions/ActionOutput.tsx";
 import { SecurityRuleBadge } from "@/views/actions/components/SecurityRuleBadge.tsx";
@@ -326,7 +326,7 @@ function ActionLaucher({
     }
     setErrorMessage(null);
 
-    executeAction(selectedGroupKey, selectedActionKey, parsedPayload)
+    executeActionAny(selectedGroupKey, selectedActionKey, parsedPayload)
       .then((data) => setOutput(data))
       .catch((err) => {
         const problem =

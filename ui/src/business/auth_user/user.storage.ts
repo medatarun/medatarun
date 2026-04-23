@@ -1,10 +1,6 @@
-import { executeActionJson } from "@/business/action-performer";
-import type { UserListDto } from "@/business/auth_user/user.dto.ts";
 import { useQuery } from "@tanstack/react-query";
-
-async function userList() {
-  return executeActionJson<UserListDto>("auth", "user_list", {});
-}
+import type { UserListDto } from "@/business/auth_user/user.dto.ts";
+import { executeActionJson } from "@/business/action-performer";
 
 export const ACTION_AUTH_QUERY_KEY_USER_LIST = [
   "action",
@@ -16,6 +12,6 @@ export const ACTION_AUTH_QUERY_KEY_USER_LIST = [
 export const useUserList = () => {
   return useQuery({
     queryKey: ACTION_AUTH_QUERY_KEY_USER_LIST,
-    queryFn: userList,
+    queryFn: () => executeActionJson<UserListDto>("auth", "user_list", {}),
   });
 };

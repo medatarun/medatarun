@@ -1,14 +1,25 @@
 import { api } from "@/services/api.ts";
 import { Problem } from "@seij/common-types";
 import { notifyUnauthorized } from "@/services/user-session-expired.ts";
+import type { ActionPayload, ActionResp } from "./action-types.ts";
 
-export type ActionResp<T = unknown> =
-  | { contentType: "text"; text: string }
-  | { contentType: "json"; json: T };
-
-export type ActionPayload = Record<string, unknown>;
-
-export async function executeAction<T = unknown>(
+/**
+ * Executes an action, the result can be text or Json or something else.
+ *
+ * Uniformize error handling and session expiration, injects the session token.
+ *
+ * Note that this is used both for query and mutations as everything
+ * is architectured with the action protocol.
+ *
+ * Returns what the server returns in an encapsulated object with the type. Json is decoded if needed.
+ *
+ * This is a quite raw function, don't use it publicly
+ *
+ * @param actionGroup group of action
+ * @param actionName key of the action
+ * @param payload payload to send
+ */
+export async function executeActionInternal<T = unknown>(
   actionGroup: string,
   actionName: string,
   payload: ActionPayload,
@@ -52,12 +63,16 @@ export async function executeAction<T = unknown>(
  * Executes an action and enforces a JSON response contract.
  * Throws when the endpoint responds with a non-JSON content type.
  */
-export async function executeActionJson<T = unknown>(
+export async function executeActionJsonInternal<T = unknown>(
   actionGroup: string,
   actionName: string,
   payload: ActionPayload,
 ): Promise<T> {
-  const response = await executeAction<T>(actionGroup, actionName, payload);
+  const response = await executeActionInternal<T>(
+    actionGroup,
+    actionName,
+    payload,
+  );
   if (response.contentType !== "json") {
     throw Error("Expected JSON response for " + actionGroup + "/" + actionName);
   }

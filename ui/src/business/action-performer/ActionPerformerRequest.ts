@@ -1,4 +1,4 @@
-import type { ActionKey } from "@/business/action_registry/actionRegistry.dictionnary.ts";
+import type { ActionKey } from "@/business/action_registry";
 
 /**
  * Action execution request captured at trigger time.

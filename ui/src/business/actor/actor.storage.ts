@@ -8,28 +8,6 @@ import type {
 } from "@/business/actor/actor.dto.ts";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-async function whoami() {
-  return executeActionJson<WhoAmIRespDto>("auth", "whoami", {});
-}
-
-async function roleList() {
-  return executeActionJson<RoleListDto>("auth", "role_list", {});
-}
-
-async function roleGet(roleId: string) {
-  return executeActionJson<RoleDetailsDto>("auth", "role_get", {
-    roleRef: "id:" + roleId,
-  });
-}
-
-async function actorList() {
-  return executeActionJson<ActorInfoDto[]>("auth", "actor_list", {});
-}
-
-async function actorGet(actorId: string) {
-  return executeActionJson<ActorDetailsDto>("auth", "actor_get", { actorId });
-}
-
 /**
  * Returns the current user details with roles and permissions.
  *
@@ -48,7 +26,7 @@ export const useWhoami = (issuer: string | null, subject: string | null) => {
     queryKey: ["whoami", issuer, subject],
     queryFn: async () => {
       if (!issuer || !subject) return null;
-      return whoami();
+      return executeActionJson<WhoAmIRespDto>("auth", "whoami", {});
     },
   });
 };
@@ -56,7 +34,7 @@ export const useWhoami = (issuer: string | null, subject: string | null) => {
 export const useRoleList = () => {
   return useQuery({
     queryKey: ["action", "auth", "role", "list"],
-    queryFn: roleList,
+    queryFn: () => executeActionJson<RoleListDto>("auth", "role_list", {}),
   });
 };
 
@@ -64,14 +42,17 @@ export const useRole = (roleId: string) => {
   return useQuery({
     queryKey: ["action", "auth", "role", "get", roleId],
     enabled: roleId.length > 0,
-    queryFn: () => roleGet(roleId),
+    queryFn: () =>
+      executeActionJson<RoleDetailsDto>("auth", "role_get", {
+        roleRef: "id:" + roleId,
+      }),
   });
 };
 
 export const useActorList = () => {
   return useQuery({
     queryKey: ["action", "auth", "actor", "list"],
-    queryFn: actorList,
+    queryFn: () => executeActionJson<ActorInfoDto[]>("auth", "actor_list", {}),
   });
 };
 
@@ -79,7 +60,11 @@ export const useActor = (actorId: string) => {
   return useQuery({
     queryKey: ["action", "auth", "actor", "get", actorId],
     enabled: actorId.length > 0,
-    queryFn: () => actorGet(actorId),
+    queryFn: () => {
+      return executeActionJson<ActorDetailsDto>("auth", "actor_get", {
+        actorId,
+      });
+    },
   });
 };
 
