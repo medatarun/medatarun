@@ -64,6 +64,8 @@
   everywhere
 - [ui] Action registry is now statically compiled in UI for performance but also
   to provide to screens static typings for actions
+- [ui] Replaced gradle-node-plugin that seems dead and has vulnerabilities with
+  `org.siouan.frontend-jdk21` Frontend Gradle Plugin latest version
 
 ## [0.9.0]
 
