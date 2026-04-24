@@ -40,12 +40,11 @@
   key exists
 - Frictionless-data now supports composite primary keys detection
 - Fixed issues with session expiration
-- Action registry is now statically compiled in UI for performance but also to
-  provide to screens static typings for actions
 - Reorganized order and which action buttons are displayed on screens to make it
   more intuitive.
 - Action forms are now prefilled with values when available. For example, for
   editing a key or a name, previous values are set on input fields.
+- Upgraded dependencies in UI and documentation subprojects.
 
 ### Breaking changes
 
@@ -56,6 +55,15 @@
 - `inspect_models_json` action removed `identifierAttribute`, added
   `businessKeys` in the model, `primaryKey` in each Entity.
 - `inspect_actions` do not return `uiLocations` anymore
+
+### Internal changes
+
+- [ui] Action system reorganised and simplified for better control of the query
+  caches and post-action navigation.
+- [ui] Uniformized backend calls to use an instance of ActionPerformer
+  everywhere
+- [ui] Action registry is now statically compiled in UI for performance but also
+  to provide to screens static typings for actions
 
 ## [0.9.0]
 
