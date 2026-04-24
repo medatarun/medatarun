@@ -1,39 +1,38 @@
 import { useCurrentActor } from "@/components/business/auth-actor";
 import { useSecurityContext } from "@/components/business/security";
+import { useAppI18n } from "@/services/appI18n.tsx";
 import { Link } from "@tanstack/react-router";
 
 export function ModelLimitedPermissionsPanel() {
   const actor = useCurrentActor();
   const sec = useSecurityContext();
+  const { t } = useAppI18n();
   const isAdmin = actor.isAdmin();
   const cannotRead = !sec.canExecuteAction("model_list");
-  if (!cannotRead) return null 
+  if (!cannotRead) return null;
   return (
     <div>
       <p>
-        <strong>Get fully ready</strong>
+        <strong>{t("modelLimitedPermissionsPanel_title")}</strong>
       </p>
       <div>
-        <p>On this page are usually displayed the models of Medatarun.</p>
-        <p>But, your current permissions are too low too see that.</p>
-        <p>This is a bit sad because it is the main intent of Medatarun.</p>
+        <p>{t("modelLimitedPermissionsPanel_descriptionModels")}</p>
+        <p>{t("modelLimitedPermissionsPanel_descriptionPermission")}</p>
+        <p>{t("modelLimitedPermissionsPanel_descriptionIntent")}</p>
         {isAdmin && (
           <div>
-            <strong>Since you are administrator: </strong>
+            <strong>{t("modelLimitedPermissionsPanel_adminIntro")} </strong>
             <ul>
               <li>
-                <Link to={"/admin/users"}>Create your first user.</Link>
+                <Link to={"/admin/users"}>
+                  {t("modelLimitedPermissionsPanel_adminCreateUser")}
+                </Link>
               </li>
-              <li>
-                Then, assign him one of our predefined role, or a role you
-                create yourself.
-              </li>
+              <li>{t("modelLimitedPermissionsPanel_adminAssignRole")}</li>
             </ul>
           </div>
         )}
-        {!isAdmin && (
-          <p>You should ask your administrator for more permissions.</p>
-        )}
+        {!isAdmin && <p>{t("modelLimitedPermissionsPanel_nonAdminHelp")}</p>}
       </div>
     </div>
   );

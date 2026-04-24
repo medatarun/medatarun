@@ -1,6 +1,7 @@
 import { type ActionPerformerViewMessages } from "./contracts/ActionPerformerViewMessages";
 import { type AdminActorPageMessages } from "./contracts/AdminActorPageMessages";
 import { type AdminActorsPageMessages } from "./contracts/AdminActorsPageMessages";
+import { type AdminDangerPanelMessages } from "@/components/business/onboarding/AdminDangerPanel.messages";
 import { type AdminDbDatasourceListPageMessages } from "./contracts/AdminDbDatasourceListPageMessages";
 import { type AdminDbDriverListPageMessages } from "./contracts/AdminDbDriverListPageMessages";
 import { type AdminUserPageMessages } from "./contracts/AdminUserPageMessages";
@@ -19,6 +20,7 @@ import { type DashboardPageMessages } from "./contracts/DashboardPageMessages";
 import { type LayoutMessages } from "./contracts/LayoutMessages";
 import { type LoginPageMessages } from "./contracts/LoginPageMessages";
 import { type ModelEditPageMessages } from "./contracts/ModelEditPageMessages.ts";
+import { type ModelLimitedPermissionsPanelMessages } from "@/components/business/onboarding/ModelLimitedPermissionsPanel.messages";
 import { type ModelComparePageMessages } from "./contracts/ModelComparePageMessages";
 import { type ModelHistoryPageMessages } from "./contracts/ModelHistoryPageMessages";
 import { type ModelReportsPageMessages } from "./contracts/ModelReportsPageMessages";
@@ -39,6 +41,7 @@ import type { MenuMessages } from "@/locales/contracts/MenuMessages.ts";
 export type Messages = SessionMessages &
   AttributeEditPageMessages &
   ActionPerformerViewMessages &
+  AdminDangerPanelMessages &
   AdminActorPageMessages &
   AdminActorsPageMessages &
   AdminDbDatasourceListPageMessages &
@@ -59,6 +62,7 @@ export type Messages = SessionMessages &
   InlineEditTagsMessages &
   LayoutMessages &
   MenuMessages &
+  ModelLimitedPermissionsPanelMessages &
   ModelListPageMessages &
   ModelComparePageMessages &
   ModelHistoryPageMessages &
