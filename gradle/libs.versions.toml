@@ -7,7 +7,7 @@ auth0JavaJwt = "4.5.1"
 auth0JwksRsa = "0.23.1"
 commonmark = "0.28.0"
 exposed = "1.2.0"
-gradleNodePluginVersion = "7.1.0"
+frontendGradlePluginVersion = "10.0.0"
 gradleVersionsPlugin = "0.54.0"
 jimfs = "1.3.1"
 kotest = "6.1.11"
@@ -78,4 +78,4 @@ slf4jTests = ["slf4j", "slf4j-simple"]
 [plugins]
 kotlinPluginSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 gradleVersionsPlugin = { id = "com.github.ben-manes.versions", version.ref = "gradleVersionsPlugin" }
-gradleNodePlugin = { id = "com.github.node-gradle.node", version.ref = "gradleNodePluginVersion"}
+frontendGradlePlugin = { id = "org.siouan.frontend-jdk21", version.ref = "frontendGradlePluginVersion"}
