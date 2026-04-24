@@ -14,6 +14,8 @@ import {
 import type { ReactNode } from "react";
 import { useActionRegistry } from "@/components/business/actions";
 import { useModelSummaries } from "@/components/business/model";
+import { AdminDangerPanel } from "@/components/business/onboarding/AdminDangerPanel.tsx";
+import { ModelLimitedPermissionsPanel } from "@/components/business/onboarding/ModelLimitedPermissionsPanel.tsx";
 
 export function ModelListPage({
   onClickModel,
@@ -50,6 +52,8 @@ export function ModelListPage({
       contained={true}
       scrollable={true}
     >
+      <AdminDangerPanel />
+      <ModelLimitedPermissionsPanel />
       {data.length == 0 ? t("modelListPage_empty") : null}
       {canonicalModels.length > 0 && (
         <ModelsSection
