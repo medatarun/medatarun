@@ -2,6 +2,7 @@ import { type Messages } from "./Messages";
 import { actionPerformerViewMessages } from "./fr/ActionPerformerViewMessages";
 import { adminActorPageMessages } from "./fr/AdminActorPageMessages";
 import { adminActorsPageMessages } from "./fr/AdminActorsPageMessages";
+import { adminDangerPanelMessages } from "@/components/business/onboarding/AdminDangerPanel.messages.fr";
 import { adminDbDatasourceListPageMessages } from "./fr/AdminDbDatasourceListPageMessages";
 import { adminDbDriverListPageMessages } from "./fr/AdminDbDriverListPageMessages";
 import { adminUserPageMessages } from "./fr/AdminUserPageMessages";
@@ -20,6 +21,7 @@ import { inlineEditTagsMessages } from "./fr/InlineEditTagsMessages";
 import { layoutMessages } from "./fr/LayoutMessages";
 import { loginPageMessages } from "./fr/LoginPageMessages";
 import { modelEditPageMessages } from "./fr/ModelEditPageMessages.ts";
+import { modelLimitedPermissionsPanelMessages } from "@/components/business/onboarding/ModelLimitedPermissionsPanel.messages.fr";
 import { modelComparePageMessages } from "./fr/ModelComparePageMessages";
 import { modelHistoryPageMessages } from "./fr/ModelHistoryPageMessages";
 import { modelReportsPageMessages } from "./fr/ModelReportsPageMessages";
@@ -41,6 +43,7 @@ export const messages = {
   ...sessionMessages,
   ...attributeEditPageMessages,
   ...actionPerformerViewMessages,
+  ...adminDangerPanelMessages,
   ...adminActorPageMessages,
   ...adminActorsPageMessages,
   ...adminDbDatasourceListPageMessages,
@@ -61,6 +64,7 @@ export const messages = {
   ...inlineEditTagsMessages,
   ...layoutMessages,
   ...menuMessages,
+  ...modelLimitedPermissionsPanelMessages,
   ...modelListPageMessages,
   ...modelComparePageMessages,
   ...modelHistoryPageMessages,
