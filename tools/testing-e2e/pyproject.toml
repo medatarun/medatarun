@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Automation tests for Medatarun"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["pytest>=8", "testcontainers>=4"]
+dependencies = ["pytest>=9.0.3", "testcontainers>=4"]
 
 [project.scripts]
 tests = "testing_e2e.__main__:main"
