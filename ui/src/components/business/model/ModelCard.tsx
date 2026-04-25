@@ -5,7 +5,7 @@ import {
   TagGroup,
   Text,
 } from "@fluentui/react-components";
-import type { ModelSummaryDto } from "@/business/model";
+import type { ModelListItemDto } from "@/business/model";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { EntityIcon, RelationshipIcon, TypeIcon } from "./model.icons.tsx";
 import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
@@ -15,7 +15,7 @@ export function ModelCard({
   model,
   onClick,
 }: {
-  model: ModelSummaryDto;
+  model: ModelListItemDto;
   onClick: (id: string) => void;
 }) {
   const { isDetailLevelTech } = useDetailLevelContext();
@@ -48,25 +48,6 @@ export function ModelCard({
         {model.description && (
           <MarkdownSummary value={model.description} maxChars={100} />
         )}
-        {model.error && <div style={{ color: "red" }}>{model.error}</div>}
-      </div>
-
-      <div>
-        <TagGroup size="extra-small">
-          <Tag size="extra-small" appearance="outline" icon={<EntityIcon />}>
-            {model.countEntities}
-          </Tag>
-          <Tag
-            size="extra-small"
-            appearance="outline"
-            icon={<RelationshipIcon />}
-          >
-            {model.countRelationships}
-          </Tag>
-          <Tag size="extra-small" appearance="outline" icon={<TypeIcon />}>
-            {model.countTypes}
-          </Tag>
-        </TagGroup>
       </div>
     </Card>
   );

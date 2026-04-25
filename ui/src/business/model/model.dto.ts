@@ -1,13 +1,9 @@
-export interface ModelSummaryDto {
+export interface ModelListItemDto {
   id: string;
   key: string;
   name: string | null;
   description: string | null;
   authority: "system" | "canonical";
-  error: string | null;
-  countTypes: number;
-  countEntities: number;
-  countRelationships: number;
 }
 
 export interface ModelDto {

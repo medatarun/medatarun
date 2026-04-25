@@ -5,12 +5,15 @@ import {
   BreadcrumbDivider,
   BreadcrumbItem,
 } from "@fluentui/react-components";
-import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox, InfoBox } from "@seij/common-ui";
 import { formatLocalDateTime, toProblem } from "@seij/common-types";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
+import {
+  PropertiesForm,
+  PropertyLabel,
+  PropertyValue,
+} from "@/components/layout/PropertiesForm.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
@@ -78,27 +81,23 @@ export function AdminUserEditPage({ userId }: { userId: string }) {
     <ViewLayoutContained
       contained={true}
       scrollable={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <SectionPaper>
-        <PropertiesForm>
-          <div>{t("adminUserPage_fullname")}</div>
-          <div>{user.fullname}</div>
-
-          <div>{t("adminUserPage_username")}</div>
-          <div>{user.username}</div>
-
-          <div>{t("adminUserPage_admin")}</div>
-          <div>{String(user.admin)}</div>
-
-          <div>{t("adminUserPage_status")}</div>
-          <div>
-            {user.disabledDate
-              ? `${t("adminUserPage_statusDisabledAt")} ${formatLocalDateTime(user.disabledDate)}`
-              : t("adminUserPage_statusActive")}
-          </div>
-        </PropertiesForm>
-      </SectionPaper>
+      <PropertiesForm>
+        <PropertyLabel>{t("adminUserPage_fullname")}</PropertyLabel>
+        <PropertyValue>{user.fullname}</PropertyValue>
+        <PropertyLabel>{t("adminUserPage_username")}</PropertyLabel>
+        <PropertyValue>{user.username}</PropertyValue>
+        <PropertyLabel>{t("adminUserPage_admin")}</PropertyLabel>
+        <PropertyValue>{String(user.admin)}</PropertyValue>
+        <PropertyLabel>{t("adminUserPage_status")}</PropertyLabel>
+        <PropertyValue>
+          {user.disabledDate
+            ? `${t("adminUserPage_statusDisabledAt")} ${formatLocalDateTime(user.disabledDate)}`
+            : t("adminUserPage_statusActive")}
+        </PropertyValue>
+      </PropertiesForm>
       <ViewLayoutTechnicalInfos
         id={user.id}
         idLabel={t("adminUserPage_identifier")}

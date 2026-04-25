@@ -26,11 +26,11 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { PersonRegular } from "@fluentui/react-icons";
-import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { createActionCtxUser } from "@/business/auth_user/user.actioncontexts.ts";
 import { useActionRegistry } from "@/components/business/actions";
 import { useUserList } from "@/components/business/auth-user";
+import { MessageBox } from "@/components/core/MessageBox.tsx";
 
 export function AdminUserListPage() {
   const { t } = useAppI18n();
@@ -74,14 +74,15 @@ export function AdminUserListPage() {
     <ViewLayoutContained
       contained={true}
       scrollable={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <ViewLayoutPageInfo>
+      <MessageBox intent={"info"}>
         <div>{t("adminUsersPage_description")}</div>
         <div style={{ marginTop: tokens.spacingVerticalS }}>
           {t("adminUsersPage_roleReminder")}
         </div>
-      </ViewLayoutPageInfo>
+      </MessageBox>
       <SectionTable>
         <AdminUsersTable
           users={userItems}
@@ -119,7 +120,10 @@ function AdminUsersTable({
     <Table>
       <TableBody>
         {users.map((user) => (
-          <TableRow key={user.id}>
+          <TableRow
+            key={user.id}
+            style={{ border: "1px solid " + tokens.colorNeutralStroke2 }}
+          >
             <TableCell onClick={() => onClickUser(user.id)}>
               <div>
                 {user.fullname}

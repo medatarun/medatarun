@@ -10,7 +10,6 @@ import {
 } from "@fluentui/react-components";
 import { RelationshipDescription } from "./RelationshipDescription.tsx";
 import type { RelationshipDto } from "@/business/model";
-import { useModelContext } from "./ModelContext.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import type { ActionCtx } from "@/business/action-performer";
@@ -67,7 +66,10 @@ export function RelationshipsTable({
         <Table>
           <TableBody>
             {relationships.map((r) => (
-              <TableRow key={r.id}>
+              <TableRow
+                key={r.id}
+                style={{ border: "1px solid " + tokens.colorNeutralStroke2 }}
+              >
                 <TableCell
                   className={styles.titleCell}
                   onClick={() => onClick(r.id)}

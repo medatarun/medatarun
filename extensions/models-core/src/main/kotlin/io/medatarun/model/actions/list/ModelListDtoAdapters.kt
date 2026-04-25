@@ -9,7 +9,9 @@ object ModelListDtoAdapters {
             ModelListItemDto(
                 id = it.id.value.toString(),
                 key = it.key.value,
-                name = it.name
+                name = it.name,
+                description = it.description,
+                authority = it.authority.code
             )
         }
         return ModelListDto(dtos)
@@ -26,6 +28,8 @@ data class ModelListDto(
 data class ModelListItemDto(
     val id: String,
     val key: String,
-    val name: String?
+    val name: String?,
+    val description: String?,
+    val authority: String
 )
 

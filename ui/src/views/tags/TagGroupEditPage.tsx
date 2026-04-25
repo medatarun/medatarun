@@ -15,7 +15,6 @@ import {
   BreadcrumbDivider,
   BreadcrumbItem,
 } from "@fluentui/react-components";
-import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
@@ -132,16 +131,15 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
     <ViewLayoutContained
       contained={true}
       scrollable={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <SectionPaper topspacing="XXXL" nopadding>
-        <InlineEditDescription
-          value={tagGroup.description}
-          disabled={updateDescriptionDisabled}
-          placeholder={t("tagGroupEdit_descriptionPlaceholder")}
-          onChange={handleChangeDescription}
-        />
-      </SectionPaper>
+      <InlineEditDescription
+        value={tagGroup.description}
+        disabled={updateDescriptionDisabled}
+        placeholder={t("tagGroupEdit_descriptionPlaceholder")}
+        onChange={handleChangeDescription}
+      />
 
       <SectionTitle
         icon={<TagGroupIcon />}

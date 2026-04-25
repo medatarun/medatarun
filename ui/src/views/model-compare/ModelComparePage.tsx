@@ -1,7 +1,7 @@
 import {
   type ModelChangeEventWithVersionDto,
   type ModelCompareReq,
-  type ModelSummaryDto,
+  type ModelListItemDto,
 } from "@/business/model";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import {
@@ -28,11 +28,12 @@ import { useEffect, useState } from "react";
 import {
   useModelCompare,
   useModelHistoryVersions,
-  useModelSummaries,
+  useModelList,
 } from "@/components/business/model";
 
 export function ModelComparePage() {
-  const { data: modelSummaries = [] } = useModelSummaries();
+  const { data: resp } = useModelList();
+  const modelSummaries = resp?.items ?? [];
 
   const { t } = useAppI18n();
   const [leftModelId, setLeftModelId] = useState("");
@@ -171,7 +172,7 @@ function InputModel({
   noOptionsMessage,
 }: {
   label: string;
-  modelSummaries: ModelSummaryDto[];
+  modelSummaries: ModelListItemDto[];
   value: string;
   onChange: (value: string) => void;
   placeholder: string;

@@ -22,7 +22,6 @@ import {
   BreadcrumbItem,
   Text,
 } from "@fluentui/react-components";
-import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
@@ -127,16 +126,16 @@ export function TagEditPage({ tagId }: { tagId: string }) {
     <ViewLayoutContained
       contained={true}
       scrollable={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <SectionPaper topspacing="XXXL" nopadding>
-        <InlineEditDescription
-          value={tag.description}
-          disabled={updateDescriptionDisabled}
-          placeholder={t("tagEdit_descriptionPlaceholder")}
-          onChange={handleChangeDescription}
-        />
-      </SectionPaper>
+      <InlineEditDescription
+        value={tag.description}
+        disabled={updateDescriptionDisabled}
+        placeholder={t("tagEdit_descriptionPlaceholder")}
+        onChange={handleChangeDescription}
+      />
+
       <ViewLayoutTechnicalInfos
         technicalKey={tag.key}
         keyLabel={t("tagEdit_keyLabel")}

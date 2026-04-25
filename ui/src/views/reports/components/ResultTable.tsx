@@ -4,6 +4,7 @@ import {
   TableBody,
   TableCell,
   TableRow,
+  tokens,
 } from "@fluentui/react-components";
 import { ResultPath } from "./ResultPath.tsx";
 import { ResultTags } from "./ResultTags.tsx";
@@ -14,7 +15,10 @@ export function ResultTable({ items }: { items: SearchResult[] }) {
       <TableBody>
         {items.map((it) => {
           return (
-            <TableRow key={it.id}>
+            <TableRow
+              key={it.id}
+              style={{ border: "1px solid " + tokens.colorNeutralStroke2 }}
+            >
               <TableCell>
                 <ResultPath location={it.location} />
               </TableCell>

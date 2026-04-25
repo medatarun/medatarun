@@ -7,7 +7,7 @@ import type {
   ModelDto,
   ModelSearchFilter,
   ModelSearchOperator,
-  ModelSummaryDto,
+  ModelListItemDto,
   SearchResults,
 } from "@/business/model";
 import {
@@ -427,18 +427,23 @@ export const useRelationshipAttributeDeleteTag = () => {
   );
 };
 
-/* FIXME: do not use api() directly, use actions */
-export function useModelSummaries() {
+export interface ModelListDto {
+  items: ModelListItemDto[];
+}
+
+export function useModelList() {
+  const { performer } = useActionPerformer();
   return useQuery({
-    queryKey: ["model_summaries"],
-    queryFn: () => api().get<ModelSummaryDto[]>("/ui/api/models"),
+    queryKey: ["model", "list"],
+    queryFn: () =>
+      performer.executeJson<ModelListDto>("model", "model_list", {}),
   });
 }
 
 /* FIXME: do not use api() directly, use actions */
 export function useModel(modelId: string) {
   return useQuery({
-    queryKey: ["model", modelId],
+    queryKey: ["model", "aggregate", modelId],
     queryFn: () => api().get<ModelDto>("/ui/api/models/" + modelId),
   });
 }

@@ -12,11 +12,11 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
-import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 import {
   useDatabaseDatasources,
   useDatabaseDrivers,
 } from "@/components/business/db";
+import { MessageBox } from "@/components/core/MessageBox.tsx";
 
 export function AdminDbDatasourceListPage() {
   const { data: dsRaw } = useDatabaseDatasources();
@@ -36,12 +36,13 @@ export function AdminDbDatasourceListPage() {
     <ViewLayoutContained
       contained={true}
       scrollable={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <ViewLayoutPageInfo>
+      <MessageBox intent={"info"}>
         <div>{t("adminDbDatasourceListPage_descriptionLine1")}</div>
         <div>{t("adminDbDatasourceListPage_descriptionLine2")}</div>
-      </ViewLayoutPageInfo>
+      </MessageBox>
       <CardGrid
         data={datasources}
         renderName={(item) => <Text weight="semibold">{item.id}</Text>}

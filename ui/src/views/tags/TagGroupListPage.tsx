@@ -17,8 +17,9 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
-import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 import { useActionRegistry } from "@/components/business/actions";
+import { MessageBox } from "@/components/core/MessageBox.tsx";
+import { Markdown } from "@/components/core/Markdown.tsx";
 
 export function TagGroupListPage() {
   const { t } = useAppI18n();
@@ -56,9 +57,12 @@ export function TagGroupListPage() {
     <ViewLayoutContained
       contained={true}
       scrollable={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <ViewLayoutPageInfo>{t("tagGroupsPage_description")}</ViewLayoutPageInfo>
+      <MessageBox intent={"info"}>
+        <Markdown value={t("tagGroupsPage_description")} />
+      </MessageBox>
 
       <SectionTitle
         icon={<TagGroupIcon />}

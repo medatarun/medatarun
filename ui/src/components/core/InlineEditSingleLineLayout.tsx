@@ -28,19 +28,17 @@ const useStyles = makeStyles({
     "&:hover [data-edit-icon]": {
       opacity: 0.5,
       pointerEvents: "auto",
-      verticalAlign: "middle",
-      position: "absolute",
-      top: 0,
-      right: tokens.spacingHorizontalM,
     },
   },
   editIcon: {
     display: "inline-block",
     zIndex: 0,
-    position: "relative",
-    right: "0",
+    position: "absolute",
+    top: 0,
     opacity: 0,
     pointerEvents: "none",
+    verticalAlign: "middle",
+    right: tokens.spacingHorizontalM,
   },
   editorField: {
     position: "relative",

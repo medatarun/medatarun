@@ -40,9 +40,12 @@ import {
 } from "@fluentui/react-components";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
-import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
+import {
+  PropertiesForm,
+  PropertyLabel,
+  PropertyValue,
+} from "@/components/layout/PropertiesForm.tsx";
 import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
@@ -344,24 +347,22 @@ export function AttributeView({
     <ViewLayoutContained
       contained={true}
       scrollable={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <SectionPaper>
-        <AttributeOverview
-          model={model}
-          attribute={attribute}
-          parentAsEntity={parentAsEntity}
-          parentAsRelationship={parentAsRelationship}
-        />
-      </SectionPaper>
-      <SectionPaper topspacing="XXXL" nopadding>
-        <InlineEditDescription
-          value={attribute.description}
-          placeholder={t("attributeEditPage_descriptionPlaceholder")}
-          disabled={updateDescriptionDisabled}
-          onChange={handleUpdateDescription}
-        />
-      </SectionPaper>
+      <AttributeOverview
+        model={model}
+        attribute={attribute}
+        parentAsEntity={parentAsEntity}
+        parentAsRelationship={parentAsRelationship}
+      />
+
+      <InlineEditDescription
+        value={attribute.description}
+        placeholder={t("attributeEditPage_descriptionPlaceholder")}
+        disabled={updateDescriptionDisabled}
+        onChange={handleUpdateDescription}
+      />
       <ViewLayoutTechnicalInfos
         id={attribute.id}
         idLabel={t("attributeEditPage_identifierLabel")}
@@ -559,10 +560,8 @@ export function AttributeOverview({
 
   return (
     <PropertiesForm>
-      <div>
-        <Text>{t("attributeEditPage_typeLabel")}</Text>
-      </div>
-      <div>
+      <PropertyLabel>{t("attributeEditPage_typeLabel")}</PropertyLabel>
+      <PropertyValue>
         <InlineEditCombobox
           value={attribute.type}
           options={typeOptions}
@@ -577,23 +576,17 @@ export function AttributeOverview({
             {model.findTypeNameOrKey(attribute.type)}
           </Link>{" "}
         </InlineEditCombobox>
-      </div>
-
+      </PropertyValue>
       {isPKParticipant && (
-        <div>
-          <Text>{t("attributeEditPage_primaryKeyLabel")}</Text>
-        </div>
+        <PropertyLabel>{t("attributeEditPage_primaryKeyLabel")}</PropertyLabel>
       )}
       {isPKParticipant && (
-        <div>
-          <Text>🔑 {t("attributeEditPage_primaryKeyYes")}</Text>
-        </div>
+        <PropertyValue>
+          <span>🔑 {t("attributeEditPage_primaryKeyYes")}</span>
+        </PropertyValue>
       )}
-
-      <div>
-        <Text>{t("attributeEditPage_requiredLabel")}</Text>
-      </div>
-      <div>
+      <PropertyLabel>{t("attributeEditPage_requiredLabel")}</PropertyLabel>
+      <PropertyValue>
         <InlineEditBoolean
           value={!attribute.optional}
           labelTrue={t("attributeEditPage_requiredYes")}
@@ -607,16 +600,12 @@ export function AttributeOverview({
               : t("attributeEditPage_requiredYes")}
           </Text>
         </InlineEditBoolean>
-      </div>
-
+      </PropertyValue>
       {isDetailLevelTech && (
-        <div>
-          <Text>{t("attributeEditPage_keyLabel")}</Text>
-        </div>
+        <PropertyLabel>{t("attributeEditPage_keyLabel")}</PropertyLabel>
       )}
-
       {isDetailLevelTech && (
-        <div>
+        <PropertyValue>
           <InlineEditSingleLine
             value={attribute.key}
             disabled={updateKeyDisabled}
@@ -626,12 +615,10 @@ export function AttributeOverview({
               <code>{attribute.key}</code>
             </Text>
           </InlineEditSingleLine>
-        </div>
+        </PropertyValue>
       )}
-      <div>
-        <Text>{t("attributeEditPage_tagsLabel")}</Text>
-      </div>
-      <div>
+      <PropertyLabel>{t("attributeEditPage_tagsLabel")}</PropertyLabel>
+      <PropertyValue>
         <InlineEditTags
           value={attribute.tags}
           scope={modelTagScope(model.id)}
@@ -647,7 +634,7 @@ export function AttributeOverview({
             <Tags tags={attribute.tags} scope={modelTagScope(model.id)} />
           )}
         </InlineEditTags>
-      </div>
+      </PropertyValue>
     </PropertiesForm>
   );
 }

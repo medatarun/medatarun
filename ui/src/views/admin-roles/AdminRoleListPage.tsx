@@ -24,11 +24,11 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { LockClosedRegular } from "@fluentui/react-icons";
-import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { createActionCtxRole } from "@/business/auth_actor/actor.actioncontexts.ts";
 import { useActionRegistry } from "@/components/business/actions";
 import { useRoleList } from "@/components/business/auth-actor";
+import { MessageBox } from "@/components/core/MessageBox.tsx";
 
 export function AdminRoleListPage() {
   const { t } = useAppI18n();
@@ -64,9 +64,10 @@ export function AdminRoleListPage() {
     <ViewLayoutContained
       contained={true}
       scrollable={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <ViewLayoutPageInfo>{t("authRolesPage_description")}</ViewLayoutPageInfo>
+      <MessageBox intent={"info"}>{t("authRolesPage_description")}</MessageBox>
       <SectionTable>
         <AuthRolesTable
           roles={roleItems}
@@ -110,7 +111,10 @@ function AuthRolesTable({
     <Table>
       <TableBody>
         {rolesSorted.map((role) => (
-          <TableRow key={role.id}>
+          <TableRow
+            key={role.id}
+            style={{ border: "1px solid " + tokens.colorNeutralStroke2 }}
+          >
             <TableCell
               style={{ width: "10em" }}
               onClick={() => onClickRole(role.id)}

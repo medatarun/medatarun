@@ -1,8 +1,18 @@
 import type { PropsWithChildren } from "react";
-import { tokens } from "@fluentui/react-components";
+import { makeStyles, tokens } from "@fluentui/react-components";
+
+const useStyles = makeStyles({
+  root: {
+    margin: "auto",
+    maxWidth: "60rem",
+    paddingLeft: tokens.spacingHorizontalM,
+    paddingRight: tokens.spacingHorizontalM,
+  },
+});
 
 export function ContainedHumanReadable({ children }: PropsWithChildren) {
-  return <div style={{ margin: "auto", maxWidth: "60rem" }}>{children}</div>;
+  const styles = useStyles();
+  return <div className={styles.root}>{children}</div>;
 }
 
 export function ContainedFixed({ children }: PropsWithChildren) {

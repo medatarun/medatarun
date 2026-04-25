@@ -1,17 +1,13 @@
 import type { PropsWithChildren } from "react";
-import { tokens } from "@fluentui/react-components";
 
+/**
+ * A section of a page containing cards.
+ *
+ * This should not define cards layouts as it may change a lot from
+ * one need to another.
+ *
+ * This is just for the "border" and "background" commons
+ */
 export function SectionCards({ children }: PropsWithChildren) {
-  return (
-    <div
-      style={{
-        marginTop: 0,
-        padding: 0,
-        borderRadius: tokens.borderRadiusMedium,
-        marginBottom: tokens.spacingVerticalM,
-      }}
-    >
-      {children}
-    </div>
-  );
+  return <div>{children}</div>;
 }

@@ -1,10 +1,9 @@
-import type { CSSProperties, PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 import { makeStyles, mergeClasses, tokens } from "@fluentui/react-components";
+import { allStyles, type PropsWithStyle } from "@/components/core/utils.ts";
 
-export interface MessageBoxProps extends PropsWithChildren {
+export interface MessageBoxProps extends PropsWithChildren, PropsWithStyle {
   intent: "info" | "warning";
-  styles?: CSSProperties;
-  className?: string;
 }
 const useStyles = makeStyles({
   root: {
@@ -25,22 +24,18 @@ const useStyles = makeStyles({
 export function MessageBox({
   children,
   intent,
-  className,
-  styles,
+  ...otherProps
 }: MessageBoxProps) {
-  const style = useStyles();
-  const classNames = mergeClasses(
-    style.root,
+  const styles = useStyles();
+  const className = mergeClasses(
+    styles.root,
     intent == "info"
-      ? style.info
+      ? styles.info
       : intent == "warning"
-        ? style.warning
+        ? styles.warning
         : undefined,
-    className,
   );
   return (
-    <div style={styles} className={classNames}>
-      {children}
-    </div>
+    <div {...allStyles(otherProps, { className: className })}>{children}</div>
   );
 }

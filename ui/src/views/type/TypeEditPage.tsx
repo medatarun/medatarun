@@ -21,10 +21,13 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
-import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
+import {
+  PropertiesForm,
+  PropertyLabel,
+  PropertyValue,
+} from "@/components/layout/PropertiesForm.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
@@ -158,25 +161,24 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
     <ViewLayoutContained
       scrollable={true}
       contained={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <SectionPaper>
-        <TypeOverview model={model} type={type} />
-      </SectionPaper>
-      <SectionPaper topspacing="XXXL" nopadding>
-        <InlineEditDescription
-          value={type.description}
-          disabled={updateDescriptionDisabled}
-          placeholder={t("typeEditPage_descriptionPlaceholder")}
-          onChange={(v) =>
-            typeUpdateDescription.mutateAsync({
-              modelId: model.id,
-              typeId: type.id,
-              value: v,
-            })
-          }
-        />
-      </SectionPaper>
+      <TypeOverview model={model} type={type} />
+
+      <InlineEditDescription
+        value={type.description}
+        disabled={updateDescriptionDisabled}
+        placeholder={t("typeEditPage_descriptionPlaceholder")}
+        onChange={(v) =>
+          typeUpdateDescription.mutateAsync({
+            modelId: model.id,
+            typeId: type.id,
+            value: v,
+          })
+        }
+      />
+
       <ViewLayoutTechnicalInfos
         technicalKey={type.key}
         keyLabel={t("typeEditPage_keyLabel")}
@@ -206,20 +208,20 @@ export function TypeOverview({ type, model }: { type: TypeDto; model: Model }) {
   return (
     <PropertiesForm>
       {isDetailLevelTech && (
-        <div>
-          <Text>{t("typeEditPage_keyLabel")}</Text>
-        </div>
+        <PropertyLabel>{t("typeEditPage_keyLabel")}</PropertyLabel>
       )}
       {isDetailLevelTech && (
-        <InlineEditSingleLine
-          value={type.key}
-          disabled={updatekeyDisabled}
-          onChange={handleChangeKey}
-        >
-          <Text>
-            <code>{type.key}</code>
-          </Text>
-        </InlineEditSingleLine>
+        <PropertyValue>
+          <InlineEditSingleLine
+            value={type.key}
+            disabled={updatekeyDisabled}
+            onChange={handleChangeKey}
+          >
+            <Text>
+              <code>{type.key}</code>
+            </Text>
+          </InlineEditSingleLine>
+        </PropertyValue>
       )}
     </PropertiesForm>
   );

@@ -21,7 +21,7 @@ import {
   useModelContext,
 } from "@/components/business/model/ModelContext.tsx";
 import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
-import { InfoLabel, Text, tokens } from "@fluentui/react-components";
+import { Text, tokens } from "@fluentui/react-components";
 import { HistoryRegular } from "@fluentui/react-icons";
 import { EntityCard } from "@/components/business/model/EntityCard.tsx";
 import { RelationshipsTable } from "@/components/business/model/RelationshipsTable.tsx";
@@ -31,10 +31,13 @@ import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionCards } from "@/components/layout/SectionCards.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
+import {
+  PropertiesForm,
+  PropertyLabel,
+  PropertyValue,
+} from "@/components/layout/PropertiesForm.tsx";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
@@ -54,6 +57,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { useActionRegistry } from "@/components/business/actions";
+import { SectionSeparator } from "@/components/layout/SectionSeparator.tsx";
 
 export function ModelEditPage({ modelId }: { modelId: string }) {
   const { data: model } = useModel(modelId);
@@ -150,19 +154,19 @@ export function ModelView() {
     <ViewLayoutContained
       scrollable={true}
       contained={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <SectionPaper>
-        <ModelOverview />
-      </SectionPaper>
-      <SectionPaper topspacing="XXXL" nopadding>
-        <InlineEditDescription
-          value={model.description}
-          placeholder={t("modelEditPage_descriptionPlaceholder")}
-          disabled={updateDescriptionDisabled}
-          onChange={handleChangeDescription}
-        />
-      </SectionPaper>
+      <ModelOverview />
+      <SectionSeparator />
+      <InlineEditDescription
+        value={model.description}
+        placeholder={t("modelEditPage_descriptionPlaceholder")}
+        disabled={updateDescriptionDisabled}
+        onChange={handleChangeDescription}
+      />
+
+      <SectionSeparator />
 
       <SectionTitle
         icon={<EntityIcon />}
@@ -184,6 +188,8 @@ export function ModelView() {
           <EntitiesCardList onClick={handleClickEntity} />
         </SectionCards>
       )}
+
+      <SectionSeparator />
 
       <SectionTitle
         icon={<RelationshipIcon />}
@@ -209,7 +215,7 @@ export function ModelView() {
           />
         </SectionTable>
       )}
-
+      <SectionSeparator />
       <SectionTitle
         icon={<TypeIcon />}
         actionCtx={actionCtxPage}
@@ -230,7 +236,7 @@ export function ModelView() {
           <TypesTable onClick={handleClickType} types={model.types} />
         </SectionCards>
       )}
-
+      <SectionSeparator />
       <SectionTitle
         icon={<TagIcon />}
         actionCtx={actionCtxPage}
@@ -307,12 +313,10 @@ export function ModelOverview() {
   return (
     <PropertiesForm>
       {isDetailLevelTech && (
-        <div>
-          <InfoLabel>{t("modelEditPage_keyLabel")}</InfoLabel>
-        </div>
+        <PropertyLabel>{t("modelEditPage_keyLabel")}</PropertyLabel>
       )}
       {isDetailLevelTech && (
-        <div>
+        <PropertyValue>
           <InlineEditSingleLine
             value={model.key}
             disabled={updateKeyDisabled}
@@ -320,39 +324,41 @@ export function ModelOverview() {
           >
             <Text>{model.key}</Text>
           </InlineEditSingleLine>
-        </div>
+        </PropertyValue>
       )}
 
-      <div>{t("modelEditPage_authorityLabel")}</div>
-      <div>
+      <PropertyLabel>{t("modelEditPage_authorityLabel")}</PropertyLabel>
+      <PropertyValue>
         <ModelIcon authority={model.authority} /> {authorityLabel}
-      </div>
+      </PropertyValue>
 
-      <div>{t("modelEditPage_versionLabel")}</div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: tokens.spacingHorizontalM,
-        }}
-      >
-        <span>{model.version}</span>
-        <Link
-          to="/model/$modelId/history"
-          params={{ modelId: model.id }}
+      <PropertyLabel>{t("modelEditPage_versionLabel")}</PropertyLabel>
+      <PropertyValue>
+        <div
           style={{
-            display: "inline-flex",
+            display: "flex",
             alignItems: "center",
-            gap: tokens.spacingHorizontalXS,
+            gap: tokens.spacingHorizontalM,
           }}
         >
-          <HistoryRegular />
-          <span>{t("modelEditPage_historyLink")}</span>
-        </Link>
-      </div>
+          <span>{model.version}</span>
+          <Link
+            to="/model/$modelId/history"
+            params={{ modelId: model.id }}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: tokens.spacingHorizontalXS,
+            }}
+          >
+            <HistoryRegular />
+            <span>{t("modelEditPage_historyLink")}</span>
+          </Link>
+        </div>
+      </PropertyValue>
 
-      <div>{t("modelEditPage_externalLinkLabel")}</div>
-      <div>
+      <PropertyLabel>{t("modelEditPage_externalLinkLabel")}</PropertyLabel>
+      <PropertyValue>
         <InlineEditSingleLine
           value={model.documentationHome ?? ""}
           disabled={updateDocumentationHomeDisabled}
@@ -366,10 +372,10 @@ export function ModelOverview() {
             <ExternalUrl url={model.documentationHome} />
           )}
         </InlineEditSingleLine>
-      </div>
+      </PropertyValue>
 
-      <div>{t("modelEditPage_tagsLabel")}</div>
-      <div>
+      <PropertyLabel>{t("modelEditPage_tagsLabel")}</PropertyLabel>
+      <PropertyValue>
         <InlineEditTags
           value={model.tags}
           scope={modelTagScope(model.id)}
@@ -385,12 +391,14 @@ export function ModelOverview() {
             <Tags tags={model.tags} scope={modelTagScope(model.id)} />
           )}
         </InlineEditTags>
-      </div>
-      {isDetailLevelTech && <div>{t("modelEditPage_originLabel")}</div>}
+      </PropertyValue>
       {isDetailLevelTech && (
-        <div>
+        <PropertyLabel>{t("modelEditPage_originLabel")}</PropertyLabel>
+      )}
+      {isDetailLevelTech && (
+        <PropertyValue>
           <Origin value={model.origin} />
-        </div>
+        </PropertyValue>
       )}
     </PropertiesForm>
   );

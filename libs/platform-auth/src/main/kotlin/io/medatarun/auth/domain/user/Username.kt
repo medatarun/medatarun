@@ -12,7 +12,7 @@ value class Username(val value: String) {
         if (value.length < MIN_SIZE) throw UsernameTooShortException(MIN_SIZE)
         if (value.length > MAX_SIZE) throw UsernameTooLongException(MAX_SIZE)
         if (!USERNAME_REGEX.matches(value)) {
-            throw UsernameInvalidFormatException()
+            throw UsernameInvalidFormatException(MIN_SIZE, MAX_SIZE)
         }
 
         return this
