@@ -12,6 +12,7 @@ export interface RoleInfoDto {
   key: string;
   name: string;
   managedRole: boolean;
+  autoAssign: boolean;
   description: string | null;
   createdAt: string;
   lastUpdatedAt: string;

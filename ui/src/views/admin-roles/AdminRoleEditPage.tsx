@@ -28,7 +28,11 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
-import { KeyMultipleRegular, LockClosedRegular } from "@fluentui/react-icons";
+import {
+  ArrowSyncCircleRegular,
+  KeyMultipleRegular,
+  LockClosedRegular,
+} from "@fluentui/react-icons";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { type ActionCtx } from "@/business/action-performer";
@@ -121,7 +125,12 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
     >
       {role.managedRole && (
         <MessageBox intent={"warning"}>
-          <LockClosedRegular /> This role is managed by the application.
+          <LockClosedRegular /> {t("authRolePage_managedRoleMessage")}
+        </MessageBox>
+      )}
+      {role.autoAssign && (
+        <MessageBox intent={"info"}>
+          <ArrowSyncCircleRegular /> {t("authRolePage_autoAssignMessage")}
         </MessageBox>
       )}
       <InlineEditDescription
@@ -233,7 +242,6 @@ function PermissionTable({
 
 function PermissionImpliedTable({ permissions }: { permissions: string[] }) {
   const { t } = useAppI18n();
-  const actionRegistry = useActionRegistry();
   const { registry: permissionRegistry } = usePermissionRegistry();
   const permissionsImplied =
     permissionRegistry.findImpliedPermissions(permissions);
