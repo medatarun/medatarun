@@ -234,7 +234,7 @@ sealed interface AuthAction<R> {
         description = "Create a new role.",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class RoleCreate(
+    class Role_Create(
         @ActionParamDoc(
             name = "Key",
             description = "Role key. Must be unique across all roles. Serves as a technical identifier for integrations.",
@@ -261,7 +261,7 @@ sealed interface AuthAction<R> {
         description = "List all roles.",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class RoleList : AuthAction<RoleListDto>
+    class Role_List : AuthAction<RoleListDto>
 
     @ActionDoc(
         key = "role_get",
@@ -269,7 +269,7 @@ sealed interface AuthAction<R> {
         description = "Get a role and its permissions.",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class RoleGet(
+    class Role_Get(
         @ActionParamDoc(
             name = "Role",
             description = "Role reference",
@@ -347,7 +347,7 @@ sealed interface AuthAction<R> {
         description = "Add a permission to a role.",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class RoleAddPermission(
+    class Role_AddPermission(
         @ActionParamDoc(
             name = "Role",
             description = "Role reference",
@@ -368,7 +368,7 @@ sealed interface AuthAction<R> {
         description = "Delete a permission from a role.",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class RoleDeletePermission(
+    class Role_DeletePermission(
         @ActionParamDoc(
             name = "Role",
             description = "Role reference",
@@ -389,7 +389,7 @@ sealed interface AuthAction<R> {
         description = "Delete a role.",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class RoleDelete(
+    class Role_Delete(
         @ActionParamDoc(
             name = "Role",
             description = "Role reference",

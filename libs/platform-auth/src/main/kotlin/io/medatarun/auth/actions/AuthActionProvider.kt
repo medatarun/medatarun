@@ -13,7 +13,6 @@ import io.medatarun.auth.domain.UserNotFoundException
 import io.medatarun.auth.domain.role.Role
 import io.medatarun.auth.domain.user.UserId
 import io.medatarun.auth.domain.user.Username
-import io.medatarun.auth.internal.actors.ManagedRoles
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OAuthService
 import io.medatarun.auth.ports.exposed.OidcService
@@ -61,15 +60,15 @@ class AuthEmbeddedActionsProvider(
             is AuthAction.UserEnable -> launcher.enableUser(action)
             is AuthAction.UserChangeFullname -> launcher.changeUserFullname(action)
             is AuthAction.UserList -> launcher.userList(action)
-            is AuthAction.RoleCreate -> launcher.roleCreate(action)
-            is AuthAction.RoleList -> launcher.roleList(action)
-            is AuthAction.RoleGet -> launcher.roleGet(action)
+            is AuthAction.Role_Create -> launcher.roleCreate(action)
+            is AuthAction.Role_List -> launcher.roleList(action)
+            is AuthAction.Role_Get -> launcher.roleGet(action)
             is AuthAction.RoleUpdateName -> launcher.roleUpdateName(action)
             is AuthAction.RoleUpdateKey -> launcher.roleUpdateKey(action)
             is AuthAction.RoleUpdateDescription -> launcher.roleUpdateDescription(action)
-            is AuthAction.RoleAddPermission -> launcher.roleAddPermission(action)
-            is AuthAction.RoleDeletePermission -> launcher.roleDeletePermission(action)
-            is AuthAction.RoleDelete -> launcher.roleDelete(action)
+            is AuthAction.Role_AddPermission -> launcher.roleAddPermission(action)
+            is AuthAction.Role_DeletePermission -> launcher.roleDeletePermission(action)
+            is AuthAction.Role_Delete -> launcher.roleDelete(action)
             is AuthAction.ActorList -> launcher.listActors(action)
             is AuthAction.ActorGet -> launcher.getActor(action)
             is AuthAction.Actor_AddRole -> launcher.actorAddRole(action)
@@ -189,7 +188,7 @@ class AuthEmbeddedActionsLauncher(
         })
     }
 
-    fun roleCreate(cmd: AuthAction.RoleCreate) {
+    fun roleCreate(cmd: AuthAction.Role_Create) {
         actorService.createRole(
             key = cmd.key,
             name = cmd.name,
@@ -197,13 +196,13 @@ class AuthEmbeddedActionsLauncher(
         )
     }
 
-    fun roleList(@Suppress("UNUSED_PARAMETER") cmd: AuthAction.RoleList): RoleListDto {
+    fun roleList(@Suppress("UNUSED_PARAMETER") cmd: AuthAction.Role_List): RoleListDto {
         return RoleListDto(
             items = actorService.listRoles().map { role -> toRoleInfo(role, actorService.isManagedRole(role.key)) }
         )
     }
 
-    fun roleGet(cmd: AuthAction.RoleGet): RoleDetailsDto {
+    fun roleGet(cmd: AuthAction.Role_Get): RoleDetailsDto {
         val role = actorService.findRoleByRef(cmd.roleRef)
         val managed = actorService.isManagedRole(role.key)
         return RoleDetailsDto(
@@ -233,21 +232,21 @@ class AuthEmbeddedActionsLauncher(
         )
     }
 
-    fun roleAddPermission(cmd: AuthAction.RoleAddPermission) {
+    fun roleAddPermission(cmd: AuthAction.Role_AddPermission) {
         actorService.addRolePermission(
             roleRef = cmd.roleRef,
             permission = ActorPermission(cmd.permissionKey.value)
         )
     }
 
-    fun roleDeletePermission(cmd: AuthAction.RoleDeletePermission) {
+    fun roleDeletePermission(cmd: AuthAction.Role_DeletePermission) {
         actorService.deleteRolePermission(
             roleRef = cmd.roleRef,
             permission = ActorPermission(cmd.permissionKey.value)
         )
     }
 
-    fun roleDelete(cmd: AuthAction.RoleDelete) {
+    fun roleDelete(cmd: AuthAction.Role_Delete) {
         actorService.deleteRole(cmd.roleRef)
     }
 
