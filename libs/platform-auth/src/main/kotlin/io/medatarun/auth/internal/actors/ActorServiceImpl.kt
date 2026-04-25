@@ -141,7 +141,7 @@ class ActorServiceImpl(
         }
         val now = clock.now()
         val roleId = RoleId.generate()
-        actorStorage.roleCreate(roleId, key, name, description, now, now)
+        actorStorage.roleCreate(roleId, key, name, description, false, now, now)
         return roleId
     }
 
@@ -235,6 +235,7 @@ class ActorServiceImpl(
                     key = managedRole.role.key,
                     name = managedRole.role.name,
                     description = managedRole.role.description,
+                    autoAssign = false,
                     createdAt = managedRole.role.createdAt,
                     lastUpdatedAt = managedRole.role.createdAt
                 )

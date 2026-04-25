@@ -73,6 +73,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         key: RoleKey,
         name: String,
         description: String?,
+        autoAssign: Boolean,
         createdAt: Instant,
         lastUpdatedAt: Instant
     ) {
@@ -82,6 +83,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
                 row[this.key] = key
                 row[this.name] = name
                 row[this.description] = description
+                row[this.autoAssign] = autoAssign
                 row[this.createdAt] = createdAt
                 row[this.lastUpdatedAt] = lastUpdatedAt
             }
@@ -306,6 +308,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             key = row[RoleTable.key],
             name = row[RoleTable.name],
             description = row[RoleTable.description],
+            autoAssign = row[RoleTable.autoAssign],
             createdAt = row[RoleTable.createdAt],
             lastUpdatedAt = row[RoleTable.lastUpdatedAt]
         )

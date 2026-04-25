@@ -330,6 +330,7 @@ class AuthEmbeddedActionsLauncher(
             key = role.key.asString(),
             name = role.name,
             description = role.description,
+            autoAssign = role.autoAssign,
             managedRole = managed,
             createdAt = role.createdAt,
             lastUpdatedAt = role.lastUpdatedAt

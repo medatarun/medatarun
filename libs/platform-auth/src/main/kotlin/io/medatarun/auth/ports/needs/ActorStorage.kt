@@ -154,6 +154,7 @@ interface ActorStorage {
         key: RoleKey,
         name: String,
         description: String?,
+        autoAssign: Boolean,
         createdAt: Instant,
         lastUpdatedAt: Instant
     )

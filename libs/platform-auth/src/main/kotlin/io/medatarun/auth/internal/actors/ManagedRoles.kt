@@ -47,6 +47,7 @@ class ManagedRoles(private val permissionsRegistry: PermissionsRegistry) {
             key = ADMIN_ROLE_KEY,
             name = "Admin",
             description = null,
+            autoAssign = false,
             createdAt = LocalDate.of(2025, Month.JANUARY, 1).atStartOfDay(ZoneOffset.UTC).toInstant(),
             lastUpdatedAt = LocalDate.of(2025, Month.JANUARY, 1).atStartOfDay(ZoneOffset.UTC).toInstant(),
         )
@@ -56,6 +57,7 @@ class ManagedRoles(private val permissionsRegistry: PermissionsRegistry) {
             key = MANAGER_ROLE_KEY,
             name = "Manager",
             description = "Can read and write models, manage global tags.",
+            autoAssign = false,
             createdAt = LocalDate.of(2025, Month.JANUARY, 1).atStartOfDay(ZoneOffset.UTC).toInstant(),
             lastUpdatedAt = LocalDate.of(2025, Month.JANUARY, 1).atStartOfDay(ZoneOffset.UTC).toInstant(),
         )
@@ -65,6 +67,7 @@ class ManagedRoles(private val permissionsRegistry: PermissionsRegistry) {
             key = READER_ROLE_KEY,
             name = "Reader",
             description = "Can read models and tags but not change anything.",
+            autoAssign = false,
             createdAt = LocalDate.of(2025, Month.JANUARY, 1).atStartOfDay(ZoneOffset.UTC).toInstant(),
             lastUpdatedAt = LocalDate.of(2025, Month.JANUARY, 1).atStartOfDay(ZoneOffset.UTC).toInstant(),
         )
