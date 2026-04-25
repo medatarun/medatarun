@@ -2,29 +2,19 @@ import { useCurrentActor } from "@/components/business/auth-actor";
 import { useSecurityContext } from "@/components/business/security";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { Link } from "@tanstack/react-router";
-import { makeStyles, tokens } from "@fluentui/react-components";
-
-const useStyles = makeStyles({
-  root: {
-    backgroundColor: tokens.colorBrandBackground2,
-    border: "1px solid " + tokens.colorBrandStroke2,
-    padding: tokens.spacingVerticalM,
-    marginTop: tokens.spacingVerticalM,
-    borderRadius: tokens.borderRadiusMedium,
-  },
-});
+import { MessageBox } from "@/components/core/MessageBox.tsx";
+import { tokens } from "@fluentui/react-components";
 
 export function ModelLimitedPermissionsPanel() {
   const actor = useCurrentActor();
   const sec = useSecurityContext();
   const { t } = useAppI18n();
-  const styles = useStyles();
   const isAdmin = actor.isAdmin();
   const cannotRead = !sec.canExecuteAction("model_list");
   if (!cannotRead) return null;
 
   return (
-    <div className={styles.root}>
+    <MessageBox intent={"info"} styles={{ marginTop: tokens.spacingVerticalM }}>
       <div>
         <strong>{t("modelLimitedPermissionsPanel_title")}</strong>
       </div>
@@ -54,6 +44,6 @@ export function ModelLimitedPermissionsPanel() {
         )}
         {!isAdmin && <p>{t("modelLimitedPermissionsPanel_nonAdminHelp")}</p>}
       </div>
-    </div>
+    </MessageBox>
   );
 }

@@ -1,6 +1,7 @@
 import { useCurrentActor } from "@/components/business/auth-actor";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { MessageBar } from "@fluentui/react-components";
+import { MessageBox } from "@/components/core/MessageBox.tsx";
+import { tokens } from "@fluentui/react-components";
 
 export function AdminDangerPanel() {
   const actor = useCurrentActor();
@@ -8,6 +9,11 @@ export function AdminDangerPanel() {
   const isAdmin = actor.isAdmin();
   if (!isAdmin) return null;
   return (
-    <MessageBar intent={"warning"}>{t("adminDangerPanel_warning")}</MessageBar>
+    <MessageBox
+      intent={"warning"}
+      styles={{ marginTop: tokens.spacingVerticalM }}
+    >
+      {t("adminDangerPanel_warning")}
+    </MessageBox>
   );
 }
