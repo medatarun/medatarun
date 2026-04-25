@@ -13,7 +13,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @EnableDatabaseTests
-class RoleList_Test {
+class Role_List_Test {
 
     @Test
     fun `all managed roles are created at startup`() {
@@ -29,7 +29,7 @@ class RoleList_Test {
         )
         env.asAdmin()
 
-        val foundRoles = env.dispatch(AuthAction.RoleList()).items
+        val foundRoles = env.dispatch(AuthAction.Role_List()).items
         val foundRoleKeys = foundRoles.associateBy { it.key }
         val expectedManagedRoleKeys = setOf(
             ManagedRoles.ADMIN_ROLE_KEY.value,
@@ -50,13 +50,13 @@ class RoleList_Test {
         assertNotNull(managerRole)
         assertTrue(managerRole.managedRole)
 
-        val adminDetails = env.dispatch(AuthAction.RoleGet(RoleRef.ByKey(ManagedRoles.ADMIN_ROLE_KEY)))
+        val adminDetails = env.dispatch(AuthAction.Role_Get(RoleRef.ByKey(ManagedRoles.ADMIN_ROLE_KEY)))
         assertTrue(adminDetails.permissions.toSet().containsAll(setOf(ActorPermission.ADMIN.key, adminPermission)))
 
-        val readerDetails = env.dispatch(AuthAction.RoleGet(RoleRef.ByKey(ManagedRoles.READER_ROLE_KEY)))
+        val readerDetails = env.dispatch(AuthAction.Role_Get(RoleRef.ByKey(ManagedRoles.READER_ROLE_KEY)))
         assertEquals(setOf(readPermission), readerDetails.permissions.toSet())
 
-        val managerDetails = env.dispatch(AuthAction.RoleGet(RoleRef.ByKey(ManagedRoles.MANAGER_ROLE_KEY)))
+        val managerDetails = env.dispatch(AuthAction.Role_Get(RoleRef.ByKey(ManagedRoles.MANAGER_ROLE_KEY)))
         assertEquals(setOf(readPermission, writePermission), managerDetails.permissions.toSet())
     }
 
@@ -67,14 +67,14 @@ class RoleList_Test {
         val roleKey = RoleKey("test-role")
 
         env.dispatch(
-            AuthAction.RoleCreate(
+            AuthAction.Role_Create(
                 key = roleKey,
                 name = "Test role",
                 description = "Role created by the action test"
             )
         )
 
-        val foundRoles = env.dispatch(AuthAction.RoleList()).items
+        val foundRoles = env.dispatch(AuthAction.Role_List()).items
         assertEquals(4, foundRoles.size) // 3 built-in roles and the one we created
         val createdRole = foundRoles.firstOrNull { it.key == roleKey.value }
 

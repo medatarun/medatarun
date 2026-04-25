@@ -22,4 +22,8 @@ sealed interface RoleRef : Ref<RoleRef> {
             return "key:${key.value}"
         }
     }
+
+    companion object {
+        fun roleRefKey(value: String): RoleRef.ByKey = RoleRef.ByKey(RoleKey(value))
+    }
 }
