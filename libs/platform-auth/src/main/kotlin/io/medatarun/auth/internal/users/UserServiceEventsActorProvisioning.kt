@@ -41,7 +41,7 @@ class UserServiceEventsActorProvisioning(
     }
 
     private fun updateFromUser(evt: UserEventCreated, actor: Actor) {
-        val adminRole = actorService.findOrCreateSpecialAdminRole()
+        val adminRole = actorService.findSpecialAdminRole()
         if (evt.user.admin) {
             if (!actorService.actorHasRole(actor.id, adminRole.id)) {
                 actorService.actorAddRole(actor.id, RoleRef.ById(adminRole.id))
@@ -65,7 +65,7 @@ class UserServiceEventsActorProvisioning(
             disabled = evt.user.disabledDate
         )
         if (admin) {
-            val adminRole = actorService.findOrCreateSpecialAdminRole()
+            val adminRole = actorService.findSpecialAdminRole()
             actorService.actorAddRole(actor.id, RoleRef.ById(adminRole.id))
         }
     }

@@ -169,8 +169,20 @@ export class ActionRegistry {
     return buildPayloadTemplate(action);
   }
 
-  public findActionDescriptors(actionKey: ActionKey[]): ActionDescriptor[] {
-    return actionKey
+  /**
+   * Returns the list of action descriptors you want to display.
+   * @param actionKeys keys can contain undefined or null so you can
+   * conditionnaly include
+   *
+   * ```
+   * findActionDescriptors("a", canNotAccedd?undefined:"b", "c");
+   * ```
+   */
+  public findActionDescriptors(
+    actionKeys: (ActionKey | null | undefined)[],
+  ): ActionDescriptor[] {
+    return actionKeys
+      .filter((it) => !isNil(it))
       .map((it) => this.findActionByActionKey(it))
       .filter((it) => !isNil(it));
   }

@@ -15,6 +15,7 @@ import io.medatarun.auth.infra.db.tables.RoleTable
 import io.medatarun.auth.ports.needs.ActorStorage
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.kernel.Service
+import io.medatarun.security.AppPermissionKey
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
@@ -145,6 +146,17 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         dbConnectionFactory.withExposed {
             RoleTable.update(where = { RoleTable.id eq roleId }) { row ->
                 row[this.description] = description
+                row[this.lastUpdatedAt] = lastUpdatedAt
+            }
+        }
+    }
+
+    override fun roleManagedReplace(key: RoleKey, name: String, description: String?, createdAt: Instant, lastUpdatedAt: Instant) {
+        dbConnectionFactory.withExposed {
+            RoleTable.update(where = { RoleTable.key eq key }) { row ->
+                row[this.name] = name
+                row[this.description] = description
+                row[this.createdAt] = createdAt
                 row[this.lastUpdatedAt] = lastUpdatedAt
             }
         }
@@ -299,7 +311,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         )
     }
 
-    fun renamePermissions(oldToNewPermissions: Map<String, String>) {
+    fun renamePermissions(oldToNewPermissions: Map<String, AppPermissionKey>) {
         if (oldToNewPermissions.isEmpty()) {
             return
         }
@@ -308,7 +320,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
                 RolePermissionTable.update(
                     where = { RolePermissionTable.permission eq ActorPermission(oldPermission) }
                 ) { updateRow ->
-                    updateRow[permission] = ActorPermission(newPermission)
+                    updateRow[permission] = ActorPermission(newPermission.value)
                 }
             }
         }

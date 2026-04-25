@@ -28,7 +28,7 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
-import { LockClosedRegular } from "@fluentui/react-icons";
+import { KeyMultipleRegular, LockClosedRegular } from "@fluentui/react-icons";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { type ActionCtx } from "@/business/action-performer";
@@ -43,6 +43,7 @@ import {
   useRoleUpdateDescription,
   useRoleUpdateName,
 } from "@/components/business/auth-actor";
+import { MessageBox } from "@/components/core/MessageBox.tsx";
 
 export function AdminRoleEditPage({ roleId }: { roleId: string }) {
   const { t } = useAppI18n();
@@ -91,7 +92,7 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
 
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: breadcrumb,
-    titleIcon: <LockClosedRegular />,
+    titleIcon: <KeyMultipleRegular />,
     title: (
       <InlineEditSingleLine value={role.name} onChange={handleChangeName}>
         {role.name ? (
@@ -104,8 +105,8 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
     actions: {
       label: t("authRolePage_actions"),
       itemActions: actionRegistry.findActionDescriptors([
-        "role_update_key",
-        "role_delete",
+        role.managedRole ? undefined : "role_update_key",
+        role.managedRole ? undefined : "role_delete",
       ]),
       actionCtx: actionCtxPage,
     },
@@ -118,6 +119,11 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
       verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
+      {role.managedRole && (
+        <MessageBox intent={"warning"}>
+          <LockClosedRegular /> This role is managed by the application.
+        </MessageBox>
+      )}
       <InlineEditDescription
         value={role.description}
         placeholder={t("authRolePage_descriptionPlaceholder")}
@@ -126,7 +132,7 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
 
       <SectionTitle
         icon={undefined}
-        actions={["role_add_permission"]}
+        actions={[role.managedRole ? undefined : "role_add_permission"]}
         actionCtx={actionCtxPage}
       >
         {t("authRolePage_permissionsLabel")}
@@ -135,6 +141,7 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
         <PermissionTable
           permissions={details.permissions}
           actionCtxPermission={actionCtxPermission}
+          managedRole={role.managedRole}
         />
       </SectionTable>
 
@@ -162,14 +169,16 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
 function PermissionTable({
   permissions,
   actionCtxPermission,
+  managedRole,
 }: {
   permissions: string[];
   actionCtxPermission: (permissionKey: string) => ActionCtx;
+  managedRole: boolean;
 }) {
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
   const permissionActions = actionRegistry.findActionDescriptors([
-    "role_delete_permission",
+    managedRole ? undefined : "role_delete_permission",
   ]);
   const { registry: permissionRegistry } = usePermissionRegistry();
 

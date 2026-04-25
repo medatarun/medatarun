@@ -1,11 +1,14 @@
 package io.medatarun.model.security
 
 import io.medatarun.security.AppPermission
+import io.medatarun.security.AppPermissionCategory
+import io.medatarun.security.AppPermissionKey
 
 object ModelCreatePermission: AppPermission {
-    override val key: String = "model_create_manual"
+    override val key = AppPermissionKey("model_create_manual")
     override val name: String = "Models: create manually"
     override val description: String = "Allow actor to manually create a model."
-    override val implies: List<AppPermission> = listOf(ModelReadPermission, ModelWritePermission)
+    override val implies: List<AppPermissionKey> = listOf(ModelReadPermission.key, ModelWritePermission.key)
+    override val category: AppPermissionCategory = AppPermissionCategory.WRITE
 
 }

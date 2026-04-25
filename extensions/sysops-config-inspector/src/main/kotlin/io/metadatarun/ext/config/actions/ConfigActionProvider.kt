@@ -5,7 +5,7 @@ import io.medatarun.actions.domain.ActionRegistry
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.platform.kernel.ExtensionRegistry
-import io.medatarun.security.SecurityRolesRegistry
+import io.medatarun.security.SecurityPermissionRegistry
 import io.medatarun.security.SecurityRulesProvider
 import io.metadatarun.ext.config.actions.dto.*
 import kotlinx.serialization.Serializable
@@ -14,7 +14,7 @@ class ConfigActionProvider(
     private val extensionRegistry: ExtensionRegistry,
     private val actionRegistry: Lazy<ActionRegistry>,
     private val actionInvoker: Lazy<ActionInvoker>,
-    private val permissionRegistry: Lazy<SecurityRolesRegistry>
+    private val permissionRegistry: Lazy<SecurityPermissionRegistry>
 ) : ActionProvider<ConfigAction> {
     override val actionGroupKey: String = "config"
 
@@ -47,20 +47,20 @@ class ConfigActionProvider(
                         key = it.key,
                         name = it.name,
                         description = it.description,
-                        associatedRequiredPermissions = it.associatedRequiredPermissions().map { p -> p.key }
+                        associatedRequiredPermissions = it.associatedRequiredPermissions().map { p -> p.value }
                     )
                 }
         )
 
 
     private fun inspectPermissions(actionCtx: ActionCtx): SecurityPermissionsResp {
-        val permissions = permissionRegistry.value.findAllRoles()
+        val permissions = permissionRegistry.value.findAll()
         return SecurityPermissionsResp(items = permissions.map {
             SecurityPermissionDto(
-                it.key,
+                it.key.value,
                 it.name,
                 it.description,
-                it.implies.map { it.key }
+                it.implies.map { it.value }
             )
         })
     }

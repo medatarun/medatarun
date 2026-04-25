@@ -3,9 +3,9 @@ package io.medatarun.actions.internal
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.security.AppActorId
-import io.medatarun.security.AppPrincipal
 import io.medatarun.security.AppPermission
-import io.medatarun.security.AppPermissionStringBased
+import io.medatarun.security.AppPermissionKey
+import io.medatarun.security.AppPrincipal
 import org.junit.jupiter.api.Assertions
 import kotlin.test.Test
 
@@ -23,7 +23,7 @@ class SecurityRuleCtxActionTest {
 
     @Test
     fun `admin principal is admin`() {
-        val permission = AppPermissionStringBased("admin")
+        val permission = AppPermissionKey("admin")
         val principal = TestPrincipal(isAdmin = true, permissions = setOf(permission))
         val ctx = SecurityRuleCtxAction(TestActionCtx(principal))
 
@@ -45,7 +45,7 @@ class SecurityRuleCtxActionTest {
 
     private class TestPrincipal(
         override val isAdmin: Boolean,
-        override val permissions: Set<AppPermission>
+        override val permissions: Set<AppPermissionKey>
     ) : AppPrincipal {
         override val id = AppActorId.generate()
         override val issuer = "issuer"

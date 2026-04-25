@@ -6,10 +6,10 @@ import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.platform.db.DbDialect
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbMigrationContext
-import io.medatarun.security.SecurityRolesRegistry
+import io.medatarun.security.SecurityPermissionRegistry
 
 class AuthDbMigration(
-    private val securityRolesRegistry: SecurityRolesRegistry,
+    private val securityPermissionRegistry: SecurityPermissionRegistry,
     private val actorStorageSQLite: ActorStorageSQLite,
     private val authClock: AuthClock
 ) : DbMigration {
@@ -52,7 +52,7 @@ class AuthDbMigration(
     }
 
     override fun applyAlwaysAfterMigrations(ctx: DbMigrationContext) {
-        val renamed = securityRolesRegistry.findAllRenamedRoles()
+        val renamed = securityPermissionRegistry.findAllRenamed()
         if (renamed.isEmpty()) return
         actorStorageSQLite.renamePermissions(renamed)
     }

@@ -3,8 +3,6 @@ export interface WhoAmIRespDto {
   sub: string;
   fullname: string;
   admin: boolean;
-  /** Identifiers of roles given to the actor */
-  roles: string[];
   /** List of named permissions */
   permissions: string[];
 }
@@ -13,6 +11,7 @@ export interface RoleInfoDto {
   id: string;
   key: string;
   name: string;
+  managedRole: boolean;
   description: string | null;
   createdAt: string;
   lastUpdatedAt: string;

@@ -23,8 +23,8 @@ class ModelSecurityRulesProvider : SecurityRulesProvider {
             override fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult =
                 ctx.ensurePermission(permission)
 
-            override fun associatedRequiredPermissions(): List<AppPermission> {
-                return listOf(permission)
+            override fun associatedRequiredPermissions(): List<AppPermissionKey> {
+                return listOf(permission.key)
             }
         }
     }

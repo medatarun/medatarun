@@ -9,7 +9,6 @@ const EMPTY_WHOAMI: WhoAmIRespDto = {
   fullname: "",
   issuer: "",
   sub: "",
-  roles: [],
   permissions: [],
 };
 export const useCurrentActor = () => {

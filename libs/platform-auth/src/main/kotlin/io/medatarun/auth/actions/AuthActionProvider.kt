@@ -13,11 +13,14 @@ import io.medatarun.auth.domain.UserNotFoundException
 import io.medatarun.auth.domain.role.Role
 import io.medatarun.auth.domain.user.UserId
 import io.medatarun.auth.domain.user.Username
+import io.medatarun.auth.internal.actors.ManagedRoles
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OAuthService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.auth.ports.needs.AuthClock
+import io.medatarun.security.AppPermissionKey
+import io.medatarun.security.SecurityPermissionRegistry
 import kotlin.reflect.KClass
 
 class AuthEmbeddedActionsProvider(
@@ -25,7 +28,8 @@ class AuthEmbeddedActionsProvider(
     private val oidcService: OidcService,
     private val oauthService: OAuthService,
     private val actorService: ActorService,
-    private val clock: AuthClock
+    private val clock: AuthClock,
+    private val securityPermissionsRegistry: SecurityPermissionRegistry
 ) : ActionProvider<AuthAction<*>> {
     override val actionGroupKey: String = ACTION_GROUP_KEY
     override fun findCommandClass(): KClass<AuthAction<*>> {
@@ -43,7 +47,8 @@ class AuthEmbeddedActionsProvider(
                 oauthService,
                 actorService,
                 actionCtx.principal,
-                clock
+                clock,
+                securityPermissionsRegistry,
             )
         return when (action) {
             is AuthAction.AdminBootstrap -> launcher.adminBootstrap(action)
@@ -87,8 +92,8 @@ class AuthEmbeddedActionsLauncher(
     private val actorService: ActorService,
     private val principal: ActionPrincipalCtx,
     private val clock: AuthClock,
-
-    ) {
+    private val securityPermissionRegistry: SecurityPermissionRegistry
+) {
     fun adminBootstrap(cmd: AuthAction.AdminBootstrap): OAuthTokenResponseDto {
         val user = userService.adminBootstrap(
             cmd.secret,
@@ -122,18 +127,20 @@ class AuthEmbeddedActionsLauncher(
     @Suppress("unused")
     fun whoami(cmd: AuthAction.WhoAmI): WhoAmIRespDto {
         val actor = principal.ensureSignedIn()
-        val permissions: MutableSet<String> = mutableSetOf()
+        val permissions: MutableSet<AppPermissionKey> = mutableSetOf()
         actor.permissions.forEach { p ->
-            permissions.add(p.key)
-            p.implies.forEach { implied -> permissions.add(implied.key) }
+            val permissionDesc = securityPermissionRegistry.findByKeyOptional(p)
+            if (permissionDesc != null) {
+                permissions.add(permissionDesc.key)
+                permissionDesc.implies.forEach { implied -> permissions.add(implied) }
+            }
         }
         return WhoAmIRespDto(
             issuer = actor.issuer,
             sub = actor.subject,
             admin = actor.isAdmin,
             fullname = actor.fullname,
-            roles = actor.permissions.map { it.key },
-            permissions = permissions.toList(),
+            permissions = permissions.map { it.value }.toList(),
         )
 
     }
@@ -192,14 +199,15 @@ class AuthEmbeddedActionsLauncher(
 
     fun roleList(@Suppress("UNUSED_PARAMETER") cmd: AuthAction.RoleList): RoleListDto {
         return RoleListDto(
-            items = actorService.listRoles().map { role -> toRoleInfo(role) }
+            items = actorService.listRoles().map { role -> toRoleInfo(role, actorService.isManagedRole(role.key)) }
         )
     }
 
     fun roleGet(cmd: AuthAction.RoleGet): RoleDetailsDto {
         val role = actorService.findRoleByRef(cmd.roleRef)
+        val managed = actorService.isManagedRole(role.key)
         return RoleDetailsDto(
-            role = toRoleInfo(role),
+            role = toRoleInfo(role, managed),
             permissions = actorService.listRolePermissions(cmd.roleRef).map { it.key }
         )
     }
@@ -317,17 +325,17 @@ class AuthEmbeddedActionsLauncher(
     }
 
 
-    private fun toRoleInfo(role: Role): RoleInfoDto {
+    private fun toRoleInfo(role: Role, managed: Boolean): RoleInfoDto {
         return RoleInfoDto(
             id = role.id.asString(),
             key = role.key.asString(),
             name = role.name,
             description = role.description,
+            managedRole = managed,
             createdAt = role.createdAt,
             lastUpdatedAt = role.lastUpdatedAt
         )
     }
-
 
 
 }

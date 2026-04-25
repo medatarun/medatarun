@@ -10,6 +10,7 @@ data class RoleInfoDto(
     val key: String,
     val name: String,
     val description: String?,
+    val managedRole: Boolean,
     @Serializable(with = InstantAsIsoStringSerializer::class)
     val createdAt: Instant,
     @Serializable(with = InstantAsIsoStringSerializer::class)

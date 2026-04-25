@@ -8,6 +8,5 @@ data class WhoAmIRespDto(
     val sub: String,
     val fullname: String,
     val admin: Boolean,
-    val roles: List<String>,
     val permissions: List<String>,
 )

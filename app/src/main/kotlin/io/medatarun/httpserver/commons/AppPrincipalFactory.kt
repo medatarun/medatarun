@@ -3,17 +3,16 @@ package io.medatarun.httpserver.commons
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.medatarun.auth.adapters.ActorRoleAdapters
 import io.medatarun.auth.adapters.AppActorIdAdapter
 import io.medatarun.auth.domain.ActorDisabledException
-import io.medatarun.auth.domain.ActorPermission
-import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorWithPermissions
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
 import io.medatarun.security.AppActorId
 import io.medatarun.security.AppPermission
+import io.medatarun.security.AppPermissionKey
 import io.medatarun.security.AppPrincipal
+import io.medatarun.security.SecurityPermissionRegistry
 import java.time.Instant
 
 /**
@@ -29,7 +28,7 @@ import java.time.Instant
  * the newest info.
  */
 class AppPrincipalFactory(
-    private val actorService: ActorService
+    private val actorService: ActorService,
 ) {
 
     fun getAndSync(call: ApplicationCall): AppPrincipal? {
@@ -68,7 +67,9 @@ class AppPrincipalFactory(
             override val issuer: String = actor.issuer
             override val subject: String = actor.subject
             override val isAdmin: Boolean = actor.permissions.any { it.isAdminPermission() }
-            override val permissions: Set<AppPermission> = actor.permissions.map(ActorRoleAdapters::toAppPermission).toSet()
+            override val permissions: Set<AppPermissionKey> = actor.permissions
+                .map { AppPermissionKey(it.key) }
+                .toSet()
             override val fullname: String = actor.fullname
         }
     }

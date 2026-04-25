@@ -4,9 +4,11 @@ import io.medatarun.actions.adapters.ActionPlatform
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
+import io.medatarun.auth.ports.needs.PermissionsRegistry
 import io.medatarun.httpserver.commons.AppPrincipalFactory
 import io.medatarun.platform.kernel.PlatformRuntime
 import io.medatarun.platform.kernel.getService
+import io.medatarun.security.SecurityPermissionRegistry
 
 /**
  * Services exposed to the HttpServer
