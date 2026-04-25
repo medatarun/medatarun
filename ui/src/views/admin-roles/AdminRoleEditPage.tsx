@@ -225,9 +225,6 @@ function PermissionTable({
 function PermissionImpliedTable({ permissions }: { permissions: string[] }) {
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
-  const permissionActions = actionRegistry.findActionDescriptors([
-    "role_delete_permission",
-  ]);
   const { registry: permissionRegistry } = usePermissionRegistry();
   const permissionsImplied =
     permissionRegistry.findImpliedPermissions(permissions);

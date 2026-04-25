@@ -46,7 +46,7 @@ export function AdminDbDatasourceListPage() {
       <CardGrid
         data={datasources}
         renderName={(item) => <Text weight="semibold">{item.id}</Text>}
-        renderDescription={(item) => null}
+        renderDescription={() => null}
         renderBody={(item) => (
           <div
             style={{

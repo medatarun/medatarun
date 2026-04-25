@@ -1,13 +1,6 @@
-import {
-  Card,
-  CardHeader,
-  Tag,
-  TagGroup,
-  Text,
-} from "@fluentui/react-components";
+import { Card, CardHeader, Text } from "@fluentui/react-components";
 import type { ModelListItemDto } from "@/business/model";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
-import { EntityIcon, RelationshipIcon, TypeIcon } from "./model.icons.tsx";
 import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
 import { Key } from "@/components/core/Key.tsx";
 

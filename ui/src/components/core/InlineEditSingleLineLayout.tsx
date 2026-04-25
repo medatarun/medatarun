@@ -12,7 +12,6 @@ import {
 import { EditRegular as EditIcon } from "@fluentui/react-icons";
 import { Button, ButtonBar, ErrorBox } from "@seij/common-ui";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { merge } from "lodash-es";
 
 const useStyles = makeStyles({
   readRoot: {

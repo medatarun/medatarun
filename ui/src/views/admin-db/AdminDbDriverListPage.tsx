@@ -21,7 +21,6 @@ export function AdminDbDriverListPage() {
   const { t } = useAppI18n();
 
   const data = sortBy(driversRaw ?? [], (it) => it.name);
-  const actionCtxPage = createActionCtxVoid();
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: undefined,
     eyebrow: undefined,

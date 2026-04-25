@@ -71,7 +71,10 @@ type AssertNever<T extends never> = T;
 
 // If there are errors here, it means that all types from Action registry are
 // no mapped to the domain types. So we'll get an error it's on purpose.
-type _AllRegistryTypesAreMapped = AssertNever<UnknownRegistryTypes>;
+// Be careful with esline, this is really used for control
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type AllRegistryTypesAreMapped = AssertNever<UnknownRegistryTypes>;
 
 // Turns one registry parameter descriptor into one object field.
 // Optional parameters become optional object properties.
