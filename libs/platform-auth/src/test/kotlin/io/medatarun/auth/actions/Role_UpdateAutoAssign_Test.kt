@@ -68,7 +68,7 @@ class Role_UpdateAutoAssign_Test {
     }
 
     @Test
-    fun `remove auto assign even when another role is passed`() {
+    fun `remove auto assign from another role does not change current auto assign role`() {
         val env = AuthEnvTest()
         env.asAdmin()
         val assignedRoleRef = roleRefKey("assigned-role")
@@ -81,7 +81,7 @@ class Role_UpdateAutoAssign_Test {
 
         val assignedRole = env.dispatch(AuthAction.Role_Get(assignedRoleRef))
         val targetRole = env.dispatch(AuthAction.Role_Get(targetRoleRef))
-        assertFalse(assignedRole.role.autoAssign)
+        assertTrue(assignedRole.role.autoAssign)
         assertFalse(targetRole.role.autoAssign)
     }
 

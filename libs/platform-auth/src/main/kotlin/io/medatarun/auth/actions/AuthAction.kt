@@ -344,7 +344,7 @@ sealed interface AuthAction<R> {
     @ActionDoc(
         key = "role_update_autoassign",
         title = "Update role auto assign",
-        description = "Update whether a role is automatically assigned to new actors.",
+        description = "When auto assign is on, all new actors (users and tools) will be given this role as a default role.\n\nIf any other role had the feature, it will be removed from the other role and added to this one.\n\nYou can also disable this completely.",
         securityRule = SecurityRuleNames.ADMIN
     )
     class Role_UpdateAutoAssign(

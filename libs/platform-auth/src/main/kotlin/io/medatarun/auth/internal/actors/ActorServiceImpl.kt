@@ -171,11 +171,11 @@ class ActorServiceImpl(
 
     override fun roleUpdateAutoAssign(roleRef: RoleRef, value: Boolean) {
         val role = actorStorage.findRoleByRef(roleRef)
-        if (value && role.key == ADMIN_ROLE_KEY) throw RoleUpdateAutoAssignAdminRoleForbiddenException(role.key)
+        if (value && role.key == ADMIN_ROLE_KEY) throw RoleUpdateAutoAssignAdminRoleForbiddenException()
         val now = clock.now()
         val existing = actorStorage.findRoleAutoAssignOptional()
 
-        if (existing != null && existing.id != role.id) {
+        if (existing != null && existing.id != role.id && value) {
             actorStorage.roleUpdateAutoAssign(existing.id, false, now)
         }
         actorStorage.roleUpdateAutoAssign(role.id, value, now)
@@ -281,7 +281,7 @@ class ActorServiceImpl(
                     createdAt = managedRole.role.createdAt,
                     lastUpdatedAt = managedRole.role.createdAt
                 )
-                actorStorage.findRoleById(managedRole.role.id)
+                actorStorage.findRoleById(found.id)
             } else found
 
             // Remove permissions that may exist in storage but not in the
