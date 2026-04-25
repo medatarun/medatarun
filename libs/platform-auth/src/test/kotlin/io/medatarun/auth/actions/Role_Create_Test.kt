@@ -3,8 +3,8 @@ package io.medatarun.auth.actions
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.auth.domain.RoleAlreadyExistsException
 import io.medatarun.auth.domain.RoleCreateConflictsWithManagedKeyException
-import io.medatarun.auth.domain.role.RoleKey
 import io.medatarun.auth.domain.role.RoleRef
+import io.medatarun.auth.domain.role.RoleRef.Companion.roleRefKey
 import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.auth.internal.actors.ManagedRoles
 import io.medatarun.lang.http.StatusCode
@@ -21,18 +21,18 @@ class Role_Create_Test {
     fun `create custom role with name key and description`() {
         val env = AuthEnvTest()
         env.asAdmin()
-        val roleKey = RoleKey("custom-role")
+        val roleRef = roleRefKey("custom-role")
 
         env.dispatch(
             AuthAction.Role_Create(
-                key = roleKey,
+                key = roleRef.key,
                 name = "Custom role",
                 description = "Role created for a business team"
             )
         )
 
-        val createdRole = env.dispatch(AuthAction.Role_Get(RoleRef.ByKey(roleKey)))
-        assertEquals(roleKey.value, createdRole.role.key)
+        val createdRole = env.dispatch(AuthAction.Role_Get(roleRef))
+        assertEquals(roleRef.key.value, createdRole.role.key)
         assertEquals("Custom role", createdRole.role.name)
         assertEquals("Role created for a business team", createdRole.role.description)
         assertFalse(createdRole.role.managedRole)
@@ -43,18 +43,18 @@ class Role_Create_Test {
     fun `create custom role without description`() {
         val env = AuthEnvTest()
         env.asAdmin()
-        val roleKey = RoleKey("custom-role")
+        val roleRef = roleRefKey("custom-role")
 
         env.dispatch(
             AuthAction.Role_Create(
-                key = roleKey,
+                key = roleRef.key,
                 name = "Custom role",
                 description = null
             )
         )
 
-        val createdRole = env.dispatch(AuthAction.Role_Get(RoleRef.ByKey(roleKey)))
-        assertEquals(roleKey.value, createdRole.role.key)
+        val createdRole = env.dispatch(AuthAction.Role_Get(roleRef))
+        assertEquals(roleRef.key.value, createdRole.role.key)
         assertEquals("Custom role", createdRole.role.name)
         assertEquals(null, createdRole.role.description)
         assertFalse(createdRole.role.managedRole)
@@ -64,11 +64,11 @@ class Role_Create_Test {
     fun `refuse to create two roles with the same key`() {
         val env = AuthEnvTest()
         env.asAdmin()
-        val roleKey = RoleKey("custom-role")
+        val roleRef = roleRefKey("custom-role")
 
         env.dispatch(
             AuthAction.Role_Create(
-                key = roleKey,
+                key = roleRef.key,
                 name = "Custom role",
                 description = "First role with this key"
             )
@@ -77,14 +77,14 @@ class Role_Create_Test {
         assertThrows<RoleAlreadyExistsException> {
             env.dispatch(
                 AuthAction.Role_Create(
-                    key = roleKey,
+                    key = roleRef.key,
                     name = "Other custom role",
                     description = "Second role with this key"
                 )
             )
         }
 
-        val existingRole = env.dispatch(AuthAction.Role_Get(RoleRef.ByKey(roleKey)))
+        val existingRole = env.dispatch(AuthAction.Role_Get(roleRef))
         assertEquals("Custom role", existingRole.role.name)
         assertEquals("First role with this key", existingRole.role.description)
     }
@@ -118,7 +118,7 @@ class Role_Create_Test {
         val error = assertThrows<ActionInvocationException> {
             env.dispatch(
                 AuthAction.Role_Create(
-                    key = RoleKey("custom-role"),
+                    key = roleRefKey("custom-role").key,
                     name = "Custom role",
                     description = "Role created by a non admin user"
                 )
