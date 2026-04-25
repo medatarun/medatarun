@@ -111,6 +111,7 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
       itemActions: actionRegistry.findActionDescriptors([
         role.managedRole ? undefined : "role_update_key",
         role.managedRole ? undefined : "role_delete",
+        "role_update_autoassign",
       ]),
       actionCtx: actionCtxPage,
     },

@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ActionDescriptorDto(
-    val id: String,
     val groupKey: String,
     val actionKey: String,
     val title: String,

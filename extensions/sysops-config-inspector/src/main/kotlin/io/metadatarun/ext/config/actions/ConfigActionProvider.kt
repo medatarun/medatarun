@@ -83,7 +83,6 @@ class ConfigActionProvider(
                 val semantics = actionRegistered.semantics
 
                 ActionDescriptorDto(
-                    id = descriptor.id.asString(),
                     actionKey = descriptor.key,
                     groupKey = descriptor.group,
                     title = descriptor.title ?: descriptor.key,

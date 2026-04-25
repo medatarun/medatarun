@@ -3,7 +3,6 @@ export interface ActionRegistryDto {
 }
 
 export interface ActionDescriptorDto {
-  readonly id: string;
   readonly actionKey: string;
   readonly groupKey: string;
   readonly title: string | null;
