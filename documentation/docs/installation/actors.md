@@ -62,8 +62,12 @@ of last executed actions, you will see exactly who did what.
 Permissions on Medatarun are fine-grained authorizations to do something.
 For example `tag_global_manage` allow to create, update, delete global tags.
 
-You create your own set of permissions called Roles. Roles are simply bags
-of permissions with a name and description you chose.
+Roles are named bags of permissions. Medatarun creates managed roles such as
+`reader`, `manager` and `admin` so you can assign common access levels
+immediately.
+
+You can also create your own roles with the permissions, name and description
+you choose.
 
 Finally you can affect one or more roles to **actors** (not users, actors) so
 you can control who can do what in Medatarun, whether the person or the tool
@@ -107,4 +111,3 @@ flowchart LR
     R2 --> P3[Permission\nmodel_read]
     R2 --> P4[Permission\ntag_global_read]
 ```
-

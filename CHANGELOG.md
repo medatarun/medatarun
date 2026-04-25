@@ -32,10 +32,20 @@
 - Role management screen now displays those permissions so that admin can have
   the full picture of what is authorized or not for the role.
 
+**Managed roles**
+
+- Some roles are set as _Managed roles_, meaning only the application can update
+  them.
+- They provide a default reader and writer role, so that you can assign actors
+  to predefined roles without asking yourself too many questions about what to
+  include in a role.
+
 **Onboarding**
 
 - Better onboarding messages on the user interface to provide assistance for new
   installations.
+- With the introduction of managed roles, onboarding is easier as it requires
+  fewer steps from installation to a functionnal system
 
 ### Changes
 
