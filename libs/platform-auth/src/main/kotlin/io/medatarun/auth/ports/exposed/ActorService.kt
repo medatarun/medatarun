@@ -9,7 +9,6 @@ import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.auth.domain.role.RoleKey
 import io.medatarun.auth.domain.role.RoleRef
 import io.medatarun.platform.kernel.Service
-import io.medatarun.security.AppPermission
 import java.time.Instant
 
 /**
@@ -163,6 +162,15 @@ interface ActorService: Service {
     fun findActorPermissionSet(id: ActorId): Set<ActorPermission>
     fun findActorRoleIdSet(actorId: ActorId): Set<RoleId>
     fun actorHasRole(actorId: ActorId, roleId: RoleId): Boolean
-    fun findOrCreateSpecialAdminRole(): Role
+    fun findSpecialAdminRole(): Role
 
+    /**
+     * Should be called at startup to be sure there are all managed roles in database
+     */
+    fun syncManagedRoles()
+
+    /**
+     * Returns true if this role is managed
+     */
+    fun isManagedRole(key: RoleKey): Boolean
 }

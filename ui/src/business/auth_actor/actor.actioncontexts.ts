@@ -49,6 +49,13 @@ export const createActionCtxRole = (
         visible: false,
         defaultValue: () => "id:" + role.id,
       },
+      {
+        actionKey: "role_update_key",
+        actionParamKey: "value",
+        readonly: false,
+        visible: true,
+        defaultValue: () => role.key,
+      },
     ],
     displayedSubject,
   );

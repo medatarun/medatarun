@@ -1,10 +1,13 @@
 package io.medatarun.auth.internal.actors
 
+import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.role.Role
 import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.auth.domain.role.RoleInMemory
 import io.medatarun.auth.domain.role.RoleKey
+import io.medatarun.auth.ports.needs.PermissionsRegistry
 import io.medatarun.lang.uuid.UuidUtils
+import io.medatarun.security.SecurityPermissionRegistry
 import java.time.LocalDate
 import java.time.Month
 import java.time.ZoneOffset
@@ -15,13 +18,26 @@ import java.time.ZoneOffset
  * It means you cannot change its permissions, name, description and will be
  * recreated at every startup if missing in storage.
  */
-class ManagedRoles {
+class ManagedRoles(private val permissionsRegistry: PermissionsRegistry) {
 
     /**
      * Returns true if one is those roles is a managed role.
      */
     fun isManagedRole(key: RoleKey): Boolean {
         return managedRoles.any { it.key == key }
+    }
+
+    data class ManagedRoleWithPermissions(
+        val role: Role,
+        val permissionKeys: Set<ActorPermission>
+    )
+
+    fun findManagedRolesWithPermissions(): List<ManagedRoleWithPermissions> {
+        return listOf(
+            ManagedRoleWithPermissions(adminRole, permissionsRegistry.findAllAdminPermissionKeys()),
+            ManagedRoleWithPermissions(readerRole, permissionsRegistry.findAllReadonlyPermissionKeys()),
+            ManagedRoleWithPermissions(managerRole, permissionsRegistry.findAllReadonlyPermissionKeys() + permissionsRegistry.findAllWritePermissionKeys()),
+        )
     }
 
     companion object {

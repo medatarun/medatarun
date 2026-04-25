@@ -2,7 +2,6 @@ package io.medatarun.auth.internal.actors
 
 import io.medatarun.auth.adapters.ActorWithPermissionsInMemory
 import io.medatarun.auth.domain.*
-import io.medatarun.auth.domain.AuthUnknownPermissionException
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.actor.ActorWithPermissions
@@ -25,7 +24,6 @@ class ActorServiceImpl(
     private val permissionsRegistry: PermissionsRegistry,
     private val managedRoles: ManagedRoles
 ) : ActorService {
-
 
 
     override fun syncFromJwtExternalPrincipal(principal: AuthJwtExternalPrincipal): ActorWithPermissions {
@@ -121,6 +119,7 @@ class ActorServiceImpl(
     override fun findRoleByRef(roleRef: RoleRef): Role {
         return actorStorage.findRoleByRef(roleRef)
     }
+
     override fun findRoleByRefOptional(roleRef: RoleRef): Role? {
         return actorStorage.findRoleByRefOptional(roleRef)
     }
@@ -220,18 +219,63 @@ class ActorServiceImpl(
         return actorStorage.findActorRoleIdList(actorId).contains(roleId)
     }
 
-    override fun findOrCreateSpecialAdminRole(): Role {
-        // This is the only method that can manipulate the admin role
-        val role = actorStorage.findRoleByKeyOptional(ADMIN_ROLE_KEY)
-        val roleSafe = if (role == null) {
-            val adminRoleId = RoleId.generate()
-            actorStorage.roleCreate(adminRoleId, ADMIN_ROLE_KEY, "Admin", null, clock.now(), clock.now())
-            actorStorage.findRoleById(adminRoleId)
-        } else role
-        if (!actorStorage.roleHasPermission(roleSafe.id, ActorPermission.ADMIN)) {
-            actorStorage.roleAddPermission(roleSafe.id, ActorPermission.ADMIN)
+    override fun findSpecialAdminRole(): Role {
+        return actorStorage.findRoleByKeyOptional(ADMIN_ROLE_KEY)
+            ?: throw RoleNotFoundByKeyException(ADMIN_ROLE_KEY)
+    }
+
+    override fun syncManagedRoles() {
+        for (managedRole in managedRoles.findManagedRolesWithPermissions()) {
+
+            // Find matching role or create it if it doesn't exist (by key)
+            val found = actorStorage.findRoleByKeyOptional(managedRole.role.key)
+            val roleSafe = if (found == null) {
+                actorStorage.roleCreate(
+                    id = managedRole.role.id,
+                    key = managedRole.role.key,
+                    name = managedRole.role.name,
+                    description = managedRole.role.description,
+                    createdAt = managedRole.role.createdAt,
+                    lastUpdatedAt = managedRole.role.createdAt
+                )
+                actorStorage.findRoleById(managedRole.role.id)
+            } else if (
+                found.createdAt != managedRole.role.createdAt
+                || found.lastUpdatedAt != managedRole.role.lastUpdatedAt
+                || found.name != managedRole.role.name
+                || found.description != managedRole.role.description
+            ) {
+                actorStorage.roleManagedReplace(
+                    key = managedRole.role.key,
+                    name = managedRole.role.name,
+                    description = managedRole.role.description,
+                    createdAt = managedRole.role.createdAt,
+                    lastUpdatedAt = managedRole.role.createdAt
+                )
+                actorStorage.findRoleById(managedRole.role.id)
+            } else found
+
+            // Remove permissions that may exist in storage but not in the
+            // current managed role definition
+            val existingPermissions = actorStorage.findRolePermissionList(roleSafe.id)
+            for (existingPermission in existingPermissions) {
+                if (!managedRole.permissionKeys.contains(existingPermission)) {
+                    actorStorage.roleDeletePermission(roleSafe.id, existingPermission)
+                }
+            }
+
+            // Insert missing permissions
+            for (permission in managedRole.permissionKeys) {
+                if (!existingPermissions.contains(permission)) {
+                    actorStorage.roleAddPermission(roleSafe.id, permission)
+                }
+            }
+
         }
-        return roleSafe
+    }
+
+    override fun isManagedRole(key: RoleKey): Boolean {
+        return managedRoles.isManagedRole(key)
     }
 
     override fun deleteRole(roleRef: RoleRef) {

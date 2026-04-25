@@ -15,7 +15,7 @@ export function SectionTitle({
   children,
 }: {
   icon: ReactNode;
-  actions?: ActionKey[];
+  actions?: (ActionKey | null | undefined)[];
   actionCtx?: ActionCtx;
 } & PropsWithChildren) {
   const actionRegistry = useActionRegistry();

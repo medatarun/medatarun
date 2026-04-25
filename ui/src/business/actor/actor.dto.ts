@@ -11,6 +11,7 @@ export interface RoleInfoDto {
   id: string;
   key: string;
   name: string;
+  managedRole: boolean;
   description: string | null;
   createdAt: string;
   lastUpdatedAt: string;

@@ -151,6 +151,17 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
+    override fun roleManagedReplace(key: RoleKey, name: String, description: String?, createdAt: Instant, lastUpdatedAt: Instant) {
+        dbConnectionFactory.withExposed {
+            RoleTable.update(where = { RoleTable.key eq key }) { row ->
+                row[this.name] = name
+                row[this.description] = description
+                row[this.createdAt] = createdAt
+                row[this.lastUpdatedAt] = lastUpdatedAt
+            }
+        }
+    }
+
     override fun roleHasPermission(roleId: RoleId, permission: ActorPermission): Boolean {
         return dbConnectionFactory.withExposed {
             RolePermissionTable.selectAll()

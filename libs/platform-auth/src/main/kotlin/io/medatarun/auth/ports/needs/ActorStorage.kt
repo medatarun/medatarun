@@ -184,9 +184,15 @@ interface ActorStorage {
     fun roleUpdateDescription(roleId: RoleId, description: String?, lastUpdatedAt: Instant)
 
     /**
+     * Replaces role detail with those. The "Id" or "key" cannot change as it may be used elsewhere.
+     */
+    fun roleManagedReplace(key: RoleKey, name: String, description: String?, createdAt: Instant, lastUpdatedAt: Instant)
+
+    /**
      * Deletes role permissions and role mappings, then the role itself.
      */
     fun roleDelete(roleId: RoleId)
+
 
 
 }

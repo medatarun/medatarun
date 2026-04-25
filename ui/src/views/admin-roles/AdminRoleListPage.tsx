@@ -23,7 +23,7 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
-import { LockClosedRegular } from "@fluentui/react-icons";
+import { KeyMultipleRegular, LockClosedRegular } from "@fluentui/react-icons";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { createActionCtxRole } from "@/business/auth_actor/actor.actioncontexts.ts";
 import { useActionRegistry } from "@/components/business/actions";
@@ -52,7 +52,7 @@ export function AdminRoleListPage() {
   const headerProps: ViewLayoutHeaderProps = {
     eyebrow: t("authRolesPage_eyebrow"),
     title: t("authRolesPage_title"),
-    titleIcon: <LockClosedRegular />,
+    titleIcon: <KeyMultipleRegular />,
     actions: {
       label: t("authRolesPage_actions"),
       itemActions: actionRegistry.findActionDescriptors(["role_create"]),
@@ -119,7 +119,9 @@ function AuthRolesTable({
               style={{ width: "10em" }}
               onClick={() => onClickRole(role.id)}
             >
-              <p>{role.label}</p>
+              <p>
+                {role.label} {role.managedRole && <LockClosedRegular />}
+              </p>
             </TableCell>
             <TableCell style={{ width: "3em", textAlign: "right" }}>
               <ActionMenuButton
