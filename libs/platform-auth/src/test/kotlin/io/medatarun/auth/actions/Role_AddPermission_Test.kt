@@ -30,4 +30,9 @@ class Role_AddPermission_Test {
     fun `refuse to change permissions of a managed role`() {
         TODO()
     }
+
+    @Test
+    fun `refuse to add role permission when user is not admin`() {
+        TODO()
+    }
 }

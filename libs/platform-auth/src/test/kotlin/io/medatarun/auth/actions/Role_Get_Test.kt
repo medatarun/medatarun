@@ -25,4 +25,9 @@ class Role_Get_Test {
     fun `refuse to get a missing role`() {
         TODO()
     }
+
+    @Test
+    fun `refuse to get role when user is not admin`() {
+        TODO()
+    }
 }

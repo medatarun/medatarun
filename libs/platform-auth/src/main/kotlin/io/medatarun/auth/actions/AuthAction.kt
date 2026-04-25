@@ -284,7 +284,7 @@ sealed interface AuthAction<R> {
         description = "Update a role name.",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class RoleUpdateName(
+    class Role_UpdateName(
         @ActionParamDoc(
             name = "Role",
             description = "Role reference",
@@ -305,7 +305,7 @@ sealed interface AuthAction<R> {
         description = "Update a role key.",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class RoleUpdateKey(
+    class Role_UpdateKey(
         @ActionParamDoc(
             name = "Role",
             description = "Role reference",
@@ -326,7 +326,7 @@ sealed interface AuthAction<R> {
         description = "Update a role description.",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class RoleUpdateDescription(
+    class Role_UpdateDescription(
         @ActionParamDoc(
             name = "Role",
             description = "Role reference",

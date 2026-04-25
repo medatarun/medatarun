@@ -25,4 +25,9 @@ class Role_Delete_Test {
     fun `refuse to delete a managed role`() {
         TODO()
     }
+
+    @Test
+    fun `refuse to delete role when user is not admin`() {
+        TODO()
+    }
 }

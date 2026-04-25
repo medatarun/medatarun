@@ -63,9 +63,9 @@ class AuthEmbeddedActionsProvider(
             is AuthAction.Role_Create -> launcher.roleCreate(action)
             is AuthAction.Role_List -> launcher.roleList(action)
             is AuthAction.Role_Get -> launcher.roleGet(action)
-            is AuthAction.RoleUpdateName -> launcher.roleUpdateName(action)
-            is AuthAction.RoleUpdateKey -> launcher.roleUpdateKey(action)
-            is AuthAction.RoleUpdateDescription -> launcher.roleUpdateDescription(action)
+            is AuthAction.Role_UpdateName -> launcher.roleUpdateName(action)
+            is AuthAction.Role_UpdateKey -> launcher.roleUpdateKey(action)
+            is AuthAction.Role_UpdateDescription -> launcher.roleUpdateDescription(action)
             is AuthAction.Role_AddPermission -> launcher.roleAddPermission(action)
             is AuthAction.Role_DeletePermission -> launcher.roleDeletePermission(action)
             is AuthAction.Role_Delete -> launcher.roleDelete(action)
@@ -211,21 +211,21 @@ class AuthEmbeddedActionsLauncher(
         )
     }
 
-    fun roleUpdateName(cmd: AuthAction.RoleUpdateName) {
+    fun roleUpdateName(cmd: AuthAction.Role_UpdateName) {
         actorService.updateRoleName(
             roleRef = cmd.roleRef,
             name = cmd.value
         )
     }
 
-    fun roleUpdateKey(cmd: AuthAction.RoleUpdateKey) {
+    fun roleUpdateKey(cmd: AuthAction.Role_UpdateKey) {
         actorService.updateRoleKey(
             roleRef = cmd.roleRef,
             key = cmd.value
         )
     }
 
-    fun roleUpdateDescription(cmd: AuthAction.RoleUpdateDescription) {
+    fun roleUpdateDescription(cmd: AuthAction.Role_UpdateDescription) {
         actorService.updateRoleDescription(
             roleRef = cmd.roleRef,
             description = cmd.value

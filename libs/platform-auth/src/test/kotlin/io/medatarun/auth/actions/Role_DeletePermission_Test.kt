@@ -25,4 +25,9 @@ class Role_DeletePermission_Test {
     fun `refuse to change permissions of a managed role`() {
         TODO()
     }
+
+    @Test
+    fun `refuse to delete role permission when user is not admin`() {
+        TODO()
+    }
 }
