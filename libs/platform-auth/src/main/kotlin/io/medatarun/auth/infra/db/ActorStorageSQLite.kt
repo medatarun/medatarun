@@ -117,6 +117,15 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
+    override fun findRoleAutoAssign(): Role? {
+        return dbConnectionFactory.withExposed {
+            RoleTable.selectAll()
+                .where { RoleTable.autoAssign eq true }
+                .singleOrNull()
+                ?.let { readRole(it) }
+        }
+    }
+
     override fun findRolePermissionList(roleId: RoleId): List<ActorPermission> {
         return dbConnectionFactory.withExposed {
             RolePermissionTable.selectAll()
@@ -148,6 +157,15 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         dbConnectionFactory.withExposed {
             RoleTable.update(where = { RoleTable.id eq roleId }) { row ->
                 row[this.description] = description
+                row[this.lastUpdatedAt] = lastUpdatedAt
+            }
+        }
+    }
+
+    override fun roleUpdateAutoAssign(roleId: RoleId, autoAssign: Boolean, lastUpdatedAt: Instant) {
+        dbConnectionFactory.withExposed {
+            RoleTable.update(where = { RoleTable.id eq roleId }) { row ->
+                row[this.autoAssign] = autoAssign
                 row[this.lastUpdatedAt] = lastUpdatedAt
             }
         }

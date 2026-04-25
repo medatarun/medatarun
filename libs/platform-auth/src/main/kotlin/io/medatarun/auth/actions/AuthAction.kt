@@ -342,6 +342,27 @@ sealed interface AuthAction<R> {
     ) : AuthAction<Unit>
 
     @ActionDoc(
+        key = "role_update_autoassign",
+        title = "Update role auto assign",
+        description = "Update whether a role is automatically assigned to new actors.",
+        securityRule = SecurityRuleNames.ADMIN
+    )
+    class Role_UpdateAutoAssign(
+        @ActionParamDoc(
+            name = "Role",
+            description = "Role reference",
+            order = 1
+        )
+        val roleRef: RoleRef,
+        @ActionParamDoc(
+            name = "Auto assign",
+            description = "When true, this role is automatically assigned to new actors.",
+            order = 2
+        )
+        val value: Boolean
+    ) : AuthAction<Unit>
+
+    @ActionDoc(
         key = "role_add_permission",
         title = "Add role permission",
         description = "Add a permission to a role.",

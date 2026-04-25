@@ -118,6 +118,11 @@ interface ActorService: Service {
     fun updateRoleDescription(roleRef: RoleRef, description: String?)
 
     /**
+     * Updates whether this role is automatically assigned to newly created actors.
+     */
+    fun roleUpdateAutoAssign(roleRef: RoleRef, value: Boolean)
+
+    /**
      * Adds a permission to a role.
      */
     fun addRolePermission(roleRef: RoleRef, permission: ActorPermission)

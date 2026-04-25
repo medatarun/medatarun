@@ -168,6 +168,17 @@ class ActorServiceImpl(
         actorStorage.roleUpdateDescription(role.id, description, clock.now())
     }
 
+    override fun roleUpdateAutoAssign(roleRef: RoleRef, value: Boolean) {
+        val role = actorStorage.findRoleByRef(roleRef)
+        val now = clock.now()
+        val existing = actorStorage.findRoleAutoAssign()
+
+        if (existing != null && existing.id != role.id) {
+            actorStorage.roleUpdateAutoAssign(existing.id, false, now)
+        }
+        actorStorage.roleUpdateAutoAssign(role.id, value, now)
+    }
+
     override fun addRolePermission(roleRef: RoleRef, permission: ActorPermission) {
         // Special admin role: no, you cannot add permissions from here
         val role = actorStorage.findRoleByRef(roleRef)
