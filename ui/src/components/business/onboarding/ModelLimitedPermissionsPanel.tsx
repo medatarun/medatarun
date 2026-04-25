@@ -3,9 +3,9 @@ import { useSecurityContext } from "@/components/business/security";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { Link } from "@tanstack/react-router";
 import { MessageBox } from "@/components/core/MessageBox.tsx";
-import { tokens } from "@fluentui/react-components";
+import type { PropsWithStyle } from "@/components/core";
 
-export function ModelLimitedPermissionsPanel() {
+export function ModelLimitedPermissionsPanel(props: PropsWithStyle) {
   const actor = useCurrentActor();
   const sec = useSecurityContext();
   const { t } = useAppI18n();
@@ -14,7 +14,7 @@ export function ModelLimitedPermissionsPanel() {
   if (!cannotRead) return null;
 
   return (
-    <MessageBox intent={"info"} styles={{ marginTop: tokens.spacingVerticalM }}>
+    <MessageBox {...props} intent={"info"}>
       <div>
         <strong>{t("modelLimitedPermissionsPanel_title")}</strong>
       </div>

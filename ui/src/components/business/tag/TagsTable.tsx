@@ -77,7 +77,10 @@ export function TagsTable({
       <Table>
         <TableBody>
           {items.map((tag) => (
-            <TableRow key={tag.id}>
+            <TableRow
+              key={tag.id}
+              style={{ border: "1px solid " + tokens.colorNeutralStroke2 }}
+            >
               <TableCell
                 className={styles.titleCell}
                 onClick={() => handleClickTag(tag.id)}

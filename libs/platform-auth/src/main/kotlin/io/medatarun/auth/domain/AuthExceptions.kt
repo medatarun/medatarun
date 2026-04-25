@@ -71,7 +71,7 @@ class UsernameTooShortException(minsize: Int) :
 class UsernameTooLongException(maxsize: Int) :
     MedatarunException("Username shall be at most $maxsize characters.", StatusCode.BAD_REQUEST)
 
-class UsernameInvalidFormatException : MedatarunException("Username invalid.", StatusCode.BAD_REQUEST)
+class UsernameInvalidFormatException(minSize: Int, maxSize:Int) : MedatarunException("Usernames must be of $minSize to $maxSize characters, and contain only lowercase letters, numbers, dot, underscore or minus symbols.", StatusCode.BAD_REQUEST)
 
 
 open class UserFullnameException(msg: String) :

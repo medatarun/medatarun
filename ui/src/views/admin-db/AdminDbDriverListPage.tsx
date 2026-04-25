@@ -13,15 +13,14 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
-import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 import { useDatabaseDrivers } from "@/components/business/db";
+import { MessageBox } from "@/components/core/MessageBox.tsx";
 
 export function AdminDbDriverListPage() {
   const { data: driversRaw } = useDatabaseDrivers();
   const { t } = useAppI18n();
 
   const data = sortBy(driversRaw ?? [], (it) => it.name);
-  const actionCtxPage = createActionCtxVoid();
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: undefined,
     eyebrow: undefined,
@@ -33,15 +32,14 @@ export function AdminDbDriverListPage() {
     <ViewLayoutContained
       contained={true}
       scrollable={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <ViewLayoutPageInfo>
-        <Text>
-          {t("adminDbDriverListPage_descriptionLine1")}
-          <br />
-          {t("adminDbDriverListPage_descriptionLine2")}
-        </Text>
-      </ViewLayoutPageInfo>
+      <MessageBox intent={"info"}>
+        {t("adminDbDriverListPage_descriptionLine1")}
+        <br />
+        {t("adminDbDriverListPage_descriptionLine2")}
+      </MessageBox>
 
       <CardGrid
         data={data}

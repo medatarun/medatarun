@@ -14,6 +14,9 @@ const useStyles = makeStyles({
     flexWrap: "wrap",
     display: "flex",
     rowGap: tokens.spacingVerticalS,
+    verticalAlign: "middle",
+    alignItems: "baseline",
+    alignContent: "baseline",
   },
 });
 
@@ -36,7 +39,11 @@ export function Tags({ tags, scope }: { tags: string[]; scope: TagScopeRef }) {
   const { tags: tagRegistry } = useTags(scope);
 
   return (
-    <TagGroup className={styles.wrappingTagGroup} appearance={"outline"}>
+    <TagGroup
+      className={styles.wrappingTagGroup}
+      appearance={"outline"}
+      size={"small"}
+    >
       {tags.map((it, i) => (
         <Tag key={i} label={tagRegistry.formatLabel(it)} />
       ))}

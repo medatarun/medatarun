@@ -408,7 +408,12 @@ function ActionLaucher({
             <div className={styles.parametersTableWrapper}>
               <Table size="small" className={styles.parametersTable}>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow
+                    style={{
+                      border: "1px solid " + tokens.colorNeutralStroke2,
+                      backgroundColor: tokens.colorNeutralBackground2,
+                    }}
+                  >
                     <TableHeaderCell className={styles.parameterCol}>
                       Parameter
                     </TableHeaderCell>
@@ -422,7 +427,12 @@ function ActionLaucher({
                 </TableHeader>
                 <TableBody>
                   {sortedParams.map((parameter) => (
-                    <TableRow key={parameter.name}>
+                    <TableRow
+                      key={parameter.name}
+                      style={{
+                        border: "1px solid " + tokens.colorNeutralStroke2,
+                      }}
+                    >
                       <TableCell className={styles.parameterCol}>
                         <div>{parameter.name}</div>
                       </TableCell>

@@ -9,7 +9,6 @@ import logo from "/favicon/favicon.svg?url";
 import { ErrorBoundary } from "./ErrorBoundary.tsx";
 import { ApplicationShellSecured } from "@seij/common-ui-auth";
 import { UserSessionExpiredDialog } from "@/components/auth/UserSessionExpiredDialog.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
 import { useMenu } from "./menu.tsx";
 
 export function Layout() {
@@ -20,9 +19,6 @@ export function Layout() {
 
   // Menu
   const menu = useMenu();
-
-  // Translations
-  const { t } = useAppI18n();
 
   const matchPath = (path: string | undefined) =>
     !!matchRoute({ to: path, fuzzy: true });

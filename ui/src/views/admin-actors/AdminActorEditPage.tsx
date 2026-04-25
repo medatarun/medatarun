@@ -9,8 +9,8 @@ import {
   TableBody,
   TableCell,
   TableRow,
+  tokens,
 } from "@fluentui/react-components";
-import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
@@ -18,7 +18,11 @@ import { ErrorBox } from "@seij/common-ui";
 import { formatLocalDateTime, toProblem } from "@seij/common-types";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
+import {
+  PropertiesForm,
+  PropertyLabel,
+  PropertyValue,
+} from "@/components/layout/PropertiesForm.tsx";
 import { Key } from "@/components/core/Key.tsx";
 import {
   ViewLayoutHeader,
@@ -87,44 +91,42 @@ export function AdminActorEditPage({ actorId }: { actorId: string }) {
     <ViewLayoutContained
       contained={true}
       scrollable={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <SectionPaper>
-        <PropertiesForm>
-          <div>{t("adminActorPage_fullname")}</div>
-          <div>{actor.fullname}</div>
+      <PropertiesForm>
+        <PropertyLabel>{t("adminActorPage_fullname")}</PropertyLabel>
+        <PropertyValue>{actor.fullname}</PropertyValue>
 
-          <div>{t("adminActorPage_issuer")}</div>
-          <div>{actor.issuer}</div>
+        <PropertyLabel>{t("adminActorPage_issuer")}</PropertyLabel>
+        <PropertyValue>{actor.issuer}</PropertyValue>
 
-          <div>{t("adminActorPage_subject")}</div>
-          <div>{actor.subject}</div>
+        <PropertyLabel>{t("adminActorPage_subject")}</PropertyLabel>
+        <PropertyValue>{actor.subject}</PropertyValue>
 
-          <div>{t("adminActorPage_email")}</div>
-          <div>
-            {actor.email ? (
-              actor.email
-            ) : (
-              <MissingInformation>
-                {t("adminActorPage_empty")}
-              </MissingInformation>
-            )}
-          </div>
+        <PropertyLabel>{t("adminActorPage_email")}</PropertyLabel>
+        <PropertyValue>
+          {actor.email ? (
+            actor.email
+          ) : (
+            <MissingInformation>{t("adminActorPage_empty")}</MissingInformation>
+          )}
+        </PropertyValue>
 
-          <div>{t("adminActorPage_status")}</div>
-          <div>
-            {actor.disabledAt
-              ? `${t("adminActorPage_statusDisabledAt")} ${formatLocalDateTime(actor.disabledAt)}`
-              : t("adminActorPage_statusActive")}
-          </div>
+        <PropertyLabel>{t("adminActorPage_status")}</PropertyLabel>
+        <PropertyValue>
+          {actor.disabledAt
+            ? `${t("adminActorPage_statusDisabledAt")} ${formatLocalDateTime(actor.disabledAt)}`
+            : t("adminActorPage_statusActive")}
+        </PropertyValue>
 
-          <div>{t("adminActorPage_createdAt")}</div>
-          <div>{formatLocalDateTime(actor.createdAt)}</div>
+        <PropertyLabel>{t("adminActorPage_createdAt")}</PropertyLabel>
+        <PropertyValue>{formatLocalDateTime(actor.createdAt)}</PropertyValue>
 
-          <div>{t("adminActorPage_lastSeenAt")}</div>
-          <div>{formatLocalDateTime(actor.lastSeenAt)}</div>
-        </PropertiesForm>
-      </SectionPaper>
+        <PropertyLabel>{t("adminActorPage_lastSeenAt")}</PropertyLabel>
+        <PropertyValue>{formatLocalDateTime(actor.lastSeenAt)}</PropertyValue>
+      </PropertiesForm>
+
       <SectionTitle
         icon={undefined}
         actions={["actor_add_role"]}
@@ -172,7 +174,10 @@ function ActorRolesTable({
       <TableBody>
         {rolesItems.map((role) => {
           return (
-            <TableRow key={role.id}>
+            <TableRow
+              key={role.id}
+              style={{ border: "1px solid " + tokens.colorNeutralStroke2 }}
+            >
               <TableCell>
                 <div>{role.label}</div>
                 <div>

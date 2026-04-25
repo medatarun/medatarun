@@ -32,10 +32,13 @@ import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
 import { Key } from "@/components/core/Key";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
-import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
+import {
+  PropertiesForm,
+  PropertyLabel,
+  PropertyValue,
+} from "@/components/layout/PropertiesForm.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { SectionCards } from "@/components/layout/SectionCards.tsx";
-import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import {
@@ -217,25 +220,22 @@ export function RelationshipView({
     <ViewLayoutContained
       scrollable={true}
       contained={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <SectionPaper>
-        <RelationshipOverview model={model} relationship={relationship} />
-      </SectionPaper>
-      <SectionPaper topspacing="XXXL" nopadding>
-        <InlineEditDescription
-          value={relationship.description}
-          disabled={updateDescriptionDisabled}
-          placeholder={t("relationshipEditPage_descriptionPlaceholder")}
-          onChange={(v) =>
-            relationshipUpdateDescription.mutateAsync({
-              modelId: model.id,
-              relationshipId: relationship.id,
-              value: v,
-            })
-          }
-        />
-      </SectionPaper>
+      <RelationshipOverview model={model} relationship={relationship} />
+      <InlineEditDescription
+        value={relationship.description}
+        disabled={updateDescriptionDisabled}
+        placeholder={t("relationshipEditPage_descriptionPlaceholder")}
+        onChange={(v) =>
+          relationshipUpdateDescription.mutateAsync({
+            modelId: model.id,
+            relationshipId: relationship.id,
+            value: v,
+          })
+        }
+      />
 
       <SectionTitle
         icon={<AttributeIcon />}
@@ -267,7 +267,7 @@ export function RelationshipView({
             {relationship.roles.map((role) => (
               <Card style={{ width: "30%" }} key={role.id}>
                 <CardHeader
-                  style={{ height: "2em" }}
+                  style={{ height: "2em", wordBreak: "break-all" }}
                   header={
                     <div>
                       <div>
@@ -391,26 +391,24 @@ export function RelationshipOverview({
   return (
     <PropertiesForm>
       {isDetailLevelTech && (
-        <div>
-          <Text>{t("relationshipEditPage_keyLabel")}</Text>
-        </div>
+        <PropertyLabel>{t("relationshipEditPage_keyLabel")}</PropertyLabel>
       )}
 
       {isDetailLevelTech && (
-        <InlineEditSingleLine
-          value={relationship.key}
-          disabled={updateKeyDisabled}
-          onChange={handleChangeKey}
-        >
-          <Text>
-            <code>{relationship.key}</code>
-          </Text>
-        </InlineEditSingleLine>
+        <PropertyValue>
+          <InlineEditSingleLine
+            value={relationship.key}
+            disabled={updateKeyDisabled}
+            onChange={handleChangeKey}
+          >
+            <Text>
+              <code>{relationship.key}</code>
+            </Text>
+          </InlineEditSingleLine>
+        </PropertyValue>
       )}
-      <div>
-        <Text>{t("relationshipEditPage_tagsLabel")}</Text>
-      </div>
-      <div>
+      <PropertyLabel>{t("relationshipEditPage_tagsLabel")}</PropertyLabel>
+      <PropertyValue>
         <InlineEditTags
           value={relationship.tags}
           scope={modelTagScope(model.id)}
@@ -429,7 +427,7 @@ export function RelationshipOverview({
             <Tags tags={relationship.tags} scope={modelTagScope(model.id)} />
           )}
         </InlineEditTags>
-      </div>
+      </PropertyValue>
     </PropertiesForm>
   );
 }

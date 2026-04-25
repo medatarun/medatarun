@@ -1,11 +1,5 @@
 import * as React from "react";
-import {
-  forwardRef,
-  type PropsWithChildren,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { forwardRef, type PropsWithChildren, useRef, useState } from "react";
 
 import {
   Avatar,

@@ -30,21 +30,32 @@ export function SectionTitle({
         display: "flex",
         columnGap: tokens.spacingHorizontalS,
         alignItems: "center",
-        justifyContent: "end",
+        justifyContent: "start",
         borderBottom: "1px solid #ccc",
         paddingBottom: tokens.spacingVerticalS,
         paddingRight: tokens.spacingVerticalS,
-        marginTop: tokens.spacingVerticalXXXL,
-        marginBottom: 0,
       }}
     >
-      <div>
-        <Text weight="semibold" style={{ display: "flex" }}>
-          {icon}
-        </Text>
-      </div>
-      <div>
-        <Text weight="semibold">{children}</Text>
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          columnGap: tokens.spacingVerticalS,
+          alignItems: "center",
+        }}
+      >
+        {icon && (
+          <div>
+            <Text size={500} weight="semibold" style={{ display: "flex" }}>
+              {icon}
+            </Text>
+          </div>
+        )}
+        <div>
+          <Text size={400} weight="semibold">
+            {children}
+          </Text>
+        </div>
       </div>
       <div>
         <ActionMenuButton

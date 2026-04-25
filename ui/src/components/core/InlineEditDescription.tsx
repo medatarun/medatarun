@@ -6,7 +6,15 @@ import {
   type MarkdownEditorHandle,
 } from "./MarkdownEditor.tsx";
 import { MissingInformation } from "./MissingInformation.tsx";
+import { makeStyles, tokens } from "@fluentui/react-components";
 
+const useStyles = makeStyles({
+  root: {
+    backgroundColor: tokens.colorNeutralBackground1,
+    border: `1px solid ${tokens.colorNeutralStroke2}`,
+    borderRadius: tokens.borderRadiusMedium,
+  },
+});
 export function InlineEditDescription({
   value,
   placeholder,
@@ -20,6 +28,7 @@ export function InlineEditDescription({
 }) {
   const editorRef = useRef<MarkdownEditorHandle>(null);
   const [editValue, setEditValue] = useState(value ?? "");
+  const styles = useStyles();
 
   const handleEditStart = async () => {
     setEditValue(value ?? "");
@@ -38,26 +47,28 @@ export function InlineEditDescription({
   };
 
   return (
-    <InlineEditRichTextLayout
-      editor={
-        <MarkdownEditor
-          ref={editorRef}
-          value={editValue}
-          onChange={setEditValue}
-        />
-      }
-      disabled={disabled}
-      onEditStart={handleEditStart}
-      onEditStarted={handleEditStarted}
-      onEditOK={handleEditOk}
-      onEditCancel={handleEditCancel}
-    >
-      {value ? (
-        <Markdown value={value} />
-      ) : (
-        <MissingInformation>{placeholder}</MissingInformation>
-      )}
-    </InlineEditRichTextLayout>
+    <div className={styles.root}>
+      <InlineEditRichTextLayout
+        editor={
+          <MarkdownEditor
+            ref={editorRef}
+            value={editValue}
+            onChange={setEditValue}
+          />
+        }
+        disabled={disabled}
+        onEditStart={handleEditStart}
+        onEditStarted={handleEditStarted}
+        onEditOK={handleEditOk}
+        onEditCancel={handleEditCancel}
+      >
+        {value ? (
+          <Markdown value={value} />
+        ) : (
+          <MissingInformation>{placeholder}</MissingInformation>
+        )}
+      </InlineEditRichTextLayout>
+    </div>
   );
 }
 

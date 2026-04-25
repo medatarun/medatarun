@@ -8,21 +8,33 @@ const useStyles = makeStyles({
     columnGap: tokens.spacingVerticalM,
     rowGap: tokens.spacingVerticalS,
     alignItems: "baseline",
-    "& > div": {
-      boxSizing: "border-box",
-      minHeight: "2.3em",
-      height: "2.3em",
-      lineHeight: "2.1em",
-      "& > div > label": {
-        minHeight: "2.3em",
-        height: "2.3em",
-        lineHeight: "2.1em",
-      },
-    },
+  },
+  label: {
+    // backgroundColor: "lightblue",
+    boxSizing: "border-box",
+    minHeight: "2.3em",
+    height: "2.3em",
+    lineHeight: "2.1em",
+    color: tokens.colorNeutralForeground3,
+  },
+  value: {
+    // backgroundColor: "lightgreen",
+    boxSizing: "border-box",
+    minHeight: "2.3em",
+    height: "2.3em",
+    lineHeight: "2.1em",
   },
 });
 
 export function PropertiesForm({ children }: PropsWithChildren) {
   const styles = useStyles();
   return <div className={styles.root}>{children}</div>;
+}
+export function PropertyLabel({ children }: PropsWithChildren) {
+  const styles = useStyles();
+  return <div className={styles.label}>{children}</div>;
+}
+export function PropertyValue({ children }: PropsWithChildren) {
+  const styles = useStyles();
+  return <div className={styles.value}>{children}</div>;
 }

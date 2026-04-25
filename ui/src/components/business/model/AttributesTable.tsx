@@ -69,7 +69,10 @@ export function AttributesTable({
       <Table>
         <TableBody>
           {attributes.map((attribute) => (
-            <TableRow key={attribute.id}>
+            <TableRow
+              key={attribute.id}
+              style={{ border: "1px solid " + tokens.colorNeutralStroke2 }}
+            >
               <TableCell
                 className={styles.titleCell}
                 onClick={() => handleClickAttribute(attribute.id)}

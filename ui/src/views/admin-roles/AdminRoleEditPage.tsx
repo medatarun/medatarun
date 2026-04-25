@@ -14,8 +14,8 @@ import {
   TableCell,
   TableRow,
   Text,
+  tokens,
 } from "@fluentui/react-components";
-import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
@@ -115,15 +115,15 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
     <ViewLayoutContained
       contained={true}
       scrollable={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <SectionPaper topspacing="XXXL" nopadding>
-        <InlineEditDescription
-          value={role.description}
-          placeholder={t("authRolePage_descriptionPlaceholder")}
-          onChange={handleChangeDescription}
-        />
-      </SectionPaper>
+      <InlineEditDescription
+        value={role.description}
+        placeholder={t("authRolePage_descriptionPlaceholder")}
+        onChange={handleChangeDescription}
+      />
+
       <SectionTitle
         icon={undefined}
         actions={["role_add_permission"]}
@@ -191,7 +191,10 @@ function PermissionTable({
           const permissionDescription =
             permissionRegistry.findDescription(permissionKey);
           return (
-            <TableRow key={permissionKey}>
+            <TableRow
+              key={permissionKey}
+              style={{ border: "1px solid " + tokens.colorNeutralStroke2 }}
+            >
               <TableCell>
                 <p>
                   {permissionName ? <Text>{permissionName}</Text> : null}
@@ -222,9 +225,6 @@ function PermissionTable({
 function PermissionImpliedTable({ permissions }: { permissions: string[] }) {
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
-  const permissionActions = actionRegistry.findActionDescriptors([
-    "role_delete_permission",
-  ]);
   const { registry: permissionRegistry } = usePermissionRegistry();
   const permissionsImplied =
     permissionRegistry.findImpliedPermissions(permissions);
@@ -247,7 +247,10 @@ function PermissionImpliedTable({ permissions }: { permissions: string[] }) {
           const permissionDescription =
             permissionRegistry.findDescription(permissionKey);
           return (
-            <TableRow key={permissionKey}>
+            <TableRow
+              key={permissionKey}
+              style={{ border: "1px solid " + tokens.colorNeutralStroke2 }}
+            >
               <TableCell>
                 <p>
                   {permissionName ? <Text>{permissionName}</Text> : null}

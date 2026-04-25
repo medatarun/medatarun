@@ -10,7 +10,11 @@ import {
   useEntityUpdateKey,
 } from "@/components/business/model";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
-import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
+import {
+  PropertiesForm,
+  PropertyLabel,
+  PropertyValue,
+} from "@/components/layout/PropertiesForm.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import { useModelContext } from "@/components/business/model/ModelContext.tsx";
@@ -80,36 +84,28 @@ export function EntityOverview({
   return (
     <PropertiesForm>
       {isDetailLevelTech && (
-        <div>
-          <Text>{t("entityEditPage_keyLabel")}</Text>
-        </div>
+        <PropertyLabel>{t("entityEditPage_keyLabel")}</PropertyLabel>
       )}
       {isDetailLevelTech && (
-        <div>
+        <PropertyValue>
           <InlineEditSingleLine
             value={entity.key}
             disabled={changeKeyDisabled}
             onChange={handleChangeKey}
           >
-            <Text>
-              <code>{entity.key}</code>
-            </Text>
+            <code>{entity.key}</code>
           </InlineEditSingleLine>
-        </div>
+        </PropertyValue>
       )}
-      <div>
-        <Text>{t("entityEditPage_fromModelLabel")}</Text>
-      </div>
-      <div>
+      <PropertyLabel>{t("entityEditPage_fromModelLabel")}</PropertyLabel>
+      <PropertyValue>
         <Link to="/model/$modelId" params={{ modelId: model.id }}>
           {model.nameOrKey}
         </Link>
-      </div>
+      </PropertyValue>
 
-      <div>
-        <Text>{t("entityEditPage_externalLinkLabel")}</Text>
-      </div>
-      <div>
+      <PropertyLabel>{t("entityEditPage_externalLinkLabel")}</PropertyLabel>
+      <PropertyValue>
         <InlineEditSingleLine
           value={entity.documentationHome ?? ""}
           disabled={changeDocumentationHomeDisabled}
@@ -123,12 +119,10 @@ export function EntityOverview({
             <ExternalUrl url={entity.documentationHome} />
           )}
         </InlineEditSingleLine>
-      </div>
+      </PropertyValue>
 
-      <div>
-        <Text>{t("entityEditPage_tagsLabel")}</Text>
-      </div>
-      <div>
+      <PropertyLabel>{t("entityEditPage_tagsLabel")}</PropertyLabel>
+      <PropertyValue>
         <InlineEditTags
           value={entity.tags}
           scope={modelTagScope(model.id)}
@@ -144,25 +138,23 @@ export function EntityOverview({
             <Tags tags={entity.tags} scope={modelTagScope(model.id)} />
           )}
         </InlineEditTags>
-      </div>
+      </PropertyValue>
 
-      <div>
-        <Text>{t("entityEditPage_originLabel")}</Text>
-      </div>
-      <div>
+      <PropertyLabel>{t("entityEditPage_originLabel")}</PropertyLabel>
+      <PropertyValue>
         <Origin value={entity.origin} />
-      </div>
+      </PropertyValue>
       {isDetailLevelTech && (
-        <div>
+        <PropertyLabel>
           <Text>{t("entityEditPage_identifierLabel")}</Text>
-        </div>
+        </PropertyLabel>
       )}
       {isDetailLevelTech && (
-        <div>
+        <PropertyValue>
           <Text>
             <code>{entity.id}</code>
           </Text>
-        </div>
+        </PropertyValue>
       )}
     </PropertiesForm>
   );

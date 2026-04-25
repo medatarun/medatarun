@@ -26,10 +26,10 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { PersonKeyRegular } from "@fluentui/react-icons";
-import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { createActionCtxActor } from "@/business/auth_actor/actor.actioncontexts.ts";
 import { useActionRegistry } from "@/components/business/actions";
+import { MessageBox } from "@/components/core/MessageBox.tsx";
 
 export function AdminActorListPage() {
   const { t } = useAppI18n();
@@ -65,11 +65,10 @@ export function AdminActorListPage() {
     <ViewLayoutContained
       contained={true}
       scrollable={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <ViewLayoutPageInfo>
-        {t("adminActorsPage_description")}
-      </ViewLayoutPageInfo>
+      <MessageBox intent="info">{t("adminActorsPage_description")}</MessageBox>
       <SectionTable>
         <AdminActorsTable
           actors={actorItems}
@@ -107,7 +106,10 @@ function AdminActorsTable({
       <TableBody>
         {actors.map((actor) => {
           return (
-            <TableRow key={actor.id}>
+            <TableRow
+              key={actor.id}
+              style={{ border: "1px solid " + tokens.colorNeutralStroke2 }}
+            >
               <TableCell onClick={() => onClickActor(actor.id)}>
                 <div>
                   {actor.fullname}

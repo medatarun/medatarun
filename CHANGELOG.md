@@ -32,6 +32,11 @@
 - Role management screen now displays those permissions so that admin can have
   the full picture of what is authorized or not for the role.
 
+**Onboarding**
+
+- Better onboarding messages on the user interface to provide assistance for new
+  installations.
+
 ### Changes
 
 - Enforce delete constraints on entities so that you can't mistakely delete an
@@ -44,7 +49,8 @@
   more intuitive.
 - Action forms are now prefilled with values when available. For example, for
   editing a key or a name, previous values are set on input fields.
-- Upgraded dependencies in UI and documentation subprojects.
+- Upgraded dependencies in user interface and documentation subprojects.
+- Improved user interface look and feel.
 
 ### Breaking changes
 

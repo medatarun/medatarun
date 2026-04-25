@@ -31,11 +31,20 @@ const useStyles = makeStyles({
   title: {
     maxWidth: "60rem",
     width: "60rem",
+    paddingLeft: tokens.spacingHorizontalM,
+    paddingRight: tokens.spacingHorizontalM,
     margin: "auto",
   },
   main: {
     flex: 1,
     overflowY: "auto",
+    backgroundColor: tokens.colorNeutralBackground1,
+  },
+  verticalSpacing: {
+    display: "flex",
+    flexDirection: "column",
+    rowGap: tokens.spacingVerticalM,
+    marginTop: tokens.spacingVerticalM,
   },
 });
 
@@ -43,17 +52,26 @@ export function ViewLayoutContained({
   title,
   contained = false,
   scrollable = false,
+  verticalSpacing = false,
   children,
 }: {
   title?: ReactNode;
   contained?: boolean;
   scrollable?: boolean;
+  verticalSpacing?: boolean;
 } & PropsWithChildren) {
   const styles = useStyles();
-  const containedComponent = contained ? (
-    <ContainedHumanReadable>{children}</ContainedHumanReadable>
+
+  const verticalSpacingComponent = verticalSpacing ? (
+    <div className={styles.verticalSpacing}>{children}</div>
   ) : (
     children
+  );
+
+  const containedComponent = contained ? (
+    <ContainedHumanReadable>{verticalSpacingComponent}</ContainedHumanReadable>
+  ) : (
+    verticalSpacingComponent
   );
   const scollableComponent = scrollable ? (
     <ContainedMixedScrolling>
@@ -62,6 +80,7 @@ export function ViewLayoutContained({
   ) : (
     containedComponent
   );
+
   return (
     <div className={styles.root}>
       {title && (

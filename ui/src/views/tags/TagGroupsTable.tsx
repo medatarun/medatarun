@@ -54,7 +54,10 @@ export function TagGroupsTable({
         <TableBody>
           {tagGroups.map((tagGroup) => {
             return (
-              <TableRow key={tagGroup.id}>
+              <TableRow
+                key={tagGroup.id}
+                style={{ border: "1px solid " + tokens.colorNeutralStroke2 }}
+              >
                 <TableCell
                   className={styles.titleCell}
                   onClick={() => onClick(tagGroup.id)}

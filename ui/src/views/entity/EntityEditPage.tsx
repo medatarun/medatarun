@@ -32,7 +32,6 @@ import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx
 
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { EntityOverview } from "./EntityOverview.tsx";
-import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
@@ -61,6 +60,7 @@ import {
   useEntityUpdateName,
   useModel,
 } from "@/components/business/model";
+import { SectionSeparator } from "@/components/layout/SectionSeparator.tsx";
 
 export function EntityEditPage({
   modelId,
@@ -192,25 +192,24 @@ export function EntityView({ entity }: { entity: EntityDto }) {
     <ViewLayoutContained
       contained={true}
       scrollable={true}
+      verticalSpacing={true}
       title={<ViewLayoutHeader {...headerProps} />}
     >
-      <SectionPaper>
-        <EntityOverview entity={entity} displayedSubject={displayedSubject} />
-      </SectionPaper>
-      <SectionPaper topspacing="XXXL" nopadding>
-        <InlineEditDescription
-          value={entity.description}
-          placeholder={t("entityEditPage_descriptionPlaceholder")}
-          disabled={!canEditDescription}
-          onChange={(v) =>
-            entityUpdateDescription.mutateAsync({
-              modelId: model.id,
-              entityId: entity.id,
-              value: v,
-            })
-          }
-        />
-      </SectionPaper>
+      <EntityOverview entity={entity} displayedSubject={displayedSubject} />
+      <InlineEditDescription
+        value={entity.description}
+        placeholder={t("entityEditPage_descriptionPlaceholder")}
+        disabled={!canEditDescription}
+        onChange={(v) =>
+          entityUpdateDescription.mutateAsync({
+            modelId: model.id,
+            entityId: entity.id,
+            value: v,
+          })
+        }
+      />
+
+      <SectionSeparator />
 
       <SectionTitle
         icon={<AttributeIcon />}
@@ -262,7 +261,10 @@ export function EntityView({ entity }: { entity: EntityDto }) {
                 .map((it) => model.findEntityAttributeNameOrKey(entity.id, it))
                 .join(", ");
               return (
-                <TableRow key={bk.id}>
+                <TableRow
+                  key={bk.id}
+                  style={{ border: "1px solid " + tokens.colorNeutralStroke2 }}
+                >
                   <TableCell>
                     <div>{bk.name ?? <Key value={bk.key} />}</div>
                     {bk.name && isDetailLevelTech && (
