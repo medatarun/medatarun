@@ -2,6 +2,8 @@ import { useCurrentActor } from "@/components/business/auth-actor";
 import { useSecurityContext } from "@/components/business/security";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { Link } from "@tanstack/react-router";
+import { MessageBox } from "@/components/core/MessageBox.tsx";
+import { tokens } from "@fluentui/react-components";
 
 export function ModelLimitedPermissionsPanel() {
   const actor = useCurrentActor();
@@ -10,15 +12,14 @@ export function ModelLimitedPermissionsPanel() {
   const isAdmin = actor.isAdmin();
   const cannotRead = !sec.canExecuteAction("model_list");
   if (!cannotRead) return null;
+
   return (
-    <div>
-      <p>
+    <MessageBox intent={"info"} styles={{ marginTop: tokens.spacingVerticalM }}>
+      <div>
         <strong>{t("modelLimitedPermissionsPanel_title")}</strong>
-      </p>
+      </div>
       <div>
         <p>{t("modelLimitedPermissionsPanel_descriptionModels")}</p>
-        <p>{t("modelLimitedPermissionsPanel_descriptionPermission")}</p>
-        <p>{t("modelLimitedPermissionsPanel_descriptionIntent")}</p>
         {isAdmin && (
           <div>
             <strong>{t("modelLimitedPermissionsPanel_adminIntro")} </strong>
@@ -28,12 +29,21 @@ export function ModelLimitedPermissionsPanel() {
                   {t("modelLimitedPermissionsPanel_adminCreateUser")}
                 </Link>
               </li>
-              <li>{t("modelLimitedPermissionsPanel_adminAssignRole")}</li>
+              <li>
+                <Link to={"/admin/actors"}>
+                  {t("modelLimitedPermissionsPanel_adminAssignRole")}
+                </Link>
+              </li>
+              <li>
+                <Link to={"/admin/roles"}>
+                  {t("modelLimitedPermissionsPanel_adminCreateRole")}
+                </Link>
+              </li>
             </ul>
           </div>
         )}
         {!isAdmin && <p>{t("modelLimitedPermissionsPanel_nonAdminHelp")}</p>}
       </div>
-    </div>
+    </MessageBox>
   );
 }

@@ -2,17 +2,15 @@ import { type ModelLimitedPermissionsPanelMessages } from "./ModelLimitedPermiss
 
 export const modelLimitedPermissionsPanelMessages: ModelLimitedPermissionsPanelMessages =
   {
-    modelLimitedPermissionsPanel_title: "Get fully ready",
-    modelLimitedPermissionsPanel_descriptionModels:
-      "On this page are usually displayed the models of Medatarun.",
-    modelLimitedPermissionsPanel_descriptionPermission:
-      "But, your current permissions are too low to see that.",
-    modelLimitedPermissionsPanel_descriptionIntent:
-      "This is a bit sad because it is the main intent of Medatarun.",
-    modelLimitedPermissionsPanel_adminIntro: "Since you are administrator:",
-    modelLimitedPermissionsPanel_adminCreateUser: "Create your first user.",
     modelLimitedPermissionsPanel_adminAssignRole:
-      "Then, assign them one of our predefined roles, or a role you create yourself.",
+      "Assign users or yourself roles.",
+    modelLimitedPermissionsPanel_adminCreateRole: "Create new roles.",
+    modelLimitedPermissionsPanel_adminCreateUser: "Create a user.",
+    modelLimitedPermissionsPanel_adminIntro:
+      "Since you are administrator, you can:",
+    modelLimitedPermissionsPanel_descriptionModels:
+      "This page displays Medatarun models, but your current permissions do not allow that.",
     modelLimitedPermissionsPanel_nonAdminHelp:
       "You should ask your administrator for more permissions.",
+    modelLimitedPermissionsPanel_title: "Get fully ready",
   };
