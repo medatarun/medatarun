@@ -171,6 +171,7 @@ class ActorServiceImpl(
 
     override fun roleUpdateAutoAssign(roleRef: RoleRef, value: Boolean) {
         val role = actorStorage.findRoleByRef(roleRef)
+        if (value && role.key == ADMIN_ROLE_KEY) throw RoleUpdateAutoAssignAdminRoleForbiddenException(role.key)
         val now = clock.now()
         val existing = actorStorage.findRoleAutoAssignOptional()
 

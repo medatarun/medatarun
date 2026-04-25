@@ -2,6 +2,7 @@ package io.medatarun.auth.actions
 
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.auth.domain.RoleNotFoundByKeyException
+import io.medatarun.auth.domain.RoleUpdateAutoAssignAdminRoleForbiddenException
 import io.medatarun.auth.domain.role.RoleRef
 import io.medatarun.auth.domain.role.RoleRef.Companion.roleRefKey
 import io.medatarun.auth.fixtures.AuthEnvTest
@@ -94,6 +95,20 @@ class Role_UpdateAutoAssign_Test {
 
         val updatedRole = env.dispatch(AuthAction.Role_Get(roleRef))
         assertTrue(updatedRole.role.autoAssign)
+    }
+
+    @Test
+    fun `refuse to assign admin role automatically`() {
+        val env = AuthEnvTest()
+        env.asAdmin()
+        val roleRef = RoleRef.ByKey(ManagedRoles.ADMIN_ROLE_KEY)
+
+        assertThrows<RoleUpdateAutoAssignAdminRoleForbiddenException> {
+            env.dispatch(AuthAction.Role_UpdateAutoAssign(roleRef, true))
+        }
+
+        val adminRole = env.dispatch(AuthAction.Role_Get(roleRef))
+        assertFalse(adminRole.role.autoAssign)
     }
 
     @Test

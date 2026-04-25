@@ -95,3 +95,4 @@ class RoleDeleteManagedForbiddenException(key: RoleKey): MedatarunException("Can
 class RoleCreateConflictsWithManagedKeyException(key: RoleKey): MedatarunException("Can not create a new role with [$key.value] because the application already manages roles with the same key.", StatusCode.BAD_REQUEST)
 class RoleUpdateKeyConflictsWithManagedKeyException(key : RoleKey): MedatarunException("Can not change this role key to [${key.value}] because the application manages another role with this key.", StatusCode.BAD_REQUEST)
 class RoleUpdatePermissionsManagedRoleException(key : RoleKey): MedatarunException("Can not change the permissions on [$key.value] role, as this role is managed by the application", StatusCode.BAD_REQUEST)
+class RoleUpdateAutoAssignAdminRoleForbiddenException(key: RoleKey): MedatarunException("Can not automatically assign admin role [$key.value]. Too dangerous.", StatusCode.BAD_REQUEST)
