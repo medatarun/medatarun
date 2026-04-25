@@ -342,6 +342,27 @@ sealed interface AuthAction<R> {
     ) : AuthAction<Unit>
 
     @ActionDoc(
+        key = "role_update_autoassign",
+        title = "Update role auto assign",
+        description = "When auto assign is on, all new actors (users and tools) will be given this role as a default role.\n\nIf any other role had the feature, it will be removed from the other role and added to this one.\n\nYou can also disable this completely.",
+        securityRule = SecurityRuleNames.ADMIN
+    )
+    class Role_UpdateAutoAssign(
+        @ActionParamDoc(
+            name = "Role",
+            description = "Role reference",
+            order = 1
+        )
+        val roleRef: RoleRef,
+        @ActionParamDoc(
+            name = "Auto assign",
+            description = "When true, this role is automatically assigned to new actors.",
+            order = 2
+        )
+        val value: Boolean
+    ) : AuthAction<Unit>
+
+    @ActionDoc(
         key = "role_add_permission",
         title = "Add role permission",
         description = "Add a permission to a role.",

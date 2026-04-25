@@ -38,6 +38,7 @@ class ActorServiceImpl(
                 disabled = null
             )
             logger.info("Registered actor {} from issuer {}", created.id, created.issuer)
+            actorAddAutoAssignRoleIfExists(created.id)
             created
         } else {
             updateActorProfile(existing, principal)
@@ -141,7 +142,7 @@ class ActorServiceImpl(
         }
         val now = clock.now()
         val roleId = RoleId.generate()
-        actorStorage.roleCreate(roleId, key, name, description, now, now)
+        actorStorage.roleCreate(roleId, key, name, description, false, now, now)
         return roleId
     }
 
@@ -166,6 +167,18 @@ class ActorServiceImpl(
         // Special admin role: yes, you can change description
         val role = actorStorage.findRoleByRef(roleRef)
         actorStorage.roleUpdateDescription(role.id, description, clock.now())
+    }
+
+    override fun roleUpdateAutoAssign(roleRef: RoleRef, value: Boolean) {
+        val role = actorStorage.findRoleByRef(roleRef)
+        if (value && role.key == ADMIN_ROLE_KEY) throw RoleUpdateAutoAssignAdminRoleForbiddenException()
+        val now = clock.now()
+        val existing = actorStorage.findRoleAutoAssignOptional()
+
+        if (existing != null && existing.id != role.id && value) {
+            actorStorage.roleUpdateAutoAssign(existing.id, false, now)
+        }
+        actorStorage.roleUpdateAutoAssign(role.id, value, now)
     }
 
     override fun addRolePermission(roleRef: RoleRef, permission: ActorPermission) {
@@ -196,6 +209,14 @@ class ActorServiceImpl(
         val alreadyHasRole = existingRoles.contains(role.id)
         if (alreadyHasRole) throw ActorAddRoleAlreadyExistException(actorId, role.id)
         actorStorage.actorAddRole(actor.id, role.id)
+    }
+
+    override fun actorAddAutoAssignRoleIfExists(actorId: ActorId) {
+        val role = actorStorage.findRoleAutoAssignOptional() ?: return
+        val existingRoles = actorStorage.findActorRoleIdList(actorId)
+        if (!existingRoles.contains(role.id)) {
+            actorStorage.actorAddRole(actorId, role.id)
+        }
     }
 
     override fun actorDeleteRole(actorId: ActorId, roleRef: RoleRef) {
@@ -229,12 +250,20 @@ class ActorServiceImpl(
 
             // Find matching role or create it if it doesn't exist (by key)
             val found = actorStorage.findRoleByKeyOptional(managedRole.role.key)
+            val autoAssignRole = actorStorage.findRoleAutoAssignOptional()
             val roleSafe = if (found == null) {
                 actorStorage.roleCreate(
                     id = managedRole.role.id,
                     key = managedRole.role.key,
                     name = managedRole.role.name,
                     description = managedRole.role.description,
+                    // If no other role has autoassign and this managed role has autoassign,
+                    // because we create the new role, we add it. But if another role already
+                    // has it, we don't touch it. Anyway this should only happend at installation
+                    // time, so there should not be conflicts with other roles.
+                    // This is to ensure that onboarding the application is smooth with already a
+                    // role autoassign present to help admins create users faster.
+                    autoAssign = if (autoAssignRole == null) managedRole.role.autoAssign else false,
                     createdAt = managedRole.role.createdAt,
                     lastUpdatedAt = managedRole.role.createdAt
                 )
@@ -252,7 +281,7 @@ class ActorServiceImpl(
                     createdAt = managedRole.role.createdAt,
                     lastUpdatedAt = managedRole.role.createdAt
                 )
-                actorStorage.findRoleById(managedRole.role.id)
+                actorStorage.findRoleById(found.id)
             } else found
 
             // Remove permissions that may exist in storage but not in the

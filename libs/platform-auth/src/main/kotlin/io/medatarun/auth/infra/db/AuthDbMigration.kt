@@ -25,7 +25,7 @@ class AuthDbMigration(
     }
 
     override fun latestVersion(): Int {
-        return 2
+        return 3
     }
 
     override fun applyVersion(version: Int, ctx: DbMigrationContext) {
@@ -45,6 +45,13 @@ class AuthDbMigration(
                 ctx.applySqlResource(v002_05_rewrite_internal_issuer_sqlite)
                 migrationV002CreateActorSystemMaintenance.apply(ctx)
 
+            }
+
+            3 -> {
+                when (ctx.dialect) {
+                    DbDialect.SQLITE -> ctx.applySqlResource(v003_01_role_auto_assign_sqlite)
+                    DbDialect.POSTGRESQL -> ctx.applySqlResource(v003_01_role_auto_assign_postgresql)
+                }
             }
 
             else -> ctx.throwUnknownVersionException()
@@ -70,6 +77,8 @@ class AuthDbMigration(
         const val v002_03_drop_actor_roles_json_sqlite = "io/medatarun/auth/infra/db/version_auth_v002_03_drop_actor_roles_sqlite.sql"
         const val v002_04_client = "io/medatarun/auth/infra/db/version_auth_v002_04_client_sqlite.sql"
         const val v002_05_rewrite_internal_issuer_sqlite = "io/medatarun/auth/infra/db/version_auth_v002_05_rewrite_internal_issuer_sqlite.sql"
+        const val v003_01_role_auto_assign_sqlite = "io/medatarun/auth/infra/db/version_auth_v003_01_role_auto_assign_sqlite.sql"
+        const val v003_01_role_auto_assign_postgresql = "io/medatarun/auth/infra/db/version_auth_v003_01_role_auto_assign_postgresql.sql"
         //@formatter:on
     }
 }

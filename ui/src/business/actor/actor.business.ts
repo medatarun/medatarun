@@ -37,12 +37,14 @@ export class AuthRole {
   readonly createdAt: string;
   readonly lastUpdatedAt: string;
   readonly managedRole: boolean;
+  readonly autoAssign: boolean;
 
   constructor(dto: RoleInfoDto) {
     this.id = dto.id;
     this.key = dto.key;
     this.name = dto.name;
     this.managedRole = dto.managedRole;
+    this.autoAssign = dto.autoAssign;
     this.description = dto.description;
     this.createdAt = dto.createdAt;
     this.lastUpdatedAt = dto.lastUpdatedAt;

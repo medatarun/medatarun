@@ -4,8 +4,11 @@ export const authRolePageMessages: AuthRolePageMessages = {
   authRolePage_breadcrumb: "Rôles",
   authRolePage_eyebrow: "Rôle",
   authRolePage_actions: "Actions",
+  authRolePage_autoAssignMessage:
+    "Ce rôle est affecté automatiquement aux nouveaux acteurs.",
   authRolePage_keyLabel: "Clé du rôle",
   authRolePage_identifierLabel: "Identifiant",
+  authRolePage_managedRoleMessage: "Ce rôle est géré par l'application.",
   authRolePage_permissionsImpliedLabel: "Permissions déduites",
   authRolePage_permissionsImpliedDescription:
     "Permissions ajoutées automatiquement qui sont nécéssaires au bon fonctionnement de celles présentes sur le rôle.",

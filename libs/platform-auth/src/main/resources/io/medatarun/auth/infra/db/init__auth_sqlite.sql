@@ -23,6 +23,7 @@ CREATE TABLE auth_role (
     key VARCHAR(30) NOT NULL,
     name VARCHAR(30) NOT NULL,
     description TEXT,
+    auto_assign INTEGER NOT NULL,
     created_at INTEGER NOT NULL,
     last_updated_at INTEGER NOT NULL
 );
@@ -95,6 +96,7 @@ CREATE INDEX idx_auth_actor_issuer_subject ON auth_actor (issuer, subject);
 CREATE INDEX idx_auth_code_expires_at ON auth_code (expires_at);
 CREATE INDEX idx_auth_ctx_expires_at ON auth_ctx (expires_at);
 CREATE UNIQUE INDEX idx_auth_role_key ON auth_role (key);
+CREATE UNIQUE INDEX idx_auth_role_auto_assign ON auth_role (auto_assign) WHERE auto_assign = 1;
 
 
 INSERT INTO auth_actor (id, issuer, subject, full_name, email, disabled_date, created_at, last_seen_at)

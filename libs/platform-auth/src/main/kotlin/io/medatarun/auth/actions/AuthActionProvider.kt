@@ -66,6 +66,7 @@ class AuthEmbeddedActionsProvider(
             is AuthAction.Role_UpdateName -> launcher.roleUpdateName(action)
             is AuthAction.Role_UpdateKey -> launcher.roleUpdateKey(action)
             is AuthAction.Role_UpdateDescription -> launcher.roleUpdateDescription(action)
+            is AuthAction.Role_UpdateAutoAssign -> launcher.roleUpdateAutoAssign(action)
             is AuthAction.Role_AddPermission -> launcher.roleAddPermission(action)
             is AuthAction.Role_DeletePermission -> launcher.roleDeletePermission(action)
             is AuthAction.Role_Delete -> launcher.roleDelete(action)
@@ -232,6 +233,13 @@ class AuthEmbeddedActionsLauncher(
         )
     }
 
+    fun roleUpdateAutoAssign(cmd: AuthAction.Role_UpdateAutoAssign) {
+        actorService.roleUpdateAutoAssign(
+            roleRef = cmd.roleRef,
+            value = cmd.value
+        )
+    }
+
     fun roleAddPermission(cmd: AuthAction.Role_AddPermission) {
         actorService.addRolePermission(
             roleRef = cmd.roleRef,
@@ -330,6 +338,7 @@ class AuthEmbeddedActionsLauncher(
             key = role.key.asString(),
             name = role.name,
             description = role.description,
+            autoAssign = role.autoAssign,
             managedRole = managed,
             createdAt = role.createdAt,
             lastUpdatedAt = role.lastUpdatedAt

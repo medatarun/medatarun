@@ -7,6 +7,7 @@ data class RoleInMemory(
     override val key: RoleKey,
     override val name: String,
     override val description: String?,
+    override val autoAssign: Boolean,
     override val createdAt: Instant,
     override val lastUpdatedAt: Instant
 ) : Role

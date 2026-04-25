@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 @EnableDatabaseTests
 class UserCreate_Test {
@@ -26,6 +28,10 @@ class UserCreate_Test {
         assertEquals(env.johnUsername, user.username)
         assertEquals(env.johnFullname, user.fullname)
 
+        val actor = env.actorService.findByIssuerAndSubjectOptional(env.oidcService.oidcIssuer(), env.johnUsername.value)
+        assertNotNull(actor)
+        val autoAssignRole = env.actorService.listRoles().single { it.autoAssign }
+        assertTrue(env.actorService.actorHasRole(actor.id, autoAssignRole.id))
     }
 
     @Test

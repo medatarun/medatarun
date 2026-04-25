@@ -73,6 +73,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         key: RoleKey,
         name: String,
         description: String?,
+        autoAssign: Boolean,
         createdAt: Instant,
         lastUpdatedAt: Instant
     ) {
@@ -82,6 +83,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
                 row[this.key] = key
                 row[this.name] = name
                 row[this.description] = description
+                row[this.autoAssign] = autoAssign
                 row[this.createdAt] = createdAt
                 row[this.lastUpdatedAt] = lastUpdatedAt
             }
@@ -112,6 +114,15 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             RoleTable.selectAll()
                 .orderBy(RoleTable.createdAt to SortOrder.DESC)
                 .map { readRole(it) }
+        }
+    }
+
+    override fun findRoleAutoAssignOptional(): Role? {
+        return dbConnectionFactory.withExposed {
+            RoleTable.selectAll()
+                .where { RoleTable.autoAssign eq true }
+                .singleOrNull()
+                ?.let { readRole(it) }
         }
     }
 
@@ -146,6 +157,15 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         dbConnectionFactory.withExposed {
             RoleTable.update(where = { RoleTable.id eq roleId }) { row ->
                 row[this.description] = description
+                row[this.lastUpdatedAt] = lastUpdatedAt
+            }
+        }
+    }
+
+    override fun roleUpdateAutoAssign(roleId: RoleId, autoAssign: Boolean, lastUpdatedAt: Instant) {
+        dbConnectionFactory.withExposed {
+            RoleTable.update(where = { RoleTable.id eq roleId }) { row ->
+                row[this.autoAssign] = autoAssign
                 row[this.lastUpdatedAt] = lastUpdatedAt
             }
         }
@@ -306,6 +326,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             key = row[RoleTable.key],
             name = row[RoleTable.name],
             description = row[RoleTable.description],
+            autoAssign = row[RoleTable.autoAssign],
             createdAt = row[RoleTable.createdAt],
             lastUpdatedAt = row[RoleTable.lastUpdatedAt]
         )

@@ -46,6 +46,7 @@ import {
 } from "./inputs/ActionPerformerInputRegistry.ts";
 import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
 import { useActionRegistry } from "@/components/business/actions/action_registry.hooks.ts";
+import { Markdown } from "@/components/core/Markdown.tsx";
 
 const DEBUG = false;
 
@@ -106,7 +107,6 @@ export function ActionPerformerViewLoaded({
   const actionRegistry = useActionRegistry();
   const { confirmAction, cancelAction, finishAction, performer } =
     useActionPerformer();
-  const navigate = useNavigate();
   const [actionResp, setActionResp] = useState<ActionResp | null>(null);
   const [formData, setFormData] = useState<FormDataType>(defaultFormData);
   const firstInputRef = useRef<HTMLInputElement>(null);
@@ -186,7 +186,7 @@ export function ActionPerformerViewLoaded({
                 marginBottom: tokens.spacingVerticalM,
               }}
             >
-              {action.description && <div>{action.description}</div>}
+              {action.description && <Markdown value={action.description} />}
               {formFields
                 .filter((it) => it.visible)
                 .map((field) => (

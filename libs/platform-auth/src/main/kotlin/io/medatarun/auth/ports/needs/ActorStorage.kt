@@ -42,6 +42,7 @@ interface ActorStorage {
         findRoleByKeyOptional(roleKey) ?: throw RoleNotFoundByKeyException(roleKey)
 
     fun findRoleList(): List<Role>
+    fun findRoleAutoAssignOptional(): Role?
     fun findRolePermissionList(roleId: RoleId): List<ActorPermission>
 
     /**
@@ -154,6 +155,7 @@ interface ActorStorage {
         key: RoleKey,
         name: String,
         description: String?,
+        autoAssign: Boolean,
         createdAt: Instant,
         lastUpdatedAt: Instant
     )
@@ -182,6 +184,11 @@ interface ActorStorage {
      * Updates role description.
      */
     fun roleUpdateDescription(roleId: RoleId, description: String?, lastUpdatedAt: Instant)
+
+    /**
+     * Updates whether the role is automatically assigned to newly created actors.
+     */
+    fun roleUpdateAutoAssign(roleId: RoleId, autoAssign: Boolean, lastUpdatedAt: Instant)
 
     /**
      * Replaces role detail with those. The "Id" or "key" cannot change as it may be used elsewhere.

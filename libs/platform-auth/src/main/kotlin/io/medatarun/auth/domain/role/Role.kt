@@ -10,6 +10,10 @@ interface Role {
     val key: RoleKey
     val name: String
     val description: String?
+    /**
+     * At most one role may be flagged for automatic assignment to newly created actors.
+     */
+    val autoAssign: Boolean
     val createdAt: Instant
     val lastUpdatedAt: Instant
 }

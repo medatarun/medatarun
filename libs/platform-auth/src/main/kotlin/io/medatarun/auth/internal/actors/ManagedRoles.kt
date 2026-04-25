@@ -8,6 +8,7 @@ import io.medatarun.auth.domain.role.RoleKey
 import io.medatarun.auth.ports.needs.PermissionsRegistry
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.security.SecurityPermissionRegistry
+import java.time.Instant
 import java.time.LocalDate
 import java.time.Month
 import java.time.ZoneOffset
@@ -28,8 +29,17 @@ class ManagedRoles(private val permissionsRegistry: PermissionsRegistry) {
     }
 
     data class ManagedRoleWithPermissions(
-        val role: Role,
+        val role: ManagedRole,
         val permissionKeys: Set<ActorPermission>
+    )
+    data class ManagedRole(
+        val id: RoleId,
+        val key: RoleKey,
+        val name: String,
+        val description: String?,
+        val autoAssign: Boolean,
+        val createdAt: Instant,
+        val lastUpdatedAt: Instant
     )
 
     fun findManagedRolesWithPermissions(): List<ManagedRoleWithPermissions> {
@@ -42,29 +52,32 @@ class ManagedRoles(private val permissionsRegistry: PermissionsRegistry) {
 
     companion object {
         val ADMIN_ROLE_KEY = RoleKey("admin")
-        val adminRole: Role = RoleInMemory(
+        val adminRole: ManagedRole = ManagedRole(
             id = RoleId(UuidUtils.generateV7()),
             key = ADMIN_ROLE_KEY,
             name = "Admin",
             description = null,
+            autoAssign = false,
             createdAt = LocalDate.of(2025, Month.JANUARY, 1).atStartOfDay(ZoneOffset.UTC).toInstant(),
             lastUpdatedAt = LocalDate.of(2025, Month.JANUARY, 1).atStartOfDay(ZoneOffset.UTC).toInstant(),
         )
         val MANAGER_ROLE_KEY = RoleKey("manager")
-        val managerRole: Role = RoleInMemory(
+        val managerRole: ManagedRole = ManagedRole(
             id = RoleId(UuidUtils.generateV7()),
             key = MANAGER_ROLE_KEY,
             name = "Manager",
             description = "Can read and write models, manage global tags.",
+            autoAssign = false,
             createdAt = LocalDate.of(2025, Month.JANUARY, 1).atStartOfDay(ZoneOffset.UTC).toInstant(),
             lastUpdatedAt = LocalDate.of(2025, Month.JANUARY, 1).atStartOfDay(ZoneOffset.UTC).toInstant(),
         )
         val READER_ROLE_KEY = RoleKey("reader")
-        val readerRole: Role = RoleInMemory(
+        val readerRole: ManagedRole = ManagedRole(
             id = RoleId(UuidUtils.generateV7()),
             key = READER_ROLE_KEY,
             name = "Reader",
             description = "Can read models and tags but not change anything.",
+            autoAssign = true,
             createdAt = LocalDate.of(2025, Month.JANUARY, 1).atStartOfDay(ZoneOffset.UTC).toInstant(),
             lastUpdatedAt = LocalDate.of(2025, Month.JANUARY, 1).atStartOfDay(ZoneOffset.UTC).toInstant(),
         )

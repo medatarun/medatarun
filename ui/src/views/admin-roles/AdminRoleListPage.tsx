@@ -23,12 +23,17 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
-import { KeyMultipleRegular, LockClosedRegular } from "@fluentui/react-icons";
+import {
+  ArrowSyncCircleRegular,
+  KeyMultipleRegular,
+  LockClosedRegular,
+} from "@fluentui/react-icons";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { createActionCtxRole } from "@/business/auth_actor/actor.actioncontexts.ts";
 import { useActionRegistry } from "@/components/business/actions";
 import { useRoleList } from "@/components/business/auth-actor";
 import { MessageBox } from "@/components/core/MessageBox.tsx";
+import { ActionDescriptor } from "@/business/action_registry";
 
 export function AdminRoleListPage() {
   const { t } = useAppI18n();
@@ -48,6 +53,14 @@ export function AdminRoleListPage() {
   const actionCtxPage = createActionCtxVoid();
   const actionCtxRole = (role: AuthRole) =>
     createActionCtxRole(role, displaySubjectNone);
+  const actionListRole = (role: AuthRole) =>
+    actionRegistry.findActionDescriptors([
+      role.managedRole ? undefined : "role_update_name",
+      role.managedRole ? undefined : "role_update_description",
+      role.managedRole ? undefined : "role_update_key",
+      "role_update_autoassign",
+      role.managedRole ? undefined : "role_delete",
+    ]);
 
   const headerProps: ViewLayoutHeaderProps = {
     eyebrow: t("authRolesPage_eyebrow"),
@@ -73,6 +86,7 @@ export function AdminRoleListPage() {
           roles={roleItems}
           onClickRole={handleClickRole}
           actionCtxRole={actionCtxRole}
+          actionListRole={actionListRole}
         />
       </SectionTable>
     </ViewLayoutContained>
@@ -83,20 +97,15 @@ function AuthRolesTable({
   roles,
   onClickRole,
   actionCtxRole,
+  actionListRole,
 }: {
   roles: AuthRole[];
   onClickRole: (roleId: string) => void;
   actionCtxRole: (role: AuthRole) => ActionCtx;
+  actionListRole: (role: AuthRole) => ActionDescriptor[];
 }) {
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
-  const detailActions = actionRegistry.findActionDescriptors([
-    "role_update_key",
-    "role_update_name",
-    "role_update_description",
-    "role_delete",
-  ]);
-
   if (roles.length === 0) {
     return (
       <p style={{ paddingTop: tokens.spacingVerticalM }}>
@@ -120,12 +129,13 @@ function AuthRolesTable({
               onClick={() => onClickRole(role.id)}
             >
               <p>
-                {role.label} {role.managedRole && <LockClosedRegular />}
+                {role.label} {role.managedRole && <LockClosedRegular />}{" "}
+                {role.autoAssign && <ArrowSyncCircleRegular />}
               </p>
             </TableCell>
             <TableCell style={{ width: "3em", textAlign: "right" }}>
               <ActionMenuButton
-                itemActions={detailActions}
+                itemActions={actionListRole(role)}
                 actionCtx={actionCtxRole(role)}
               />
             </TableCell>

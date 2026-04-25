@@ -56,6 +56,13 @@ export const createActionCtxRole = (
         visible: true,
         defaultValue: () => role.key,
       },
+      {
+        actionKey: "role_update_autoassign",
+        actionParamKey: "value",
+        readonly: false,
+        visible: true,
+        defaultValue: () => role.autoAssign,
+      },
     ],
     displayedSubject,
   );
