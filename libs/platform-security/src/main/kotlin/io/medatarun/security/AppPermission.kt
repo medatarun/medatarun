@@ -8,7 +8,8 @@ package io.medatarun.security
  * They are similar, but this one is for business uses.
  */
 interface AppPermission {
-    val key: String
+    val key: AppPermissionKey
+    val category: AppPermissionCategory get() = AppPermissionCategory.OTHER
     val name: String? get() = null
     val description: String? get() = null
 
@@ -17,5 +18,6 @@ interface AppPermission {
      * This is the list of dependencies. For example, if you can write something
      * and are not able to read it, it is a problem.
      */
-    val implies: List<AppPermission> get() = emptyList()
+    val implies: List<AppPermissionKey> get() = emptyList()
+
 }

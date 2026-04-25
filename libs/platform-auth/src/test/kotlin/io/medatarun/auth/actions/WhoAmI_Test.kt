@@ -42,15 +42,15 @@ class WhoAmI_Test {
         assertEquals(whoamiAdmin.issuer, env.oidcService.oidcIssuer())
         assertEquals(whoamiAdmin.admin, true)
         assertEquals(whoamiAdmin.sub, env.adminUsername.value)
-        assertTrue(whoamiAdmin.roles.size == 1)
-        assertEquals(ActorPermission.ADMIN.key, whoamiAdmin.roles[0])
+        assertTrue(whoamiAdmin.permissions.size == 1)
+        assertEquals(ActorPermission.ADMIN.key, whoamiAdmin.permissions[0])
 
         env.asUser(username)
         val whoamiUser = env.dispatch(AuthAction.WhoAmI())
         assertEquals(whoamiUser.issuer, env.oidcService.oidcIssuer())
         assertEquals(whoamiUser.admin, false)
         assertEquals(whoamiUser.sub, username.value)
-        assertTrue(whoamiUser.roles.isEmpty())
+        assertTrue(whoamiUser.permissions.isEmpty())
 
     }
 

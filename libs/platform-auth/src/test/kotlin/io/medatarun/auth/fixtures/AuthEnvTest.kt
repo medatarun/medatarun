@@ -13,7 +13,6 @@ import io.medatarun.auth.AuthExtensionConfig
 import io.medatarun.auth.actions.ActionPrincipalCtxAdapter
 import io.medatarun.auth.actions.AuthAction
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
-import io.medatarun.auth.adapters.ActorRoleAdapters
 import io.medatarun.auth.adapters.AppActorIdAdapter
 import io.medatarun.auth.domain.ActorNotFoundException
 import io.medatarun.auth.domain.actor.ActorWithPermissions
@@ -235,7 +234,9 @@ class AuthEnvTest(
         override fun getPermissions(): List<AppPermission> = otherPermissions.toList()
     }
 
-    class TestOtherPermission(override val key: String) : AppPermission
+    class TestOtherPermission(val keyString: String, override val category: AppPermissionCategory) : AppPermission {
+        override val key = AppPermissionKey(keyString)
+    }
 
 
     fun logout() {
@@ -294,8 +295,7 @@ class AuthEnvTest(
                 override val issuer: String = actor.issuer
                 override val subject: String = actor.subject
                 override val isAdmin: Boolean = actor.permissions.any { it.isAdminPermission() }
-                override val permissions: Set<AppPermission> =
-                    actor.permissions.map(ActorRoleAdapters::toAppPermission).toSet()
+                override val permissions: Set<AppPermissionKey> = actor.permissions.map { AppPermissionKey(it.key) }.toSet()
                 override val fullname: String = actor.fullname
             }
         }

@@ -32,7 +32,7 @@ interface SecurityRuleEvaluator {
      * can do or not, even if not a lot of details, but roughtly to avoid
      *  displaying things the current user cannot do.
      */
-    fun associatedRequiredPermissions(): List<AppPermission> = emptyList()
+    fun associatedRequiredPermissions(): List<AppPermissionKey> = emptyList()
 }
 
 sealed interface SecurityRuleEvaluatorResult {

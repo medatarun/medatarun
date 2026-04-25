@@ -64,5 +64,5 @@ interface AppPrincipal {
      *
      * Don't assume we know the list, so they are string-like objects for know.
      */
-    val permissions: Set<AppPermission>
+    val permissions: Set<AppPermissionKey>
 }

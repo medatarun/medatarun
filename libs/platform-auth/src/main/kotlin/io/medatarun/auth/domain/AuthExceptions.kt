@@ -91,7 +91,7 @@ class UserEnableSelfException: MedatarunException("You can not disable yourself"
 class ActorDisableSelfException: MedatarunException("You can not disable yourself", StatusCode.BAD_REQUEST)
 class ActorEnableSelfException: MedatarunException("You can not disable yourself", StatusCode.BAD_REQUEST)
 
-class RoleAdminCanNotBeDeletedException: MedatarunException("Can not delete special admin role", StatusCode.BAD_REQUEST)
-class RoleAdminKeyCanNotBeUsedToCreateRoleException: MedatarunException("Can not create a new role with [admin] as key", StatusCode.BAD_REQUEST)
-class RoleAdminKeyCanNotBeChangedException: MedatarunException("Can not change the [admin] role key", StatusCode.BAD_REQUEST)
-class RoleAdminPermissionChangeForbiddenException: MedatarunException("Can not change the permissions on [admin] role", StatusCode.BAD_REQUEST)
+class RoleDeleteManagedForbiddenException(key: RoleKey): MedatarunException("Can not delete role [$key] because it is managed by the application.", StatusCode.BAD_REQUEST)
+class RoleCreateConflictsWithManagedKeyException(key: RoleKey): MedatarunException("Can not create a new role with [$key] because the application already manages roles with the same key.", StatusCode.BAD_REQUEST)
+class RoleUpdateKeyConflictsWithManagedKeyException(key : RoleKey): MedatarunException("Can not change the [$key] role key as the application manages this role itself.", StatusCode.BAD_REQUEST)
+class RoleUpdatePermissionsManagedRoleException(key : RoleKey): MedatarunException("Can not change the permissions on [$key] role, as this role is managed by the application", StatusCode.BAD_REQUEST)

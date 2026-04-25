@@ -373,7 +373,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
 
     companion object {
 
-        private val allPermissions = (TagSecurityPermissionsProvider().getPermissions() + ModelSecurityPermissionsProvider().getPermissions()).toSet()
+        private val allPermissions = (TagSecurityPermissionsProvider().getPermissions() + ModelSecurityPermissionsProvider().getPermissions()).map { it.key }.toSet()
 
         private val testPrincipalUser = object : AppPrincipal {
             override val id: AppActorId = Id.generate(::AppActorId)

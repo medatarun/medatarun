@@ -189,9 +189,9 @@ class TagTestEnv(
             override val isAdmin: Boolean = false
             override val fullname: String = "user"
             override val permissions = setOf(
-                TagLocalManagePermission,
-                TagGroupManagePermission,
-                TagGlobalManagePermission
+                TagLocalManagePermission.key,
+                TagGroupManagePermission.key,
+                TagGlobalManagePermission.key
             )
         }
         private val testPrincipalAdmin = object : AppPrincipal {
@@ -201,9 +201,9 @@ class TagTestEnv(
             override val isAdmin: Boolean = true
             override val fullname: String = "admin"
             override val permissions = setOf(
-                TagLocalManagePermission,
-                TagGroupManagePermission,
-                TagGlobalManagePermission
+                TagLocalManagePermission.key,
+                TagGroupManagePermission.key,
+                TagGlobalManagePermission.key
             )
         }
         private var testPrincipal: AppPrincipal = testPrincipalUser

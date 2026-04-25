@@ -8,6 +8,7 @@ import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.security.AppActorSystemMaintenance
+import io.medatarun.security.AppPermissionCategory
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import kotlin.test.assertEquals
@@ -65,7 +66,7 @@ class ActorServiceTest {
     fun `listActors returns all known actors`() {
         val env = AuthEnvTest(
             createAdmin = false,
-            otherPermissions = setOf(AuthEnvTest.TestOtherPermission("role-b"))
+            otherPermissions = setOf(AuthEnvTest.TestOtherPermission("role-b", AppPermissionCategory.READ))
         )
         val actorA = env.actorService.create(
             issuer = "issuer-a",
@@ -124,7 +125,7 @@ class ActorServiceTest {
         val specialPermissionKey = "role-x"
         val env = AuthEnvTest(
             createAdmin = false,
-            otherPermissions = setOf(AuthEnvTest.TestOtherPermission(specialPermissionKey))
+            otherPermissions = setOf(AuthEnvTest.TestOtherPermission(specialPermissionKey, AppPermissionCategory.READ))
         )
         val initialTime = Instant.parse("2024-02-01T00:00:00Z")
         val updatedTime = Instant.parse("2024-02-02T00:00:00Z")

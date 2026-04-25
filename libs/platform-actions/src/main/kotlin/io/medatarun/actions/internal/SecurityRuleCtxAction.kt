@@ -2,6 +2,7 @@ package io.medatarun.actions.internal
 
 import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.security.AppPermission
+import io.medatarun.security.AppPermissionKey
 import io.medatarun.security.SecurityRuleCtx
 import io.medatarun.security.SecurityRuleEvaluatorResult
 
@@ -16,15 +17,15 @@ internal class SecurityRuleCtxAction(private val actionCtx: ActionRequestCtx) : 
         return p != null && p.isAdmin
     }
 
-    override fun getPermissions(): Set<AppPermission> {
+    override fun getPermissions(): Set<AppPermissionKey> {
         return actionCtx.principalCtx.principal?.permissions ?: emptySet()
     }
 
-    override fun ensurePermission(wantedPermission: AppPermission): SecurityRuleEvaluatorResult {
-        val ok = getPermissions().any { it.key == wantedPermission.key }
+    override fun ensurePermission(wantedPermission: AppPermissionKey): SecurityRuleEvaluatorResult {
+        val ok = getPermissions().any { it == wantedPermission }
         return if (ok)
             SecurityRuleEvaluatorResult.Ok()
         else
-            SecurityRuleEvaluatorResult.AuthorizationError("Not authorized. Permission [${wantedPermission.key}] is needed.")
+            SecurityRuleEvaluatorResult.AuthorizationError("Not authorized. Permission [${wantedPermission}] is needed.")
     }
 }

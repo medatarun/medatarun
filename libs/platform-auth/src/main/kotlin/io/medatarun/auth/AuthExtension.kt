@@ -17,6 +17,7 @@ import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.infra.db.*
 import io.medatarun.auth.internal.actors.ActorClaimsAdapter
 import io.medatarun.auth.internal.actors.ActorServiceImpl
+import io.medatarun.auth.internal.actors.ManagedRoles
 import io.medatarun.auth.internal.bootstrap.BootstrapSecretLifecycleImpl
 import io.medatarun.auth.internal.jwk.JwkExternalProvidersImpl
 import io.medatarun.auth.internal.jwk.JwkExternalProvidersImpl.Companion.createJwtExternalProvidersFromConfigProperties
@@ -40,7 +41,7 @@ import io.medatarun.platform.kernel.*
 import io.medatarun.security.AppActorResolver
 import io.medatarun.security.AppPermission
 import io.medatarun.security.SecurityPermissionsProvider
-import io.medatarun.security.SecurityRolesRegistry
+import io.medatarun.security.SecurityPermissionRegistry
 import io.medatarun.type.commons.id.Id
 import io.medatarun.type.commons.key.Key
 import io.medatarun.type.commons.ref.RefTypeJsonConverters
@@ -60,11 +61,11 @@ class AuthExtension(
         val oidcService = ctx.getService<OidcService>()
         val oauthService = ctx.getService<OAuthService>()
         val actorService = ctx.getService<ActorService>()
-        val securityRolesRegistry = ctx.getService<SecurityRolesRegistry>()
+        val securityPermissionRegistry = ctx.getService<SecurityPermissionRegistry>()
         val actorStorage = ctx.getService<ActorStorageSQLite>()
 
         val actionProvider = AuthEmbeddedActionsProvider(
-            userService, oidcService, oauthService, actorService, config.authClock
+            userService, oidcService, oauthService, actorService, config.authClock, securityPermissionRegistry
         )
         val rolesProvider = object : SecurityPermissionsProvider {
             override fun getPermissions(): List<AppPermission> {
@@ -81,7 +82,7 @@ class AuthExtension(
         ctx.registerContribution(TypeDescriptor::class, RoleKeyDescriptor())
         ctx.registerContribution(TypeDescriptor::class, PermissionKeyDescriptor())
         ctx.registerContribution(TypeDescriptor::class, RoleRefDescriptor())
-        ctx.registerContribution(DbMigration::class, AuthDbMigration(securityRolesRegistry, actorStorage, config.authClock))
+        ctx.registerContribution(DbMigration::class, AuthDbMigration(securityPermissionRegistry, actorStorage, config.authClock))
     }
 
     class UsernameTypeDescriptor : TypeDescriptor<Username> {
@@ -192,8 +193,8 @@ class AuthExtension(
         val cfgBootstrapSecret = ctx.getConfigProperty(ConfigProperties.BootstrapSecret.key)
         val permissionsRegistry = object : PermissionsRegistry {
             override fun isKnownPermission(key: String): Boolean {
-                val ext = ctx.getService(SecurityRolesRegistry::class)
-                return ext.findAllRoles().any { it.key == key }
+                val ext = ctx.getService(SecurityPermissionRegistry::class)
+                return ext.findAll().any { it.key.value == key }
             }
         }
 
@@ -233,8 +234,8 @@ class AuthExtension(
         )
 
         val bootstrapper = BootstrapSecretLifecycleImpl(cfgBootstrapSecretPath, cfgBootstrapSecret)
-
-        val actorService: ActorService = ActorServiceImpl(actorStorage, config.authClock, permissionsRegistry)
+        val managedRoles = ManagedRoles()
+        val actorService: ActorService = ActorServiceImpl(actorStorage, config.authClock, permissionsRegistry, managedRoles)
         val userEvents: UserServiceEvents = UserServiceEventsActorProvisioning(actorService, jwtCfg.issuer)
 
         val userService: UserService = UserServiceImpl(

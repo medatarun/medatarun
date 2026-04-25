@@ -10,6 +10,7 @@ import io.medatarun.auth.domain.role.Role
 import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.auth.domain.role.RoleKey
 import io.medatarun.auth.domain.role.RoleRef
+import io.medatarun.auth.internal.actors.ManagedRoles.Companion.ADMIN_ROLE_KEY
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
 import io.medatarun.auth.ports.needs.ActorStorage
@@ -21,7 +22,8 @@ import java.time.Instant
 class ActorServiceImpl(
     private val actorStorage: ActorStorage,
     private val clock: AuthClock,
-    private val permissionsRegistry: PermissionsRegistry
+    private val permissionsRegistry: PermissionsRegistry,
+    private val managedRoles: ManagedRoles
 ) : ActorService {
 
 
@@ -134,7 +136,7 @@ class ActorServiceImpl(
         description: String?
     ): RoleId {
         // Special admin role: no you can not create another role with this key
-        if (key == ADMIN_ROLE_KEY) throw RoleAdminKeyCanNotBeUsedToCreateRoleException()
+        if (managedRoles.isManagedRole(key)) throw RoleCreateConflictsWithManagedKeyException(key)
         if (actorStorage.findRoleByKeyOptional(key) != null) {
             throw RoleAlreadyExistsException(key.value)
         }
@@ -152,7 +154,7 @@ class ActorServiceImpl(
 
     override fun updateRoleKey(roleRef: RoleRef, key: RoleKey) {
         // Special admin role: no, you cannot rename the key
-        if (key == ADMIN_ROLE_KEY) throw RoleAdminKeyCanNotBeChangedException()
+        if (managedRoles.isManagedRole(key)) throw RoleUpdateKeyConflictsWithManagedKeyException(key)
         val role = actorStorage.findRoleByRef(roleRef)
         val existingRole = actorStorage.findRoleByKeyOptional(key)
         if (existingRole != null && existingRole.id != role.id) {
@@ -170,7 +172,7 @@ class ActorServiceImpl(
     override fun addRolePermission(roleRef: RoleRef, permission: ActorPermission) {
         // Special admin role: no, you cannot add permissions from here
         val role = actorStorage.findRoleByRef(roleRef)
-        if (role.key == ADMIN_ROLE_KEY) throw RoleAdminPermissionChangeForbiddenException()
+        if (managedRoles.isManagedRole(role.key)) throw RoleUpdatePermissionsManagedRoleException(role.key)
         if (!permissionsRegistry.isKnownPermission(permission)) throw AuthUnknownPermissionException(permission.key)
         if (actorStorage.roleHasPermission(role.id, permission)) {
             throw RolePermissionAlreadyExistsException(role.id.asString(), permission.key)
@@ -181,7 +183,7 @@ class ActorServiceImpl(
     override fun deleteRolePermission(roleRef: RoleRef, permission: ActorPermission) {
         // Special admin role: no, you cannot remove permissions from here
         val role = actorStorage.findRoleByRef(roleRef)
-        if (role.key == ADMIN_ROLE_KEY) throw RoleAdminPermissionChangeForbiddenException()
+        if (managedRoles.isManagedRole(role.key)) throw RoleUpdatePermissionsManagedRoleException(role.key)
         if (!actorStorage.roleHasPermission(role.id, permission)) {
             throw RolePermissionNotFoundException(role.id.asString(), permission.key)
         }
@@ -234,7 +236,7 @@ class ActorServiceImpl(
 
     override fun deleteRole(roleRef: RoleRef) {
         val role = actorStorage.findRoleByRef(roleRef)
-        if (role.key == ADMIN_ROLE_KEY) throw RoleAdminCanNotBeDeletedException()
+        if (managedRoles.isManagedRole(role.key)) throw RoleDeleteManagedForbiddenException(role.key)
         actorStorage.roleDelete(role.id)
     }
 
@@ -269,7 +271,6 @@ class ActorServiceImpl(
 
     companion object {
         private val logger = LoggerFactory.getLogger(ActorServiceImpl::class.java)
-        const val ADMIN_ROLE_KEY_STR = "admin"
-        val ADMIN_ROLE_KEY = RoleKey("admin")
+
     }
 }

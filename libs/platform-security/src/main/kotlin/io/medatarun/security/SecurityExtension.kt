@@ -5,6 +5,7 @@ import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.MedatarunServiceCtx
+import io.medatarun.security.internal.SecurityPermissionRegistryImpl
 
 class SecurityExtension(
     val config: SecurityExtensionConfig? = null
@@ -19,8 +20,8 @@ class SecurityExtension(
 
     override fun initServices(ctx: MedatarunServiceCtx) {
         val extensionRegistry = ctx.getService(ExtensionRegistry::class)
-        val securityRolesRegistry = SecurityRolesRegistryImpl(extensionRegistry)
-        ctx.register(SecurityRolesRegistry::class, securityRolesRegistry)
+        val securityRolesRegistry = SecurityPermissionRegistryImpl(extensionRegistry)
+        ctx.register(SecurityPermissionRegistry::class, securityRolesRegistry)
         if (config?.appActorResolver != null) {
             ctx.register(AppActorResolver::class, config.appActorResolver)
         }
