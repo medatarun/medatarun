@@ -42,7 +42,7 @@ interface ActorStorage {
         findRoleByKeyOptional(roleKey) ?: throw RoleNotFoundByKeyException(roleKey)
 
     fun findRoleList(): List<Role>
-    fun findRoleAutoAssign(): Role?
+    fun findRoleAutoAssignOptional(): Role?
     fun findRolePermissionList(roleId: RoleId): List<ActorPermission>
 
     /**

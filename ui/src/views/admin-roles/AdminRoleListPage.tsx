@@ -23,7 +23,11 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
-import { KeyMultipleRegular, LockClosedRegular } from "@fluentui/react-icons";
+import {
+  ArrowSyncCircleRegular,
+  KeyMultipleRegular,
+  LockClosedRegular,
+} from "@fluentui/react-icons";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { createActionCtxRole } from "@/business/auth_actor/actor.actioncontexts.ts";
 import { useActionRegistry } from "@/components/business/actions";
@@ -120,7 +124,8 @@ function AuthRolesTable({
               onClick={() => onClickRole(role.id)}
             >
               <p>
-                {role.label} {role.managedRole && <LockClosedRegular />}
+                {role.label} {role.managedRole && <LockClosedRegular />}{" "}
+                {role.autoAssign && <ArrowSyncCircleRegular />}
               </p>
             </TableCell>
             <TableCell style={{ width: "3em", textAlign: "right" }}>

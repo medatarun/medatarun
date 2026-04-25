@@ -117,7 +117,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun findRoleAutoAssign(): Role? {
+    override fun findRoleAutoAssignOptional(): Role? {
         return dbConnectionFactory.withExposed {
             RoleTable.selectAll()
                 .where { RoleTable.autoAssign eq true }

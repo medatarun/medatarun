@@ -171,7 +171,7 @@ class ActorServiceImpl(
     override fun roleUpdateAutoAssign(roleRef: RoleRef, value: Boolean) {
         val role = actorStorage.findRoleByRef(roleRef)
         val now = clock.now()
-        val existing = actorStorage.findRoleAutoAssign()
+        val existing = actorStorage.findRoleAutoAssignOptional()
 
         if (existing != null && existing.id != role.id) {
             actorStorage.roleUpdateAutoAssign(existing.id, false, now)
@@ -240,13 +240,20 @@ class ActorServiceImpl(
 
             // Find matching role or create it if it doesn't exist (by key)
             val found = actorStorage.findRoleByKeyOptional(managedRole.role.key)
+            val autoAssignRole = actorStorage.findRoleAutoAssignOptional()
             val roleSafe = if (found == null) {
                 actorStorage.roleCreate(
                     id = managedRole.role.id,
                     key = managedRole.role.key,
                     name = managedRole.role.name,
                     description = managedRole.role.description,
-                    autoAssign = false,
+                    // If no other role has autoassign and this managed role has autoassign,
+                    // because we create the new role, we add it. But if another role already
+                    // has it, we don't touch it. Anyway this should only happend at installation
+                    // time, so there should not be conflicts with other roles.
+                    // This is to ensure that onboarding the application is smooth with already a
+                    // role autoassign present to help admins create users faster.
+                    autoAssign = if (autoAssignRole == null) managedRole.role.autoAssign else false,
                     createdAt = managedRole.role.createdAt,
                     lastUpdatedAt = managedRole.role.createdAt
                 )
