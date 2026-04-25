@@ -67,6 +67,8 @@ class UserServiceEventsActorProvisioning(
         if (admin) {
             val adminRole = actorService.findSpecialAdminRole()
             actorService.actorAddRole(actor.id, RoleRef.ById(adminRole.id))
+        } else {
+            actorService.actorAddAutoAssignRoleIfExists(actor.id)
         }
     }
 }

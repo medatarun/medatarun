@@ -38,6 +38,7 @@ class ActorServiceImpl(
                 disabled = null
             )
             logger.info("Registered actor {} from issuer {}", created.id, created.issuer)
+            actorAddAutoAssignRoleIfExists(created.id)
             created
         } else {
             updateActorProfile(existing, principal)
@@ -207,6 +208,14 @@ class ActorServiceImpl(
         val alreadyHasRole = existingRoles.contains(role.id)
         if (alreadyHasRole) throw ActorAddRoleAlreadyExistException(actorId, role.id)
         actorStorage.actorAddRole(actor.id, role.id)
+    }
+
+    override fun actorAddAutoAssignRoleIfExists(actorId: ActorId) {
+        val role = actorStorage.findRoleAutoAssignOptional() ?: return
+        val existingRoles = actorStorage.findActorRoleIdList(actorId)
+        if (!existingRoles.contains(role.id)) {
+            actorStorage.actorAddRole(actorId, role.id)
+        }
     }
 
     override fun actorDeleteRole(actorId: ActorId, roleRef: RoleRef) {

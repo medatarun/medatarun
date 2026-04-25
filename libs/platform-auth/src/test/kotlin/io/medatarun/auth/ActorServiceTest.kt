@@ -12,6 +12,7 @@ import io.medatarun.security.AppPermissionCategory
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -93,31 +94,37 @@ class ActorServiceTest {
     @Test
     fun `sync creates actor with display name precedence`() {
         val env = AuthEnvTest(createAdmin = false)
+        val autoAssignRole = env.actorService.listRoles().single { it.autoAssign }
         // Display name selection falls back through name/fullname/preferredUsername/email/subject.
         val createdWithName = env.actorService.syncFromJwtExternalPrincipal(
             createPrincipal(issuer = "issuer-1", subject = "sub-1", name = "Name Value")
         )
         assertEquals("Name Value", createdWithName.fullname)
+        assertTrue(env.actorService.actorHasRole(createdWithName.id, autoAssignRole.id))
 
         val createdWithFullname = env.actorService.syncFromJwtExternalPrincipal(
             createPrincipal(issuer = "issuer-2", subject = "sub-2", fullname = "Fullname Value")
         )
         assertEquals("Fullname Value", createdWithFullname.fullname)
+        assertTrue(env.actorService.actorHasRole(createdWithFullname.id, autoAssignRole.id))
 
         val createdWithPreferred = env.actorService.syncFromJwtExternalPrincipal(
             createPrincipal(issuer = "issuer-3", subject = "sub-3", preferredUsername = "Preferred Value")
         )
         assertEquals("Preferred Value", createdWithPreferred.fullname)
+        assertTrue(env.actorService.actorHasRole(createdWithPreferred.id, autoAssignRole.id))
 
         val createdWithEmail = env.actorService.syncFromJwtExternalPrincipal(
             createPrincipal(issuer = "issuer-4", subject = "sub-4", email = "mail@example.com")
         )
         assertEquals("mail@example.com", createdWithEmail.fullname)
+        assertTrue(env.actorService.actorHasRole(createdWithEmail.id, autoAssignRole.id))
 
         val createdWithSubject = env.actorService.syncFromJwtExternalPrincipal(
             createPrincipal(issuer = "issuer-5", subject = "sub-5")
         )
         assertEquals("sub-5", createdWithSubject.fullname)
+        assertTrue(env.actorService.actorHasRole(createdWithSubject.id, autoAssignRole.id))
     }
 
     @Test
@@ -158,6 +165,8 @@ class ActorServiceTest {
         assertEquals("updated@example.com", updated.email)
         assertEquals(setOf(ActorPermission(specialPermissionKey)), updated.permissions)
         assertEquals(updatedTime, updated.lastSeenAt)
+        val autoAssignRole = env.actorService.listRoles().single { it.autoAssign }
+        assertFalse(env.actorService.actorHasRole(updated.id, autoAssignRole.id))
     }
 
 

@@ -163,6 +163,7 @@ interface ActorService: Service {
     ): Actor
 
     fun actorAddRole(actorId: ActorId, roleRef: RoleRef)
+    fun actorAddAutoAssignRoleIfExists(actorId: ActorId)
     fun actorDeleteRole(actorId: ActorId, roleRef: RoleRef)
     fun findActorPermissionSet(id: ActorId): Set<ActorPermission>
     fun findActorRoleIdSet(actorId: ActorId): Set<RoleId>

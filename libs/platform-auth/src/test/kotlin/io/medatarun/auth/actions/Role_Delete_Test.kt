@@ -62,13 +62,17 @@ class Role_Delete_Test {
         assertNotNull(johnActor)
         env.dispatch(AuthAction.Actor_AddRole(johnActor.id, roleRef))
 
+        // There is always an auto-assign role, we must consider it
+        val autoAssignRole = assertNotNull(env.actorService.listRoles().firstOrNull() { it.autoAssign })
+
         val actorBeforeDelete = env.dispatch(AuthAction.ActorGet(johnActor.id))
-        assertEquals(setOf(roleBeforeDelete.id), actorBeforeDelete.roles)
+        assertEquals(setOf(roleBeforeDelete.id, autoAssignRole.id.asString()), actorBeforeDelete.roles)
 
         env.dispatch(AuthAction.Role_Delete(roleRef))
 
         val actorAfterDelete = env.dispatch(AuthAction.ActorGet(johnActor.id))
-        assertEquals(emptySet(), actorAfterDelete.roles)
+        assertEquals(setOf(autoAssignRole.id.asString()), actorAfterDelete.roles)
+
     }
 
     @Test
