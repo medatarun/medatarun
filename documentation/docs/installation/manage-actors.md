@@ -47,23 +47,40 @@ flowchart LR
     Role -->|contains\nmany| Permission[Permissions\n]
 ```
 
-Medatarun ships with permissions, for example `tag_global_manage` allow actors
-to create, delete, update global tags. To get a list of available permissions
-run `medatarun config inspect_permissions`.
+Medatarun ships with many permissions. For example, `tag_global_manage` lets actors create, update and delete global tags.
 
-You can then create roles using `medatarun auth role_create` and add permissions
-inside this role using `medatarun auth role_add_permission`.
+Roles are named sets of permissions. You assign roles to actors (not directly to
+users), so the same model works for local users, external identity providers,
+service accounts and tools. If needed, you can assign many roles to an actor.
 
-Once done, you affect roles to actors (not users, actors). An actor can have
-multiple roles. Use `medatarun auth actor_add_role` specifying the `key:xxx`
-or the `id:xxx` of the role to add.
+You can manage roles and actor assignments from the user interface, the CLI or
+the API.
+
+Besides the roles you create yourself, Medatarun provides managed roles.
+You can assign them to actors directly, but you do not edit their permissions,
+name or description.
+
+This helps you start without scratching your head:
+
+- `reader`: can read models and tags, but cannot change them,
+- `manager`: can read and write models, and manage global tags,
+- `admin`: has administrator permissions.
+
+Common CLI/API commands:
+
+| Need | Command |
+| --- | --- |
+| List permissions | `medatarun config inspect_permissions` |
+| List roles | `medatarun auth role_list` |
+| Create a role | `medatarun auth role_create` |
+| Add a permission to a role | `medatarun auth role_add_permission` |
+| Assign a role to an actor | `medatarun auth actor_add_role` |
 
 ## Relationship to users
 
 User commands as seen in [Manage users](./manage-users.md) affect local users as
-well as their actor counterpart
+well as their actor counterparts
 in the same way.
 
 Actor commands affect authorization and access for all identities, local users
 and external users.
-
