@@ -51,15 +51,15 @@ class AuthEmbeddedActionsProvider(
             )
         return when (action) {
             is AuthAction.AdminBootstrap -> launcher.adminBootstrap(action)
-            is AuthAction.UserCreate -> launcher.createUser(action)
+            is AuthAction.User_Create -> launcher.createUser(action)
             is AuthAction.Login -> launcher.login(action)
             is AuthAction.WhoAmI -> launcher.whoami(action)
-            is AuthAction.ChangeMyPassword -> launcher.changeOwnPassword(action)
-            is AuthAction.UserChangePassword -> launcher.changeUserPassword(action)
-            is AuthAction.UserDisable -> launcher.disableUser(action)
-            is AuthAction.UserEnable -> launcher.enableUser(action)
-            is AuthAction.UserChangeFullname -> launcher.changeUserFullname(action)
-            is AuthAction.UserList -> launcher.userList(action)
+            is AuthAction.User_ChangeMyPassword -> launcher.changeOwnPassword(action)
+            is AuthAction.User_ChangePassword -> launcher.changeUserPassword(action)
+            is AuthAction.User_Disable -> launcher.disableUser(action)
+            is AuthAction.User_Enable -> launcher.enableUser(action)
+            is AuthAction.User_ChangeFullname -> launcher.changeUserFullname(action)
+            is AuthAction.User_List -> launcher.userList(action)
             is AuthAction.Role_Create -> launcher.roleCreate(action)
             is AuthAction.Role_List -> launcher.roleList(action)
             is AuthAction.Role_Get -> launcher.roleGet(action)
@@ -70,12 +70,12 @@ class AuthEmbeddedActionsProvider(
             is AuthAction.Role_AddPermission -> launcher.roleAddPermission(action)
             is AuthAction.Role_DeletePermission -> launcher.roleDeletePermission(action)
             is AuthAction.Role_Delete -> launcher.roleDelete(action)
-            is AuthAction.ActorList -> launcher.listActors(action)
-            is AuthAction.ActorGet -> launcher.getActor(action)
+            is AuthAction.Actor_List -> launcher.listActors(action)
+            is AuthAction.Actor_Get -> launcher.getActor(action)
             is AuthAction.Actor_AddRole -> launcher.actorAddRole(action)
             is AuthAction.Actor_DeleteRole -> launcher.actorDeleteRole(action)
-            is AuthAction.ActorDisable -> launcher.disableActor(action)
-            is AuthAction.ActorEnable -> launcher.enableActor(action)
+            is AuthAction.Actor_Disable -> launcher.disableActor(action)
+            is AuthAction.Actor_Enable -> launcher.enableActor(action)
         }
     }
 
@@ -104,7 +104,7 @@ class AuthEmbeddedActionsLauncher(
         return OAuthTokenResponseDto.valueOf(oauthService.createOAuthAccessTokenForUser(user))
     }
 
-    fun createUser(cmd: AuthAction.UserCreate) {
+    fun createUser(cmd: AuthAction.User_Create) {
         userService.createEmbeddedUser(
             cmd.username,
             cmd.fullname,
@@ -145,7 +145,7 @@ class AuthEmbeddedActionsLauncher(
 
     }
 
-    fun changeOwnPassword(cmd: AuthAction.ChangeMyPassword) {
+    fun changeOwnPassword(cmd: AuthAction.User_ChangeMyPassword) {
         val actor = principal.ensureSignedIn()
         if (actor.issuer != oidcService.oidcIssuer()) throw UserNotFoundException()
         return userService.changeOwnPassword(
@@ -154,29 +154,29 @@ class AuthEmbeddedActionsLauncher(
         )
     }
 
-    fun changeUserPassword(cmd: AuthAction.UserChangePassword) {
+    fun changeUserPassword(cmd: AuthAction.User_ChangePassword) {
         return userService.changeUserPassword(
             cmd.username,
             cmd.password
         )
     }
 
-    fun disableUser(cmd: AuthAction.UserDisable) {
+    fun disableUser(cmd: AuthAction.User_Disable) {
         return userService.disableUser(cmd.username, findPrincipalAsUserId())
     }
 
-    fun enableUser(cmd: AuthAction.UserEnable) {
+    fun enableUser(cmd: AuthAction.User_Enable) {
         return userService.enableUser(cmd.username, findPrincipalAsUserId())
     }
 
-    fun changeUserFullname(cmd: AuthAction.UserChangeFullname) {
+    fun changeUserFullname(cmd: AuthAction.User_ChangeFullname) {
         return userService.changeUserFullname(
             cmd.username,
             cmd.fullname
         )
     }
 
-    fun userList(action: AuthAction.UserList): UserListResp {
+    fun userList(action: AuthAction.User_List): UserListResp {
         val users = userService.findAll()
         return UserListResp(items = users.map {
             UserDto(
@@ -259,7 +259,7 @@ class AuthEmbeddedActionsLauncher(
     }
 
 
-    fun listActors(@Suppress("UNUSED_PARAMETER") cmd: AuthAction.ActorList): List<ActorInfoDto> {
+    fun listActors(@Suppress("UNUSED_PARAMETER") cmd: AuthAction.Actor_List): List<ActorInfoDto> {
         return actorService.listActors().map { actor ->
             ActorInfoDto(
                 id = actor.id.value.toString(),
@@ -274,7 +274,7 @@ class AuthEmbeddedActionsLauncher(
         }
     }
 
-    fun getActor(cmd: AuthAction.ActorGet): ActorDetailDto {
+    fun getActor(cmd: AuthAction.Actor_Get): ActorDetailDto {
         val actor = actorService.findById(cmd.actorId)
         val roles = actorService.findActorRoleIdSet(cmd.actorId)
         val permissions = actorService.findActorPermissionSet(cmd.actorId)
@@ -300,7 +300,7 @@ class AuthEmbeddedActionsLauncher(
         actorService.actorDeleteRole(action.actorId, action.roleRef)
     }
 
-    fun disableActor(cmd: AuthAction.ActorDisable) {
+    fun disableActor(cmd: AuthAction.Actor_Disable) {
         val actor = actorService.findById(cmd.actorId)
         if (actor.id == AppActorIdAdapter.fromAppActorId(principal.ensureSignedIn().id))
             throw ActorDisableSelfException()
@@ -311,7 +311,7 @@ class AuthEmbeddedActionsLauncher(
         }
     }
 
-    fun enableActor(cmd: AuthAction.ActorEnable) {
+    fun enableActor(cmd: AuthAction.Actor_Enable) {
         val actor = actorService.findById(cmd.actorId)
         if (actor.id == AppActorIdAdapter.fromAppActorId(principal.ensureSignedIn().id))
             throw ActorEnableSelfException()

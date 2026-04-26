@@ -5,7 +5,7 @@ import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthEnvTest
-import io.medatarun.auth.fixtures.AuthTestUtils.createActorJwt
+import io.medatarun.auth.fixtures.AuthTestUtils.createJwtExternalPrincipal
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -15,24 +15,26 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @EnableDatabaseTests
-class ActorDisable_ActorEnable_Test {
+class Actor_Disable_Enable_Test {
     @Test
     fun `actor disable uses actor service for external issuer`() {
         val env = AuthEnvTest()
         env.asAdmin()
         val issuer = "https://example.com/oidc"
         val subject = "external.user"
-        env.actorService.syncFromJwtExternalPrincipal(createActorJwt(issuer, subject))
+        env.actorService.syncFromJwtExternalPrincipal(createJwtExternalPrincipal(issuer, subject))
         val actor = env.actorService.findByIssuerAndSubjectOptional(issuer, subject)
         assertNotNull(actor)
 
-        env.dispatch(AuthAction.ActorDisable(actor.id))
+        env.authClockTests.staticNow = env.authClockTests.now().plusSeconds(60*10)
+
+        env.dispatch(AuthAction.Actor_Disable(actor.id))
 
         val actorDisabled = env.actorService.findByIssuerAndSubjectOptional(issuer, subject)
         assertNotNull(actorDisabled)
-        assertTrue(actorDisabled.disabledDate != null)
+        assertEquals(env.authClockTests.staticNow, actorDisabled.disabledDate)
 
-        env.dispatch(AuthAction.ActorEnable(actor.id))
+        env.dispatch(AuthAction.Actor_Enable(actor.id))
 
         val actorEnabled = env.actorService.findByIssuerAndSubjectOptional(issuer, subject)
         assertNotNull(actorEnabled)
@@ -47,7 +49,7 @@ class ActorDisable_ActorEnable_Test {
         val fullname = Fullname("Jane Doe")
         env.asAdmin()
         env.dispatch(
-            AuthAction.UserCreate(
+            AuthAction.User_Create(
                 username = username,
                 password = password,
                 fullname = fullname,
@@ -61,7 +63,7 @@ class ActorDisable_ActorEnable_Test {
         )
         assertNotNull(actor)
 
-        env.dispatch(AuthAction.ActorDisable(actor.id))
+        env.dispatch(AuthAction.Actor_Disable(actor.id))
 
         env.logout()
         assertThrows<AuthNotAuthenticatedException> {
@@ -73,7 +75,7 @@ class ActorDisable_ActorEnable_Test {
         assertTrue(actorDisabled?.disabledDate != null)
 
         env.asAdmin()
-        env.dispatch(AuthAction.ActorEnable(actor.id))
+        env.dispatch(AuthAction.Actor_Enable(actor.id))
         env.logout()
 
         assertDoesNotThrow {

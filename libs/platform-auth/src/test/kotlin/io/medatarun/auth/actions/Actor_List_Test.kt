@@ -4,7 +4,7 @@ import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthEnvTest
-import io.medatarun.auth.fixtures.AuthTestUtils.createActorJwt
+import io.medatarun.auth.fixtures.AuthTestUtils.createJwtExternalPrincipal
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.security.AppActorSystemMaintenance
@@ -14,13 +14,19 @@ import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
 
 @EnableDatabaseTests
-class ActorList_Test {
+class Actor_List_Test {
+
+    /**
+     * Tests that actors created as a consequence of creating users
+     * or as a consequence of JWT provisionning can be listed and that
+     * the list keeps all relevant information.
+     */
     @Test
     fun actorList() {
         val env = AuthEnvTest()
         env.asAdmin()
         env.dispatch(
-            AuthAction.UserCreate(
+            AuthAction.User_Create(
                 username = Username("john.doe"),
                 password = PasswordClear("john.doe.0123456789"),
                 fullname = Fullname("John Doe"),
@@ -28,7 +34,7 @@ class ActorList_Test {
             )
         )
         env.dispatch(
-            AuthAction.UserCreate(
+            AuthAction.User_Create(
                 username = Username("john.doe2"),
                 password = PasswordClear("john.doe2.0123456789"),
                 fullname = Fullname("John Doe2"),
@@ -37,15 +43,15 @@ class ActorList_Test {
         )
 
         env.actorService.syncFromJwtExternalPrincipal(
-            createActorJwt(
-                "https://microsoft.com/azuread/123456789",
-                "sandra.tafroilanuit",
-                "Sandra Tafroilanuit",
-                "sandra.tafroilanuit@test.azure.local"
+            createJwtExternalPrincipal(
+                issuer = "https://microsoft.com/azuread/123456789",
+                subject = "sandra.tafroilanuit",
+                name = "Sandra Tafroilanuit",
+                email = "sandra.tafroilanuit@test.azure.local"
             )
         )
 
-        val actors: List<ActorInfoDto> = env.dispatch(AuthAction.ActorList())
+        val actors: List<ActorInfoDto> = env.dispatch(AuthAction.Actor_List())
         assertEquals(5, actors.size)
 
         val sysActor = actors.first { actor -> actor.id == AppActorSystemMaintenance.id.asString() }

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 
 @EnableDatabaseTests
-class UserChangePassword_Test {
+class User_ChangePassword_Test {
 
     @Test
     fun `change user password called`() {
@@ -17,7 +17,7 @@ class UserChangePassword_Test {
         val passwordNext = PasswordClear("john.doe.987654321")
         env.createJohn()
         @Suppress("UnusedVariable", "unused")
-        val result: Unit = env.dispatch(AuthAction.UserChangePassword(env.johnUsername, passwordNext))
+        val result: Unit = env.dispatch(AuthAction.User_ChangePassword(env.johnUsername, passwordNext))
 
         env.logout()
 

@@ -18,7 +18,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @EnableDatabaseTests
-class UserEnable_UserDisable_Test {
+class User_Enable_Disable_Test {
 
     @Test
     fun `disable user called`() {
@@ -27,7 +27,7 @@ class UserEnable_UserDisable_Test {
 
         env.asAdmin()
         @Suppress("UnusedVariable", "unused")
-        val result: Unit = env.dispatch(AuthAction.UserDisable(env.johnUsername))
+        val result: Unit = env.dispatch(AuthAction.User_Disable(env.johnUsername))
 
         env.logout()
         assertThrows<AuthNotAuthenticatedException> {
@@ -50,7 +50,7 @@ class UserEnable_UserDisable_Test {
         val env = AuthEnvTest()
         env.asAdmin()
         assertThrows<UserDisableSelfException> {
-            env.dispatch(AuthAction.UserDisable(env.adminUsername))
+            env.dispatch(AuthAction.User_Disable(env.adminUsername))
         }
     }
 
@@ -59,7 +59,7 @@ class UserEnable_UserDisable_Test {
         val env = AuthEnvTest()
         env.asAdmin()
         env.dispatch(
-            AuthAction.UserCreate(
+            AuthAction.User_Create(
                 username = Username("admin2"),
                 fullname = Fullname("Admin2"),
                 password = PasswordClear("admin2." + UuidUtils.generateV4String()),
@@ -68,7 +68,7 @@ class UserEnable_UserDisable_Test {
         )
         env.asUser(Username("admin2"))
         assertThrows<UserDisableSelfException> {
-            env.dispatch(AuthAction.UserDisable(Username("admin2")))
+            env.dispatch(AuthAction.User_Disable(Username("admin2")))
         }
     }
 
@@ -77,7 +77,7 @@ class UserEnable_UserDisable_Test {
         val env = AuthEnvTest()
         env.asAdmin()
         env.dispatch(
-            AuthAction.UserCreate(
+            AuthAction.User_Create(
                 username = Username("admin2"),
                 fullname = Fullname("Admin2"),
                 password = PasswordClear("admin2." + UuidUtils.generateV4String()),
@@ -85,7 +85,7 @@ class UserEnable_UserDisable_Test {
             )
         )
         env.asUser(env.adminUsername)
-        env.dispatch(AuthAction.UserDisable(Username("admin2")))
+        env.dispatch(AuthAction.User_Disable(Username("admin2")))
         val otherAdmin = env.userService.findByUsername(Username("admin2"))
         assertNotNull(otherAdmin.disabledDate)
 
@@ -96,10 +96,10 @@ class UserEnable_UserDisable_Test {
         val env = AuthEnvTest()
         env.createJohn()
         env.asAdmin()
-        env.dispatch(AuthAction.UserDisable(env.johnUsername))
+        env.dispatch(AuthAction.User_Disable(env.johnUsername))
 
         @Suppress("UnusedVariable", "unused")
-        val result: Unit = env.dispatch(AuthAction.UserEnable(env.johnUsername))
+        val result: Unit = env.dispatch(AuthAction.User_Enable(env.johnUsername))
 
         assertDoesNotThrow {
             env.dispatch(AuthAction.Login(env.johnUsername, env.johnPassword))
@@ -118,7 +118,7 @@ class UserEnable_UserDisable_Test {
         env.createJohn()
         env.asUser(env.johnUsername)
         val e = assertThrows<ActionInvocationException> {
-        env.dispatch(AuthAction.UserEnable(env.johnUsername))
+        env.dispatch(AuthAction.User_Enable(env.johnUsername))
         }
         assertEquals(StatusCode.FORBIDDEN, e.status)
     }

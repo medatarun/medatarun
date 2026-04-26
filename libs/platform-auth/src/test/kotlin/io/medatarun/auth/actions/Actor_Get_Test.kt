@@ -1,8 +1,5 @@
 package io.medatarun.auth.actions
 
-import io.medatarun.auth.domain.user.Fullname
-import io.medatarun.auth.domain.user.PasswordClear
-import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import org.junit.jupiter.api.Test
@@ -10,7 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @EnableDatabaseTests
-class ActorGet_Test {
+class Actor_Get_Test {
     @Test
     fun actorGet() {
         val env = AuthEnvTest()
@@ -22,7 +19,7 @@ class ActorGet_Test {
         )
         assertNotNull(actor)
 
-        val actorInfo: ActorDetailDto = env.dispatch(AuthAction.ActorGet(actor.id))
+        val actorInfo: ActorDetailDto = env.dispatch(AuthAction.Actor_Get(actor.id))
         assertEquals(actor.id.value.toString(), actorInfo.id)
         assertEquals(env.johnUsername.value, actorInfo.subject)
         assertEquals(env.johnFullname.value, actorInfo.fullname)

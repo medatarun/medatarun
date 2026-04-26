@@ -23,7 +23,7 @@ class WhoAmI_Test {
         val fullname = Fullname("John Doe")
         env.asAdmin()
         env.dispatch(
-            AuthAction.UserCreate(
+            AuthAction.User_Create(
                 username = username,
                 password = password,
                 fullname = fullname,

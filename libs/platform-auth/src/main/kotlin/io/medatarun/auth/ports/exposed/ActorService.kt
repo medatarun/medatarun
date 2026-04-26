@@ -35,7 +35,7 @@ import java.time.Instant
  *     by UserEvents in the matching Actor
  *   - when issuers is not our IdP, then disable/enable is made directly by using ActorService.
  */
-interface ActorService: Service {
+interface ActorService : Service {
     /**
      * When actors appear via a validated Jwt (API, MCP, UI, etc.) it means
      * there is a trusted relationship with an external IdP.
@@ -171,7 +171,8 @@ interface ActorService: Service {
     fun findSpecialAdminRole(): Role
 
     /**
-     * Should be called at startup to be sure there are all managed roles in database
+     * Should be called at startup to be sure there are all
+     * managed roles are present and up to date in the storage
      */
     fun syncManagedRoles()
 

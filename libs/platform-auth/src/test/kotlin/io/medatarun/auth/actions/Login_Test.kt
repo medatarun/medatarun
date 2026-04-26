@@ -1,7 +1,6 @@
 package io.medatarun.auth.actions
 
 import io.medatarun.auth.domain.AuthNotAuthenticatedException
-import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthEnvTest
@@ -92,7 +91,7 @@ class Login_Test {
         env.verifyToken(token.accessToken, expectedSub = env.johnUsername.value)
         // disable john
         env.asAdmin()
-        env.dispatch(AuthAction.UserDisable(env.johnUsername))
+        env.dispatch(AuthAction.User_Disable(env.johnUsername))
         env.logout()
         // John cannot log in avain
         assertThrows<AuthNotAuthenticatedException> {
