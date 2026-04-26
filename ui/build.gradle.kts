@@ -5,7 +5,7 @@ plugins {
 }
 
 frontend {
-    nodeVersion = "22.12.0"
+    nodeVersion = "24.15.0"
     assembleScript = "run build"
     verboseModeEnabled = true
 }
