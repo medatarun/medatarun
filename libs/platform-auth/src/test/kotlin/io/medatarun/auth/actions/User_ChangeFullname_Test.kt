@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @EnableDatabaseTests
-class UserChangeFullname_Test {
+class User_ChangeFullname_Test {
     @Test
     fun `change user full name`() {
         val env = AuthEnvTest()
@@ -16,7 +16,7 @@ class UserChangeFullname_Test {
         env.createJohn()
         env.asAdmin()
         @Suppress("UnusedVariable", "unused")
-        val result: Unit = env.dispatch(AuthAction.UserChangeFullname(env.johnUsername, fullnameNext))
+        val result: Unit = env.dispatch(AuthAction.User_ChangeFullname(env.johnUsername, fullnameNext))
 
         env.logout()
 

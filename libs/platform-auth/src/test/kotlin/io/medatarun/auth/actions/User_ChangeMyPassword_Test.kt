@@ -1,9 +1,7 @@
 package io.medatarun.auth.actions
 
 import io.medatarun.auth.domain.AuthNotAuthenticatedException
-import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
-import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
@@ -13,7 +11,7 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 @EnableDatabaseTests
-class ChangeMyPassword_Test {
+class User_ChangeMyPassword_Test {
 
     @Test
     fun `change own password called`() {
@@ -22,7 +20,7 @@ class ChangeMyPassword_Test {
         env.createJohn()
         env.asUser(env.johnUsername)
         @Suppress("UnusedVariable", "unused") val result: Unit =
-            env.dispatch(AuthAction.ChangeMyPassword(env.johnPassword, passwordNext))
+            env.dispatch(AuthAction.User_ChangeMyPassword(env.johnPassword, passwordNext))
 
         // Allow testing that we didn't invert passwords
         // Old password shall not work again

@@ -26,7 +26,7 @@ class Actor_List_Test {
         val env = AuthEnvTest()
         env.asAdmin()
         env.dispatch(
-            AuthAction.UserCreate(
+            AuthAction.User_Create(
                 username = Username("john.doe"),
                 password = PasswordClear("john.doe.0123456789"),
                 fullname = Fullname("John Doe"),
@@ -34,7 +34,7 @@ class Actor_List_Test {
             )
         )
         env.dispatch(
-            AuthAction.UserCreate(
+            AuthAction.User_Create(
                 username = Username("john.doe2"),
                 password = PasswordClear("john.doe2.0123456789"),
                 fullname = Fullname("John Doe2"),

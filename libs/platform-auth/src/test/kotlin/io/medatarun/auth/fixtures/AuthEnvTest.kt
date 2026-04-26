@@ -260,7 +260,7 @@ class AuthEnvTest(
     fun createJohn() {
         asAdmin()
         dispatch(
-            AuthAction.UserCreate(
+            AuthAction.User_Create(
                 username = johnUsername,
                 password = johnPassword,
                 fullname = johnFullname,

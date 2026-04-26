@@ -49,7 +49,7 @@ class Actor_Disable_Enable_Test {
         val fullname = Fullname("Jane Doe")
         env.asAdmin()
         env.dispatch(
-            AuthAction.UserCreate(
+            AuthAction.User_Create(
                 username = username,
                 password = password,
                 fullname = fullname,

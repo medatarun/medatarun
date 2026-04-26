@@ -3,7 +3,6 @@ package io.medatarun.auth.actions
 import io.medatarun.auth.domain.UserAlreadyExistsException
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
-import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
@@ -15,7 +14,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @EnableDatabaseTests
-class UserCreate_Test {
+class User_Create_Test {
 
     @Test
     fun `create user called`() {
@@ -40,7 +39,7 @@ class UserCreate_Test {
 
         env.asAdmin()
         env.dispatch(
-            AuthAction.UserCreate(
+            AuthAction.User_Create(
                 username = env.johnUsername,
                 password = env.johnPassword,
                 fullname = env.johnFullname,
@@ -50,7 +49,7 @@ class UserCreate_Test {
 
         assertThrows<UserAlreadyExistsException> {
             env.dispatch(
-                AuthAction.UserCreate(
+                AuthAction.User_Create(
                     username = env.johnUsername,
                     fullname = Fullname("Other"),
                     password = PasswordClear("other.name." + UuidUtils.generateV4String()), admin = false
@@ -64,7 +63,7 @@ class UserCreate_Test {
 
         env.asAdmin()
         env.dispatch(
-            AuthAction.UserCreate(
+            AuthAction.User_Create(
                 username = env.johnUsername,
                 password = env.johnPassword,
                 fullname = env.johnFullname,
@@ -72,11 +71,11 @@ class UserCreate_Test {
             )
         )
 
-        env.dispatch(AuthAction.UserDisable(env.johnUsername))
+        env.dispatch(AuthAction.User_Disable(env.johnUsername))
 
         assertThrows<UserAlreadyExistsException> {
             env.dispatch(
-                AuthAction.UserCreate(
+                AuthAction.User_Create(
                     username = env.johnUsername,
                     fullname = Fullname("Other"),
                     password = PasswordClear("other.name." + UuidUtils.generateV4String()), admin = false

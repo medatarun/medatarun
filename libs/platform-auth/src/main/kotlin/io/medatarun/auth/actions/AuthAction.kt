@@ -59,7 +59,7 @@ sealed interface AuthAction<R> {
         description = "Create a new user. This will automatically make this user available as an actor and able to connect with security tokens.",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class UserCreate(
+    class User_Create(
         @ActionParamDoc(
             name = "User or tool name (login)",
             description = "User name or tool name used on the login page or to get security tokens. Avoid special characters.",
@@ -126,7 +126,7 @@ sealed interface AuthAction<R> {
         securityRule = SecurityRuleNames.SIGNED_IN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
-    class ChangeMyPassword(
+    class User_ChangeMyPassword(
         @ActionParamDoc(
             name = "currentPassword",
             description = "Current Password",
@@ -148,7 +148,7 @@ sealed interface AuthAction<R> {
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
-    class UserChangePassword(
+    class User_ChangePassword(
         @ActionParamDoc(
             name = "username",
             description = "User name",
@@ -171,7 +171,7 @@ sealed interface AuthAction<R> {
         semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.UPDATE, ["user(username)"])
 
     )
-    class UserDisable(
+    class User_Disable(
         @ActionParamDoc(
             name = "username",
             description = "User name",
@@ -188,7 +188,7 @@ sealed interface AuthAction<R> {
         semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.UPDATE, ["user(username)"])
 
     )
-    class UserEnable(
+    class User_Enable(
         @ActionParamDoc(
             name = "username",
             description = "User name",
@@ -204,7 +204,7 @@ sealed interface AuthAction<R> {
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.UPDATE, subjects=["user(username)"], returns=[])
     )
-    class UserChangeFullname(
+    class User_ChangeFullname(
         @ActionParamDoc(
             name = "username",
             description = "User name",
@@ -226,7 +226,7 @@ sealed interface AuthAction<R> {
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(mode = ActionDocSemanticsMode.DECLARED, intent = ActionDocSemanticsIntent.READ, subjects = [], returns = ["user"])
     )
-    class UserList: AuthAction<UserListResp>
+    class User_List: AuthAction<UserListResp>
 
     @ActionDoc(
         key = "role_create",
