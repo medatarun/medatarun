@@ -70,12 +70,12 @@ class AuthEmbeddedActionsProvider(
             is AuthAction.Role_AddPermission -> launcher.roleAddPermission(action)
             is AuthAction.Role_DeletePermission -> launcher.roleDeletePermission(action)
             is AuthAction.Role_Delete -> launcher.roleDelete(action)
-            is AuthAction.ActorList -> launcher.listActors(action)
-            is AuthAction.ActorGet -> launcher.getActor(action)
+            is AuthAction.Actor_List -> launcher.listActors(action)
+            is AuthAction.Actor_Get -> launcher.getActor(action)
             is AuthAction.Actor_AddRole -> launcher.actorAddRole(action)
             is AuthAction.Actor_DeleteRole -> launcher.actorDeleteRole(action)
-            is AuthAction.ActorDisable -> launcher.disableActor(action)
-            is AuthAction.ActorEnable -> launcher.enableActor(action)
+            is AuthAction.Actor_Disable -> launcher.disableActor(action)
+            is AuthAction.Actor_Enable -> launcher.enableActor(action)
         }
     }
 
@@ -259,7 +259,7 @@ class AuthEmbeddedActionsLauncher(
     }
 
 
-    fun listActors(@Suppress("UNUSED_PARAMETER") cmd: AuthAction.ActorList): List<ActorInfoDto> {
+    fun listActors(@Suppress("UNUSED_PARAMETER") cmd: AuthAction.Actor_List): List<ActorInfoDto> {
         return actorService.listActors().map { actor ->
             ActorInfoDto(
                 id = actor.id.value.toString(),
@@ -274,7 +274,7 @@ class AuthEmbeddedActionsLauncher(
         }
     }
 
-    fun getActor(cmd: AuthAction.ActorGet): ActorDetailDto {
+    fun getActor(cmd: AuthAction.Actor_Get): ActorDetailDto {
         val actor = actorService.findById(cmd.actorId)
         val roles = actorService.findActorRoleIdSet(cmd.actorId)
         val permissions = actorService.findActorPermissionSet(cmd.actorId)
@@ -300,7 +300,7 @@ class AuthEmbeddedActionsLauncher(
         actorService.actorDeleteRole(action.actorId, action.roleRef)
     }
 
-    fun disableActor(cmd: AuthAction.ActorDisable) {
+    fun disableActor(cmd: AuthAction.Actor_Disable) {
         val actor = actorService.findById(cmd.actorId)
         if (actor.id == AppActorIdAdapter.fromAppActorId(principal.ensureSignedIn().id))
             throw ActorDisableSelfException()
@@ -311,7 +311,7 @@ class AuthEmbeddedActionsLauncher(
         }
     }
 
-    fun enableActor(cmd: AuthAction.ActorEnable) {
+    fun enableActor(cmd: AuthAction.Actor_Enable) {
         val actor = actorService.findById(cmd.actorId)
         if (actor.id == AppActorIdAdapter.fromAppActorId(principal.ensureSignedIn().id))
             throw ActorEnableSelfException()

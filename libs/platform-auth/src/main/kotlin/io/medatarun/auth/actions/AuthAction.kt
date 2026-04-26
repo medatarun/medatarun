@@ -425,7 +425,7 @@ sealed interface AuthAction<R> {
         description = "List all known actors: all actors maintained by Medatarun and also all external actor that have connected at least once. Only available for admins.",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class ActorList : AuthAction<List<ActorInfoDto>>
+    class Actor_List : AuthAction<List<ActorInfoDto>>
 
     @ActionDoc(
         key="actor_get",
@@ -433,7 +433,7 @@ sealed interface AuthAction<R> {
         description = "Get an actor by identifier. Only available for admins.",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class ActorGet(
+    class Actor_Get(
         @ActionParamDoc(
             name = "actorId",
             description = "Actor identifier",
@@ -492,7 +492,7 @@ sealed interface AuthAction<R> {
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.UPDATE, ["actor(actorId)"])
     )
-    class ActorDisable(
+    class Actor_Disable(
         @ActionParamDoc(
             name = "actorId",
             description = "Actor identifier",
@@ -508,7 +508,7 @@ sealed interface AuthAction<R> {
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.UPDATE, ["actor(actorId)"])
     )
-    class ActorEnable(
+    class Actor_Enable(
         @ActionParamDoc(
             name = "actorId",
             description = "Actor identifier",
