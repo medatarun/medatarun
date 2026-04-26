@@ -65,9 +65,9 @@ CREATE TABLE auth_role (
     key character varying(30) NOT NULL,
     name character varying(30) NOT NULL,
     description text,
-    auto_assign boolean NOT NULL,
     created_at timestamp with time zone NOT NULL,
-    last_updated_at timestamp with time zone NOT NULL
+    last_updated_at timestamp with time zone NOT NULL,
+    auto_assign boolean DEFAULT false NOT NULL
 );
 
 CREATE TABLE auth_role_permission (
@@ -123,9 +123,9 @@ CREATE INDEX idx_auth_code_expires_at ON auth_code USING btree (expires_at);
 
 CREATE INDEX idx_auth_ctx_expires_at ON auth_ctx USING btree (expires_at);
 
-CREATE UNIQUE INDEX idx_auth_role_key ON auth_role USING btree (key);
+CREATE UNIQUE INDEX idx_auth_role_auto_assign ON auth_role USING btree (auto_assign) WHERE (auto_assign IS true);
 
-CREATE UNIQUE INDEX idx_auth_role_auto_assign ON auth_role USING btree (auto_assign) WHERE auto_assign IS TRUE;
+CREATE UNIQUE INDEX idx_auth_role_key ON auth_role USING btree (key);
 
 ALTER TABLE ONLY auth_actor_role
 ADD CONSTRAINT auth_actor_role_auth_actor_id_fkey FOREIGN KEY (auth_actor_id) REFERENCES auth_actor (id);
@@ -142,8 +142,8 @@ VALUES (
     'urn:medatarun:system',
     'system-maintenance',
     'System maintenance',
-    NULL,
-    NULL,
+    null,
+    null,
     '2025-01-01T00:00:00Z',
     '2025-01-01T00:00:00Z'
 );
