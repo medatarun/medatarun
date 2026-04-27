@@ -196,13 +196,15 @@ Définir combien de temps une session peut rester active sans login/mot de passe
 ### Décisions à prendre
 
 - Garder le TTL actuel de 60 minutes pour les access tokens.
-- Définir une durée inactive glissante pour les refresh tokens.
-- Définir une durée absolue maximale pour éviter une session permanente.
+- Créer une nouvelle propriété de configuration standard de l'application pour
+  la durée des refresh tokens.
+- Donner à cette nouvelle propriété une valeur par défaut de 30 jours.
 
 ### Règle
 
-La durée exacte des refresh tokens doit être une décision produit/sécurité. Elle
-ne doit pas être déduite du TTL des access tokens.
+La durée des refresh tokens vient de la configuration standard de l'application.
+Elle ne doit pas être déduite du TTL des access tokens et ne doit pas être codée
+en dur dans l'implémentation.
 
 ## Phase 8 - Implémenter la rotation et la révocation
 
@@ -214,14 +216,14 @@ Limiter l'impact d'un refresh token volé.
 
 - À chaque refresh réussi, révoquer l'ancien refresh token.
 - Émettre et stocker un nouveau refresh token.
-- Retourner le nouveau refresh token au client.
+- Retourner toujours le nouveau refresh token au client.
 - Refuser un refresh token déjà remplacé.
 
 ### Comportement en cas de réutilisation
 
-Si un refresh token déjà remplacé est réutilisé, refuser la requête. Une
-politique plus stricte peut révoquer toute la chaîne de refresh tokens de la
-session.
+Si un refresh token déjà remplacé est réutilisé, refuser la requête.
+`oidcTokenRefresh(...)` retourne toujours un nouveau refresh token et rend
+l'ancien inutilisable.
 
 ## Phase 9 - Tests à prévoir après validation
 

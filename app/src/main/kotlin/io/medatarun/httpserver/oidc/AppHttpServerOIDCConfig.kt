@@ -119,7 +119,7 @@ fun Routing.installOidc(oidcService: OidcService, userService: UserService, publ
             fun process(): OIDCTokenResponseOrError {
 
                 val grantType = params["grant_type"]
-                    ?: return OIDCTokenResponseOrError.Error("invalid_request", "grand_type")
+                    ?: return OIDCTokenResponseOrError.Error("invalid_request", "grant_type")
 
                 return when(grantType) {
                     "authorization_code" -> {
@@ -146,7 +146,7 @@ fun Routing.installOidc(oidcService: OidcService, userService: UserService, publ
                         )
                         oidcService.oidcTokenRefresh(request)
                     }
-                    else -> OIDCTokenResponseOrError.Error("invalid_request", "unsupported_grant_type")
+                    else -> OIDCTokenResponseOrError.Error("unsupported_grant_type", grantType)
                 }
             }
 
