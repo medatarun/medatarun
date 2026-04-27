@@ -156,11 +156,11 @@ ADD CONSTRAINT auth_actor_role_auth_actor_id_fkey FOREIGN KEY (auth_actor_id) RE
 ALTER TABLE ONLY auth_actor_role
 ADD CONSTRAINT auth_actor_role_auth_role_id_fkey FOREIGN KEY (auth_role_id) REFERENCES auth_role (id);
 
-ALTER TABLE ONLY auth_role_permission
-ADD CONSTRAINT auth_role_permission_auth_role_id_fkey FOREIGN KEY (auth_role_id) REFERENCES auth_role (id);
-
 ALTER TABLE ONLY auth_refresh_token
 ADD CONSTRAINT auth_refresh_token_replaced_by_id_fkey FOREIGN KEY (replaced_by_id) REFERENCES auth_refresh_token (id);
+
+ALTER TABLE ONLY auth_role_permission
+ADD CONSTRAINT auth_role_permission_auth_role_id_fkey FOREIGN KEY (auth_role_id) REFERENCES auth_role (id);
 
 INSERT INTO auth_actor (id, issuer, subject, full_name, email, disabled_date, created_at, last_seen_at)
 VALUES (

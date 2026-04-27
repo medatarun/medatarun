@@ -32,11 +32,13 @@ class AuthDbMigration(
         when (version) {
             1 -> listOf(
                 // Only SQLite exists in this version
+                // Matches version 0.8.0
                 v001_01_users_sqlite, v001_02_oidc_sqlite, v001_03_actors_sqlite
             ).forEach { ctx.applySqlResource(it) }
 
             2 -> {
                 // Only SQLite exists in this version
+                // Matches version 0.8.0
                 ctx.applySqlResource(v002_01_ids_binary16_sqlite)
                 ctx.applySqlResource(v002_02_roles_sqlite)
                 migrationV002SeedRolesAndActorAssignments.apply(ctx)
@@ -48,6 +50,7 @@ class AuthDbMigration(
             }
 
             3 -> {
+                // Matches version 0.10.0
                 when (ctx.dialect) {
                     DbDialect.SQLITE -> ctx.applySqlResource(v003_01_role_auto_assign_sqlite)
                     DbDialect.POSTGRESQL -> ctx.applySqlResource(v003_01_role_auto_assign_postgresql)
@@ -55,6 +58,7 @@ class AuthDbMigration(
             }
 
             4 -> {
+                // Matches version 0.11.0
                 when (ctx.dialect) {
                     DbDialect.SQLITE -> ctx.applySqlResource(v004_01_refresh_token_sqlite)
                     DbDialect.POSTGRESQL -> ctx.applySqlResource(v004_01_refresh_token_postgresql)

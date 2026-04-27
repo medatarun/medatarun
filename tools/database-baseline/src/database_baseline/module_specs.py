@@ -16,6 +16,7 @@ MODULE_SPECS: tuple[ModuleSpec, ...] = (
         table_names=(
             "auth_actor",
             "auth_actor_role",
+            "auth_refresh_token",
             "auth_role",
             "auth_role_permission",
             "auth_client",

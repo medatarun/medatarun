@@ -18,6 +18,20 @@ CREATE TABLE auth_actor_role (
     FOREIGN KEY (auth_role_id) REFERENCES auth_role (id)
 );
 
+CREATE TABLE auth_refresh_token (
+    id BINARY(16) PRIMARY KEY UNIQUE,
+    token_hash TEXT NOT NULL UNIQUE,
+    client_id TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    scope TEXT NOT NULL,
+    auth_time INTEGER NOT NULL,
+    expires_at INTEGER NOT NULL,
+    revoked_at INTEGER,
+    replaced_by_id BINARY(16),
+    nonce TEXT,
+    FOREIGN KEY (replaced_by_id) REFERENCES auth_refresh_token (id)
+);
+
 CREATE TABLE auth_role (
     id BINARY(16) PRIMARY KEY UNIQUE,
     key VARCHAR(30) NOT NULL,
@@ -79,20 +93,6 @@ CREATE TABLE auth_ctx (
     nonce TEXT,
     created_at INTEGER NOT NULL,
     expires_at INTEGER NOT NULL
-);
-
-CREATE TABLE auth_refresh_token (
-    id BINARY(16) PRIMARY KEY UNIQUE,
-    token_hash TEXT NOT NULL UNIQUE,
-    client_id TEXT NOT NULL,
-    subject TEXT NOT NULL,
-    scope TEXT NOT NULL,
-    auth_time INTEGER NOT NULL,
-    expires_at INTEGER NOT NULL,
-    revoked_at INTEGER,
-    replaced_by_id BINARY(16),
-    nonce TEXT,
-    FOREIGN KEY (replaced_by_id) REFERENCES auth_refresh_token (id)
 );
 
 CREATE TABLE users (
