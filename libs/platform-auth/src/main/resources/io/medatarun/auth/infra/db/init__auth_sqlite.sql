@@ -81,6 +81,20 @@ CREATE TABLE auth_ctx (
     expires_at INTEGER NOT NULL
 );
 
+CREATE TABLE auth_refresh_token (
+    id BINARY(16) PRIMARY KEY UNIQUE,
+    token_hash TEXT NOT NULL UNIQUE,
+    client_id TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    scope TEXT NOT NULL,
+    auth_time INTEGER NOT NULL,
+    expires_at INTEGER NOT NULL,
+    revoked_at INTEGER,
+    replaced_by_id BINARY(16),
+    nonce TEXT,
+    FOREIGN KEY (replaced_by_id) REFERENCES auth_refresh_token (id)
+);
+
 CREATE TABLE users (
     id BINARY(16) PRIMARY KEY UNIQUE,
     login TEXT NOT NULL UNIQUE,
@@ -95,6 +109,8 @@ CREATE INDEX idx_auth_actor_created_at ON auth_actor (created_at);
 CREATE INDEX idx_auth_actor_issuer_subject ON auth_actor (issuer, subject);
 CREATE INDEX idx_auth_code_expires_at ON auth_code (expires_at);
 CREATE INDEX idx_auth_ctx_expires_at ON auth_ctx (expires_at);
+CREATE INDEX idx_auth_refresh_token_expires_at ON auth_refresh_token (expires_at);
+CREATE INDEX idx_auth_refresh_token_token_hash ON auth_refresh_token (token_hash);
 CREATE UNIQUE INDEX idx_auth_role_auto_assign ON auth_role (auto_assign)
 WHERE auto_assign = 1;
 CREATE UNIQUE INDEX idx_auth_role_key ON auth_role (key);

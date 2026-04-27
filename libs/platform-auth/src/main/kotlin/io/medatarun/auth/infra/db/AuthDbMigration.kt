@@ -25,7 +25,7 @@ class AuthDbMigration(
     }
 
     override fun latestVersion(): Int {
-        return 3
+        return 4
     }
 
     override fun applyVersion(version: Int, ctx: DbMigrationContext) {
@@ -54,6 +54,13 @@ class AuthDbMigration(
                 }
             }
 
+            4 -> {
+                when (ctx.dialect) {
+                    DbDialect.SQLITE -> ctx.applySqlResource(v004_01_refresh_token_sqlite)
+                    DbDialect.POSTGRESQL -> ctx.applySqlResource(v004_01_refresh_token_postgresql)
+                }
+            }
+
             else -> ctx.throwUnknownVersionException()
         }
     }
@@ -79,6 +86,8 @@ class AuthDbMigration(
         const val v002_05_rewrite_internal_issuer_sqlite = "io/medatarun/auth/infra/db/version_auth_v002_05_rewrite_internal_issuer_sqlite.sql"
         const val v003_01_role_auto_assign_sqlite = "io/medatarun/auth/infra/db/version_auth_v003_01_role_auto_assign_sqlite.sql"
         const val v003_01_role_auto_assign_postgresql = "io/medatarun/auth/infra/db/version_auth_v003_01_role_auto_assign_postgresql.sql"
+        const val v004_01_refresh_token_sqlite = "io/medatarun/auth/infra/db/version_auth_v004_01_refresh_token_sqlite.sql"
+        const val v004_01_refresh_token_postgresql = "io/medatarun/auth/infra/db/version_auth_v004_01_refresh_token_postgresql.sql"
         //@formatter:on
     }
 }
