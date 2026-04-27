@@ -72,11 +72,11 @@ class OidcWellKnownTest {
         assertEquals(1, responseTypesSupported.size)
         assertTrue(responseTypesSupported.contains("code"))
 
-        // Ensure we have only "authorization_code" (and no refresh token)
+        // Ensure we have only "authorization_code" and "refresh_token"
         val grantTypesSupported = requireStringArrayField(json, "grant_types_supported")
-        assertEquals(1, grantTypesSupported.size)
+        assertEquals(2, grantTypesSupported.size)
         assertTrue(grantTypesSupported.contains("authorization_code"))
-        assertEquals(false, grantTypesSupported.contains("refresh_token"))
+        assertTrue(grantTypesSupported.contains("refresh_token"))
 
         // Ensure we have only "public"
         val subjectTypesSupported = requireStringArrayField(json, "subject_types_supported")
@@ -89,7 +89,7 @@ class OidcWellKnownTest {
         assertTrue(idTokenAlgs.contains(expectedAlg))
 
         val scopesSupported = requireStringArrayField(json, "scopes_supported")
-        assertTrue(scopesSupported.contains("openid"))
+        assertTrue(scopesSupported.containsAll(listOf("openid", "profile", "email", "offline_access")))
 
         val claimsSupported = requireStringArrayField(json, "claims_supported")
         assertTrue(claimsSupported.containsAll(listOf("sub", "iss", "aud", "exp", "iat", "email", "roles")))
