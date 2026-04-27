@@ -6,8 +6,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
-import io.medatarun.auth.domain.oidc.OidcTokenRefreshRequest
-import io.medatarun.auth.domain.oidc.OidcTokenRequest
+import io.medatarun.auth.domain.oidc.AuthRefreshTokenRequest
+import io.medatarun.auth.domain.oidc.AuthTokenRequest
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
 import io.medatarun.auth.ports.exposed.OIDCTokenResponseOrError
 import io.medatarun.auth.ports.exposed.OidcService
@@ -123,7 +123,7 @@ fun Routing.installOidc(oidcService: OidcService, userService: UserService, publ
 
                 return when(grantType) {
                     "authorization_code" -> {
-                        val request = OidcTokenRequest(
+                        val request = AuthTokenRequest(
                             grantType = grantType,
                             code = params["code"]
                                 ?: return OIDCTokenResponseOrError.Error("invalid_request", "code"),
@@ -137,7 +137,7 @@ fun Routing.installOidc(oidcService: OidcService, userService: UserService, publ
                         oidcService.oidcToken(request)
                     }
                     "refresh_token" -> {
-                        val request = OidcTokenRefreshRequest(
+                        val request = AuthRefreshTokenRequest(
                             grantType = grantType,
                             clientId = params["client_id"]
                                 ?: return OIDCTokenResponseOrError.Error("invalid_request", "client_id"),

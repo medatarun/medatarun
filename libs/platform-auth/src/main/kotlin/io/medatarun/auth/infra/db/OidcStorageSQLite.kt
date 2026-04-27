@@ -2,6 +2,8 @@ package io.medatarun.auth.infra.db
 
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCode
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
+import io.medatarun.auth.domain.oidc.AuthRefreshToken
+import io.medatarun.auth.domain.oidc.AuthRefreshTokenId
 import io.medatarun.auth.ports.needs.OidcStorage
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.exposed.instant
@@ -12,6 +14,8 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.time.Instant
 
 class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : OidcStorage {
+    private val refreshTokens = mutableListOf<AuthRefreshToken>()
+
     override fun saveAuthCtx(oidcAuthorizeCtx: OidcAuthorizeCtx) {
         dbConnectionFactory.withExposed {
             AuthCtxTable.insert { row ->
@@ -77,10 +81,34 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
         }
     }
 
+    @Synchronized
+    override fun saveRefreshToken(refreshToken: AuthRefreshToken) {
+        refreshTokens.add(refreshToken)
+    }
+
+    @Synchronized
+    override fun findRefreshTokenByTokenHash(tokenHash: String): AuthRefreshToken? {
+        return refreshTokens.firstOrNull { it.tokenHash == tokenHash }
+    }
+
+    @Synchronized
+    override fun revokeRefreshToken(id: AuthRefreshTokenId, revokedAt: Instant, replacedById: AuthRefreshTokenId) {
+        val index = refreshTokens.indexOfFirst { it.id == id }
+        if (index == -1) return
+        val refreshToken = refreshTokens[index]
+        refreshTokens[index] = refreshToken.copy(
+            revokedAt = revokedAt,
+            replacedById = replacedById
+        )
+    }
+
     override fun purgeExpired(now: Instant) {
         dbConnectionFactory.withExposed {
             AuthCtxTable.deleteWhere { expiresAtColumn less now }
             AuthCodeTable.deleteWhere { expiresAtColumn less now }
+        }
+        synchronized(this) {
+            refreshTokens.removeAll { it.expiresAt.isBefore(now) }
         }
     }
 

@@ -3,8 +3,8 @@ package io.medatarun.auth.ports.exposed
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCode
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
-import io.medatarun.auth.domain.oidc.OidcTokenRefreshRequest
-import io.medatarun.auth.domain.oidc.OidcTokenRequest
+import io.medatarun.auth.domain.oidc.AuthRefreshTokenRequest
+import io.medatarun.auth.domain.oidc.AuthTokenRequest
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
 import io.medatarun.auth.internal.oidc.AuthClient
 import io.medatarun.platform.kernel.Service
@@ -86,7 +86,7 @@ interface OidcService: Service {
     fun oidcRegister(request: JsonObject): OidcClientRegistrationResponseOrError
 
     fun oidcTokenUri(): String
-    fun oidcToken(oidcTokenReq: OidcTokenRequest): OIDCTokenResponseOrError
+    fun oidcToken(oidcTokenReq: AuthTokenRequest): OIDCTokenResponseOrError
 
     fun oidcAuthorizeErrorLocation(resp: OidcAuthorizeResult.RedirectError): String
     fun oidcAuthority(): URI
@@ -95,5 +95,5 @@ interface OidcService: Service {
 
 
     fun oidcClientInfo(clientId: String): AuthClient?
-    fun oidcTokenRefresh(request: OidcTokenRefreshRequest): OIDCTokenResponseOrError
+    fun oidcTokenRefresh(request: AuthRefreshTokenRequest): OIDCTokenResponseOrError
 }

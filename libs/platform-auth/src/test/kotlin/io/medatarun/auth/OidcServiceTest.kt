@@ -5,7 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import io.medatarun.auth.domain.ActorNotFoundException
 import io.medatarun.auth.domain.ConfigProperties
 import io.medatarun.auth.domain.actor.Actor
-import io.medatarun.auth.domain.oidc.OidcTokenRequest
+import io.medatarun.auth.domain.oidc.AuthTokenRequest
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
@@ -599,7 +599,7 @@ class OidcServiceTest {
             assertEquals("state-123", params["state"])
 
             val tokenResult = env.oidcService.oidcToken(
-                OidcTokenRequest(
+                AuthTokenRequest(
                     grantType = "authorization_code",
                     code = code,
                     redirectUri = publicBaseUrl.resolve("/authentication-callback").toString(),
@@ -713,7 +713,7 @@ class OidcServiceTest {
             val fixture = createAuthorizationCodeFixture(env, codeVerifier)
 
             val response = env.oidcService.oidcToken(
-                OidcTokenRequest(
+                AuthTokenRequest(
                     grantType = "refresh_token",
                     code = fixture.code,
                     redirectUri = fixture.redirectUri,
@@ -736,7 +736,7 @@ class OidcServiceTest {
              * How: Call oidcToken with a random code and expect invalid_grant.
              */
             val response = env.oidcService.oidcToken(
-                OidcTokenRequest(
+                AuthTokenRequest(
                     grantType = "authorization_code",
                     code = "missing-code",
                     redirectUri = publicBaseUrl.resolve("/authentication-callback").toString(),
@@ -764,7 +764,7 @@ class OidcServiceTest {
 
             val response = try {
                 env.oidcService.oidcToken(
-                    OidcTokenRequest(
+                    AuthTokenRequest(
                         grantType = "authorization_code",
                         code = fixture.code,
                         redirectUri = fixture.redirectUri,
@@ -792,7 +792,7 @@ class OidcServiceTest {
             val fixture = createAuthorizationCodeFixture(env, codeVerifier)
 
             val response = env.oidcService.oidcToken(
-                OidcTokenRequest(
+                AuthTokenRequest(
                     grantType = "authorization_code",
                     code = fixture.code,
                     redirectUri = fixture.redirectUri,
@@ -818,7 +818,7 @@ class OidcServiceTest {
             val fixture = createAuthorizationCodeFixture(env, codeVerifier)
 
             val response = env.oidcService.oidcToken(
-                OidcTokenRequest(
+                AuthTokenRequest(
                     grantType = "authorization_code",
                     code = fixture.code,
                     redirectUri = publicBaseUrl.resolve("/other-callback").toString(),
@@ -843,7 +843,7 @@ class OidcServiceTest {
             val fixture = createAuthorizationCodeFixture(env, codeVerifier)
 
             val response = env.oidcService.oidcToken(
-                OidcTokenRequest(
+                AuthTokenRequest(
                     grantType = "authorization_code",
                     code = fixture.code,
                     redirectUri = fixture.redirectUri,
@@ -883,7 +883,7 @@ class OidcServiceTest {
 
             assertFailsWith<ActorNotFoundException> {
                 env.oidcService.oidcToken(
-                    OidcTokenRequest(
+                    AuthTokenRequest(
                         grantType = "authorization_code",
                         code = code,
                         redirectUri = publicBaseUrl.resolve("/authentication-callback").toString(),
@@ -906,7 +906,7 @@ class OidcServiceTest {
             val fixture = createAuthorizationCodeFixture(env, codeVerifier)
 
             val response = env.oidcService.oidcToken(
-                OidcTokenRequest(
+                AuthTokenRequest(
                     grantType = "authorization_code",
                     code = fixture.code,
                     redirectUri = fixture.redirectUri,
@@ -952,7 +952,7 @@ class OidcServiceTest {
             assertNotNull(code)
 
             val response = env.oidcService.oidcToken(
-                OidcTokenRequest(
+                AuthTokenRequest(
                     grantType = "authorization_code",
                     code = code,
                     redirectUri = publicBaseUrl.resolve("/authentication-callback").toString(),
@@ -978,7 +978,7 @@ class OidcServiceTest {
             val fixture = createAuthorizationCodeFixture(env, codeVerifier)
 
             val first = env.oidcService.oidcToken(
-                OidcTokenRequest(
+                AuthTokenRequest(
                     grantType = "authorization_code",
                     code = fixture.code,
                     redirectUri = fixture.redirectUri,
@@ -989,7 +989,7 @@ class OidcServiceTest {
             assertIs<OIDCTokenResponseOrError.Success>(first)
 
             val second = env.oidcService.oidcToken(
-                OidcTokenRequest(
+                AuthTokenRequest(
                     grantType = "authorization_code",
                     code = fixture.code,
                     redirectUri = fixture.redirectUri,

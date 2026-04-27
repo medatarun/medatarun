@@ -2,6 +2,8 @@ package io.medatarun.auth.ports.needs
 
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCode
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
+import io.medatarun.auth.domain.oidc.AuthRefreshToken
+import io.medatarun.auth.domain.oidc.AuthRefreshTokenId
 import java.time.Instant
 
 interface OidcStorage {
@@ -31,7 +33,16 @@ interface OidcStorage {
     fun findAuthCode(authCode: String): OidcAuthorizeCode?
     fun deleteAuthCode(authCode: String)
 
+    // ------------------------------------------------------------------------
+    // RefreshToken management
+    //
+    // Stores refresh token metadata. The token itself is not stored: only a
+    // hash is persisted so storage content cannot be reused as credentials.
+    // ------------------------------------------------------------------------
 
+    fun saveRefreshToken(refreshToken: AuthRefreshToken)
+    fun findRefreshTokenByTokenHash(tokenHash: String): AuthRefreshToken?
+    fun revokeRefreshToken(id: AuthRefreshTokenId, revokedAt: Instant, replacedById: AuthRefreshTokenId)
 
     fun purgeExpired(now: Instant)
 }

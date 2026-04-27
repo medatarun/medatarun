@@ -152,6 +152,7 @@ class AuthClientRegistry(
     companion object {
         const val oidcInternalClientId = "medatarun-ui"
         const val AUTHORIZATION_CODE_GRANT_TYPE = "authorization_code"
+        const val REFRESH_TOKEN_GRANT_TYPE = "refresh_token"
         const val AUTHORIZATION_CODE_RESPONSE_TYPE = "code"
         const val TOKEN_ENDPOINT_AUTH_METHOD_NONE = "none"
     }

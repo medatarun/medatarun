@@ -256,9 +256,13 @@ class AuthExtension(
             ConfigProperties.JwtDefaultTtlSeconds.key,
             ConfigProperties.JwtDefaultTtlSeconds.defaultValue
         ).toLong()
-        val clientRegistrationRetentionDays = ctx.getConfigProperty(
-            ConfigProperties.ClientRegistrationRetentionDays.key,
-            ConfigProperties.ClientRegistrationRetentionDays.defaultValue
+        val oauthClientRegistrationRetentionDays = ctx.getConfigProperty(
+            ConfigProperties.OAuthClientRegistrationRetentionDays.key,
+            ConfigProperties.OAuthClientRegistrationRetentionDays.defaultValue
+        ).toLong()
+        val oauthRefreshTokenTtlSeconds = ctx.getConfigProperty(
+            ConfigProperties.OAuthRefreshTokenTtlSeconds.key,
+            ConfigProperties.OAuthRefreshTokenTtlSeconds.defaultValue
         ).toLong()
 
         val jwtCfg = JwtConfig(
@@ -299,7 +303,7 @@ class AuthExtension(
         val clientStorages: List<AuthClientStorage> = listOf(internalClientStorage, inMemoryClientStorage)
 
         val authClientRegistry = AuthClientRegistry(
-            clientStorages, config.authClock, clientRegistrationRetentionDays
+            clientStorages, config.authClock, oauthClientRegistrationRetentionDays
         )
 
         val oidcService: OidcService = OidcServiceImpl(
@@ -311,6 +315,7 @@ class AuthExtension(
             clock = config.authClock,
             actorService = actorService,
             authCtxDurationSeconds = DEFAULT_AUTH_CTX_DURATION_SECONDS,
+            oauthRefreshTokenTtlSeconds = oauthRefreshTokenTtlSeconds,
             authClientRegistry = authClientRegistry,
             externalProviders = createJwtExternalProvidersFromConfigProperties(
                 object : JwkExternalProvidersImpl.Companion.ConfigResolver {
