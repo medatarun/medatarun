@@ -423,6 +423,7 @@ const authenticationConfig = createAuthenticationConfig({
   authority: getOidcAuthority(),
   client_id: getOidcClientId(),
   redirect_uri: baseURL + AuthenticationPaths.callback,
+  scope: "openid profile email offline_access",
 });
 
 const apiConfig: ConnectionConfig = {
