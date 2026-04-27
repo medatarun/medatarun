@@ -41,7 +41,9 @@ interface OidcStorage {
     // ------------------------------------------------------------------------
 
     fun saveRefreshToken(refreshToken: AuthRefreshToken)
-    fun findRefreshTokenByTokenHash(tokenHash: String): AuthRefreshToken?
+    fun findRefreshTokenByTokenHashOptional(tokenHash: String): AuthRefreshToken?
+    fun findRefreshTokenByIdOptional(id: AuthRefreshTokenId): AuthRefreshToken?
+    fun findRefreshTokensBySubject(subject: String): List<AuthRefreshToken>
     fun revokeRefreshToken(id: AuthRefreshTokenId, revokedAt: Instant, replacedById: AuthRefreshTokenId)
 
     fun purgeExpired(now: Instant)

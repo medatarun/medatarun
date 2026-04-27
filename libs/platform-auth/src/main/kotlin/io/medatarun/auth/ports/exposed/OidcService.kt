@@ -3,6 +3,8 @@ package io.medatarun.auth.ports.exposed
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCode
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
+import io.medatarun.auth.domain.oidc.AuthRefreshToken
+import io.medatarun.auth.domain.oidc.AuthRefreshTokenId
 import io.medatarun.auth.domain.oidc.AuthRefreshTokenRequest
 import io.medatarun.auth.domain.oidc.AuthTokenRequest
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
@@ -96,4 +98,22 @@ interface OidcService: Service {
 
     fun oidcClientInfo(clientId: String): AuthClient?
     fun oidcTokenRefresh(request: AuthRefreshTokenRequest): OIDCTokenResponseOrError
+
+    /**
+     * Finds a stored refresh token by its internal storage id.
+     *
+     * This is an audit method for backend code and tests. It returns refresh
+     * token metadata only; the raw refresh token value is never stored and
+     * cannot be returned.
+     */
+    fun findRefreshTokenById(id: AuthRefreshTokenId): AuthRefreshToken?
+
+    /**
+     * Finds stored refresh tokens for an OIDC subject.
+     *
+     * This is an audit method for backend code and tests. It exposes the stored
+     * rotation metadata for a subject without exposing any raw refresh token
+     * value.
+     */
+    fun findRefreshTokenBySubject(subject: String): List<AuthRefreshToken>
 }

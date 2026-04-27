@@ -99,12 +99,29 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
         }
     }
 
-    override fun findRefreshTokenByTokenHash(tokenHash: String): AuthRefreshToken? {
+    override fun findRefreshTokenByTokenHashOptional(tokenHash: String): AuthRefreshToken? {
         return dbConnectionFactory.withExposed {
             RefreshTokenTable.selectAll()
                 .where { RefreshTokenTable.tokenHashColumn eq tokenHash }
                 .singleOrNull()
                 ?.let { readRefreshToken(it) }
+        }
+    }
+
+    override fun findRefreshTokenByIdOptional(id: AuthRefreshTokenId): AuthRefreshToken? {
+        return dbConnectionFactory.withExposed {
+            RefreshTokenTable.selectAll()
+                .where { RefreshTokenTable.idColumn eq id }
+                .singleOrNull()
+                ?.let { readRefreshToken(it) }
+        }
+    }
+
+    override fun findRefreshTokensBySubject(subject: String): List<AuthRefreshToken> {
+        return dbConnectionFactory.withExposed {
+            RefreshTokenTable.selectAll()
+                .where { RefreshTokenTable.subjectColumn eq subject }
+                .map { readRefreshToken(it) }
         }
     }
 

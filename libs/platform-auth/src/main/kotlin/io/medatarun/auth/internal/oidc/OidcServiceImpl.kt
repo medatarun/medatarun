@@ -67,6 +67,14 @@ class OidcServiceImpl(
         return  authClientRegistry.find( clientId)
     }
 
+    override fun findRefreshTokenById(id: AuthRefreshTokenId): AuthRefreshToken? {
+        return oidcAuthCodeStorage.findRefreshTokenByIdOptional(id)
+    }
+
+    override fun findRefreshTokenBySubject(subject: String): List<AuthRefreshToken> {
+        return oidcAuthCodeStorage.findRefreshTokensBySubject(subject)
+    }
+
     override fun jwtVerifierResolver(): JwtVerifierResolver {
         return jwtVerifierResolver
     }
@@ -379,7 +387,7 @@ class OidcServiceImpl(
         val tokenHash = refreshTokenHash(request.refreshToken)
 
         // Find matching token or fail
-        val existingRefreshToken = oidcAuthCodeStorage.findRefreshTokenByTokenHash(tokenHash)
+        val existingRefreshToken = oidcAuthCodeStorage.findRefreshTokenByTokenHashOptional(tokenHash)
             ?: return OIDCTokenResponseOrError.Error("invalid_grant")
 
 
