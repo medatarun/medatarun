@@ -23,7 +23,10 @@ class AuthClientStorageInternal(
             createdAt = now,
             lastUsedAt = now,
             redirectUris = listOf(publicBaseUrl.resolve("/authentication-callback")),
-            grantTypes = listOf(AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE),
+            grantTypes = listOf(
+                AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE,
+                AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE
+            ),
             responseTypes = listOf(AuthClientRegistry.AUTHORIZATION_CODE_RESPONSE_TYPE),
             tokenEndpointAuthMethod = AuthClientRegistry.TOKEN_ENDPOINT_AUTH_METHOD_NONE,
             clientName = "Medatarun UI",

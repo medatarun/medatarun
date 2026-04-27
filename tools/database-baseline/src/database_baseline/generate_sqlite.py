@@ -87,11 +87,11 @@ def ensure_all_tables_mapped(db_inspection_result: DbInspectionResult, module_sp
     source_tables = set(db_inspection_result.tables.keys())
     unknown_tables = sorted(source_tables - all_declared_tables)
     if unknown_tables:
-        raise RuntimeError(f"Source database contains unmapped tables: {', '.join(unknown_tables)}")
+        raise RuntimeError(f"Source database contains unmapped tables: {unknown_tables}")
 
     missing_tables = sorted(all_declared_tables - source_tables)
     if missing_tables:
-        raise RuntimeError(f"Mapped tables missing from source database: {', '.join(missing_tables)}")
+        raise RuntimeError(f"Mapped tables missing from source database: {missing_tables}")
 
 
 def build_module_script(

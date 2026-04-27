@@ -6,7 +6,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
-import io.medatarun.auth.domain.oidc.OidcTokenRequest
+import io.medatarun.auth.domain.oidc.AuthRefreshTokenRequest
+import io.medatarun.auth.domain.oidc.AuthTokenRequest
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
 import io.medatarun.auth.ports.exposed.OIDCTokenResponseOrError
 import io.medatarun.auth.ports.exposed.OidcService
@@ -116,19 +117,37 @@ fun Routing.installOidc(oidcService: OidcService, userService: UserService, publ
 
 
             fun process(): OIDCTokenResponseOrError {
-                val request = OidcTokenRequest(
-                    grantType = params["grant_type"]
-                        ?: return OIDCTokenResponseOrError.Error("invalid_request", "grand_type"),
-                    code = params["code"]
-                        ?: return OIDCTokenResponseOrError.Error("invalid_request", "code"),
-                    redirectUri = params["redirect_uri"]
-                        ?: return OIDCTokenResponseOrError.Error("invalid_request", "redirect_uri"),
-                    clientId = params["client_id"]
-                        ?: return OIDCTokenResponseOrError.Error("invalid_request", "client_id"),
-                    codeVerifier = params["code_verifier"]
-                        ?: return OIDCTokenResponseOrError.Error("invalid_request", "code_verifier"),
-                )
-                return oidcService.oidcToken(request)
+
+                val grantType = params["grant_type"]
+                    ?: return OIDCTokenResponseOrError.Error("invalid_request", "grant_type")
+
+                return when(grantType) {
+                    "authorization_code" -> {
+                        val request = AuthTokenRequest(
+                            grantType = grantType,
+                            code = params["code"]
+                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "code"),
+                            redirectUri = params["redirect_uri"]
+                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "redirect_uri"),
+                            clientId = params["client_id"]
+                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "client_id"),
+                            codeVerifier = params["code_verifier"]
+                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "code_verifier"),
+                        )
+                        oidcService.oidcToken(request)
+                    }
+                    "refresh_token" -> {
+                        val request = AuthRefreshTokenRequest(
+                            grantType = grantType,
+                            clientId = params["client_id"]
+                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "client_id"),
+                            refreshToken = params["refresh_token"]
+                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "refresh_token"),
+                        )
+                        oidcService.oidcTokenRefresh(request)
+                    }
+                    else -> OIDCTokenResponseOrError.Error("unsupported_grant_type", grantType)
+                }
             }
 
             when (val tokenResponse = process()) {

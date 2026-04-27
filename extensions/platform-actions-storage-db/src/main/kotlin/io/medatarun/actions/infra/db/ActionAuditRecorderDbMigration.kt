@@ -20,6 +20,7 @@ class ActionAuditRecorderDbMigration(override val pluginId: String) : DbMigratio
     override fun applyVersion(version: Int, ctx: DbMigrationContext) {
         when (version) {
             1 -> ctx.applySqlResource(v001)
+            // Matches version 0.8.0
             2 -> ctx.applySqlResource(v002)
             else -> ctx.throwUnknownVersionException()
         }

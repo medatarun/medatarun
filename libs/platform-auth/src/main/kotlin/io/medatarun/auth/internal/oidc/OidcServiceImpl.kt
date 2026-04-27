@@ -10,7 +10,10 @@ import io.medatarun.auth.domain.jwt.JwtKeyMaterial
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCode
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
-import io.medatarun.auth.domain.oidc.OidcTokenRequest
+import io.medatarun.auth.domain.oidc.AuthRefreshToken
+import io.medatarun.auth.domain.oidc.AuthRefreshTokenId
+import io.medatarun.auth.domain.oidc.AuthRefreshTokenRequest
+import io.medatarun.auth.domain.oidc.AuthTokenRequest
 import io.medatarun.auth.internal.actors.ActorClaimsAdapter
 import io.medatarun.auth.internal.jwk.JwkExternalProviders
 import io.medatarun.auth.internal.jwk.JwksAdapter
@@ -25,6 +28,7 @@ import kotlinx.serialization.json.*
 import java.net.URI
 import java.net.URLEncoder
 import java.security.MessageDigest
+import java.security.SecureRandom
 import java.time.Instant
 import java.util.*
 
@@ -37,6 +41,7 @@ class OidcServiceImpl(
     private val clock: AuthClock,
     private val actorService: ActorService,
     private val authCtxDurationSeconds: Long,
+    private val oauthRefreshTokenTtlSeconds: Long,
     private val authClientRegistry: AuthClientRegistry,
     private val externalProviders: JwkExternalProviders,
     private val oidcProviderConfig: OidcProviderConfig?,
@@ -60,6 +65,14 @@ class OidcServiceImpl(
 
     override fun oidcClientInfo( clientId: String): AuthClient? {
         return  authClientRegistry.find( clientId)
+    }
+
+    override fun findRefreshTokenById(id: AuthRefreshTokenId): AuthRefreshToken? {
+        return oidcAuthCodeStorage.findRefreshTokenByIdOptional(id)
+    }
+
+    override fun findRefreshTokenBySubject(subject: String): List<AuthRefreshToken> {
+        return oidcAuthCodeStorage.findRefreshTokensBySubject(subject)
     }
 
     override fun jwtVerifierResolver(): JwtVerifierResolver {
@@ -93,16 +106,31 @@ class OidcServiceImpl(
             // This make us PKCE comparible
             putJsonArray("response_types_supported") { add("code") }
 
-            // Our OIDC doesn't support token refresh, so no "refresh_token"
-            putJsonArray("grant_types_supported") { addAll(listOf("authorization_code")) }
+            putJsonArray("grant_types_supported") {
+                add(AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE)
+                add(AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE)
+            }
             putJsonArray("token_endpoint_auth_methods_supported") { add(AuthClientRegistry.TOKEN_ENDPOINT_AUTH_METHOD_NONE) }
 
             // Indicates that the "sub" in the token is the same whatever the client who requests the token
             putJsonArray("subject_types_supported") { add("public") }
             putJsonArray("id_token_signing_alg_values_supported") { add(oidcJwkKeySingle().alg) }
 
-            putJsonArray("scopes_supported") { addAll(listOf("openid", "profile", "email")) }
-            putJsonArray("claims_supported") { addAll(listOf("sub", "iss", "aud", "exp", "iat", "email", "roles")) }
+            putJsonArray("scopes_supported") {
+                add("openid")
+                add("profile")
+                add("email")
+                add("offline_access")
+            }
+            putJsonArray("claims_supported") {
+                add("sub")
+                add("iss")
+                add("aud")
+                add("exp")
+                add("iat")
+                add("email")
+                add("roles")
+            }
 
             putJsonArray("code_challenge_methods_supported") { add("S256") }
         }
@@ -289,7 +317,7 @@ class OidcServiceImpl(
         }
     }
 
-    override fun oidcToken(req: OidcTokenRequest): OIDCTokenResponseOrError {
+    override fun oidcToken(req: AuthTokenRequest): OIDCTokenResponseOrError {
 
         if (req.grantType != "authorization_code") {
             return OIDCTokenResponseOrError.Error("invalid_grant")
@@ -330,6 +358,13 @@ class OidcServiceImpl(
             nonce = authCode.nonce
         )
         val oidcAccessTokenResp = oauthService.createOAuthAccessTokenForActor(actor)
+        val refreshToken = createInitialRefreshTokenIfAllowed(
+            clientId = req.clientId,
+            subject = authCode.subject,
+            scope = authCode.scope,
+            authTime = authCode.authTime,
+            nonce = authCode.nonce
+        )
 
         return OIDCTokenResponseOrError.Success(
             OIDCTokenResponse(
@@ -337,9 +372,157 @@ class OidcServiceImpl(
                 accessToken = oidcAccessTokenResp.accessToken,
                 tokenType = "Bearer",
                 expiresIn = jwtCfg.ttlSeconds,
+                refreshToken = refreshToken
             )
         )
 
+    }
+
+    override fun oidcTokenRefresh(request: AuthRefreshTokenRequest): OIDCTokenResponseOrError {
+        if (request.grantType != AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE) {
+            return OIDCTokenResponseOrError.Error("invalid_grant")
+        }
+
+        // Converts the token received to a hash, because storage only stores the hashes and not the real value
+        val tokenHash = refreshTokenHash(request.refreshToken)
+
+        // Find matching token or fail
+        val existingRefreshToken = oidcAuthCodeStorage.findRefreshTokenByTokenHashOptional(tokenHash)
+            ?: return OIDCTokenResponseOrError.Error("invalid_grant")
+
+
+        // cheks the token is not expired
+        val now = clock.now()
+        if (now.isAfter(existingRefreshToken.expiresAt)) {
+            return OIDCTokenResponseOrError.Error("invalid_grant")
+        }
+
+        // cheks the token had not been revoked by another one
+        if (existingRefreshToken.revokedAt != null) {
+            return OIDCTokenResponseOrError.Error("invalid_grant")
+        }
+
+        // cheks the token had been generated by this client
+        if (existingRefreshToken.clientId != request.clientId) {
+            return OIDCTokenResponseOrError.Error("invalid_grant")
+        }
+
+        // From the refresh token get the actor to we know which subject to return
+        val actor = actorService.findByIssuerAndSubjectOptional(oidcIssuer(), existingRefreshToken.subject)
+            ?: throw ActorNotFoundException()
+
+        val nextRefreshTokenWithRawValue = createRefreshTokenWithRawValue(
+            clientId = existingRefreshToken.clientId,
+            subject = existingRefreshToken.subject,
+            scope = existingRefreshToken.scope,
+            authTime = existingRefreshToken.authTime,
+            nonce = existingRefreshToken.nonce
+        )
+
+        // Save the new token and marks old token replaced with new one
+        oidcAuthCodeStorage.saveRefreshToken(nextRefreshTokenWithRawValue.refreshToken)
+        oidcAuthCodeStorage.revokeRefreshToken(existingRefreshToken.id, now, nextRefreshTokenWithRawValue.refreshToken.id)
+
+        // Generate claims and the response with new token value
+        // It's like the original token creation
+        val claims = actorClaimsAdapter.createUserClaims(actor)
+        val idToken = issueIdToken(
+            sub = existingRefreshToken.subject,
+            clientId = existingRefreshToken.clientId,
+            claims = claims,
+            authTime = existingRefreshToken.authTime,
+            nonce = existingRefreshToken.nonce
+        )
+        val accessTokenResponse = oauthService.createOAuthAccessTokenForActor(actor)
+
+        return OIDCTokenResponseOrError.Success(
+            OIDCTokenResponse(
+                idToken = idToken,
+                accessToken = accessTokenResponse.accessToken,
+                tokenType = "Bearer",
+                expiresIn = jwtCfg.ttlSeconds,
+                refreshToken = nextRefreshTokenWithRawValue.refreshTokenValue
+            )
+        )
+    }
+
+    private fun createInitialRefreshTokenIfAllowed(
+        clientId: String,
+        subject: String,
+        scope: String,
+        authTime: Instant,
+        nonce: String?
+    ): String? {
+        if (!scope.split(" ").contains("offline_access")) {
+            return null
+        }
+
+        val client = authClientRegistry.find(clientId)
+            ?: return null
+        if (!client.grantTypes.contains(AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE)) {
+            return null
+        }
+
+        val refreshToken = createRefreshTokenWithRawValue(
+            clientId = clientId,
+            subject = subject,
+            scope = scope,
+            authTime = authTime,
+            nonce = nonce
+        )
+        oidcAuthCodeStorage.saveRefreshToken(refreshToken.refreshToken)
+        return refreshToken.refreshTokenValue
+    }
+
+    private fun createRefreshTokenWithRawValue(
+        clientId: String,
+        subject: String,
+        scope: String,
+        authTime: Instant,
+        nonce: String?
+    ): AuthRefreshTokenWithRawValue {
+        val refreshTokenValue = generateRefreshTokenValue()
+        val now = clock.now()
+        return AuthRefreshTokenWithRawValue(
+            refreshTokenValue = refreshTokenValue,
+            refreshToken = AuthRefreshToken(
+                id = AuthRefreshTokenId.generate(),
+                tokenHash = refreshTokenHash(refreshTokenValue),
+                clientId = clientId,
+                subject = subject,
+                scope = scope,
+                authTime = authTime,
+                expiresAt = now.plusSeconds(oauthRefreshTokenTtlSeconds),
+                revokedAt = null,
+                replacedById = null,
+                nonce = nonce
+            )
+        )
+    }
+
+    /**
+     * A refresh token with its random value. Note that in AuthRefreshToken
+     * we don't keep the value sent to the client, just the hash.
+     */
+    private data class AuthRefreshTokenWithRawValue(
+        val refreshTokenValue: String,
+        val refreshToken: AuthRefreshToken
+    )
+
+    private fun generateRefreshTokenValue(): String {
+        val bytes = ByteArray(REFRESH_TOKEN_BYTES)
+        secureRandom.nextBytes(bytes)
+        return Base64.getUrlEncoder()
+            .withoutPadding()
+            .encodeToString(bytes)
+    }
+
+    private fun refreshTokenHash(refreshToken: String): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        val hash = digest.digest(refreshToken.toByteArray(Charsets.UTF_8))
+        return Base64.getUrlEncoder()
+            .withoutPadding()
+            .encodeToString(hash)
     }
 
     fun pkceChallenge(verifier: String): String {
@@ -397,6 +580,8 @@ class OidcServiceImpl(
         const val AUTH_TOKEN_URI = "/auth/token"
         const val AUTH_REGISTER_URI = "/auth/register"
         const val AUTH_USER_INFO_URI = "/auth/userinfo"
+        private const val REFRESH_TOKEN_BYTES = 32
+        private val secureRandom = SecureRandom()
     }
 
 }

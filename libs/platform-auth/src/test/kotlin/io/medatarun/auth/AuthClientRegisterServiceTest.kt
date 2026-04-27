@@ -75,7 +75,7 @@ class AuthClientRegisterServiceTest {
     fun `oidcRegister purges inactive dynamic clients based on retention days`() {
         val envWithRetention = AuthEnvTest(
             extraProps = mapOf(
-                ConfigProperties.ClientRegistrationRetentionDays.key to "7"
+                ConfigProperties.OAuthClientRegistrationRetentionDays.key to "7"
             ),
             publicBaseUrl = URI("https://auth.example.test")
         )

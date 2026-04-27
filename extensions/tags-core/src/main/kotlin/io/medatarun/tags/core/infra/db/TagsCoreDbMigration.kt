@@ -25,7 +25,9 @@ class TagsCoreDbMigration(
 
     override fun applyVersion(version: Int, ctx: DbMigrationContext) {
         when (version) {
+            // matches version 0.7.0
             1 -> ctx.applySqlResource(v001)
+            // matches version 0.8.0 (only SQLite)
             2 -> {
                 ctx.applySqlResource(v002_base)
                 ctx.applySqlResource(v002_history)

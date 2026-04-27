@@ -60,6 +60,19 @@ CREATE TABLE auth_ctx (
     expires_at timestamp with time zone NOT NULL
 );
 
+CREATE TABLE auth_refresh_token (
+    id uuid NOT NULL,
+    token_hash text NOT NULL,
+    client_id text NOT NULL,
+    subject text NOT NULL,
+    scope text NOT NULL,
+    auth_time timestamp with time zone NOT NULL,
+    expires_at timestamp with time zone NOT NULL,
+    revoked_at timestamp with time zone,
+    replaced_by_id uuid,
+    nonce text
+);
+
 CREATE TABLE auth_role (
     id uuid NOT NULL,
     key character varying(30) NOT NULL,
@@ -103,6 +116,12 @@ ADD CONSTRAINT auth_code_pkey PRIMARY KEY (code);
 ALTER TABLE ONLY auth_ctx
 ADD CONSTRAINT auth_ctx_pkey PRIMARY KEY (authorize_ctx_code);
 
+ALTER TABLE ONLY auth_refresh_token
+ADD CONSTRAINT auth_refresh_token_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY auth_refresh_token
+ADD CONSTRAINT auth_refresh_token_token_hash_key UNIQUE (token_hash);
+
 ALTER TABLE ONLY auth_role_permission
 ADD CONSTRAINT auth_role_permission_pkey PRIMARY KEY (auth_role_id, permission);
 
@@ -123,6 +142,10 @@ CREATE INDEX idx_auth_code_expires_at ON auth_code USING btree (expires_at);
 
 CREATE INDEX idx_auth_ctx_expires_at ON auth_ctx USING btree (expires_at);
 
+CREATE INDEX idx_auth_refresh_token_expires_at ON auth_refresh_token USING btree (expires_at);
+
+CREATE INDEX idx_auth_refresh_token_token_hash ON auth_refresh_token USING btree (token_hash);
+
 CREATE UNIQUE INDEX idx_auth_role_auto_assign ON auth_role USING btree (auto_assign) WHERE (auto_assign IS true);
 
 CREATE UNIQUE INDEX idx_auth_role_key ON auth_role USING btree (key);
@@ -132,6 +155,9 @@ ADD CONSTRAINT auth_actor_role_auth_actor_id_fkey FOREIGN KEY (auth_actor_id) RE
 
 ALTER TABLE ONLY auth_actor_role
 ADD CONSTRAINT auth_actor_role_auth_role_id_fkey FOREIGN KEY (auth_role_id) REFERENCES auth_role (id);
+
+ALTER TABLE ONLY auth_refresh_token
+ADD CONSTRAINT auth_refresh_token_replaced_by_id_fkey FOREIGN KEY (replaced_by_id) REFERENCES auth_refresh_token (id);
 
 ALTER TABLE ONLY auth_role_permission
 ADD CONSTRAINT auth_role_permission_auth_role_id_fkey FOREIGN KEY (auth_role_id) REFERENCES auth_role (id);

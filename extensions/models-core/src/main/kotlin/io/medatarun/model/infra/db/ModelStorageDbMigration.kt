@@ -23,15 +23,15 @@ class ModelStorageDbMigration(override val pluginId: String) : DbMigration {
 
     override fun applyVersion(version: Int, ctx: DbMigrationContext) {
         when (version) {
-            // v0.8.0
+            // matches version v0.8.0
             1 -> ctx.applySqlResource(v001)
-            // v0.9.0 (current)
+            // matches version v0.9.0
             2 -> {
                 ctx.applySqlResource(v002_traceability)
                 ctx.applySqlResource(v002_uids_binary)
                 v002ModelFixTypeEvents.migrate(ctx)
             }
-            // v0.10.0 (current)
+            // matches version v0.10.0
             3 -> {
                 when (ctx.dialect) {
                     DbDialect.SQLITE -> ctx.applySqlResource(v003_01_pk_bk_sqlite)
