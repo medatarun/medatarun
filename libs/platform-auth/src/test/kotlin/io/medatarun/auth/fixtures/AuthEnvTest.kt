@@ -63,6 +63,8 @@ class AuthEnvTest(
     private val extraProps: Map<String, String> = emptyMap(),
     val publicBaseUrl: URI = URI("https://auth.example.test")
 ) {
+    val oidcInternalClientId: String = AuthClientRegistry.oidcInternalClientId
+
     var actionCtx: ActionCtx = ActionCtxWithActor(null)
     val userService: UserService
     val oidcService: OidcService
@@ -91,6 +93,11 @@ class AuthEnvTest(
         props = TestDbConfig().testDatabaseProperties(extraProps),
         publicBaseURL = publicBaseUrl
     )
+
+    val clientDefaultRedirectUri = publicBaseUrl.resolve("/authentication-callback").toString()
+    val clientDefaultCodeVerifier = "verifier-" + UuidUtils.generateV4String()
+    val clientDefaultCodeChallenge = AuthTestUtils.pkceChallengeForTest(clientDefaultCodeVerifier)
+    val clientScopeWithRefresh = "openid profile email offline_access"
 
     // Fake clock that always give the same point in time. Used to tests instant.now()
     val authClockTests = ClockTester()
