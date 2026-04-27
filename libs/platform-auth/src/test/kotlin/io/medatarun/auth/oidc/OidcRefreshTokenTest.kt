@@ -1,7 +1,29 @@
 package io.medatarun.auth.oidc
 
+import com.auth0.jwt.JWT
+import io.medatarun.auth.domain.ConfigProperties
+import io.medatarun.auth.domain.oidc.AuthRefreshTokenRequest
+import io.medatarun.auth.domain.oidc.AuthTokenRequest
+import io.medatarun.auth.fixtures.AuthEnvTest
+import io.medatarun.auth.fixtures.AuthTestUtils
+import io.medatarun.auth.internal.oidc.AuthClientRegistry
+import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
+import io.medatarun.auth.ports.exposed.OIDCTokenResponseOrError
+import io.medatarun.auth.ports.exposed.OidcClientRegistrationResponseOrError
+import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
+import kotlinx.serialization.json.add
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertIs
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /**
  * Tests for OAuth refresh tokens exposed through the OIDC token endpoint.
@@ -19,7 +41,42 @@ class OidcRefreshTokenTest {
      */
     @Test
     fun `oidcToken returns refresh token when offline_access is requested`() {
-        TODO()
+        val env = AuthEnvTest()
+        val actor = env.createUserActor()
+        val clientId = AuthClientRegistry.oidcInternalClientId
+        val redirectUri = env.publicBaseUrl.resolve("/authentication-callback").toString()
+        val scope = "openid profile email offline_access"
+        val nonce = "nonce-123"
+        val codeVerifier = "verifier-" + UuidUtils.generateV4String()
+        val codeChallenge = AuthTestUtils.pkceChallengeForTest(codeVerifier)
+
+        val authorizeResult = env.oidcService.oidcAuthorize(
+            env.buildAuthorizeRequest(
+                clientId = clientId,
+                redirectUri = redirectUri,
+                scope = scope,
+                codeChallenge = codeChallenge,
+                nonce = nonce
+            )
+        )
+        assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+        val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(authorizeResult.authCtxCode, actor.subject)
+        val authorizationCode = AuthTestUtils.parseQueryParams(redirectLocation)["code"]
+        assertNotNull(authorizationCode)
+
+        val tokenResult = env.oidcService.oidcToken(
+            AuthTokenRequest(
+                grantType = AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE,
+                code = authorizationCode,
+                redirectUri = redirectUri,
+                clientId = clientId,
+                codeVerifier = codeVerifier
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(tokenResult)
+
+        assertNotNull(tokenResult.token.refreshToken)
     }
 
     /**
@@ -31,7 +88,42 @@ class OidcRefreshTokenTest {
      */
     @Test
     fun `oidcToken does not return refresh token without offline_access`() {
-        TODO()
+        val env = AuthEnvTest()
+        val actor = env.createUserActor()
+        val clientId = AuthClientRegistry.oidcInternalClientId
+        val redirectUri = env.publicBaseUrl.resolve("/authentication-callback").toString()
+        val scope = "openid profile email"
+        val nonce = "nonce-123"
+        val codeVerifier = "verifier-" + UuidUtils.generateV4String()
+        val codeChallenge = AuthTestUtils.pkceChallengeForTest(codeVerifier)
+
+        val authorizeResult = env.oidcService.oidcAuthorize(
+            env.buildAuthorizeRequest(
+                clientId = clientId,
+                redirectUri = redirectUri,
+                scope = scope,
+                codeChallenge = codeChallenge,
+                nonce = nonce
+            )
+        )
+        assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+        val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(authorizeResult.authCtxCode, actor.subject)
+        val authorizationCode = AuthTestUtils.parseQueryParams(redirectLocation)["code"]
+        assertNotNull(authorizationCode)
+
+        val tokenResult = env.oidcService.oidcToken(
+            AuthTokenRequest(
+                grantType = AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE,
+                code = authorizationCode,
+                redirectUri = redirectUri,
+                clientId = clientId,
+                codeVerifier = codeVerifier
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(tokenResult)
+
+        assertNull(tokenResult.token.refreshToken)
     }
 
     /**
@@ -44,7 +136,54 @@ class OidcRefreshTokenTest {
      */
     @Test
     fun `oidcToken does not return refresh token when client does not allow refresh token grant`() {
-        TODO()
+        val env = AuthEnvTest()
+        val actor = env.createUserActor()
+        val redirectUri = "http://127.0.0.1:8788/callback-" + UuidUtils.generateV4String()
+        val registrationResult = env.oidcService.oidcRegister(
+            buildJsonObject {
+                putJsonArray("redirect_uris") { add(redirectUri) }
+                putJsonArray("grant_types") { add(AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE) }
+                putJsonArray("response_types") { add(AuthClientRegistry.AUTHORIZATION_CODE_RESPONSE_TYPE) }
+                put("token_endpoint_auth_method", AuthClientRegistry.TOKEN_ENDPOINT_AUTH_METHOD_NONE)
+                put("client_name", "Refresh token test client")
+            }
+        )
+        assertIs<OidcClientRegistrationResponseOrError.Success>(registrationResult)
+        assertFalse(registrationResult.registration.grantTypes.contains(AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE))
+
+        val clientId = registrationResult.registration.clientId
+        val scope = "openid profile email offline_access"
+        val nonce = "nonce-123"
+        val codeVerifier = "verifier-" + UuidUtils.generateV4String()
+        val codeChallenge = AuthTestUtils.pkceChallengeForTest(codeVerifier)
+
+        val authorizeResult = env.oidcService.oidcAuthorize(
+            env.buildAuthorizeRequest(
+                clientId = clientId,
+                redirectUri = redirectUri,
+                scope = scope,
+                codeChallenge = codeChallenge,
+                nonce = nonce
+            )
+        )
+        assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+        val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(authorizeResult.authCtxCode, actor.subject)
+        val authorizationCode = AuthTestUtils.parseQueryParams(redirectLocation)["code"]
+        assertNotNull(authorizationCode)
+
+        val tokenResult = env.oidcService.oidcToken(
+            AuthTokenRequest(
+                grantType = AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE,
+                code = authorizationCode,
+                redirectUri = redirectUri,
+                clientId = clientId,
+                codeVerifier = codeVerifier
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(tokenResult)
+
+        assertNull(tokenResult.token.refreshToken)
     }
 
     /**
@@ -56,7 +195,46 @@ class OidcRefreshTokenTest {
      */
     @Test
     fun `oidcToken stores refresh token hash and not raw refresh token value`() {
-        TODO()
+        val env = AuthEnvTest()
+        val actor = env.createUserActor()
+        val clientId = AuthClientRegistry.oidcInternalClientId
+        val redirectUri = env.publicBaseUrl.resolve("/authentication-callback").toString()
+        val scope = "openid profile email offline_access"
+        val nonce = "nonce-123"
+        val codeVerifier = "verifier-" + UuidUtils.generateV4String()
+        val codeChallenge = AuthTestUtils.pkceChallengeForTest(codeVerifier)
+
+        val authorizeResult = env.oidcService.oidcAuthorize(
+            env.buildAuthorizeRequest(
+                clientId = clientId,
+                redirectUri = redirectUri,
+                scope = scope,
+                codeChallenge = codeChallenge,
+                nonce = nonce
+            )
+        )
+        assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+        val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(authorizeResult.authCtxCode, actor.subject)
+        val authorizationCode = AuthTestUtils.parseQueryParams(redirectLocation)["code"]
+        assertNotNull(authorizationCode)
+
+        val tokenResult = env.oidcService.oidcToken(
+            AuthTokenRequest(
+                grantType = AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE,
+                code = authorizationCode,
+                redirectUri = redirectUri,
+                clientId = clientId,
+                codeVerifier = codeVerifier
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(tokenResult)
+
+        val refreshTokenValue = assertNotNull(tokenResult.token.refreshToken)
+        val storedRefreshTokens = env.oidcService.findRefreshTokenBySubject(actor.subject)
+        assertEquals(1, storedRefreshTokens.size)
+        assertNotEquals(refreshTokenValue, storedRefreshTokens.single().tokenHash)
+        assertTrue(storedRefreshTokens.single().tokenHash.isNotBlank())
     }
 
     /**
@@ -68,7 +246,57 @@ class OidcRefreshTokenTest {
      */
     @Test
     fun `oidcTokenRefresh returns new tokens and a new refresh token`() {
-        TODO()
+        val env = AuthEnvTest()
+        val actor = env.createUserActor()
+        val clientId = AuthClientRegistry.oidcInternalClientId
+        val redirectUri = env.publicBaseUrl.resolve("/authentication-callback").toString()
+        val scope = "openid profile email offline_access"
+        val nonce = "nonce-123"
+        val codeVerifier = "verifier-" + UuidUtils.generateV4String()
+        val codeChallenge = AuthTestUtils.pkceChallengeForTest(codeVerifier)
+
+        val authorizeResult = env.oidcService.oidcAuthorize(
+            env.buildAuthorizeRequest(
+                clientId = clientId,
+                redirectUri = redirectUri,
+                scope = scope,
+                codeChallenge = codeChallenge,
+                nonce = nonce
+            )
+        )
+        assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+        val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(authorizeResult.authCtxCode, actor.subject)
+        val authorizationCode = AuthTestUtils.parseQueryParams(redirectLocation)["code"]
+        assertNotNull(authorizationCode)
+
+        val tokenResult = env.oidcService.oidcToken(
+            AuthTokenRequest(
+                grantType = AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE,
+                code = authorizationCode,
+                redirectUri = redirectUri,
+                clientId = clientId,
+                codeVerifier = codeVerifier
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(tokenResult)
+        val firstRefreshToken = assertNotNull(tokenResult.token.refreshToken)
+
+        val refreshResult = env.oidcService.oidcTokenRefresh(
+            AuthRefreshTokenRequest(
+                grantType = AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE,
+                clientId = clientId,
+                refreshToken = firstRefreshToken
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(refreshResult)
+
+        assertTrue(refreshResult.token.accessToken.isNotBlank())
+        assertTrue(refreshResult.token.idToken.isNotBlank())
+        assertEquals("Bearer", refreshResult.token.tokenType)
+        assertEquals(env.jwtConfig.ttlSeconds, refreshResult.token.expiresIn)
+        val nextRefreshToken = assertNotNull(refreshResult.token.refreshToken)
+        assertNotEquals(firstRefreshToken, nextRefreshToken)
     }
 
     /**
@@ -80,7 +308,60 @@ class OidcRefreshTokenTest {
      */
     @Test
     fun `oidcTokenRefresh rejects previous refresh token after rotation`() {
-        TODO()
+        val env = AuthEnvTest()
+        val actor = env.createUserActor()
+        val clientId = AuthClientRegistry.oidcInternalClientId
+        val redirectUri = env.publicBaseUrl.resolve("/authentication-callback").toString()
+        val scope = "openid profile email offline_access"
+        val nonce = "nonce-123"
+        val codeVerifier = "verifier-" + UuidUtils.generateV4String()
+        val codeChallenge = AuthTestUtils.pkceChallengeForTest(codeVerifier)
+
+        val authorizeResult = env.oidcService.oidcAuthorize(
+            env.buildAuthorizeRequest(
+                clientId = clientId,
+                redirectUri = redirectUri,
+                scope = scope,
+                codeChallenge = codeChallenge,
+                nonce = nonce
+            )
+        )
+        assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+        val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(authorizeResult.authCtxCode, actor.subject)
+        val authorizationCode = AuthTestUtils.parseQueryParams(redirectLocation)["code"]
+        assertNotNull(authorizationCode)
+
+        val tokenResult = env.oidcService.oidcToken(
+            AuthTokenRequest(
+                grantType = AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE,
+                code = authorizationCode,
+                redirectUri = redirectUri,
+                clientId = clientId,
+                codeVerifier = codeVerifier
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(tokenResult)
+        val firstRefreshToken = assertNotNull(tokenResult.token.refreshToken)
+
+        val firstRefreshResult = env.oidcService.oidcTokenRefresh(
+            AuthRefreshTokenRequest(
+                grantType = AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE,
+                clientId = clientId,
+                refreshToken = firstRefreshToken
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(firstRefreshResult)
+
+        val replayResponse = env.oidcService.oidcTokenRefresh(
+            AuthRefreshTokenRequest(
+                grantType = AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE,
+                clientId = clientId,
+                refreshToken = firstRefreshToken
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Error>(replayResponse)
+        assertEquals("invalid_grant", replayResponse.error)
     }
 
     /**
@@ -93,7 +374,63 @@ class OidcRefreshTokenTest {
      */
     @Test
     fun `oidcTokenRefresh saves new refresh token and revokes previous token with replacement id`() {
-        TODO()
+        val env = AuthEnvTest()
+        val actor = env.createUserActor()
+        val clientId = AuthClientRegistry.oidcInternalClientId
+        val redirectUri = env.publicBaseUrl.resolve("/authentication-callback").toString()
+        val scope = "openid profile email offline_access"
+        val nonce = "nonce-123"
+        val codeVerifier = "verifier-" + UuidUtils.generateV4String()
+        val codeChallenge = AuthTestUtils.pkceChallengeForTest(codeVerifier)
+
+        val authorizeResult = env.oidcService.oidcAuthorize(
+            env.buildAuthorizeRequest(
+                clientId = clientId,
+                redirectUri = redirectUri,
+                scope = scope,
+                codeChallenge = codeChallenge,
+                nonce = nonce
+            )
+        )
+        assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+        val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(authorizeResult.authCtxCode, actor.subject)
+        val authorizationCode = AuthTestUtils.parseQueryParams(redirectLocation)["code"]
+        assertNotNull(authorizationCode)
+
+        val tokenResult = env.oidcService.oidcToken(
+            AuthTokenRequest(
+                grantType = AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE,
+                code = authorizationCode,
+                redirectUri = redirectUri,
+                clientId = clientId,
+                codeVerifier = codeVerifier
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(tokenResult)
+        val firstRefreshToken = assertNotNull(tokenResult.token.refreshToken)
+        val firstStoredToken = env.oidcService.findRefreshTokenBySubject(actor.subject).single()
+
+        val refreshResult = env.oidcService.oidcTokenRefresh(
+            AuthRefreshTokenRequest(
+                grantType = AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE,
+                clientId = clientId,
+                refreshToken = firstRefreshToken
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(refreshResult)
+        assertNotNull(refreshResult.token.refreshToken)
+
+        val storedRefreshTokens = env.oidcService.findRefreshTokenBySubject(actor.subject)
+        assertEquals(2, storedRefreshTokens.size)
+        val revokedToken = assertNotNull(env.oidcService.findRefreshTokenById(firstStoredToken.id))
+        val replacementToken = storedRefreshTokens.firstOrNull { it.id != firstStoredToken.id }
+        assertNotNull(replacementToken)
+
+        assertNotNull(revokedToken.revokedAt)
+        assertEquals(replacementToken.id, revokedToken.replacedById)
+        assertNull(replacementToken.revokedAt)
+        assertNull(replacementToken.replacedById)
     }
 
     /**
@@ -105,7 +442,18 @@ class OidcRefreshTokenTest {
      */
     @Test
     fun `oidcTokenRefresh rejects unknown refresh token`() {
-        TODO()
+        val env = AuthEnvTest()
+
+        val response = env.oidcService.oidcTokenRefresh(
+            AuthRefreshTokenRequest(
+                grantType = AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE,
+                clientId = AuthClientRegistry.oidcInternalClientId,
+                refreshToken = "unknown-refresh-token-" + UuidUtils.generateV4String()
+            )
+        )
+
+        assertIs<OIDCTokenResponseOrError.Error>(response)
+        assertEquals("invalid_grant", response.error)
     }
 
     /**
@@ -117,7 +465,60 @@ class OidcRefreshTokenTest {
      */
     @Test
     fun `oidcTokenRefresh rejects revoked refresh token`() {
-        TODO()
+        val env = AuthEnvTest()
+        val actor = env.createUserActor()
+        val clientId = AuthClientRegistry.oidcInternalClientId
+        val redirectUri = env.publicBaseUrl.resolve("/authentication-callback").toString()
+        val scope = "openid profile email offline_access"
+        val nonce = "nonce-123"
+        val codeVerifier = "verifier-" + UuidUtils.generateV4String()
+        val codeChallenge = AuthTestUtils.pkceChallengeForTest(codeVerifier)
+
+        val authorizeResult = env.oidcService.oidcAuthorize(
+            env.buildAuthorizeRequest(
+                clientId = clientId,
+                redirectUri = redirectUri,
+                scope = scope,
+                codeChallenge = codeChallenge,
+                nonce = nonce
+            )
+        )
+        assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+        val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(authorizeResult.authCtxCode, actor.subject)
+        val authorizationCode = AuthTestUtils.parseQueryParams(redirectLocation)["code"]
+        assertNotNull(authorizationCode)
+
+        val tokenResult = env.oidcService.oidcToken(
+            AuthTokenRequest(
+                grantType = AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE,
+                code = authorizationCode,
+                redirectUri = redirectUri,
+                clientId = clientId,
+                codeVerifier = codeVerifier
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(tokenResult)
+        val firstRefreshToken = assertNotNull(tokenResult.token.refreshToken)
+
+        val firstRefreshResult = env.oidcService.oidcTokenRefresh(
+            AuthRefreshTokenRequest(
+                grantType = AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE,
+                clientId = clientId,
+                refreshToken = firstRefreshToken
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(firstRefreshResult)
+
+        val response = env.oidcService.oidcTokenRefresh(
+            AuthRefreshTokenRequest(
+                grantType = AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE,
+                clientId = clientId,
+                refreshToken = firstRefreshToken
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Error>(response)
+        assertEquals("invalid_grant", response.error)
     }
 
     /**
@@ -129,7 +530,56 @@ class OidcRefreshTokenTest {
      */
     @Test
     fun `oidcTokenRefresh rejects expired refresh token`() {
-        TODO()
+        val env = AuthEnvTest(
+            extraProps = mapOf(ConfigProperties.OAuthRefreshTokenTtlSeconds.key to "1")
+        )
+        val actor = env.createUserActor()
+        val clientId = AuthClientRegistry.oidcInternalClientId
+        val redirectUri = env.publicBaseUrl.resolve("/authentication-callback").toString()
+        val scope = "openid profile email offline_access"
+        val nonce = "nonce-123"
+        val codeVerifier = "verifier-" + UuidUtils.generateV4String()
+        val codeChallenge = AuthTestUtils.pkceChallengeForTest(codeVerifier)
+
+        val authorizeResult = env.oidcService.oidcAuthorize(
+            env.buildAuthorizeRequest(
+                clientId = clientId,
+                redirectUri = redirectUri,
+                scope = scope,
+                codeChallenge = codeChallenge,
+                nonce = nonce
+            )
+        )
+        assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+        val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(authorizeResult.authCtxCode, actor.subject)
+        val authorizationCode = AuthTestUtils.parseQueryParams(redirectLocation)["code"]
+        assertNotNull(authorizationCode)
+
+        val tokenResult = env.oidcService.oidcToken(
+            AuthTokenRequest(
+                grantType = AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE,
+                code = authorizationCode,
+                redirectUri = redirectUri,
+                clientId = clientId,
+                codeVerifier = codeVerifier
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(tokenResult)
+        val firstRefreshToken = assertNotNull(tokenResult.token.refreshToken)
+
+        val storedToken = env.oidcService.findRefreshTokenBySubject(actor.subject).single()
+        env.authClockTests.staticNow = storedToken.expiresAt.plusSeconds(1)
+
+        val response = env.oidcService.oidcTokenRefresh(
+            AuthRefreshTokenRequest(
+                grantType = AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE,
+                clientId = clientId,
+                refreshToken = firstRefreshToken
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Error>(response)
+        assertEquals("invalid_grant", response.error)
     }
 
     /**
@@ -141,7 +591,51 @@ class OidcRefreshTokenTest {
      */
     @Test
     fun `oidcTokenRefresh rejects refresh token used by another client`() {
-        TODO()
+        val env = AuthEnvTest()
+        val actor = env.createUserActor()
+        val clientId = AuthClientRegistry.oidcInternalClientId
+        val redirectUri = env.publicBaseUrl.resolve("/authentication-callback").toString()
+        val scope = "openid profile email offline_access"
+        val nonce = "nonce-123"
+        val codeVerifier = "verifier-" + UuidUtils.generateV4String()
+        val codeChallenge = AuthTestUtils.pkceChallengeForTest(codeVerifier)
+
+        val authorizeResult = env.oidcService.oidcAuthorize(
+            env.buildAuthorizeRequest(
+                clientId = clientId,
+                redirectUri = redirectUri,
+                scope = scope,
+                codeChallenge = codeChallenge,
+                nonce = nonce
+            )
+        )
+        assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+        val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(authorizeResult.authCtxCode, actor.subject)
+        val authorizationCode = AuthTestUtils.parseQueryParams(redirectLocation)["code"]
+        assertNotNull(authorizationCode)
+
+        val tokenResult = env.oidcService.oidcToken(
+            AuthTokenRequest(
+                grantType = AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE,
+                code = authorizationCode,
+                redirectUri = redirectUri,
+                clientId = clientId,
+                codeVerifier = codeVerifier
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(tokenResult)
+        val firstRefreshToken = assertNotNull(tokenResult.token.refreshToken)
+
+        val response = env.oidcService.oidcTokenRefresh(
+            AuthRefreshTokenRequest(
+                grantType = AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE,
+                clientId = "other-client",
+                refreshToken = firstRefreshToken
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Error>(response)
+        assertEquals("invalid_grant", response.error)
     }
 
     /**
@@ -153,7 +647,63 @@ class OidcRefreshTokenTest {
      */
     @Test
     fun `oidcTokenRefresh preserves subject`() {
-        TODO()
+        val env = AuthEnvTest()
+        val actor = env.createUserActor()
+        val clientId = AuthClientRegistry.oidcInternalClientId
+        val redirectUri = env.publicBaseUrl.resolve("/authentication-callback").toString()
+        val scope = "openid profile email offline_access"
+        val nonce = "nonce-123"
+        val codeVerifier = "verifier-" + UuidUtils.generateV4String()
+        val codeChallenge = AuthTestUtils.pkceChallengeForTest(codeVerifier)
+
+        val authorizeResult = env.oidcService.oidcAuthorize(
+            env.buildAuthorizeRequest(
+                clientId = clientId,
+                redirectUri = redirectUri,
+                scope = scope,
+                codeChallenge = codeChallenge,
+                nonce = nonce
+            )
+        )
+        assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+        val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(authorizeResult.authCtxCode, actor.subject)
+        val authorizationCode = AuthTestUtils.parseQueryParams(redirectLocation)["code"]
+        assertNotNull(authorizationCode)
+
+        val tokenResult = env.oidcService.oidcToken(
+            AuthTokenRequest(
+                grantType = AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE,
+                code = authorizationCode,
+                redirectUri = redirectUri,
+                clientId = clientId,
+                codeVerifier = codeVerifier
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(tokenResult)
+        val firstRefreshToken = assertNotNull(tokenResult.token.refreshToken)
+        val firstStoredToken = env.oidcService.findRefreshTokenBySubject(actor.subject).single()
+
+        val refreshResult = env.oidcService.oidcTokenRefresh(
+            AuthRefreshTokenRequest(
+                grantType = AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE,
+                clientId = clientId,
+                refreshToken = firstRefreshToken
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(refreshResult)
+
+        val refreshedIdToken = env.verifyToken(
+            refreshResult.token.idToken,
+            expectedSub = actor.subject,
+            expectedAudience = clientId
+        )
+        val storedRefreshTokens = env.oidcService.findRefreshTokenBySubject(actor.subject)
+        val replacementToken = storedRefreshTokens.firstOrNull { it.id != firstStoredToken.id }
+        assertNotNull(replacementToken)
+
+        assertEquals(actor.subject, refreshedIdToken.subject)
+        assertEquals(actor.subject, replacementToken.subject)
     }
 
     /**
@@ -166,7 +716,60 @@ class OidcRefreshTokenTest {
      */
     @Test
     fun `oidcTokenRefresh preserves authentication time`() {
-        TODO()
+        val env = AuthEnvTest()
+        val actor = env.createUserActor()
+        val clientId = AuthClientRegistry.oidcInternalClientId
+        val redirectUri = env.publicBaseUrl.resolve("/authentication-callback").toString()
+        val scope = "openid profile email offline_access"
+        val nonce = "nonce-123"
+        val codeVerifier = "verifier-" + UuidUtils.generateV4String()
+        val codeChallenge = AuthTestUtils.pkceChallengeForTest(codeVerifier)
+
+        val authorizeResult = env.oidcService.oidcAuthorize(
+            env.buildAuthorizeRequest(
+                clientId = clientId,
+                redirectUri = redirectUri,
+                scope = scope,
+                codeChallenge = codeChallenge,
+                nonce = nonce
+            )
+        )
+        assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+        val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(authorizeResult.authCtxCode, actor.subject)
+        val authorizationCode = AuthTestUtils.parseQueryParams(redirectLocation)["code"]
+        assertNotNull(authorizationCode)
+
+        val tokenResult = env.oidcService.oidcToken(
+            AuthTokenRequest(
+                grantType = AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE,
+                code = authorizationCode,
+                redirectUri = redirectUri,
+                clientId = clientId,
+                codeVerifier = codeVerifier
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(tokenResult)
+        val firstRefreshToken = assertNotNull(tokenResult.token.refreshToken)
+        val firstStoredToken = env.oidcService.findRefreshTokenBySubject(actor.subject).single()
+        env.authClockTests.staticNow = env.authClockTests.staticNow.plusSeconds(30)
+
+        val refreshResult = env.oidcService.oidcTokenRefresh(
+            AuthRefreshTokenRequest(
+                grantType = AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE,
+                clientId = clientId,
+                refreshToken = firstRefreshToken
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(refreshResult)
+
+        val refreshedIdToken = JWT.decode(refreshResult.token.idToken)
+        val storedRefreshTokens = env.oidcService.findRefreshTokenBySubject(actor.subject)
+        val replacementToken = storedRefreshTokens.firstOrNull { it.id != firstStoredToken.id }
+        assertNotNull(replacementToken)
+
+        assertEquals(firstStoredToken.authTime.epochSecond, refreshedIdToken.getClaim("auth_time").asLong())
+        assertEquals(firstStoredToken.authTime, replacementToken.authTime)
     }
 
     /**
@@ -178,7 +781,56 @@ class OidcRefreshTokenTest {
      */
     @Test
     fun `oidcTokenRefresh preserves scope`() {
-        TODO()
+        val env = AuthEnvTest()
+        val actor = env.createUserActor()
+        val clientId = AuthClientRegistry.oidcInternalClientId
+        val redirectUri = env.publicBaseUrl.resolve("/authentication-callback").toString()
+        val scope = "openid profile email offline_access"
+        val nonce = "nonce-123"
+        val codeVerifier = "verifier-" + UuidUtils.generateV4String()
+        val codeChallenge = AuthTestUtils.pkceChallengeForTest(codeVerifier)
+
+        val authorizeResult = env.oidcService.oidcAuthorize(
+            env.buildAuthorizeRequest(
+                clientId = clientId,
+                redirectUri = redirectUri,
+                scope = scope,
+                codeChallenge = codeChallenge,
+                nonce = nonce
+            )
+        )
+        assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+        val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(authorizeResult.authCtxCode, actor.subject)
+        val authorizationCode = AuthTestUtils.parseQueryParams(redirectLocation)["code"]
+        assertNotNull(authorizationCode)
+
+        val tokenResult = env.oidcService.oidcToken(
+            AuthTokenRequest(
+                grantType = AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE,
+                code = authorizationCode,
+                redirectUri = redirectUri,
+                clientId = clientId,
+                codeVerifier = codeVerifier
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(tokenResult)
+        val firstRefreshToken = assertNotNull(tokenResult.token.refreshToken)
+        val firstStoredToken = env.oidcService.findRefreshTokenBySubject(actor.subject).single()
+
+        val refreshResult = env.oidcService.oidcTokenRefresh(
+            AuthRefreshTokenRequest(
+                grantType = AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE,
+                clientId = clientId,
+                refreshToken = firstRefreshToken
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(refreshResult)
+
+        val storedRefreshTokens = env.oidcService.findRefreshTokenBySubject(actor.subject)
+        val replacementToken = storedRefreshTokens.firstOrNull { it.id != firstStoredToken.id }
+        assertNotNull(replacementToken)
+        assertEquals(scope, replacementToken.scope)
     }
 
     /**
@@ -190,6 +842,58 @@ class OidcRefreshTokenTest {
      */
     @Test
     fun `oidcTokenRefresh preserves nonce`() {
-        TODO()
+        val env = AuthEnvTest()
+        val actor = env.createUserActor()
+        val clientId = AuthClientRegistry.oidcInternalClientId
+        val redirectUri = env.publicBaseUrl.resolve("/authentication-callback").toString()
+        val scope = "openid profile email offline_access"
+        val nonce = "nonce-" + UuidUtils.generateV4String()
+        val codeVerifier = "verifier-" + UuidUtils.generateV4String()
+        val codeChallenge = AuthTestUtils.pkceChallengeForTest(codeVerifier)
+
+        val authorizeResult = env.oidcService.oidcAuthorize(
+            env.buildAuthorizeRequest(
+                clientId = clientId,
+                redirectUri = redirectUri,
+                scope = scope,
+                codeChallenge = codeChallenge,
+                nonce = nonce
+            )
+        )
+        assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+        val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(authorizeResult.authCtxCode, actor.subject)
+        val authorizationCode = AuthTestUtils.parseQueryParams(redirectLocation)["code"]
+        assertNotNull(authorizationCode)
+
+        val tokenResult = env.oidcService.oidcToken(
+            AuthTokenRequest(
+                grantType = AuthClientRegistry.AUTHORIZATION_CODE_GRANT_TYPE,
+                code = authorizationCode,
+                redirectUri = redirectUri,
+                clientId = clientId,
+                codeVerifier = codeVerifier
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(tokenResult)
+        val firstRefreshToken = assertNotNull(tokenResult.token.refreshToken)
+        val firstStoredToken = env.oidcService.findRefreshTokenBySubject(actor.subject).single()
+
+        val refreshResult = env.oidcService.oidcTokenRefresh(
+            AuthRefreshTokenRequest(
+                grantType = AuthClientRegistry.REFRESH_TOKEN_GRANT_TYPE,
+                clientId = clientId,
+                refreshToken = firstRefreshToken
+            )
+        )
+        assertIs<OIDCTokenResponseOrError.Success>(refreshResult)
+
+        val refreshedIdToken = JWT.decode(refreshResult.token.idToken)
+        val storedRefreshTokens = env.oidcService.findRefreshTokenBySubject(actor.subject)
+        val replacementToken = storedRefreshTokens.firstOrNull { it.id != firstStoredToken.id }
+        assertNotNull(replacementToken)
+
+        assertEquals(nonce, refreshedIdToken.getClaim("nonce").asString())
+        assertEquals(nonce, replacementToken.nonce)
     }
 }
