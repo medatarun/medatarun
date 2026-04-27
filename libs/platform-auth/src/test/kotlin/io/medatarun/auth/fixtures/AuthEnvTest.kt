@@ -15,6 +15,7 @@ import io.medatarun.auth.actions.AuthAction
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
 import io.medatarun.auth.adapters.AppActorIdAdapter
 import io.medatarun.auth.domain.ActorNotFoundException
+import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorWithPermissions
 import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.domain.jwt.JwtKeyMaterial
@@ -39,6 +40,7 @@ import io.medatarun.types.TypeSystemExtension
 import java.net.URI
 import kotlin.reflect.full.findAnnotation
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
@@ -269,6 +271,20 @@ class AuthEnvTest(
         )
         asAdmin()
 
+    }
+
+    fun createUserSubject(): String {
+        return createUserActor().subject
+    }
+
+    fun createUserActor(): Actor {
+        val username = Username("oidc-user-" + UuidUtils.generateV4String())
+        val fullname = Fullname("Oidc User")
+        val password = PasswordClear("oidc-pass-" + UuidUtils.generateV4String())
+        userService.createEmbeddedUser(username, fullname, password, false)
+        val actor = actorService.findByIssuerAndSubjectOptional(jwtConfig.issuer, username.value)
+        assertNotNull(actor)
+        return actor
     }
 
     class ActionCtxWithActor(

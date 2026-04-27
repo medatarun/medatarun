@@ -35,7 +35,7 @@ class AuthDbMigrationStartupTest {
         // a fresh install and not a migration.
         assertEquals(1, env.dbMigrationChecker.migrationCount("platform-auth"))
         // Checks that it is the right version number
-        assertEquals(3, env.dbMigrationChecker.currentVersion("platform-auth"))
+        assertEquals(4, env.dbMigrationChecker.currentVersion("platform-auth"))
 
         // Cheks that actor for system maintenance exists in ActorStorage
         val actorId = ActorId(AppActorSystemMaintenance.SYSTEM_MAINTENANCE_ACTOR_ID)
