@@ -1,5 +1,6 @@
 package io.medatarun.auth.ports.exposed
 
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -20,5 +21,8 @@ data class OIDCTokenResponse(
     @SerialName("token_type")
     val tokenType: String,
     @SerialName("expires_in")
-    val expiresIn: Long?
+    val expiresIn: Long?,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    @SerialName("refresh_token")
+    val refreshToken: String? = null
 )

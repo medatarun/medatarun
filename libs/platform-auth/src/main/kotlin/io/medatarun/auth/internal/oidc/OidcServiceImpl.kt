@@ -10,6 +10,7 @@ import io.medatarun.auth.domain.jwt.JwtKeyMaterial
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCode
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
+import io.medatarun.auth.domain.oidc.OidcTokenRefreshRequest
 import io.medatarun.auth.domain.oidc.OidcTokenRequest
 import io.medatarun.auth.internal.actors.ActorClaimsAdapter
 import io.medatarun.auth.internal.jwk.JwkExternalProviders
@@ -340,6 +341,10 @@ class OidcServiceImpl(
             )
         )
 
+    }
+
+    override fun oidcTokenRefresh(request: OidcTokenRefreshRequest): OIDCTokenResponseOrError {
+        TODO("Not yet implemented")
     }
 
     fun pkceChallenge(verifier: String): String {

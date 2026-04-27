@@ -3,6 +3,7 @@ package io.medatarun.auth.ports.exposed
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCode
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
+import io.medatarun.auth.domain.oidc.OidcTokenRefreshRequest
 import io.medatarun.auth.domain.oidc.OidcTokenRequest
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
 import io.medatarun.auth.internal.oidc.AuthClient
@@ -94,4 +95,5 @@ interface OidcService: Service {
 
 
     fun oidcClientInfo(clientId: String): AuthClient?
+    fun oidcTokenRefresh(request: OidcTokenRefreshRequest): OIDCTokenResponseOrError
 }
