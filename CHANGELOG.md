@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.11.0]
+
+### Added
+
+- Support for refresh tokens in our internal IdP to avoid users being disconnected too often.
+
+### Changes
+
+- Upgrade dependencies to the latest version of `@seij/common-authentication`
+
 ## [0.10.0]
 
 ### Added
