@@ -1,5 +1,5 @@
 import { type ReactNode, useState } from "react";
-import { InlineEditSingleLineLayout } from "@/components/core/InlineEditSingleLineLayout.tsx";
+import { InlineEditSingleLineController } from "./InlineEditSingleLineController.tsx";
 import { SwitchButton } from "@seij/common-ui";
 
 export function InlineEditBoolean({
@@ -32,7 +32,7 @@ export function InlineEditBoolean({
   };
 
   return (
-    <InlineEditSingleLineLayout
+    <InlineEditSingleLineController
       disabled={disabled}
       editor={({ pending }) => (
         <div>
@@ -50,6 +50,6 @@ export function InlineEditBoolean({
       onEditCancel={handleEditCancel}
     >
       {children}
-    </InlineEditSingleLineLayout>
+    </InlineEditSingleLineController>
   );
 }

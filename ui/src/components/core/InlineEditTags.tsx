@@ -12,7 +12,7 @@ import {
   TagPickerOption,
   type TagPickerProps,
 } from "@fluentui/react-components";
-import { InlineEditSingleLineLayout } from "./InlineEditSingleLineLayout.tsx";
+import { InlineEditSingleLineController } from "./InlineEditSingleLineController.tsx";
 import { createActionCtxTag, Tags, type TagScopeRef } from "@/business/tag";
 import { useTags } from "@/components/business/tag";
 import { type ActionDisplayedSubject } from "@/business/action-performer";
@@ -88,7 +88,7 @@ export function InlineEditTags({
   };
 
   return (
-    <InlineEditSingleLineLayout
+    <InlineEditSingleLineController
       editor={({ commit, cancel, pending }) => (
         <InputWithKeys
           ref={ref}
@@ -109,7 +109,7 @@ export function InlineEditTags({
       onEditCancel={handleEditCancel}
     >
       {children}
-    </InlineEditSingleLineLayout>
+    </InlineEditSingleLineController>
   );
 }
 

@@ -46,7 +46,7 @@ const useStyles = makeStyles({
   },
 });
 
-export interface InlineEditRichTextLayoutProps {
+export interface InlineEditRichTextControllerProps {
   /**
    * What to display in read mode
    */
@@ -97,7 +97,7 @@ export interface InlineEditRichTextLayoutProps {
  *
  * Editor must be provided
  */
-export function InlineEditRichTextLayout({
+export function InlineEditRichTextController({
   children,
   editor,
   onEditStarted,
@@ -105,7 +105,7 @@ export function InlineEditRichTextLayout({
   onEditOK,
   onEditCancel,
   disabled = false,
-}: InlineEditRichTextLayoutProps) {
+}: InlineEditRichTextControllerProps) {
   const { t } = useAppI18n();
   const styles = useStyles();
   const [editing, setEditing] = useState<boolean>(false);

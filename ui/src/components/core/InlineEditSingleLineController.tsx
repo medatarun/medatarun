@@ -61,7 +61,7 @@ const useStyles = makeStyles({
   },
 });
 
-export interface InlineEditSingleLineLayoutProps {
+export interface InlineEditSingleLineControllerProps {
   /**
    * What to display in read mode
    */
@@ -116,7 +116,7 @@ export interface InlineEditSingleLineLayoutProps {
  *
  * Editor must be provided
  */
-export const InlineEditSingleLineLayout = ({
+export const InlineEditSingleLineController = ({
   children,
   editor,
   disabled = false,
@@ -124,7 +124,7 @@ export const InlineEditSingleLineLayout = ({
   onEditStart,
   onEditOK,
   onEditCancel,
-}: InlineEditSingleLineLayoutProps) => {
+}: InlineEditSingleLineControllerProps) => {
   const { t } = useAppI18n();
   const styles = useStyles();
   const [editing, setEditing] = useState<boolean>(false);

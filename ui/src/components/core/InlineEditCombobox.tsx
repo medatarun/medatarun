@@ -1,6 +1,6 @@
 import { InputCombobox } from "@seij/common-ui";
 import { type PropsWithChildren, useState } from "react";
-import { InlineEditSingleLineLayout } from "./InlineEditSingleLineLayout.tsx";
+import { InlineEditSingleLineController } from "./InlineEditSingleLineController.tsx";
 
 export interface InlineEditComboboxOption {
   code: string;
@@ -49,7 +49,7 @@ export function InlineEditCombobox({
   };
 
   return (
-    <InlineEditSingleLineLayout
+    <InlineEditSingleLineController
       disabled={disabled}
       editor={({ commit, cancel, pending }) => (
         <div>
@@ -70,6 +70,6 @@ export function InlineEditCombobox({
       onEditCancel={handleEditCancel}
     >
       {children}
-    </InlineEditSingleLineLayout>
+    </InlineEditSingleLineController>
   );
 }
