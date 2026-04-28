@@ -23,14 +23,14 @@ class Entity_UpdateX_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate(modelRef, primaryEntityRef.key, LocalizedText("Entity primary"))
+        env.entityCreate(modelRef, primaryEntityRef.key, TextSingleLine("Entity primary"))
 
         assertFailsWith<ModelNotFoundException> {
             env.dispatch(
                 ModelAction.Entity_UpdateName(
                     modelRef = wrongModelRef,
                     entityRef = primaryEntityRef,
-                    value = LocalizedText("Updated name")
+                    value = TextSingleLine("Updated name")
                 )
             )
         }
@@ -51,7 +51,7 @@ class Entity_UpdateX_Test {
                 ModelAction.Entity_UpdateName(
                     modelRef = modelRef,
                     entityRef = wrongEntityRef,
-                    value = LocalizedText("Updated name")
+                    value = TextSingleLine("Updated name")
                 )
             )
         }
@@ -73,7 +73,7 @@ class TestEnvEntityUpdate {
         runtime.dispatch(
             ModelAction.Model_Create(
                 key = modelKey,
-                name = LocalizedText("Model entity update"),
+                name = TextSingleLine("Model entity update"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
@@ -83,8 +83,8 @@ class TestEnvEntityUpdate {
             ModelAction.Entity_Create(
                 modelRef = modelRef,
                 entityKey = primaryEntityKey,
-                name = LocalizedText("Entity primary"),
-                description = LocalizedMarkdown("Entity primary description"),
+                name = TextSingleLine("Entity primary"),
+                description = TextMarkdown("Entity primary description"),
                 documentationHome = null
             )
         )
@@ -92,8 +92,8 @@ class TestEnvEntityUpdate {
             ModelAction.Entity_Create(
                 modelRef = modelRef,
                 entityKey = secondaryEntityKey,
-                name = LocalizedText("Entity secondary"),
-                description = LocalizedMarkdown("Entity secondary description"),
+                name = TextSingleLine("Entity secondary"),
+                description = TextMarkdown("Entity secondary description"),
                 documentationHome = null
             )
         )

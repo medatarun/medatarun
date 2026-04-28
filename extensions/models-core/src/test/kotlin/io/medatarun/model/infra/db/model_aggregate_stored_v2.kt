@@ -126,8 +126,8 @@ private fun sampleStoreModelAggregateCurrent(): ModelStorageCmd.StoreModelAggreg
         model = StoreModelAggregateModel(
             id = modelId,
             key = ModelKey("billing"),
-            name = LocalizedText("Billing"),
-            description = LocalizedMarkdown("Billing model"),
+            name = TextSingleLine("Billing"),
+            description = TextMarkdown("Billing model"),
             version = ModelVersion("1.0.0"),
             origin = ModelOrigin.Manual,
             authority = ModelAuthority.SYSTEM,
@@ -137,16 +137,16 @@ private fun sampleStoreModelAggregateCurrent(): ModelStorageCmd.StoreModelAggreg
             StoreModelAggregateType(
                 id = typeId,
                 key = TypeKey("number"),
-                name = LocalizedText("Number"),
-                description = LocalizedMarkdown("Number type")
+                name = TextSingleLine("Number"),
+                description = TextMarkdown("Number type")
             )
         ),
         entities = listOf(
             StoreModelAggregateEntityCurrent(
                 id = entityId,
                 key = EntityKey("invoice"),
-                name = LocalizedText("Invoice"),
-                description = LocalizedMarkdown("Invoice entity"),
+                name = TextSingleLine("Invoice"),
+                description = TextMarkdown("Invoice entity"),
                 origin = EntityOrigin.Manual,
                 documentationHome = URL("https://example.com/docs/entities/invoice")
             )
@@ -156,8 +156,8 @@ private fun sampleStoreModelAggregateCurrent(): ModelStorageCmd.StoreModelAggreg
                 id = entityAttributeId,
                 entityId = entityId,
                 key = AttributeKey("invoice_id"),
-                name = LocalizedText("Invoice Id"),
-                description = LocalizedMarkdown("Invoice identity"),
+                name = TextSingleLine("Invoice Id"),
+                description = TextMarkdown("Invoice identity"),
                 typeId = typeId,
                 optional = false
             ),
@@ -165,8 +165,8 @@ private fun sampleStoreModelAggregateCurrent(): ModelStorageCmd.StoreModelAggreg
                 id = entityAttributeErpId,
                 entityId = entityId,
                 key = AttributeKey("erp_id"),
-                name = LocalizedText("ERP Id"),
-                description = LocalizedMarkdown("Invoice ERP identifier"),
+                name = TextSingleLine("ERP Id"),
+                description = TextMarkdown("Invoice ERP identifier"),
                 typeId = typeId,
                 optional = false
             )
@@ -175,14 +175,14 @@ private fun sampleStoreModelAggregateCurrent(): ModelStorageCmd.StoreModelAggreg
             StoreModelAggregateRelationship(
                 id = relationshipId,
                 key = RelationshipKey("invoice_invoice"),
-                name = LocalizedText("Invoice Invoice"),
-                description = LocalizedMarkdown("Self relationship"),
+                name = TextSingleLine("Invoice Invoice"),
+                description = TextMarkdown("Self relationship"),
                 roles = listOf(
                     StoreModelAggregateRelationshipRole(
                         id = relationshipRoleId,
                         key = RelationshipRoleKey("source"),
                         entityId = entityId,
-                        name = LocalizedText("Source"),
+                        name = TextSingleLine("Source"),
                         cardinality = RelationshipCardinality.Many
                     )
                 )
@@ -193,8 +193,8 @@ private fun sampleStoreModelAggregateCurrent(): ModelStorageCmd.StoreModelAggreg
                 id = relationshipAttributeId,
                 relationshipId = relationshipId,
                 key = AttributeKey("ratio"),
-                name = LocalizedText("Ratio"),
-                description = LocalizedMarkdown("Relationship ratio"),
+                name = TextSingleLine("Ratio"),
+                description = TextMarkdown("Relationship ratio"),
                 typeId = typeId,
                 optional = true
             )
@@ -207,8 +207,8 @@ private fun sampleStoreModelAggregateCurrent(): ModelStorageCmd.StoreModelAggreg
                 businessKeyId = businessKeyId,
                 entityId = entityId,
                 key = BusinessKeyKey("bk"),
-                name = LocalizedText("Invoice ERP Key"),
-                description = LocalizedMarkdown("Invoice number stored in ERP"),
+                name = TextSingleLine("Invoice ERP Key"),
+                description = TextMarkdown("Invoice number stored in ERP"),
                 participants = listOf(entityAttributeErpId)
             )
         ),

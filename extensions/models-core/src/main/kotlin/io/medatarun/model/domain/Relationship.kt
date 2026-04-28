@@ -23,13 +23,13 @@ interface Relationship {
      * Human-readable name, optionally localized.
      * Purely descriptive; has no structural or behavioral effect.
      */
-    val name: LocalizedText?
+    val name: TextSingleLine?
 
     /**
      * Optional textual description providing semantic context.
      * This is explanatory metadata, not executable logic.
      **/
-    val description: LocalizedMarkdown?
+    val description: TextMarkdown?
 
     /**
      * The list of roles that participate in this relationship.
@@ -89,7 +89,7 @@ interface RelationshipRole {
      *
      * Semantic label only — has no behavioral meaning.
      */
-    val name: LocalizedText?
+    val name: TextSingleLine?
 
     /**
      * Participation cardinality.

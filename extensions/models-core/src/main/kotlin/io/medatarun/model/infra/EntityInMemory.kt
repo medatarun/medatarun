@@ -10,8 +10,8 @@ import java.net.URL
 data class EntityInMemory(
     override val id: EntityId,
     override val key: EntityKey,
-    override val name: LocalizedText?,
-    override val description: LocalizedMarkdown?,
+    override val name: TextSingleLine?,
+    override val description: TextMarkdown?,
     override val origin: EntityOrigin,
     override val documentationHome: URL?,
     override val tags: List<TagId>,
@@ -33,8 +33,8 @@ data class EntityInMemory(
         class Builder(
             var id: EntityId = EntityId.generate(),
             var key: EntityKey,
-            var name: LocalizedText? = null,
-            var description: LocalizedMarkdown? = null,
+            var name: TextSingleLine? = null,
+            var description: TextMarkdown? = null,
             var origin: EntityOrigin = EntityOrigin.Manual,
             var documentationHome: URL? = null,
             var tags: MutableList<TagId> = mutableListOf(),

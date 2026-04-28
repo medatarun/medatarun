@@ -51,10 +51,10 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val key: ModelKey,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @Contextual
         @SerialName("description")
-        val description: LocalizedMarkdown?,
+        val description: TextMarkdown?,
         @Contextual
         @SerialName("version")
         val version: ModelVersion,
@@ -77,7 +77,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         override val modelId: ModelId,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText
+        val name: TextSingleLine
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -99,7 +99,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         override val modelId: ModelId,
         @Contextual
         @SerialName("description")
-        val description: LocalizedMarkdown?
+        val description: TextMarkdown?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -183,10 +183,10 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val key: TypeKey,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @Contextual
         @SerialName("description")
-        val description: LocalizedMarkdown?
+        val description: TextMarkdown?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -214,7 +214,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val typeId: TypeId,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?
+        val name: TextSingleLine?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -228,7 +228,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val typeId: TypeId,
         @Contextual
         @SerialName("description")
-        val description: LocalizedMarkdown?
+        val description: TextMarkdown?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -260,10 +260,10 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val key: EntityKey,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @Contextual
         @SerialName("description")
-        val description: LocalizedMarkdown?,
+        val description: TextMarkdown?,
         @Contextual
         @SerialName("documentationHome")
         val documentationHome: URL?,
@@ -297,7 +297,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val entityId: EntityId,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?
+        val name: TextSingleLine?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -311,7 +311,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val entityId: EntityId,
         @Contextual
         @SerialName("description")
-        val description: LocalizedMarkdown?
+        val description: TextMarkdown?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -402,10 +402,10 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val key: AttributeKey,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @Contextual
         @SerialName("description")
-        val description: LocalizedMarkdown?,
+        val description: TextMarkdown?,
         @Contextual
         @SerialName("typeId")
         val typeId: TypeId,
@@ -458,7 +458,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val attributeId: AttributeId,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?
+        val name: TextSingleLine?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -475,7 +475,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val attributeId: AttributeId,
         @Contextual
         @SerialName("description")
-        val description: LocalizedMarkdown?
+        val description: TextMarkdown?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -564,10 +564,10 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val key: RelationshipKey,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @Contextual
         @SerialName("description")
-        val description: LocalizedMarkdown?,
+        val description: TextMarkdown?,
         @SerialName("roles")
         val roles: List<RelationshipRoleInitializer>,
     ) : ModelStorageCmdOnModel
@@ -585,7 +585,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val entityId: EntityId,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @Contextual
         @SerialName("cardinality")
         val cardinality: RelationshipCardinality,
@@ -616,7 +616,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val relationshipId: RelationshipId,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?
+        val name: TextSingleLine?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -630,7 +630,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val relationshipId: RelationshipId,
         @Contextual
         @SerialName("description")
-        val description: LocalizedMarkdown?
+        val description: TextMarkdown?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -653,7 +653,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val entityId: EntityId,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @Contextual
         @SerialName("cardinality")
         val cardinality: RelationshipCardinality
@@ -690,7 +690,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val relationshipRoleId: RelationshipRoleId,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?
+        val name: TextSingleLine?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -797,10 +797,10 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val key: AttributeKey,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @Contextual
         @SerialName("description")
-        val description: LocalizedMarkdown?,
+        val description: TextMarkdown?,
         @Contextual
         @SerialName("typeId")
         val typeId: TypeId,
@@ -822,7 +822,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val attributeId: AttributeId,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?
+        val name: TextSingleLine?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -839,7 +839,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val attributeId: AttributeId,
         @Contextual
         @SerialName("description")
-        val description: LocalizedMarkdown?
+        val description: TextMarkdown?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -961,10 +961,10 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val key: BusinessKeyKey,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @Contextual
         @SerialName("description")
-        val description: LocalizedMarkdown?,
+        val description: TextMarkdown?,
         @SerialName("participantAttributeIds")
         val participantAttributeIds: List<@Contextual AttributeId>,
     ) : ModelStorageCmdOnModel
@@ -994,7 +994,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val businessKeyId: BusinessKeyId,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -1008,7 +1008,7 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val businessKeyId: BusinessKeyId,
         @Contextual
         @SerialName("description")
-        val description: LocalizedMarkdown?,
+        val description: TextMarkdown?,
     ) : ModelStorageCmdOnModel
 
     @Serializable

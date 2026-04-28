@@ -6,8 +6,8 @@ import io.medatarun.tags.core.domain.TagId
 data class RelationshipInMemory(
     override val id: RelationshipId,
     override val key: RelationshipKey,
-    override val name: LocalizedText?,
-    override val description: LocalizedMarkdown?,
+    override val name: TextSingleLine?,
+    override val description: TextMarkdown?,
     override val roles: List<RelationshipRoleInMemory>,
     override val tags: List<TagId>,
 ) : Relationship {

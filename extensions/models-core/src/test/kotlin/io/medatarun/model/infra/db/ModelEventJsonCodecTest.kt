@@ -3,8 +3,8 @@ package io.medatarun.model.infra.db
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.AttributeId
 import io.medatarun.model.domain.EntityId
-import io.medatarun.model.domain.LocalizedMarkdown
-import io.medatarun.model.domain.LocalizedText
+import io.medatarun.model.domain.TextMarkdown
+import io.medatarun.model.domain.TextSingleLine
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.RelationshipId
 import io.medatarun.model.domain.RelationshipRoleId
@@ -129,8 +129,8 @@ class ModelEventJsonCodecTest {
                 cmd = ModelStorageCmd.CreateModel(
                     id = modelId,
                     key = ModelKey("crm"),
-                    name = LocalizedText("CRM"),
-                    description = LocalizedMarkdown("CRM model"),
+                    name = TextSingleLine("CRM"),
+                    description = TextMarkdown("CRM model"),
                     version = ModelVersion("1.0.0"),
                     origin = ModelOrigin.Uri(URI("https://example.com/model/crm")),
                     authority = ModelAuthority.CANONICAL,
@@ -143,7 +143,7 @@ class ModelEventJsonCodecTest {
             CmdTestCase(
                 eventType = "model_name_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateModelName(modelId, LocalizedText("CRM")),
+                cmd = ModelStorageCmd.UpdateModelName(modelId, TextSingleLine("CRM")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","name":"CRM"}"""
             ),
             CmdTestCase(
@@ -156,7 +156,7 @@ class ModelEventJsonCodecTest {
                 eventType = "model_description_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateModelDescription(modelId,
-                    LocalizedMarkdown("Model description")
+                    TextMarkdown("Model description")
                 ),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","description":"Model description"}"""
             ),
@@ -203,8 +203,8 @@ class ModelEventJsonCodecTest {
                     modelId = modelId,
                     typeId = typeId,
                     key = TypeKey("boolean"),
-                    name = LocalizedText("Boolean"),
-                    description = LocalizedMarkdown("Boolean type")
+                    name = TextSingleLine("Boolean"),
+                    description = TextMarkdown("Boolean type")
                 ),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","typeId":"00000000-0000-0000-0000-000000000002","key":"boolean","name":"Boolean","description":"Boolean type"}"""
             ),
@@ -217,14 +217,14 @@ class ModelEventJsonCodecTest {
             CmdTestCase(
                 eventType = "type_name_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateTypeName(modelId, typeId, LocalizedText("String")),
+                cmd = ModelStorageCmd.UpdateTypeName(modelId, typeId, TextSingleLine("String")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","typeId":"00000000-0000-0000-0000-000000000002","name":"String"}"""
             ),
             CmdTestCase(
                 eventType = "type_description_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateTypeDescription(modelId, typeId,
-                    LocalizedMarkdown("String type")
+                    TextMarkdown("String type")
                 ),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","typeId":"00000000-0000-0000-0000-000000000002","description":"String type"}"""
             ),
@@ -241,15 +241,15 @@ class ModelEventJsonCodecTest {
                     modelId = modelId,
                     entityId = entityId,
                     key = EntityKey("customer"),
-                    name = LocalizedText("Customer"),
-                    description = LocalizedMarkdown("Customer entity"),
+                    name = TextSingleLine("Customer"),
+                    description = TextMarkdown("Customer entity"),
                     documentationHome = URL("https://example.com/docs/entities/customer"),
                     origin = EntityOrigin.Uri(URI("https://example.com/origin/customer")),
                     identityAttributeId = entityAttributeId,
                     identityAttributeKey = AttributeKey("customer_id"),
                     identityAttributeTypeId = typeId,
-                    identityAttributeName = LocalizedText("Customer Id"),
-                    identityAttributeDescription = LocalizedMarkdown("Identity attribute"),
+                    identityAttributeName = TextSingleLine("Customer Id"),
+                    identityAttributeDescription = TextMarkdown("Identity attribute"),
                     identityAttributeIdOptional = false
                 ),
                 json = """
@@ -260,8 +260,8 @@ class ModelEventJsonCodecTest {
                         modelId = modelId,
                         entityId = entityId,
                         key = EntityKey("customer"),
-                        name = LocalizedText("Customer"),
-                        description = LocalizedMarkdown("Customer entity"),
+                        name = TextSingleLine("Customer"),
+                        description = TextMarkdown("Customer entity"),
                         documentationHome = URL("https://example.com/docs/entities/customer"),
                         origin = EntityOrigin.Uri(URI("https://example.com/origin/customer")),
                     ),
@@ -271,8 +271,8 @@ class ModelEventJsonCodecTest {
                         attributeId = entityAttributeId,
                         key = AttributeKey("customer_id"),
                         typeId = typeId,
-                        name = LocalizedText("Customer Id"),
-                        description = LocalizedMarkdown("Identity attribute"),
+                        name = TextSingleLine("Customer Id"),
+                        description = TextMarkdown("Identity attribute"),
                         optional = false
                     ),
                     ModelStorageCmd.Entity_PrimaryKey_Set(
@@ -289,8 +289,8 @@ class ModelEventJsonCodecTest {
                     modelId = modelId,
                     entityId = entityId,
                     key = EntityKey("customer"),
-                    name = LocalizedText("Customer"),
-                    description = LocalizedMarkdown("Customer entity"),
+                    name = TextSingleLine("Customer"),
+                    description = TextMarkdown("Customer entity"),
                     documentationHome = URL("https://example.com/docs/entities/customer"),
                     origin = EntityOrigin.Uri(URI("https://example.com/origin/customer")),
                 ),
@@ -307,14 +307,14 @@ class ModelEventJsonCodecTest {
             CmdTestCase(
                 eventType = "entity_name_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateEntityName(modelId, entityId, LocalizedText("Client")),
+                cmd = ModelStorageCmd.UpdateEntityName(modelId, entityId, TextSingleLine("Client")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","name":"Client"}"""
             ),
             CmdTestCase(
                 eventType = "entity_description_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateEntityDescription(modelId, entityId,
-                    LocalizedMarkdown("Client entity")
+                    TextMarkdown("Client entity")
                 ),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","description":"Client entity"}"""
             ),
@@ -374,8 +374,8 @@ class ModelEventJsonCodecTest {
                     entityId,
                     entityAttributeId,
                     AttributeKey("code"),
-                    LocalizedText("Code"),
-                    LocalizedMarkdown("Entity code"),
+                    TextSingleLine("Code"),
+                    TextMarkdown("Entity code"),
                     typeId,
                     false
                 ),
@@ -405,7 +405,7 @@ class ModelEventJsonCodecTest {
                     modelId,
                     entityId,
                     entityAttributeId,
-                    LocalizedText("External Code")
+                    TextSingleLine("External Code")
                 ),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeId":"00000000-0000-0000-0000-000000000006","name":"External Code"}"""
             ),
@@ -416,7 +416,7 @@ class ModelEventJsonCodecTest {
                     modelId,
                     entityId,
                     entityAttributeId,
-                    LocalizedMarkdown("External code attribute")
+                    TextMarkdown("External code attribute")
                 ),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeId":"00000000-0000-0000-0000-000000000006","description":"External code attribute"}"""
             ),
@@ -451,14 +451,14 @@ class ModelEventJsonCodecTest {
                     modelId = modelId,
                     relationshipId = relationshipId,
                     key = RelationshipKey("customer_order"),
-                    name = LocalizedText("Customer Order"),
-                    description = LocalizedMarkdown("Customer order relationship"),
+                    name = TextSingleLine("Customer Order"),
+                    description = TextMarkdown("Customer order relationship"),
                     roles = listOf(
                         ModelStorageCmd.RelationshipRoleInitializer(
                             id = relationshipRoleId,
                             key = RelationshipRoleKey("customer"),
                             entityId = entityId,
-                            name = LocalizedText("Customer"),
+                            name = TextSingleLine("Customer"),
                             cardinality = RelationshipCardinality.Many
                         )
                     )
@@ -481,7 +481,7 @@ class ModelEventJsonCodecTest {
                 eventType = "relationship_name_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateRelationshipName(modelId, relationshipId,
-                    LocalizedText("Customer Invoice")
+                    TextSingleLine("Customer Invoice")
                 ),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","name":"Customer Invoice"}"""
             ),
@@ -491,7 +491,7 @@ class ModelEventJsonCodecTest {
                 cmd = ModelStorageCmd.UpdateRelationshipDescription(
                     modelId,
                     relationshipId,
-                    LocalizedMarkdown("Customer invoice relationship")
+                    TextMarkdown("Customer invoice relationship")
                 ),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","description":"Customer invoice relationship"}"""
             ),
@@ -504,7 +504,7 @@ class ModelEventJsonCodecTest {
                     relationshipRoleId,
                     RelationshipRoleKey("buyer"),
                     entityId,
-                    LocalizedText("Buyer"),
+                    TextSingleLine("Buyer"),
                     RelationshipCardinality.One
                 ),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","relationshipRoleId":"00000000-0000-0000-0000-000000000005","key":"buyer","entityId":"00000000-0000-0000-0000-000000000003","name":"Buyer","cardinality":"one"}"""
@@ -527,7 +527,7 @@ class ModelEventJsonCodecTest {
                     modelId,
                     relationshipId,
                     relationshipRoleId,
-                    LocalizedText("Seller")
+                    TextSingleLine("Seller")
                 ),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","relationshipRoleId":"00000000-0000-0000-0000-000000000005","name":"Seller"}"""
             ),
@@ -585,8 +585,8 @@ class ModelEventJsonCodecTest {
                     relationshipId,
                     relationshipAttributeId,
                     AttributeKey("weight"),
-                    LocalizedText("Weight"),
-                    LocalizedMarkdown("Relationship weight"),
+                    TextSingleLine("Weight"),
+                    TextMarkdown("Relationship weight"),
                     typeId,
                     true
                 ),
@@ -599,7 +599,7 @@ class ModelEventJsonCodecTest {
                     modelId,
                     relationshipId,
                     relationshipAttributeId,
-                    LocalizedText("Load")
+                    TextSingleLine("Load")
                 ),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","name":"Load"}"""
             ),
@@ -610,7 +610,7 @@ class ModelEventJsonCodecTest {
                     modelId,
                     relationshipId,
                     relationshipAttributeId,
-                    LocalizedMarkdown("Relationship load")
+                    TextMarkdown("Relationship load")
                 ),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","description":"Relationship load"}"""
             ),

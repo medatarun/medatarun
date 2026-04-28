@@ -21,8 +21,8 @@ sealed interface ModelCmd {
 
     data class CreateModel(
         val modelKey: ModelKey,
-        val name: LocalizedText,
-        val description: LocalizedMarkdown?,
+        val name: TextSingleLine,
+        val description: TextMarkdown?,
         val version: ModelVersion
     ) : ModelCmd
 
@@ -33,7 +33,7 @@ sealed interface ModelCmd {
 
     data class UpdateModelName(
         override val modelRef: ModelRef,
-        val name: LocalizedText
+        val name: TextSingleLine
     ) : ModelCmdOnModel
 
     data class UpdateModelKey(
@@ -43,7 +43,7 @@ sealed interface ModelCmd {
 
     data class UpdateModelDescription(
         override val modelRef: ModelRef,
-        val description: LocalizedMarkdown?
+        val description: TextMarkdown?
     ) : ModelCmdOnModel
 
     data class UpdateModelAuthority(
@@ -98,13 +98,13 @@ sealed interface ModelCmd {
     data class UpdateTypeName(
         override val modelRef: ModelRef,
         val typeRef: TypeRef,
-        val value: LocalizedText?
+        val value: TextSingleLine?
     ) : ModelCmdOnModel
 
     data class UpdateTypeDescription(
         override val modelRef: ModelRef,
         val typeRef: TypeRef,
-        val value: LocalizedMarkdown?
+        val value: TextMarkdown?
     ) : ModelCmdOnModel
 
     data class DeleteType(
@@ -119,8 +119,8 @@ sealed interface ModelCmd {
     data class CreateEntity(
         override val modelRef: ModelRef,
         val entityKey: EntityKey,
-        val name: LocalizedText?,
-        val description: LocalizedMarkdown?,
+        val name: TextSingleLine?,
+        val description: TextMarkdown?,
         val documentationHome: URL?
     ) : ModelCmdOnModel
 
@@ -133,13 +133,13 @@ sealed interface ModelCmd {
     data class UpdateEntityName(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val value: LocalizedText?
+        val value: TextSingleLine?
     ) : ModelCmdOnModel
 
     data class UpdateEntityDescription(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val value: LocalizedMarkdown?
+        val value: TextMarkdown?
     ) : ModelCmdOnModel
 
     data class UpdateEntityPrimaryKey(
@@ -198,14 +198,14 @@ sealed interface ModelCmd {
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
         val attributeRef: EntityAttributeRef,
-        val value: LocalizedText?
+        val value: TextSingleLine?
     ) : ModelCmdOnModel
 
     class UpdateEntityAttributeDescription(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
         val attributeRef: EntityAttributeRef,
-        val value: LocalizedMarkdown?
+        val value: TextMarkdown?
     ) : ModelCmdOnModel
 
     class UpdateEntityAttributeType(
@@ -254,13 +254,13 @@ sealed interface ModelCmd {
     class UpdateRelationshipName(
         override val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
-        val value: LocalizedText?
+        val value: TextSingleLine?
     ) : ModelCmdOnModel
 
     class UpdateRelationshipDescription(
         override val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
-        val value: LocalizedMarkdown?
+        val value: TextMarkdown?
     ) : ModelCmdOnModel
 
     class CreateRelationshipRole(
@@ -268,7 +268,7 @@ sealed interface ModelCmd {
         val relationshipRef: RelationshipRef,
         val key: RelationshipRoleKey,
         val entityRef: EntityRef,
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         val cardinality: RelationshipCardinality
     ) : ModelCmdOnModel
 
@@ -283,7 +283,7 @@ sealed interface ModelCmd {
         override val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
         val relationshipRoleRef: RelationshipRoleRef,
-        val value: LocalizedText?
+        val value: TextSingleLine?
     ) : ModelCmdOnModel
 
     class UpdateRelationshipRoleEntity(
@@ -334,14 +334,14 @@ sealed interface ModelCmd {
         override val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
         val attributeRef: RelationshipAttributeRef,
-        val value: LocalizedText?
+        val value: TextSingleLine?
     ) : ModelCmdOnModel
 
     class UpdateRelationshipAttributeDescription(
         override val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
         val attributeRef: RelationshipAttributeRef,
-        val value: LocalizedMarkdown?
+        val value: TextMarkdown?
     ) : ModelCmdOnModel
 
     class UpdateRelationshipAttributeKey(
@@ -393,8 +393,8 @@ sealed interface ModelCmd {
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
         val key: BusinessKeyKey,
-        val name: LocalizedText?,
-        val description: LocalizedMarkdown?,
+        val name: TextSingleLine?,
+        val description: TextMarkdown?,
         val participants: List<EntityAttributeRef>
     ) : ModelCmdOnModel
 
@@ -407,13 +407,13 @@ sealed interface ModelCmd {
     data class BusinessKeyUpdateName(
         override val modelRef: ModelRef,
         val businessKeyRef: BusinessKeyRef,
-        val value: LocalizedText?
+        val value: TextSingleLine?
     ) : ModelCmdOnModel
 
     data class BusinessKeyUpdateDescription(
         override val modelRef: ModelRef,
         val businessKeyRef: BusinessKeyRef,
-        val value: LocalizedMarkdown?
+        val value: TextMarkdown?
     ) : ModelCmdOnModel
 
     data class BusinessKeyUpdateParticipants(

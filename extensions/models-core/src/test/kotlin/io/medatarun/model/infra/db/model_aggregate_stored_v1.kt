@@ -26,8 +26,8 @@ private fun sampleStoreModelAggregateOld(): ModelStorageCmdOld.StoreModelAggrega
         model = StoreModelAggregateModel(
             id = modelId,
             key = ModelKey("billing"),
-            name = LocalizedText("Billing"),
-            description = LocalizedMarkdown("Billing model"),
+            name = TextSingleLine("Billing"),
+            description = TextMarkdown("Billing model"),
             version = ModelVersion("1.0.0"),
             origin = ModelOrigin.Manual,
             authority = ModelAuthority.SYSTEM,
@@ -37,16 +37,16 @@ private fun sampleStoreModelAggregateOld(): ModelStorageCmdOld.StoreModelAggrega
             StoreModelAggregateType(
                 id = typeId,
                 key = TypeKey("number"),
-                name = LocalizedText("Number"),
-                description = LocalizedMarkdown("Number type")
+                name = TextSingleLine("Number"),
+                description = TextMarkdown("Number type")
             )
         ),
         entities = listOf(
             StoreModelAggregateEntityDeprecated(
                 id = entityId,
                 key = EntityKey("invoice"),
-                name = LocalizedText("Invoice"),
-                description = LocalizedMarkdown("Invoice entity"),
+                name = TextSingleLine("Invoice"),
+                description = TextMarkdown("Invoice entity"),
                 identifierAttributeId = entityAttributeId,
                 origin = EntityOrigin.Manual,
                 documentationHome = URL("https://example.com/docs/entities/invoice")
@@ -57,8 +57,8 @@ private fun sampleStoreModelAggregateOld(): ModelStorageCmdOld.StoreModelAggrega
                 id = entityAttributeId,
                 entityId = entityId,
                 key = AttributeKey("invoice_id"),
-                name = LocalizedText("Invoice Id"),
-                description = LocalizedMarkdown("Invoice identity"),
+                name = TextSingleLine("Invoice Id"),
+                description = TextMarkdown("Invoice identity"),
                 typeId = typeId,
                 optional = false
             )
@@ -67,14 +67,14 @@ private fun sampleStoreModelAggregateOld(): ModelStorageCmdOld.StoreModelAggrega
             StoreModelAggregateRelationship(
                 id = relationshipId,
                 key = RelationshipKey("invoice_invoice"),
-                name = LocalizedText("Invoice Invoice"),
-                description = LocalizedMarkdown("Self relationship"),
+                name = TextSingleLine("Invoice Invoice"),
+                description = TextMarkdown("Self relationship"),
                 roles = listOf(
                     StoreModelAggregateRelationshipRole(
                         id = relationshipRoleId,
                         key = RelationshipRoleKey("source"),
                         entityId = entityId,
-                        name = LocalizedText("Source"),
+                        name = TextSingleLine("Source"),
                         cardinality = RelationshipCardinality.Many
                     )
                 )
@@ -85,8 +85,8 @@ private fun sampleStoreModelAggregateOld(): ModelStorageCmdOld.StoreModelAggrega
                 id = relationshipAttributeId,
                 relationshipId = relationshipId,
                 key = AttributeKey("ratio"),
-                name = LocalizedText("Ratio"),
-                description = LocalizedMarkdown("Relationship ratio"),
+                name = TextSingleLine("Ratio"),
+                description = TextMarkdown("Relationship ratio"),
                 typeId = typeId,
                 optional = true
             )
@@ -186,8 +186,8 @@ fun expectedUpscale(): List<ModelStorageCmd.StoreModelAggregate> {
         model = StoreModelAggregateModel(
             id = modelId,
             key = ModelKey("billing"),
-            name = LocalizedText("Billing"),
-            description = LocalizedMarkdown("Billing model"),
+            name = TextSingleLine("Billing"),
+            description = TextMarkdown("Billing model"),
             version = ModelVersion("1.0.0"),
             origin = ModelOrigin.Manual,
             authority = ModelAuthority.SYSTEM,
@@ -197,16 +197,16 @@ fun expectedUpscale(): List<ModelStorageCmd.StoreModelAggregate> {
             StoreModelAggregateType(
                 id = typeId,
                 key = TypeKey("number"),
-                name = LocalizedText("Number"),
-                description = LocalizedMarkdown("Number type")
+                name = TextSingleLine("Number"),
+                description = TextMarkdown("Number type")
             )
         ),
         entities = listOf(
             StoreModelAggregateEntityCurrent(
                 id = entityId,
                 key = EntityKey("invoice"),
-                name = LocalizedText("Invoice"),
-                description = LocalizedMarkdown("Invoice entity"),
+                name = TextSingleLine("Invoice"),
+                description = TextMarkdown("Invoice entity"),
                 origin = EntityOrigin.Manual,
                 documentationHome = URL("https://example.com/docs/entities/invoice")
             )
@@ -216,8 +216,8 @@ fun expectedUpscale(): List<ModelStorageCmd.StoreModelAggregate> {
                 id = entityAttributeId,
                 entityId = entityId,
                 key = AttributeKey("invoice_id"),
-                name = LocalizedText("Invoice Id"),
-                description = LocalizedMarkdown("Invoice identity"),
+                name = TextSingleLine("Invoice Id"),
+                description = TextMarkdown("Invoice identity"),
                 typeId = typeId,
                 optional = false
             )
@@ -226,14 +226,14 @@ fun expectedUpscale(): List<ModelStorageCmd.StoreModelAggregate> {
             StoreModelAggregateRelationship(
                 id = relationshipId,
                 key = RelationshipKey("invoice_invoice"),
-                name = LocalizedText("Invoice Invoice"),
-                description = LocalizedMarkdown("Self relationship"),
+                name = TextSingleLine("Invoice Invoice"),
+                description = TextMarkdown("Self relationship"),
                 roles = listOf(
                     StoreModelAggregateRelationshipRole(
                         id = relationshipRoleId,
                         key = RelationshipRoleKey("source"),
                         entityId = entityId,
-                        name = LocalizedText("Source"),
+                        name = TextSingleLine("Source"),
                         cardinality = RelationshipCardinality.Many
                     )
                 )
@@ -244,8 +244,8 @@ fun expectedUpscale(): List<ModelStorageCmd.StoreModelAggregate> {
                 id = relationshipAttributeId,
                 relationshipId = relationshipId,
                 key = AttributeKey("ratio"),
-                name = LocalizedText("Ratio"),
-                description = LocalizedMarkdown("Relationship ratio"),
+                name = TextSingleLine("Ratio"),
+                description = TextMarkdown("Relationship ratio"),
                 typeId = typeId,
                 optional = true
             )

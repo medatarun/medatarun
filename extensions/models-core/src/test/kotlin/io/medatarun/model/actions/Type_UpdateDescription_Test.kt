@@ -1,7 +1,7 @@
 package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
-import io.medatarun.model.domain.LocalizedMarkdown
+import io.medatarun.model.domain.TextMarkdown
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.TypeRef
@@ -26,12 +26,12 @@ class Type_UpdateDescription_Test {
             ModelAction.Type_UpdateDescription(
                 modelRef = modelRef,
                 typeRef = typeRef,
-                value = LocalizedMarkdown("This is a string")
+                value = TextMarkdown("This is a string")
             )
         )
         val t = env.queries.findTypeOptional(modelRef, typeRef)
         assertNotNull(t)
-        assertEquals(LocalizedMarkdown("This is a string"), t.description)
+        assertEquals(TextMarkdown("This is a string"), t.description)
     }
 
     @Test

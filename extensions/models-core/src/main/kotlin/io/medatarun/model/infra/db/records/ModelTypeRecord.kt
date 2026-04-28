@@ -9,8 +9,8 @@ data class ModelTypeRecord(
     val lineageId: TypeId,
     val modelSnapshotId: ModelSnapshotId,
     val key: TypeKey,
-    val name: LocalizedText?,
-    val description: LocalizedMarkdown?
+    val name: TextSingleLine?,
+    val description: TextMarkdown?
 ) {
     companion object {
         fun read(row: ResultRow): ModelTypeRecord {

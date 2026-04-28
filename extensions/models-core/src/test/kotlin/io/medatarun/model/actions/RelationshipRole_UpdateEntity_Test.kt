@@ -54,7 +54,7 @@ class RelationshipRole_UpdateEntity_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = otherModelKey,
-                name = LocalizedText("Other model"),
+                name = TextSingleLine("Other model"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )

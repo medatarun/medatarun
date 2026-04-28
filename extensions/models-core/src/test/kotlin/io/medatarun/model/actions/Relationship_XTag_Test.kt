@@ -101,7 +101,7 @@ class Relationship_XTag_Test {
         env.runtime.dispatch(
             ModelAction.Model_Create(
                 key = ModelKey("model-rel-2"),
-                name = LocalizedText("Model rel 2"),
+                name = TextSingleLine("Model rel 2"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
@@ -261,7 +261,7 @@ class Relationship_XTag_Test {
         env.runtime.dispatch(
             ModelAction.Model_Create(
                 key = ModelKey("model-rel-attr-2"),
-                name = LocalizedText("Model rel attr 2"),
+                name = TextSingleLine("Model rel attr 2"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )

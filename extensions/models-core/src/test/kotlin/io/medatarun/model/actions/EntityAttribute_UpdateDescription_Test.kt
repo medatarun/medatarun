@@ -2,7 +2,7 @@ package io.medatarun.model.actions
 
 import io.medatarun.model.domain.EntityAttributeRef.Companion.entityAttributeRefKey
 import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
-import io.medatarun.model.domain.LocalizedMarkdown
+import io.medatarun.model.domain.TextMarkdown
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
@@ -21,7 +21,7 @@ class EntityAttribute_UpdateDescription_Test {
         val entityRef = entityRefKey("entity-a")
         val typeRef = typeRefKey("String")
         val attributeRef = entityAttributeRefKey("myattribute")
-        val nextValue = LocalizedMarkdown("New description")
+        val nextValue = TextMarkdown("New description")
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
@@ -72,7 +72,7 @@ class EntityAttribute_UpdateDescription_Test {
                 type = typeRef,
                 optional = false,
                 name = null,
-                description = LocalizedMarkdown("New description")
+                description = TextMarkdown("New description")
             )
         )
 
@@ -96,7 +96,7 @@ class EntityAttribute_UpdateDescription_Test {
         val entityRef = entityRefKey("entity-a")
         val typeRef = typeRefKey("String")
         val attributeRef = entityAttributeRefKey("myattribute")
-        val description = LocalizedMarkdown("My description")
+        val description = TextMarkdown("My description")
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)

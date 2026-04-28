@@ -17,12 +17,12 @@ interface Model {
     /**
      * Display name of the model
      */
-    val name: LocalizedText?
+    val name: TextSingleLine?
 
     /**
      * Display description of the model
      */
-    val description: LocalizedMarkdown?
+    val description: TextMarkdown?
 
     /**
      * Version of the model

@@ -25,8 +25,8 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
             contextual(ModelKey::class, valueClassSerializer(::ModelKey) { it.value })
             contextual(EntityKey::class, valueClassSerializer(::EntityKey) { it.value })
             contextual(AttributeKey::class, valueClassSerializer(::AttributeKey) { it.value })
-            contextual(LocalizedText::class, LocalizedTextSerializer())
-            contextual(LocalizedMarkdown::class, LocalizedMarkdownSerializer())
+            contextual(TextSingleLine::class, TextSingleLineSerializer())
+            contextual(TextMarkdown::class, TextMarkdownSerializer())
             contextual(LocalizedTextMultiLangCompat::class, LocalizedTextMultiLangCompatSerializer())
         }
     }

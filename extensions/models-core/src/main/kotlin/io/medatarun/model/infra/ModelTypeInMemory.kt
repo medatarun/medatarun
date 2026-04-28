@@ -8,8 +8,8 @@ import io.medatarun.model.domain.*
 data class ModelTypeInMemory(
     override val id: TypeId,
     override val key: TypeKey,
-    override val name: LocalizedText?,
-    override val description: LocalizedMarkdown?,
+    override val name: TextSingleLine?,
+    override val description: TextMarkdown?,
 ) : ModelType {
     companion object {
         fun of(key: String): ModelTypeInMemory {

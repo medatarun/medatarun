@@ -1,7 +1,7 @@
 package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
-import io.medatarun.model.domain.LocalizedText
+import io.medatarun.model.domain.TextSingleLine
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -12,7 +12,7 @@ class RelationshipRole_UpdateName_Test {
     @Test
     fun `update relationship role name not null persisted`() {
         val env = TestEnvRelationshipRole()
-        val newName = LocalizedText("Buyer updated")
+        val newName = TextSingleLine("Buyer updated")
         env.dispatch(
             ModelAction.RelationshipRole_UpdateName(
                 modelRef = env.modelRef,
@@ -35,7 +35,7 @@ class RelationshipRole_UpdateName_Test {
                 modelRef = env.modelRef,
                 relationshipRef = env.relationshipRef,
                 relationshipRoleRef = env.roleARef,
-                value = LocalizedText("Buyer updated")
+                value = TextSingleLine("Buyer updated")
             )
         )
         env.dispatch(

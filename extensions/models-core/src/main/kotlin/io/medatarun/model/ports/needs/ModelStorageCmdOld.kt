@@ -42,10 +42,10 @@ sealed interface ModelStorageCmdOld : ModelStorageCmdAnyVersion {
         val key: EntityKey,
         @Contextual
         @SerialName("name")
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @Contextual
         @SerialName("description")
-        val description: LocalizedMarkdown?,
+        val description: TextMarkdown?,
         @Contextual
         @SerialName("documentationHome")
         val documentationHome: URL?,
@@ -63,10 +63,10 @@ sealed interface ModelStorageCmdOld : ModelStorageCmdAnyVersion {
         val identityAttributeTypeId: TypeId,
         @Contextual
         @SerialName("identityAttributeName")
-        val identityAttributeName: LocalizedText?,
+        val identityAttributeName: TextSingleLine?,
         @Contextual
         @SerialName("identityAttributeDescription")
-        val identityAttributeDescription: LocalizedMarkdown?,
+        val identityAttributeDescription: TextMarkdown?,
         @SerialName("identityAttributeOptional")
         val identityAttributeIdOptional: Boolean,
 

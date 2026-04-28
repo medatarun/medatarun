@@ -20,12 +20,12 @@ interface Entity {
     /**
      * Display name
      */
-    val name: LocalizedText?
+    val name: TextSingleLine?
 
     /**
      * Display description
      */
-    val description: LocalizedMarkdown?
+    val description: TextMarkdown?
 
     /**
      * Tells where the definition comes from

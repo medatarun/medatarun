@@ -1,15 +1,15 @@
 package io.medatarun.ext.modeljson.internal.serializers
 
-import io.medatarun.model.domain.LocalizedMarkdown
-import io.medatarun.model.domain.LocalizedText
+import io.medatarun.model.domain.TextMarkdown
+import io.medatarun.model.domain.TextSingleLine
 
 data class LocalizedTextMultiLangCompat(val value : String ) {
-    fun toLocalizedText() = LocalizedText(value)
-    fun toLocalizedMarkdown() = LocalizedMarkdown(value)
+    fun toTextSingleLine() = TextSingleLine(value)
+    fun toTextMarkdown() = TextMarkdown(value)
     companion object {
-        fun of(other: LocalizedText) = LocalizedTextMultiLangCompat(other.name)
-        fun ofOptional(other: LocalizedText?) = other?.name?.let { LocalizedTextMultiLangCompat(it) }
-        fun of(other: LocalizedMarkdown) = LocalizedTextMultiLangCompat(other.name)
-        fun ofOptional(other: LocalizedMarkdown?) = other?.name?.let { LocalizedTextMultiLangCompat(it) }
+        fun of(other: TextSingleLine) = LocalizedTextMultiLangCompat(other.name)
+        fun ofOptional(other: TextSingleLine?) = other?.name?.let { LocalizedTextMultiLangCompat(it) }
+        fun of(other: TextMarkdown) = LocalizedTextMultiLangCompat(other.name)
+        fun ofOptional(other: TextMarkdown?) = other?.name?.let { LocalizedTextMultiLangCompat(it) }
     }
 }

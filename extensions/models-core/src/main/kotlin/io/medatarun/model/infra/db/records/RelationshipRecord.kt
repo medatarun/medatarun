@@ -9,8 +9,8 @@ data class RelationshipRecord(
     val lineageId: RelationshipId,
     val modelSnapshotId: ModelSnapshotId,
     val key: RelationshipKey,
-    val name: LocalizedText?,
-    val description: LocalizedMarkdown?
+    val name: TextSingleLine?,
+    val description: TextMarkdown?
 ) {
     companion object {
         fun read(row: ResultRow): RelationshipRecord {

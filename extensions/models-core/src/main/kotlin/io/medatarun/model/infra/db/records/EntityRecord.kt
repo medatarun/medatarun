@@ -9,8 +9,8 @@ data class EntityRecord(
     val lineageId: EntityId,
     val modelSnapshotId: ModelSnapshotId,
     val key: EntityKey,
-    val name: LocalizedText?,
-    val description: LocalizedMarkdown?,
+    val name: TextSingleLine?,
+    val description: TextMarkdown?,
     val origin: EntityOrigin,
     val documentationHome: String?
 ) {

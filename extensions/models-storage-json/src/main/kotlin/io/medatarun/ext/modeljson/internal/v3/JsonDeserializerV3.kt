@@ -69,8 +69,8 @@ internal class JsonDeserializerV3(
             val type = ModelTypeInMemory(
                 id = typeJson.id?.let { TypeId.fromString(it) } ?: TypeId.generate(),
                 key = TypeKey(typeJson.key),
-                name = typeJson.name?.let { LocalizedText(it) },
-                description = typeJson.description?.let { LocalizedMarkdown(it) }
+                name = typeJson.name?.let { TextSingleLine(it) },
+                description = typeJson.description?.let { TextMarkdown(it) }
             )
             collectors.typeCollector.add(type)
         }
@@ -104,8 +104,8 @@ internal class JsonDeserializerV3(
             val e = EntityInMemory(
                 id = entityId,
                 key = EntityKey(entityJson.key),
-                name = entityJson.name?.let { LocalizedText(it) },
-                description = entityJson.description?.let { LocalizedMarkdown(it) },
+                name = entityJson.name?.let { TextSingleLine(it) },
+                description = entityJson.description?.let { TextMarkdown(it) },
                 origin = when (entityJson.origin) {
                     null -> EntityOrigin.Manual
                     else -> Uri(URI(entityJson.origin))
@@ -130,8 +130,8 @@ internal class JsonDeserializerV3(
             val r = RelationshipInMemory(
                 id = relationshipId,
                 key = RelationshipKey(relationJson.key),
-                name = relationJson.name?.let { LocalizedText(it) },
-                description = relationJson.description?.let { LocalizedMarkdown(it) },
+                name = relationJson.name?.let { TextSingleLine(it) },
+                description = relationJson.description?.let { TextMarkdown(it) },
                 roles = toRolesInMemory(relationJson, collectors),
                 tags = relationJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList()
             )
@@ -153,8 +153,8 @@ internal class JsonDeserializerV3(
                 else -> ModelOrigin.Uri(URI(modelJson.origin))
             },
             authority = modelJson.authority?.let { ModelAuthority.valueOfCode(it) } ?: ModelAuthority.SYSTEM,
-            name = modelJson.name?.let { LocalizedText(it) },
-            description = modelJson.description?.let { LocalizedMarkdown(it) },
+            name = modelJson.name?.let { TextSingleLine(it) },
+            description = modelJson.description?.let { TextMarkdown(it) },
             documentationHome = modelJson.documentationHome?.let { URI(it).toURL() },
         )
 
@@ -194,8 +194,8 @@ internal class JsonDeserializerV3(
             id = id,
             key = key,
             entityId = entity.id,
-            name = bkJson.name?.let { LocalizedText(it) },
-            description = bkJson.description?.let { LocalizedMarkdown(it) },
+            name = bkJson.name?.let { TextSingleLine(it) },
+            description = bkJson.description?.let { TextMarkdown(it) },
             participants = participants
         )
         return bk
@@ -218,7 +218,7 @@ internal class JsonDeserializerV3(
         RelationshipRoleInMemory(
             id = roleJsonId,
             key = RelationshipRoleKey(roleJson.key),
-            name = roleJson.name?.let { LocalizedText(it) },
+            name = roleJson.name?.let { TextSingleLine(it) },
             entityId = entity.id,
             cardinality = RelationshipCardinality.valueOfCode(roleJson.cardinality),
         )
@@ -239,8 +239,8 @@ internal class JsonDeserializerV3(
             AttributeInMemory(
                 id = attributeJson.id?.let { AttributeId.fromString(it) } ?: AttributeId.generate(),
                 key = AttributeKey(attributeJson.key),
-                name = attributeJson.name?.let { LocalizedText(it) },
-                description = attributeJson.description?.let { LocalizedMarkdown(it) },
+                name = attributeJson.name?.let { TextSingleLine(it) },
+                description = attributeJson.description?.let { TextMarkdown(it) },
                 optional = attributeJson.optional,
                 typeId = type.id,
                 tags = attributeJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList(),

@@ -1,7 +1,7 @@
 package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
-import io.medatarun.model.domain.LocalizedText
+import io.medatarun.model.domain.TextSingleLine
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -14,9 +14,9 @@ class Model_UpdateName_Test {
         env.dispatch(
             ModelAction.Model_UpdateName(
                 modelRef = env.modelRef,
-                value = LocalizedText("Model name 2")
+                value = TextSingleLine("Model name 2")
             )
         )
-        assertEquals(LocalizedText("Model name 2"), env.query.findModelAggregate(env.modelRef).name)
+        assertEquals(TextSingleLine("Model name 2"), env.query.findModelAggregate(env.modelRef).name)
     }
 }

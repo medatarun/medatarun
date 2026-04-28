@@ -7,7 +7,6 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.domain.EntityOrigin.Uri
 import io.medatarun.model.infra.*
 import io.medatarun.model.infra.inmemory.ModelInMemory
-import io.medatarun.model.infra.inmemory.BusinessKeyInMemory
 import io.medatarun.model.infra.inmemory.EntityPrimaryKeyInMemory
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.type.commons.id.Id
@@ -22,8 +21,8 @@ internal class JsonDeserializerV2(
             ModelTypeInMemory(
                 id = typeJson.id?.let { TypeId.fromString(it) } ?: TypeId.generate(),
                 key = TypeKey(typeJson.key),
-                name = typeJson.name?.toLocalizedText(),
-                description = typeJson.description?.toLocalizedMarkdown()
+                name = typeJson.name?.toTextSingleLine(),
+                description = typeJson.description?.toTextMarkdown()
             )
         }
         val attributeCollector = mutableListOf<AttributeInMemory>()
@@ -40,8 +39,8 @@ internal class JsonDeserializerV2(
             val e = EntityInMemory(
                 id = entityId,
                 key = EntityKey(entityJson.key),
-                name = entityJson.name?.toLocalizedText(),
-                description = entityJson.description?.toLocalizedMarkdown(),
+                name = entityJson.name?.toTextSingleLine(),
+                description = entityJson.description?.toTextMarkdown(),
                 origin = when (entityJson.origin) {
                     null -> EntityOrigin.Manual
                     else -> Uri(URI(entityJson.origin))
@@ -72,13 +71,13 @@ internal class JsonDeserializerV2(
             val r = RelationshipInMemory(
                 id = relationshipId,
                 key = RelationshipKey(relationJson.key),
-                name = relationJson.name?.toLocalizedText(),
-                description = relationJson.description?.toLocalizedMarkdown(),
+                name = relationJson.name?.toTextSingleLine(),
+                description = relationJson.description?.toTextMarkdown(),
                 roles = relationJson.roles.map { roleJson ->
                     RelationshipRoleInMemory(
                         id = roleJson.id?.let { RelationshipRoleId.fromString(it) } ?: RelationshipRoleId.generate(),
                         key = RelationshipRoleKey(roleJson.key),
-                        name = roleJson.name?.toLocalizedText(),
+                        name = roleJson.name?.toTextSingleLine(),
                         entityId = findEntity(relationJson.key, roleJson.key, EntityKey(roleJson.entityId)).id,
                         cardinality = RelationshipCardinality.valueOfCode(roleJson.cardinality),
                     )

@@ -398,7 +398,7 @@ internal class ModelStorageDbSearchWrite(
         }
     }
 
-    private fun buildSearchText(key: Key<*>, name: LocalizedText?, description: LocalizedMarkdown?): String {
+    private fun buildSearchText(key: Key<*>, name: TextSingleLine?, description: TextMarkdown?): String {
         return normalizeModelSearchText(listOfNotNull(key, name, description).joinToString(" "))
     }
 

@@ -1,7 +1,7 @@
 package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
-import io.medatarun.model.domain.LocalizedText
+import io.medatarun.model.domain.TextSingleLine
 import io.medatarun.model.domain.ModelDuplicateKeyException
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
@@ -43,7 +43,7 @@ class Model_UpdateKey_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = firstModelKey,
-                name = LocalizedText("Model 1"),
+                name = TextSingleLine("Model 1"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
@@ -51,7 +51,7 @@ class Model_UpdateKey_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = secondModelKey,
-                name = LocalizedText("Model 2"),
+                name = TextSingleLine("Model 2"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )

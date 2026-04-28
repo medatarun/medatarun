@@ -26,12 +26,12 @@ interface Attribute {
     /**
      * Display name of the attribute
      */
-    val name: LocalizedText?
+    val name: TextSingleLine?
 
     /**
      * Display description of the attribute
      */
-    val description: LocalizedMarkdown?
+    val description: TextMarkdown?
 
     /**
      * Type of attribute, must be one of the types registered in the model

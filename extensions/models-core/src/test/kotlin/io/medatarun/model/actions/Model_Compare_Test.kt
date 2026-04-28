@@ -89,7 +89,7 @@ class Model_Compare_Test {
                 modelRef = rightRef,
                 entityRef = customerEntityRef,
                 attributeRef = emailAttributeRef,
-                value = LocalizedMarkdown("email used for notifications")
+                value = TextMarkdown("email used for notifications")
             )
         )
 
@@ -251,7 +251,7 @@ class Model_Compare_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = leftModelRef.key,
-                name = LocalizedText("Left model"),
+                name = TextSingleLine("Left model"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
@@ -268,7 +268,7 @@ class Model_Compare_Test {
             ModelAction.Entity_Create(
                 modelRef = leftModelRef,
                 entityKey = customerEntityRef.key,
-                name = LocalizedText("Customer"),
+                name = TextSingleLine("Customer"),
                 description = null,
                 documentationHome = null
             )
@@ -282,7 +282,7 @@ class Model_Compare_Test {
                 attributeKey = emailAttributeRef.key,
                 type = stringTypeRef,
                 optional = false,
-                name = LocalizedText("Email"),
+                name = TextSingleLine("Email"),
                 description = null
             )
         )
@@ -296,7 +296,7 @@ class Model_Compare_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = rightModelRef.key,
-                name = LocalizedText("Right model"),
+                name = TextSingleLine("Right model"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
@@ -313,7 +313,7 @@ class Model_Compare_Test {
             ModelAction.Entity_Create(
                 modelRef = rightModelRef,
                 entityKey = customerEntityRef.key,
-                name = LocalizedText("Customer"),
+                name = TextSingleLine("Customer"),
                 description = null,
                 documentationHome = null
             )
@@ -328,7 +328,7 @@ class Model_Compare_Test {
                 attributeKey = emailAttributeRef.key,
                 type = stringTypeRef,
                 optional = false,
-                name = LocalizedText("Email"),
+                name = TextSingleLine("Email"),
                 description = null
             )
         )
@@ -387,7 +387,7 @@ class Model_Compare_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = modelKey,
-                name = LocalizedText("Model ${modelKey.value}"),
+                name = TextSingleLine("Model ${modelKey.value}"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
@@ -405,7 +405,7 @@ class Model_Compare_Test {
             ModelAction.Entity_Create(
                 modelRef = modelRef,
                 entityKey = entityRef.key,
-                name = LocalizedText("Customer"),
+                name = TextSingleLine("Customer"),
                 description = null,
                 documentationHome = null
             )
@@ -427,7 +427,7 @@ class Model_Compare_Test {
                 attributeKey = emailAttributeRef.key,
                 type = typeRef,
                 optional = false,
-                name = LocalizedText("Email"),
+                name = TextSingleLine("Email"),
                 description = null
             )
         )

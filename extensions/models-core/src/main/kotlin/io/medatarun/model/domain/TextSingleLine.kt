@@ -1,8 +1,5 @@
 package io.medatarun.model.domain
 
-const val DEFAULT_LANG_KEY = "default"
-const val DEFAULT_LANG_FALLBACK = "en"
-
 /**
  * Base type for all localizable texts.
  * Wrapper around some texts.
@@ -16,14 +13,14 @@ sealed interface TextBase {
 
 }
 
-data class LocalizedText(override val name: String) : TextBase {
-    fun validate(): LocalizedText {
+data class TextSingleLine(override val name: String) : TextBase {
+    fun validate(): TextSingleLine {
         return this
     }
 }
 
-data class LocalizedMarkdown(override val name: String) : TextBase {
-    fun validate(): LocalizedMarkdown {
+data class TextMarkdown(override val name: String) : TextBase {
+    fun validate(): TextMarkdown {
         return this
     }
 }

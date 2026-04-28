@@ -177,8 +177,8 @@ sealed interface ModelDiffSnapshot {
 
 data class ModelDiffModelSnapshot(
     val key: ModelKey,
-    val name: LocalizedText?,
-    val description: LocalizedMarkdown?,
+    val name: TextSingleLine?,
+    val description: TextMarkdown?,
     val version: ModelVersion,
     val origin: ModelOrigin,
     val authority: ModelAuthority,
@@ -190,16 +190,16 @@ data class ModelDiffModelSnapshot(
 
 data class ModelDiffTypeSnapshot(
     val key: TypeKey,
-    val name: LocalizedText?,
-    val description: LocalizedMarkdown?
+    val name: TextSingleLine?,
+    val description: TextMarkdown?
 ) : ModelDiffSnapshot {
     override val objectType: String = "type"
 }
 
 data class ModelDiffEntitySnapshot(
     val key: EntityKey,
-    val name: LocalizedText?,
-    val description: LocalizedMarkdown?,
+    val name: TextSingleLine?,
+    val description: TextMarkdown?,
     val origin: EntityOrigin,
     val documentationHome: URL?,
     val tags: List<TagId>
@@ -209,8 +209,8 @@ data class ModelDiffEntitySnapshot(
 
 data class ModelDiffEntityAttributeSnapshot(
     val key: AttributeKey,
-    val name: LocalizedText?,
-    val description: LocalizedMarkdown?,
+    val name: TextSingleLine?,
+    val description: TextMarkdown?,
     val typeKey: TypeKey,
     val optional: Boolean,
     val tags: List<TagId>
@@ -220,8 +220,8 @@ data class ModelDiffEntityAttributeSnapshot(
 
 data class ModelDiffRelationshipSnapshot(
     val key: RelationshipKey,
-    val name: LocalizedText?,
-    val description: LocalizedMarkdown?,
+    val name: TextSingleLine?,
+    val description: TextMarkdown?,
     val tags: List<TagId>
 ) : ModelDiffSnapshot {
     override val objectType: String = "relationship"
@@ -230,7 +230,7 @@ data class ModelDiffRelationshipSnapshot(
 data class ModelDiffRelationshipRoleSnapshot(
     val key: RelationshipRoleKey,
     val entityKey: EntityKey,
-    val name: LocalizedText?,
+    val name: TextSingleLine?,
     val cardinality: RelationshipCardinality
 ) : ModelDiffSnapshot {
     override val objectType: String = "relationshipRole"
@@ -238,8 +238,8 @@ data class ModelDiffRelationshipRoleSnapshot(
 
 data class ModelDiffRelationshipAttributeSnapshot(
     val key: AttributeKey,
-    val name: LocalizedText?,
-    val description: LocalizedMarkdown?,
+    val name: TextSingleLine?,
+    val description: TextMarkdown?,
     val typeKey: TypeKey,
     val optional: Boolean,
     val tags: List<TagId>

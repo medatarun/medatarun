@@ -20,7 +20,7 @@ class TestEnvOneModel(version: ModelVersion = ModelVersion("2.0.0")) {
         env.dispatch(
             ModelAction.Model_Create(
                 key = modelKey,
-                name = LocalizedText("Model name"),
+                name = TextSingleLine("Model name"),
                 description = null,
                 version = version
             )
@@ -61,7 +61,7 @@ class TestEnvRelationshipRole {
         runtime.dispatch(
             ModelAction.Model_Create(
                 key = modelKey,
-                name = LocalizedText("Model relationship role"),
+                name = TextSingleLine("Model relationship role"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )

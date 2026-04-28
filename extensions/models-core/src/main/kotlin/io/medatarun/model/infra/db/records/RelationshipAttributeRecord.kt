@@ -9,8 +9,8 @@ data class RelationshipAttributeRecord(
     val lineageId: AttributeId,
     val relationshipSnapshotId: RelationshipSnapshotId,
     val key: AttributeKey,
-    val name: LocalizedText?,
-    val description: LocalizedMarkdown?,
+    val name: TextSingleLine?,
+    val description: TextMarkdown?,
     val typeSnapshotId: TypeSnapshotId,
     val optional: Boolean
 ) {

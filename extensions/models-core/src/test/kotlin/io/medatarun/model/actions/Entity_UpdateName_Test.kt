@@ -1,7 +1,7 @@
 package io.medatarun.model.actions
 
 import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
-import io.medatarun.model.domain.LocalizedText
+import io.medatarun.model.domain.TextSingleLine
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.ModelVersion
 import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
@@ -20,11 +20,11 @@ class Entity_UpdateName_Test {
         val modelRef = modelRefKey("entity-update-name")
         val typeRef = typeRefKey("String")
         val entityRef = entityRefKey("entity-primary")
-        val newName = LocalizedText("Entity primary updated")
+        val newName = TextSingleLine("Entity primary updated")
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate(modelRef, entityRef.key, LocalizedText("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, TextSingleLine("Entity primary"))
 
         env.dispatch(
             ModelAction.Entity_UpdateName(
@@ -49,7 +49,7 @@ class Entity_UpdateName_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate(modelRef, entityRef.key, LocalizedText("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, TextSingleLine("Entity primary"))
 
         env.dispatch(
             ModelAction.Entity_UpdateName(
@@ -69,11 +69,11 @@ class Entity_UpdateName_Test {
         val modelRef = modelRefKey("entity-update-name-after-release")
         val typeRef = typeRefKey("String")
         val entityRef = entityRefKey("entity-primary")
-        val newName = LocalizedText("Entity primary after release")
+        val newName = TextSingleLine("Entity primary after release")
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate(modelRef, entityRef.key, LocalizedText("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, TextSingleLine("Entity primary"))
 
         env.dispatch(ModelAction.Model_Release(modelRef, ModelVersion("1.1.0")))
         env.dispatch(
@@ -94,7 +94,7 @@ class Entity_UpdateName_Test {
         val modelRef = modelRefKey("entity-update-name-noop")
         val typeRef = typeRefKey("String")
         val entityRef = entityRefKey("entity-primary")
-        val currentName = LocalizedText("Entity primary")
+        val currentName = TextSingleLine("Entity primary")
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)

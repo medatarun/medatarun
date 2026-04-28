@@ -39,7 +39,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun modelUpdateName(modelSnapshotId: ModelSnapshotId, name: LocalizedText?) {
+    fun modelUpdateName(modelSnapshotId: ModelSnapshotId, name: TextSingleLine?) {
         ModelSnapshotTable.update(where = { ModelSnapshotTable.id eq modelSnapshotId }) { row ->
             row[ModelSnapshotTable.name] = name
         }
@@ -51,7 +51,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun modelUpdateDescription(modelSnapshotId: ModelSnapshotId, description: LocalizedMarkdown?) {
+    fun modelUpdateDescription(modelSnapshotId: ModelSnapshotId, description: TextMarkdown?) {
         ModelSnapshotTable.update(where = { ModelSnapshotTable.id eq modelSnapshotId }) { row ->
             row[ModelSnapshotTable.description] = description
         }
@@ -121,7 +121,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun typeUpdateName(modelSnapshotId: ModelSnapshotId, typeId: TypeId, name: LocalizedText?) {
+    fun typeUpdateName(modelSnapshotId: ModelSnapshotId, typeId: TypeId, name: TextSingleLine?) {
         ModelTypeTable.update(
             where = {
                 (ModelTypeTable.lineageId eq typeId) and (ModelTypeTable.modelSnapshotId eq modelSnapshotId)
@@ -131,7 +131,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun typeUpdateDescription(modelSnapshotId: ModelSnapshotId, typeId: TypeId, description: LocalizedMarkdown?) {
+    fun typeUpdateDescription(modelSnapshotId: ModelSnapshotId, typeId: TypeId, description: TextMarkdown?) {
         ModelTypeTable.update(
             where = {
                 (ModelTypeTable.lineageId eq typeId) and (ModelTypeTable.modelSnapshotId eq modelSnapshotId)
@@ -173,7 +173,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun entityUpdateName(modelSnapshotId: ModelSnapshotId, entityId: EntityId, name: LocalizedText?) {
+    fun entityUpdateName(modelSnapshotId: ModelSnapshotId, entityId: EntityId, name: TextSingleLine?) {
         EntityTable.update(
             where = {
                 (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
@@ -186,7 +186,7 @@ internal class ModelStorageDbSnapshotWriter(
     fun entityUpdateDescription(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
-        description: LocalizedMarkdown?
+        description: TextMarkdown?
     ) {
         EntityTable.update(
             where = {
@@ -389,7 +389,7 @@ internal class ModelStorageDbSnapshotWriter(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
         attributeId: AttributeId,
-        name: LocalizedText?
+        name: TextSingleLine?
     ) {
         entityAttributeUpdate(modelSnapshotId, entityId, attributeId) { row ->
             row[EntityAttributeTable.name] = name
@@ -400,7 +400,7 @@ internal class ModelStorageDbSnapshotWriter(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
         attributeId: AttributeId,
-        description: LocalizedMarkdown?
+        description: TextMarkdown?
     ) {
         entityAttributeUpdate(modelSnapshotId, entityId, attributeId) { row ->
             row[EntityAttributeTable.description] = description
@@ -522,7 +522,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun relationshipUpdateName(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId, name: LocalizedText?) {
+    fun relationshipUpdateName(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId, name: TextSingleLine?) {
         RelationshipTable.update(where = {
             (RelationshipTable.lineageId eq relationshipId) and
                     (RelationshipTable.modelSnapshotId eq modelSnapshotId)
@@ -534,7 +534,7 @@ internal class ModelStorageDbSnapshotWriter(
     fun relationshipUpdateDescription(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
-        description: LocalizedMarkdown?
+        description: TextMarkdown?
     ) {
         RelationshipTable.update(where = {
             (RelationshipTable.lineageId eq relationshipId) and
@@ -561,7 +561,7 @@ internal class ModelStorageDbSnapshotWriter(
         relationshipId: RelationshipId,
         relationshipRoleId: RelationshipRoleId,
         key: RelationshipRoleKey,
-        name: LocalizedText?,
+        name: TextSingleLine?,
         entityId: EntityId,
         cardinality: String
     ) {
@@ -614,7 +614,7 @@ internal class ModelStorageDbSnapshotWriter(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         relationshipRoleId: RelationshipRoleId,
-        name: LocalizedText?
+        name: TextSingleLine?
     ) {
         relationshipRoleUpdate(modelSnapshotId, relationshipId, relationshipRoleId) { row ->
             row[RelationshipRoleTable.name] = name
@@ -752,7 +752,7 @@ internal class ModelStorageDbSnapshotWriter(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         attributeId: AttributeId,
-        name: LocalizedText?
+        name: TextSingleLine?
     ) {
         relationshipAttributeUpdate(modelSnapshotId, relationshipId, attributeId) { row ->
             row[RelationshipAttributeTable.name] = name
@@ -763,7 +763,7 @@ internal class ModelStorageDbSnapshotWriter(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         attributeId: AttributeId,
-        description: LocalizedMarkdown?
+        description: TextMarkdown?
     ) {
         relationshipAttributeUpdate(modelSnapshotId, relationshipId, attributeId) { row ->
             row[RelationshipAttributeTable.description] = description
@@ -888,7 +888,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun businessKeyUpdateName(modelSnapshotId: ModelSnapshotId, businessKeyId: BusinessKeyId, name: LocalizedText?) {
+    fun businessKeyUpdateName(modelSnapshotId: ModelSnapshotId, businessKeyId: BusinessKeyId, name: TextSingleLine?) {
         businessKeyUpdate(modelSnapshotId, businessKeyId) { row ->
             row[BusinessKeyTable.name] = name
         }
@@ -897,7 +897,7 @@ internal class ModelStorageDbSnapshotWriter(
     fun businessKeyUpdateDescription(
         modelSnapshotId: ModelSnapshotId,
         businessKeyId: BusinessKeyId,
-        description: LocalizedMarkdown?
+        description: TextMarkdown?
     ) {
         businessKeyUpdate(modelSnapshotId, businessKeyId) { row ->
             row[BusinessKeyTable.description] = description

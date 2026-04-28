@@ -2,8 +2,6 @@ package io.medatarun.ext.modeljson.internal.v2
 
 import io.medatarun.ext.modeljson.internal.base.ModelAttributeJson
 import io.medatarun.ext.modeljson.internal.serializers.LocalizedTextMultiLangCompat
-import io.medatarun.model.domain.LocalizedMarkdown
-import io.medatarun.model.domain.LocalizedText
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 

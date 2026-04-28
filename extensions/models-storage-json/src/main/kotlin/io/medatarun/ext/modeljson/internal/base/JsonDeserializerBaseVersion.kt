@@ -25,8 +25,8 @@ internal class JsonDeserializerBaseVersion {
             AttributeInMemory(
                 id = attributeJson.id?.let { AttributeId.fromString(it) } ?: AttributeId.generate(),
                 key = AttributeKey(attributeJson.key),
-                name = attributeJson.name?.toLocalizedText(),
-                description = attributeJson.description?.toLocalizedMarkdown(),
+                name = attributeJson.name?.toTextSingleLine(),
+                description = attributeJson.description?.toTextMarkdown(),
                 optional = attributeJson.optional,
                 typeId = type.id,
                 tags = attributeJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList(),

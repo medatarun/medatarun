@@ -9,8 +9,8 @@ export type DomainTypeMap = {
   EntityKey: string;
   EntityRef: string;
   Fullname: string;
-  LocalizedMarkdown: string;
-  LocalizedText: string;
+  TextMarkdown: string;
+  TextSingleLine: string;
   ModelAuthority: string;
   ModelDiffScope: string;
   ModelKey: string;

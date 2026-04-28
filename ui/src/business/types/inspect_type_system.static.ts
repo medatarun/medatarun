@@ -115,16 +115,15 @@ export const inspect_type_system_static: { items: TypeDescriptorDto[] } = {
       description: "A reference to an entity attribute.",
     },
     {
-      id: "LocalizedMarkdown",
+      id: "TextMarkdown",
       equivJson: "string",
-      description:
-        "A rich formatted text. Can be translated in multiple languages.",
+      description: "A rich formatted text in Markdown format.",
     },
     {
-      id: "LocalizedText",
+      id: "TextSingleLine",
       equivJson: "string",
       description:
-        "A text on a single line, that doesn't exceed 200 characters long. Can be translated in multiple languages.",
+        "A text on a single line, that doesn't exceed 200 characters long.",
     },
     {
       id: "ModelAuthority",

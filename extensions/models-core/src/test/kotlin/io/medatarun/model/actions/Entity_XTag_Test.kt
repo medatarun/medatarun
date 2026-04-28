@@ -1,7 +1,7 @@
 package io.medatarun.model.actions
 
 import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
-import io.medatarun.model.domain.LocalizedText
+import io.medatarun.model.domain.TextSingleLine
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.ModelVersion
@@ -27,7 +27,7 @@ class Entity_XTag_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate(modelRef, entityRef.key, LocalizedText("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, TextSingleLine("Entity primary"))
 
         env.dispatch(
             ModelAction.Entity_AddTag(
@@ -60,7 +60,7 @@ class Entity_XTag_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate(modelRef, entityRef.key, LocalizedText("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, TextSingleLine("Entity primary"))
         val localTag = env.createLocalTagInModelScope(modelRef, "local-entity-tag")
 
         env.dispatch(
@@ -83,11 +83,11 @@ class Entity_XTag_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate(modelRef, entityRef.key, LocalizedText("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, TextSingleLine("Entity primary"))
         env.dispatch(
             ModelAction.Model_Create(
                 key = ModelKey("model-entity-update-2"),
-                name = LocalizedText("Model entity update 2"),
+                name = TextSingleLine("Model entity update 2"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
