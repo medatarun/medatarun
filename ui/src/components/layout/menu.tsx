@@ -1,6 +1,6 @@
 import type { NavigationTreeItem } from "@seij/common-ui";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { useDetailLevelContext } from "@/components/business/detail-level";
 import { useCurrentActor } from "@/components/business/auth-actor";
 
 export function useMenu() {

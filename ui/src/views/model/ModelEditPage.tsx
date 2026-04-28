@@ -28,7 +28,7 @@ import { RelationshipsTable } from "@/components/business/model/RelationshipsTab
 import { TypesTable } from "@/components/business/model/TypesTable.tsx";
 import { TagsTable } from "@/components/business/tag/TagsTable.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { useDetailLevelContext } from "@/components/business/detail-level";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { SectionCards } from "@/components/layout/SectionCards.tsx";

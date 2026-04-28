@@ -9,7 +9,7 @@ import {
   useEntityUpdateDocumentationHome,
   useEntityUpdateKey,
 } from "@/components/business/model";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { useDetailLevelContext } from "@/components/business/detail-level";
 import {
   PropertiesForm,
   PropertyLabel,

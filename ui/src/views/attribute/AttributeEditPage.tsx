@@ -40,7 +40,7 @@ import {
 } from "@fluentui/react-components";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { useDetailLevelContext } from "@/components/business/detail-level";
 import {
   PropertiesForm,
   PropertyLabel,

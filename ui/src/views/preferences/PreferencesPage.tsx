@@ -1,5 +1,5 @@
 import { SwitchButton } from "@seij/common-ui";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { useDetailLevelContext } from "@/components/business/detail-level";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import {

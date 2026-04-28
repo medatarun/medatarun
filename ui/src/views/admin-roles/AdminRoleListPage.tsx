@@ -105,7 +105,6 @@ function AuthRolesTable({
   actionListRole: (role: AuthRole) => ActionDescriptor[];
 }) {
   const { t } = useAppI18n();
-  const actionRegistry = useActionRegistry();
   if (roles.length === 0) {
     return (
       <p style={{ paddingTop: tokens.spacingVerticalM }}>

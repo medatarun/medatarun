@@ -1,7 +1,7 @@
 import { Card, CardHeader, Text } from "@fluentui/react-components";
 import { type EntityDto } from "@/business/model";
 import { modelTagScope, TagsCondensed } from "@/components/core/Tag.tsx";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { useDetailLevelContext } from "@/components/business/detail-level";
 import { useModelContext } from "./ModelContext.tsx";
 import { Key } from "@/components/core/Key.tsx";
 import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";

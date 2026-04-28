@@ -17,7 +17,7 @@ import {
   useRelationshipUpdateName,
 } from "@/components/business/model";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { useDetailLevelContext } from "@/components/business/detail-level";
 import { AttributesTable } from "@/components/business/model/AttributesTable.tsx";
 import {
   AttributeIcon,

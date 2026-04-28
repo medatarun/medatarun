@@ -1,4 +1,10 @@
-import { type ReactNode, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { type Problem, toProblem } from "@seij/common-types";
 import {
   makeStyles,
@@ -10,6 +16,11 @@ import { Icon } from "@seij/common-ui-icons";
 import { Button, ButtonBar, ErrorBox } from "@seij/common-ui";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { InlineEditStarted } from "./InlineEditStarted.tsx";
+import {
+  type InlineEditIdentifier,
+  useInlineEditCoordinator,
+  useInlineEditIdentifier,
+} from "@/components/core/inline-edit-coordinator";
 
 const useStyles = makeStyles({
   readRoot: {
@@ -109,11 +120,16 @@ export function InlineEditRichTextController({
 }: InlineEditRichTextControllerProps) {
   const { t } = useAppI18n();
   const styles = useStyles();
+  const coordinator = useInlineEditCoordinator();
+  const inlineEditIdentifier = useInlineEditIdentifier();
   const [editing, setEditing] = useState<boolean>(false);
   const [error, setError] = useState<Problem | null>(null);
   const [pending, setPending] = useState<boolean>(false);
 
   const handleEdit = async () => {
+    const canEdit = await coordinator.requestEdit(inlineEditIdentifier.current);
+    if (!canEdit) return;
+
     try {
       setError(null);
       await onEditStart();
@@ -122,6 +138,23 @@ export function InlineEditRichTextController({
       setError(toProblem(err));
     }
   };
+
+  const cancelEdit = useCallback(async () => {
+    if (pending) return false;
+
+    try {
+      setError(null);
+      setPending(true);
+      await onEditCancel();
+      setEditing(false);
+      setPending(false);
+      return true;
+    } catch (err: unknown) {
+      setError(toProblem(err));
+      setPending(false);
+      return false;
+    }
+  }, [onEditCancel, pending]);
 
   const handleEditOK = async () => {
     try {
@@ -136,17 +169,19 @@ export function InlineEditRichTextController({
     }
   };
   const handleEditCancel = async () => {
-    try {
-      setError(null);
-      setPending(true);
-      await onEditCancel();
-      setEditing(false);
-      setPending(false);
-    } catch (err: unknown) {
-      setError(toProblem(err));
-      setPending(false);
-    }
+    await cancelEdit();
   };
+
+  useEffect(() => {
+    if (!editing) return;
+
+    const identifier = inlineEditIdentifier.current;
+    coordinator.registerActive(identifier, {
+      cancel: cancelEdit,
+    });
+
+    return () => coordinator.clearActive(identifier);
+  }, [cancelEdit, coordinator, editing]);
 
   if (!editing || disabled) {
     const rootClassName = mergeClasses(
