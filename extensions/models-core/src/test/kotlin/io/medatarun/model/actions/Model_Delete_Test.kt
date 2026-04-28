@@ -19,7 +19,7 @@ class Model_Delete_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 ModelKey("recipe"),
-                LocalizedTextNotLocalized("Recipe"),
+                LocalizedText("Recipe"),
                 null,
                 ModelVersion("0.0.1")
             )
@@ -27,7 +27,7 @@ class Model_Delete_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 ModelKey("movie"),
-                LocalizedTextNotLocalized("Movie"),
+                LocalizedText("Movie"),
                 null,
                 ModelVersion("0.0.1")
             )
@@ -45,7 +45,7 @@ class Model_Delete_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 ModelKey("recipe"),
-                LocalizedTextNotLocalized("Recipe"),
+                LocalizedText("Recipe"),
                 null,
                 ModelVersion("0.0.1")
             )
@@ -53,7 +53,7 @@ class Model_Delete_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 ModelKey("movie"),
-                LocalizedTextNotLocalized("Movie"),
+                LocalizedText("Movie"),
                 null,
                 ModelVersion("0.1.0")
             )
@@ -61,7 +61,7 @@ class Model_Delete_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 ModelKey("vehicle"),
-                LocalizedTextNotLocalized("Vehicle"),
+                LocalizedText("Vehicle"),
                 null,
                 ModelVersion("0.0.1")
             )
@@ -69,7 +69,7 @@ class Model_Delete_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 ModelKey("videogame"),
-                LocalizedTextNotLocalized("Videogame"),
+                LocalizedText("Videogame"),
                 null,
                 ModelVersion("0.1.0")
             )

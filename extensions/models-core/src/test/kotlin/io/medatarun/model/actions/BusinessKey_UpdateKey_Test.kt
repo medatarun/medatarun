@@ -36,8 +36,8 @@ class BusinessKey_UpdateKey_Test {
             key = businessKeyRef.key,
             entityRef = entityRef,
             participants = listOf(idAttributeRef),
-            name = LocalizedTextNotLocalized("Order business key"),
-            description = LocalizedMarkdownNotLocalized("Order business key description")
+            name = LocalizedText("Order business key"),
+            description = LocalizedMarkdown("Order business key description")
         )
 
         env.dispatch(ModelAction.BusinessKey_Update_Key(modelRef, businessKeyRef, updatedBusinessKeyRef.key))
@@ -68,16 +68,16 @@ class BusinessKey_UpdateKey_Test {
             key = businessKeyRef.key,
             entityRef = entityRef,
             participants = listOf(idAttributeRef),
-            name = LocalizedTextNotLocalized("Order business key"),
-            description = LocalizedMarkdownNotLocalized("Order business key description")
+            name = LocalizedText("Order business key"),
+            description = LocalizedMarkdown("Order business key description")
         )
         env.businessKeyCreate(
             modelRef = modelRef,
             key = otherBusinessKeyRef.key,
             entityRef = entityRef,
             participants = listOf(idAttributeRef),
-            name = LocalizedTextNotLocalized("Order business key 2"),
-            description = LocalizedMarkdownNotLocalized("Order business key 2 description")
+            name = LocalizedText("Order business key 2"),
+            description = LocalizedMarkdown("Order business key 2 description")
         )
 
         assertFailsWith<BusinessKeyUpdateDuplicateKeyException> {
@@ -109,8 +109,8 @@ class BusinessKey_UpdateKey_Test {
             key = businessKeyRef.key,
             entityRef = entityRef,
             participants = listOf(idAttributeRef),
-            name = LocalizedTextNotLocalized("Order business key"),
-            description = LocalizedMarkdownNotLocalized("Order business key description")
+            name = LocalizedText("Order business key"),
+            description = LocalizedMarkdown("Order business key description")
         )
 
         val beforeEventId = env.findLastStoredModelChangeEvent(modelRef).eventId
@@ -139,8 +139,8 @@ class BusinessKey_UpdateKey_Test {
             key = businessKeyRef.key,
             entityRef = entityRef,
             participants = listOf(idAttributeRef),
-            name = LocalizedTextNotLocalized("Order business key"),
-            description = LocalizedMarkdownNotLocalized("Order business key description")
+            name = LocalizedText("Order business key"),
+            description = LocalizedMarkdown("Order business key description")
         )
 
         env.dispatch(ModelAction.BusinessKey_Update_Key(modelRef, businessKeyRef, updatedBusinessKeyRef.key))

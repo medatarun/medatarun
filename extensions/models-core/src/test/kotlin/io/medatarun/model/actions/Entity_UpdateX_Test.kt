@@ -23,14 +23,14 @@ class Entity_UpdateX_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate(modelRef, primaryEntityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, primaryEntityRef.key, LocalizedText("Entity primary"))
 
         assertFailsWith<ModelNotFoundException> {
             env.dispatch(
                 ModelAction.Entity_UpdateName(
                     modelRef = wrongModelRef,
                     entityRef = primaryEntityRef,
-                    value = LocalizedTextNotLocalized("Updated name")
+                    value = LocalizedText("Updated name")
                 )
             )
         }
@@ -51,7 +51,7 @@ class Entity_UpdateX_Test {
                 ModelAction.Entity_UpdateName(
                     modelRef = modelRef,
                     entityRef = wrongEntityRef,
-                    value = LocalizedTextNotLocalized("Updated name")
+                    value = LocalizedText("Updated name")
                 )
             )
         }
@@ -73,7 +73,7 @@ class TestEnvEntityUpdate {
         runtime.dispatch(
             ModelAction.Model_Create(
                 key = modelKey,
-                name = LocalizedTextNotLocalized("Model entity update"),
+                name = LocalizedText("Model entity update"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
@@ -83,8 +83,8 @@ class TestEnvEntityUpdate {
             ModelAction.Entity_Create(
                 modelRef = modelRef,
                 entityKey = primaryEntityKey,
-                name = LocalizedTextNotLocalized("Entity primary"),
-                description = LocalizedMarkdownNotLocalized("Entity primary description"),
+                name = LocalizedText("Entity primary"),
+                description = LocalizedMarkdown("Entity primary description"),
                 documentationHome = null
             )
         )
@@ -92,8 +92,8 @@ class TestEnvEntityUpdate {
             ModelAction.Entity_Create(
                 modelRef = modelRef,
                 entityKey = secondaryEntityKey,
-                name = LocalizedTextNotLocalized("Entity secondary"),
-                description = LocalizedMarkdownNotLocalized("Entity secondary description"),
+                name = LocalizedText("Entity secondary"),
+                description = LocalizedMarkdown("Entity secondary description"),
                 documentationHome = null
             )
         )

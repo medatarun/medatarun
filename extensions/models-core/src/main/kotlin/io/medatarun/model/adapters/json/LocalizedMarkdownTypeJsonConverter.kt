@@ -2,8 +2,6 @@ package io.medatarun.model.adapters.json
 
 import io.medatarun.lang.strings.trimToNull
 import io.medatarun.model.domain.LocalizedMarkdown
-import io.medatarun.model.domain.LocalizedMarkdownMap
-import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
 import io.medatarun.types.TypeJsonConverter
 import io.medatarun.types.TypeJsonConverterBadFormatException
 import io.medatarun.types.TypeJsonConverterIllegalNullException
@@ -13,22 +11,14 @@ class LocalizedMarkdownTypeJsonConverter : TypeJsonConverter<LocalizedMarkdown> 
     override fun deserialize(json: JsonElement): LocalizedMarkdown {
         return when (json) {
             is JsonNull -> throw TypeJsonConverterIllegalNullException()
-            is JsonArray -> throw TypeJsonConverterBadFormatException("expected a JsonObject or a JsonString")
-            is JsonObject -> {
-                try {
-                    LocalizedMarkdownMap(json.entries.associate { it.key to it.value.jsonPrimitive.content })
-                } catch (e: Exception) {
-                    throw TypeJsonConverterBadFormatException("Could not parse JSON object. ${e.message}: $json")
-                }
-            }
-
+            is JsonArray -> throw TypeJsonConverterBadFormatException("expected a JsonString")
+            is JsonObject -> throw TypeJsonConverterBadFormatException("expected a JsonString")
             is JsonPrimitive -> {
                 if (json.isString) {
                     val content = json.contentOrNull ?: throw TypeJsonConverterIllegalNullException()
                     val contentTrimmed = content.trimToNull()
-                    if (contentTrimmed == null) throw TypeJsonConverterBadFormatException("Can not be empty") else LocalizedMarkdownNotLocalized(
-                        content
-                    )
+                    if (contentTrimmed == null) throw TypeJsonConverterBadFormatException("Can not be empty")
+                    else LocalizedMarkdown(content)
                 } else {
                     throw TypeJsonConverterBadFormatException("expected a JsonObject or a JsonString")
                 }

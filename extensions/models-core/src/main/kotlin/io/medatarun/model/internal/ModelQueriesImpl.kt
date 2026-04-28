@@ -32,8 +32,8 @@ class ModelQueriesImpl(
                 ModelSummary(
                     id = model.id,
                     key = model.key,
-                    name = model.name?.get(locale),
-                    description = model.description?.get(locale),
+                    name = model.name?.name,
+                    description = model.description?.name,
                     authority = model.authority,
                     error = null,
                     countTypes = model.types.size,

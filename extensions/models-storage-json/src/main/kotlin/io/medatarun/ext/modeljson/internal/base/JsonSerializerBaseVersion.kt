@@ -1,11 +1,7 @@
 package io.medatarun.ext.modeljson.internal.base
 
-import io.medatarun.model.domain.Attribute
-import io.medatarun.model.domain.EntityOrigin
-import io.medatarun.model.domain.ModelAggregate
-import io.medatarun.model.domain.ModelOrigin
-import io.medatarun.model.domain.TypeRef
-import io.medatarun.tags.core.domain.TagId
+import io.medatarun.ext.modeljson.internal.serializers.LocalizedTextMultiLangCompat
+import io.medatarun.model.domain.*
 
 internal class JsonSerializerBaseVersion {
     fun toEntityOriginStr(origin: EntityOrigin): String? {
@@ -29,8 +25,8 @@ internal class JsonSerializerBaseVersion {
             ModelAttributeJson(
                 id = it.id.value.toString(),
                 key = it.key.value,
-                name = it.name,
-                description = it.description,
+                name = LocalizedTextMultiLangCompat.ofOptional(it.name),
+                description = LocalizedTextMultiLangCompat.ofOptional(it.description),
                 type = model.findType(TypeRef.ById(it.typeId)).key.value,
                 optional = it.optional,
                 tags = it.tags.map { it.value.toString() }
@@ -43,8 +39,8 @@ internal class JsonSerializerBaseVersion {
             ModelTypeJson(
                 id = type.id.value.toString(),
                 key = type.key.value,
-                name = type.name,
-                description = type.description,
+                name = LocalizedTextMultiLangCompat.ofOptional(type.name),
+                description = LocalizedTextMultiLangCompat.ofOptional(type.description),
             )
         }
     }
@@ -54,14 +50,14 @@ internal class JsonSerializerBaseVersion {
             RelationshipJson(
                 id = rel.id.value.toString(),
                 key = rel.key.value,
-                name = rel.name,
-                description = rel.description,
+                name = LocalizedTextMultiLangCompat.ofOptional(rel.name),
+                description = LocalizedTextMultiLangCompat.ofOptional(rel.description),
                 roles = rel.roles.map { role ->
                     RelationshipRoleJson(
                         id = role.id.value.toString(),
                         key = role.key.value,
                         entityId = model.findEntity(role.entityId).key.value,
-                        name = role.name,
+                        name = LocalizedTextMultiLangCompat.ofOptional(role.name),
                         cardinality = role.cardinality.code
                     )
                 },

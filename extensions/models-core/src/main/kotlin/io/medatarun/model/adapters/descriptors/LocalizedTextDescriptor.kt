@@ -1,7 +1,7 @@
 package io.medatarun.model.adapters.descriptors
 
 import io.medatarun.model.adapters.json.LocalizedTextTypeJsonConverter
-import io.medatarun.model.domain.LOCALIZED_TEXT_DESCRIPTION
+import io.medatarun.model.domain.TEXT_SINGLE_LINE_DESCRIPTION
 import io.medatarun.model.domain.LocalizedText
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonConverter
@@ -16,6 +16,6 @@ class LocalizedTextDescriptor : TypeDescriptor<LocalizedText> {
         return value.validate()
     }
 
-    override val description: String = LOCALIZED_TEXT_DESCRIPTION
+    override val description: String = TEXT_SINGLE_LINE_DESCRIPTION
     override val jsonConverter: TypeJsonConverter<LocalizedText> = LocalizedTextTypeJsonConverter()
 }

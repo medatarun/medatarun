@@ -1,8 +1,8 @@
 package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
-import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
-import io.medatarun.model.domain.LocalizedTextNotLocalized
+import io.medatarun.model.domain.LocalizedMarkdown
+import io.medatarun.model.domain.LocalizedText
 import io.medatarun.model.domain.ModelNotFoundException
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.TypeCreateDuplicateException
@@ -27,8 +27,8 @@ class Type_Create_Test {
             ModelAction.Type_Create(
                 modelRef = modelRef,
                 typeKey = TypeKey("String"),
-                name = LocalizedTextNotLocalized("Simple string"),
-                description = LocalizedMarkdownNotLocalized("Simple string description")
+                name = LocalizedText("Simple string"),
+                description = LocalizedMarkdown("Simple string description")
             )
         )
 
@@ -36,8 +36,8 @@ class Type_Create_Test {
 
         val type = env.queries.findTypeOptional(modelRef, TypeRef.typeRefKey(TypeKey("String")))
         assertNotNull(type)
-        assertEquals(LocalizedTextNotLocalized("Simple string"), type.name)
-        assertEquals(LocalizedMarkdownNotLocalized("Simple string description"), type.description)
+        assertEquals(LocalizedText("Simple string"), type.name)
+        assertEquals(LocalizedMarkdown("Simple string description"), type.description)
     }
 
     @Test

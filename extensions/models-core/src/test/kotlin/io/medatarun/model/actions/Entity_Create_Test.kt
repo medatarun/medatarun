@@ -23,8 +23,8 @@ class Entity_Create_Test {
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, TypeKey("String"))
         val entityRef = entityRefKey("entity")
-        val name = LocalizedTextNotLocalized("Order")
-        val description = LocalizedMarkdownNotLocalized("Order description")
+        val name = LocalizedText("Order")
+        val description = LocalizedMarkdown("Order description")
         val docHome = "http://test.dev/local=123"
         val identityAttributeRef = entityAttributeRefKey("id")
         env.dispatch(
@@ -40,7 +40,7 @@ class Entity_Create_Test {
             ModelAction.EntityAttribute_Create(
                 modelRef = modelRef,
                 entityRef = entityRef,
-                name = LocalizedTextNotLocalized("Identifier"),
+                name = LocalizedText("Identifier"),
                 attributeKey = identityAttributeRef.key,
                 type = typeRefKey("String"),
                 optional = false,
@@ -75,7 +75,7 @@ class Entity_Create_Test {
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, TypeKey("String"))
         val entityRef = entityRefKey("entity-null-name")
-        val description = LocalizedMarkdownNotLocalized("Entity without name")
+        val description = LocalizedMarkdown("Entity without name")
         val identityAttributeRef = entityAttributeRefKey("id")
 
         env.dispatch(
@@ -122,7 +122,7 @@ class Entity_Create_Test {
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, TypeKey("String"))
         val entityRef = entityRefKey("entity-null-description")
-        val name = LocalizedTextNotLocalized("Entity without description")
+        val name = LocalizedText("Entity without description")
         val identityAttributeRef = entityAttributeRefKey("String")
 
         env.dispatch(
@@ -169,7 +169,7 @@ class Entity_Create_Test {
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, TypeKey("String"))
         val entityRef = entityRefKey("entity-null-attr-name")
-        val description = LocalizedMarkdownNotLocalized("Entity without name")
+        val description = LocalizedMarkdown("Entity without name")
         val identityAttributeRef = entityAttributeRefKey("id")
 
         env.dispatch(

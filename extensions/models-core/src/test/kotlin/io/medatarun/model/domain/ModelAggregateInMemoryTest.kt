@@ -60,13 +60,13 @@ class ModelAggregateInMemoryTest {
             key = EntityKey("person"),
         ) {
             id = personEntityId
-            name = LocalizedTextNotLocalized("Person")
+            name = LocalizedText("Person")
         }
         val personAttributes = listOf(
             AttributeInMemory(
                 id = personIdentifierAttributeId,
                 key = AttributeKey("id"),
-                name = LocalizedTextNotLocalized("Identifier"),
+                name = LocalizedText("Identifier"),
                 description = null,
                 typeId = typeString.id,
                 optional = false,
@@ -76,7 +76,7 @@ class ModelAggregateInMemoryTest {
             AttributeInMemory(
                 id = AttributeId.generate(),
                 key = AttributeKey("firstName"),
-                name = LocalizedTextNotLocalized("First Name"),
+                name = LocalizedText("First Name"),
                 description = null,
                 typeId = typeString.id,
                 optional = false,
@@ -86,7 +86,7 @@ class ModelAggregateInMemoryTest {
             AttributeInMemory(
                 id = AttributeId.generate(),
                 key = AttributeKey("lastName"),
-                name = LocalizedTextNotLocalized("Last Name"),
+                name = LocalizedText("Last Name"),
                 description = null,
                 typeId = typeString.id,
                 optional = false,
@@ -96,7 +96,7 @@ class ModelAggregateInMemoryTest {
             AttributeInMemory(
                 id = AttributeId.generate(),
                 key = AttributeKey("phoneNumber"),
-                name = LocalizedTextNotLocalized("Phone Number"),
+                name = LocalizedText("Phone Number"),
                 description = null,
                 typeId = typeString.id,
                 optional = false,
@@ -106,7 +106,7 @@ class ModelAggregateInMemoryTest {
             AttributeInMemory(
                 id = AttributeId.generate(),
                 key = AttributeKey("infos"),
-                name = LocalizedTextNotLocalized("Infos"),
+                name = LocalizedText("Infos"),
                 description = null,
                 typeId = typeMarkdown.id,
                 optional = false,
@@ -121,7 +121,7 @@ class ModelAggregateInMemoryTest {
             key = EntityKey("company"),
         ) {
             id = companyEntityId
-            name = LocalizedTextNotLocalized("Company")
+            name = LocalizedText("Company")
 
 
         }
@@ -130,7 +130,7 @@ class ModelAggregateInMemoryTest {
             AttributeInMemory(
                 id = companyIdentifierAttributeId,
                 key = AttributeKey("id"),
-                name = LocalizedTextNotLocalized("Identifier"),
+                name = LocalizedText("Identifier"),
                 description = null,
                 typeId = typeString.id,
                 optional = false,
@@ -140,7 +140,7 @@ class ModelAggregateInMemoryTest {
             AttributeInMemory(
                 id = AttributeId.generate(),
                 key = AttributeKey("name"),
-                name = LocalizedTextNotLocalized("Name"),
+                name = LocalizedText("Name"),
                 description = null,
                 typeId = typeString.id,
                 optional = false,
@@ -150,7 +150,7 @@ class ModelAggregateInMemoryTest {
             AttributeInMemory(
                 id = AttributeId.generate(),
                 key = AttributeKey("location"),
-                name = LocalizedTextNotLocalized("Location"),
+                name = LocalizedText("Location"),
                 description = null,
                 typeId = typeString.id,
                 optional = true,
@@ -160,7 +160,7 @@ class ModelAggregateInMemoryTest {
             AttributeInMemory(
                 id = AttributeId.generate(),
                 key = AttributeKey("website"),
-                name = LocalizedTextNotLocalized("Website"),
+                name = LocalizedText("Website"),
                 description = null,
                 typeId = typeString.id,
                 optional = true,
@@ -173,7 +173,7 @@ class ModelAggregateInMemoryTest {
             model = ModelInMemory(
                 id = ModelId.generate(),
                 key = ModelKey("test-model"),
-                name = LocalizedTextNotLocalized("Test Model"),
+                name = LocalizedText("Test Model"),
                 description = null,
                 version = ModelVersion("1.0.0"),
                 documentationHome = null,

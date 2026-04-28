@@ -12,7 +12,7 @@ class RelationshipRole_UpdateX_Test {
     @Test
     fun `update relationship role using relationship role ref by key resolved`() {
         val env = TestEnvRelationshipRole()
-        val newName = LocalizedTextNotLocalized("Buyer by key")
+        val newName = LocalizedText("Buyer by key")
         env.dispatch(
             ModelAction.RelationshipRole_UpdateName(
                 modelRef = env.modelRef,
@@ -33,7 +33,7 @@ class RelationshipRole_UpdateX_Test {
         val roleId = env.query.findModelAggregate(env.modelRef).findRelationship(env.relationshipRef).roles
             .first { role -> role.key == env.roleAKey }
             .id
-        val newName = LocalizedTextNotLocalized("Buyer by id")
+        val newName = LocalizedText("Buyer by id")
 
         env.dispatch(
             ModelAction.RelationshipRole_UpdateName(
@@ -58,7 +58,7 @@ class RelationshipRole_UpdateX_Test {
                     modelRef = ModelRef.modelRefKey(ModelKey("unknown-model")),
                     relationshipRef = env.relationshipRef,
                     relationshipRoleRef = env.roleARef,
-                    value = LocalizedTextNotLocalized("Ignored")
+                    value = LocalizedText("Ignored")
                 )
             )
         }
@@ -73,7 +73,7 @@ class RelationshipRole_UpdateX_Test {
                     modelRef = env.modelRef,
                     relationshipRef = RelationshipRef.ByKey(RelationshipKey("unknown-relationship")),
                     relationshipRoleRef = env.roleARef,
-                    value = LocalizedTextNotLocalized("Ignored")
+                    value = LocalizedText("Ignored")
                 )
             )
         }
@@ -88,7 +88,7 @@ class RelationshipRole_UpdateX_Test {
                     modelRef = env.modelRef,
                     relationshipRef = env.relationshipRef,
                     relationshipRoleRef = RelationshipRoleRef.ByKey(RelationshipRoleKey("unknown-role")),
-                    value = LocalizedTextNotLocalized("Ignored")
+                    value = LocalizedText("Ignored")
                 )
             )
         }

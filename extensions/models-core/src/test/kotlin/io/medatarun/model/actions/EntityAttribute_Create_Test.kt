@@ -35,8 +35,8 @@ class EntityAttribute_Create_Test {
                 attributeKey = attributeRef.key,
                 type = typeRef,
                 optional = false,
-                name = LocalizedTextNotLocalized("Business Key"),
-                description = LocalizedMarkdownNotLocalized("Unique business key")
+                name = LocalizedText("Business Key"),
+                description = LocalizedMarkdown("Unique business key")
             )
         )
 
@@ -44,8 +44,8 @@ class EntityAttribute_Create_Test {
             val reloaded = env.queries.findEntityAttribute(modelRef, entityRef, attributeRef)
             val type = env.queries.findType(modelRef, typeRef)
             assertEquals(attributeRef.key, reloaded.key)
-            assertEquals(LocalizedTextNotLocalized("Business Key"), reloaded.name)
-            assertEquals(LocalizedMarkdownNotLocalized("Unique business key"), reloaded.description)
+            assertEquals(LocalizedText("Business Key"), reloaded.name)
+            assertEquals(LocalizedMarkdown("Unique business key"), reloaded.description)
             assertEquals(type.id, reloaded.typeId)
             assertEquals(false, reloaded.optional)
         }
@@ -98,7 +98,7 @@ class EntityAttribute_Create_Test {
                 attributeKey = attributeRef.key,
                 type = typeRef,
                 optional = false,
-                name = LocalizedTextNotLocalized("Name"),
+                name = LocalizedText("Name"),
                 description = null
             )
         )

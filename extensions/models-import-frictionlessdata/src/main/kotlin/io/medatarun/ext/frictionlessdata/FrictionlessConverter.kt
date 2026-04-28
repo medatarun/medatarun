@@ -49,7 +49,7 @@ class FrictionlessConverter {
         }
 
         val finalKey = modelKey?.value?.trimToNull()?.let { ModelKey(it) } ?: model.key
-        val finalName = modelName?.trimToNull()?.let { LocalizedTextNotLocalized(it) } ?: model.name
+        val finalName = modelName?.trimToNull()?.let { LocalizedText(it) } ?: model.name
         val modelAggregate = model.copy(
             model = ModelInMemory.of(model.model).copy(
                 key = finalKey,
@@ -91,8 +91,8 @@ class FrictionlessConverter {
             model = ModelInMemory(
                 id = modelId,
                 key = ModelKey(datapackage.name ?: "unknown"),
-                name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
-                description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
+                name = datapackage.title?.let { LocalizedText(it) },
+                description = datapackage.description?.let { LocalizedMarkdown(it) },
                 version = try {
                     ModelVersion(datapackage.version ?: "0.0.0")
                 } catch (_: Exception) {
@@ -162,8 +162,8 @@ class FrictionlessConverter {
             model = ModelInMemory(
                 id = modelId,
                 key = ModelKey(datapackage.name ?: "unknown"),
-                name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
-                description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
+                name = datapackage.title?.let { LocalizedText(it) },
+                description = datapackage.description?.let { LocalizedMarkdown(it) },
                 version = ModelVersion(datapackage.version ?: "0.0.0"),
                 origin = ModelOrigin.Uri(uri),
                 // Whatever we put here will be overridden anyway to SYSTEM by business rules of model copy
@@ -210,8 +210,8 @@ class FrictionlessConverter {
             AttributeInMemory(
                 id = AttributeId.generate(),
                 key = AttributeKey(field.name),
-                name = field.title?.let(::LocalizedTextNotLocalized),
-                description = field.description?.let(::LocalizedMarkdownNotLocalized),
+                name = field.title?.let(::LocalizedText),
+                description = field.description?.let(::LocalizedMarkdown),
                 typeId = types.firstOrNull { it.key == TypeKey(field.type) }?.id
                     ?: throw FrictionlessConverterTypeNotFound(field.name, field.type),
                 optional = field.isOptional(),
@@ -223,8 +223,8 @@ class FrictionlessConverter {
         val entity = EntityInMemory(
             id = entityId,
             key = EntityKey(entityKey),
-            name = entityName?.let(::LocalizedTextNotLocalized),
-            description = entityDescription?.let(::LocalizedMarkdownNotLocalized),
+            name = entityName?.let(::LocalizedText),
+            description = entityDescription?.let(::LocalizedMarkdown),
             origin = EntityOrigin.Uri(uri),
             documentationHome = toURLSafe(documentationHome),
             tags = tags

@@ -1,7 +1,7 @@
 package io.medatarun.model.infra.db
 
 import io.medatarun.model.domain.BusinessKeyId
-import io.medatarun.model.domain.LocalizedTextNotLocalized
+import io.medatarun.model.domain.LocalizedText
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.infra.db.ModelEventJsonCodecTest.CmdTestCase
 import io.medatarun.model.ports.needs.ModelStorageCmd.BusinessKeyUpdateName
@@ -16,7 +16,7 @@ val business_key_name_updated_v1 = CmdTestCase(
     cmd = BusinessKeyUpdateName(
         modelId = modelId,
         businessKeyId = businessKeyId,
-        name = LocalizedTextNotLocalized("ERP Invoice V2")
+        name = LocalizedText("ERP Invoice V2")
     ),
     json = json()
 )

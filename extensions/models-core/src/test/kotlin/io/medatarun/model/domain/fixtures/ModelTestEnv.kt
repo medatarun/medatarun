@@ -101,7 +101,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
     // Model_Create
     fun modelCreate(
         key: ModelKey,
-        name: LocalizedText = LocalizedTextNotLocalized(key.value),
+        name: LocalizedText = LocalizedText(key.value),
         description: LocalizedMarkdown? = null,
         version: ModelVersion? = ModelVersion("1.0.0")
     ): Any? {

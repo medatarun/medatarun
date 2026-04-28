@@ -132,7 +132,7 @@ class EntityAttribute_XTag_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = ModelKey("sample-model-2"),
-                name = io.medatarun.model.domain.LocalizedTextNotLocalized("Sample model 2"),
+                name = io.medatarun.model.domain.LocalizedText("Sample model 2"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )

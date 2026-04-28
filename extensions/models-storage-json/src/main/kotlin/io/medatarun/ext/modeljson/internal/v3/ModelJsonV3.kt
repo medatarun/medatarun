@@ -1,12 +1,5 @@
 package io.medatarun.ext.modeljson.internal.v3
 
-import io.medatarun.ext.modeljson.internal.base.ModelTypeJson
-import io.medatarun.ext.modeljson.internal.base.RelationshipJson
-import io.medatarun.ext.modeljson.internal.v2.ModelEntityJsonV2
-import io.medatarun.model.domain.LocalizedMarkdown
-import io.medatarun.model.domain.LocalizedText
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

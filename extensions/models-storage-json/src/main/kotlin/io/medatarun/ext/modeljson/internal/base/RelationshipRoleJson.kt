@@ -1,5 +1,6 @@
 package io.medatarun.ext.modeljson.internal.base
 
+import io.medatarun.ext.modeljson.internal.serializers.LocalizedTextMultiLangCompat
 import io.medatarun.model.domain.LocalizedText
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
@@ -10,6 +11,6 @@ internal class RelationshipRoleJson(
     val id: String? = null,
     val key: String,
     val entityId: String,
-    val name: @Contextual LocalizedText? = null,
+    val name: @Contextual LocalizedTextMultiLangCompat? = null,
     val cardinality: String
 )

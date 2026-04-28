@@ -15,14 +15,14 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                         put("id", model.key.value)
                         put("version", model.version.value)
                         put("authority", model.authority.code)
-                        put("name", localizedTextToJson(model.name))
-                        put("description", localizedTextToJson(model.description))
+                        put("name", model.name?.name)
+                        put("description", model.description?.name)
                         put("types", buildJsonArray {
                             model.types.forEach { type ->
                                 add(buildJsonObject {
                                     put("id", type.key.value)
-                                    put("name", localizedTextToJson(type.name))
-                                    put("description", localizedTextToJson(type.description))
+                                    put("name", type.name?.name)
+                                    put("description", type.description?.name)
                                 })
                             }
                         })
@@ -34,8 +34,8 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                                     ?: emptyList()
                                 add(buildJsonObject {
                                     put("id", entity.key.value)
-                                    put("name", localizedTextToJson(entity.name))
-                                    put("description", localizedTextToJson(entity.description))
+                                    put("name", entity.name?.name)
+                                    put("description", entity.description?.name)
                                     put("attributes", toAttributesJson(model, entity.ref))
                                     putJsonArray("primaryKey") {
                                         for (p in pkList) add(p)
@@ -47,14 +47,14 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                             model.relationships.forEach { relationship ->
                                 addJsonObject {
                                     put("id", relationship.key.value)
-                                    put("name", localizedTextToJson(relationship.name))
-                                    put("description", localizedTextToJson(relationship.description))
+                                    put("name", relationship.name?.name)
+                                    put("description", relationship.description?.name)
                                     put("attributes", toAttributesJson(model, relationship.ref))
                                     putJsonArray("roles") {
                                         relationship.roles.forEach { role ->
                                             addJsonObject {
                                                 put("id", role.key.value)
-                                                put("name", localizedTextToJson(role.name))
+                                                put("name", role.name?.name)
                                                 put("entityId", model.findEntity(role.entityId).id.value.toString())
                                                 put("cardinality", role.cardinality.code)
                                             }
@@ -69,8 +69,8 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                                     put("id", bk.id.asString())
                                     put("entityId", bk.entityId.asString())
                                     put("key", bk.key.asString())
-                                    put("name", localizedTextToJson(bk.name))
-                                    put("description", localizedTextToJson(bk.description))
+                                    put("name", bk.name?.name)
+                                    put("description", bk.description?.name)
                                     putJsonArray("participants", {
                                         for (p in bk.participants.sortedBy { it.position }) {
                                             add(p.attributeId.asString())
@@ -105,8 +105,8 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                 val type = model.findType(TypeRef.ById(attribute.typeId))
                 add(buildJsonObject {
                     put("id", attribute.key.value)
-                    put("name", localizedTextToJson(attribute.name))
-                    put("description", localizedTextToJson(attribute.description))
+                    put("name", attribute.name?.name)
+                    put("description", attribute.description?.name)
                     put("type", type.key.value)
                     put("optional", attribute.optional)
                 })
@@ -115,15 +115,5 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
         }
     }
 
-    private fun localizedTextToJson(value: LocalizedTextBase?): JsonElement {
-        return value?.let { text ->
-            buildJsonObject {
-                put("values", buildJsonObject {
-                    text.all().forEach { (locale, content) ->
-                        put(locale, content)
-                    }
-                })
-            }
-        } ?: JsonNull
-    }
 }
+

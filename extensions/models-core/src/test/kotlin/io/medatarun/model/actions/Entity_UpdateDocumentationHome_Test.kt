@@ -1,7 +1,7 @@
 package io.medatarun.model.actions
 
 import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
-import io.medatarun.model.domain.LocalizedTextNotLocalized
+import io.medatarun.model.domain.LocalizedText
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
@@ -24,7 +24,7 @@ class Entity_UpdateDocumentationHome_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, LocalizedText("Entity primary"))
 
         env.dispatch(
             ModelAction.Entity_UpdateDocumentationHome(
@@ -50,7 +50,7 @@ class Entity_UpdateDocumentationHome_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, LocalizedText("Entity primary"))
 
         env.dispatch(
             ModelAction.Entity_UpdateDocumentationHome(
@@ -81,7 +81,7 @@ class Entity_UpdateDocumentationHome_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, LocalizedText("Entity primary"))
         env.dispatch(
             ModelAction.Entity_UpdateDocumentationHome(
                 modelRef = modelRef,

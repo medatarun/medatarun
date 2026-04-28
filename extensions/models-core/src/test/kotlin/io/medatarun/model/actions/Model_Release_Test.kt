@@ -1,7 +1,7 @@
 package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
-import io.medatarun.model.domain.LocalizedTextNotLocalized
+import io.medatarun.model.domain.LocalizedText
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.ModelReleaseVersionMustBeGreaterThanPreviousException
@@ -23,7 +23,7 @@ class Model_Release_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = modelKey,
-                name = LocalizedTextNotLocalized("Model release"),
+                name = LocalizedText("Model release"),
                 description = null,
                 version = ModelVersion("4.5.5")
             )
@@ -44,7 +44,7 @@ class Model_Release_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = modelKey,
-                name = LocalizedTextNotLocalized("Model release duplicate"),
+                name = LocalizedText("Model release duplicate"),
                 description = null,
                 version = ModelVersion("4.5.5")
             )
@@ -64,7 +64,7 @@ class Model_Release_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = modelKey,
-                name = LocalizedTextNotLocalized("Model release lower"),
+                name = LocalizedText("Model release lower"),
                 description = null,
                 version = ModelVersion("4.5.5")
             )
@@ -83,7 +83,7 @@ class Model_Release_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = modelKey,
-                name = LocalizedTextNotLocalized("Model name"),
+                name = LocalizedText("Model name"),
                 description = null,
                 version = ModelVersion("4.5.5")
             )

@@ -65,7 +65,7 @@ object ModelJsonSerializers {
         }
 
         override fun deserialize(decoder: Decoder): LocalizedText {
-            return LocalizedTextNotLocalized(decoder.decodeString())
+            return LocalizedText(decoder.decodeString())
         }
     }
 
@@ -77,7 +77,7 @@ object ModelJsonSerializers {
         }
 
         override fun deserialize(decoder: Decoder): LocalizedMarkdown {
-            return LocalizedMarkdownNotLocalized(decoder.decodeString())
+            return LocalizedMarkdown(decoder.decodeString())
         }
     }
 

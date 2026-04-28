@@ -36,8 +36,8 @@ class BusinessKey_Create_Test {
             key = businessKeyRef.key,
             entityRef = entityRef,
             participants = listOf(idAttributeRef, codeAttributeRef),
-            name = LocalizedTextNotLocalized("Order business key"),
-            description = LocalizedMarkdownNotLocalized("Identifies an order in business flows")
+            name = LocalizedText("Order business key"),
+            description = LocalizedMarkdown("Identifies an order in business flows")
         )
 
         env.replayWithRebuild {
@@ -47,8 +47,8 @@ class BusinessKey_Create_Test {
             val codeAttribute = env.queries.findEntityAttribute(modelRef, entityRef, codeAttributeRef)
             assertEquals(businessKeyRef.key, businessKey.key)
             assertEquals(entity.id, businessKey.entityId)
-            assertEquals(LocalizedTextNotLocalized("Order business key"), businessKey.name)
-            assertEquals(LocalizedMarkdownNotLocalized("Identifies an order in business flows"), businessKey.description)
+            assertEquals(LocalizedText("Order business key"), businessKey.name)
+            assertEquals(LocalizedMarkdown("Identifies an order in business flows"), businessKey.description)
             assertEquals(listOf(idAttribute.id, codeAttribute.id), businessKey.participants.map { it.attributeId })
             assertEquals(listOf(0, 1), businessKey.participants.map { it.position })
         }

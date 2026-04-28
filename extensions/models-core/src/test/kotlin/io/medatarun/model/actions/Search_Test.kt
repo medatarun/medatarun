@@ -5,8 +5,8 @@ import io.medatarun.model.domain.AttributeKey
 import io.medatarun.model.domain.AttributeId
 import io.medatarun.model.domain.EntityKey
 import io.medatarun.model.domain.EntityId
-import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
-import io.medatarun.model.domain.LocalizedTextNotLocalized
+import io.medatarun.model.domain.LocalizedMarkdown
+import io.medatarun.model.domain.LocalizedText
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.RelationshipKey
@@ -883,7 +883,7 @@ class Search_Test {
                 refs.cooking.ref,
                 refs.cooking.author.ref,
                 refs.cooking.author.attr.date.ref,
-                LocalizedMarkdownNotLocalized("Publication calendar")
+                LocalizedMarkdown("Publication calendar")
             )
         )
 
@@ -911,7 +911,7 @@ class Search_Test {
         fixture.env.dispatch(
             ModelAction.Model_UpdateName(
                 modelRef = refs.cooking.ref,
-                value = LocalizedTextNotLocalized("Cooking (canonical)")
+                value = LocalizedText("Cooking (canonical)")
             )
         )
 
@@ -937,7 +937,7 @@ class Search_Test {
             ModelAction.Entity_UpdateName(
                 modelRef = refs.cooking.ref,
                 entityRef = refs.cooking.chef.ref,
-                value = LocalizedTextNotLocalized("Chef (canonical)")
+                value = LocalizedText("Chef (canonical)")
             )
         )
 
@@ -1026,7 +1026,7 @@ class Search_Test {
             ModelAction.Relationship_UpdateName(
                 modelRef = refs.cooking.ref,
                 relationshipRef = refs.cooking.usage.ref,
-                value = LocalizedTextNotLocalized("Usage (canonical)")
+                value = LocalizedText("Usage (canonical)")
             )
         )
 
