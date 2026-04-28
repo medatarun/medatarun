@@ -5,17 +5,19 @@
 ### Changes
 
 - Model exports do not export models in JSON v2 format anymore.
+- User interface: improved inline editing. Only one editor is active at a time
+  to avoid making users confused.
 
 ### Technical changes
 
-- Got rid of initial debt around LocalizedText and LocalizedMarkdown.
-
+- Got rid of the initial debt around LocalizedText and LocalizedMarkdown.
 
 ## [0.11.0]
 
 ### Added
 
-- Support for refresh tokens in our internal IdP to avoid users being disconnected too often.
+- Support for refresh tokens in our internal IdP to avoid users being
+  disconnected too often.
 
 ### Changes
 
