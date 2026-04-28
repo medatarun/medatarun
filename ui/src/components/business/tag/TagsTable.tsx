@@ -15,7 +15,7 @@ import { useTags } from "@/components/business/tag";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { type ActionCtx } from "@/business/action-performer";
 import { Key } from "@/components/core/Key.tsx";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { useDetailLevelContext } from "@/components/business/detail-level";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { useActionRegistry } from "@/components/business/actions";
 

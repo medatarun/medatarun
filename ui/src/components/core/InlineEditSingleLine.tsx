@@ -2,7 +2,7 @@ import * as React from "react";
 import { forwardRef, type PropsWithChildren, useRef, useState } from "react";
 
 import { Input } from "@fluentui/react-components";
-import { InlineEditSingleLineLayout } from "./InlineEditSingleLineLayout.tsx";
+import { InlineEditSingleLineController } from "./InlineEditSingleLineController.tsx";
 
 export function InlineEditSingleLine({
   value,
@@ -37,7 +37,7 @@ export function InlineEditSingleLine({
   if (disabled) return children;
 
   return (
-    <InlineEditSingleLineLayout
+    <InlineEditSingleLineController
       editor={({ commit, cancel, pending }) => (
         <InputWithKeys
           ref={ref}
@@ -54,7 +54,7 @@ export function InlineEditSingleLine({
       onEditCancel={handleEditCancel}
     >
       {children}
-    </InlineEditSingleLineLayout>
+    </InlineEditSingleLineController>
   );
 }
 

@@ -10,7 +10,7 @@ import {
 } from "@fluentui/react-components";
 import { RelationshipDescription } from "./RelationshipDescription.tsx";
 import type { RelationshipDto } from "@/business/model";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { useDetailLevelContext } from "@/components/business/detail-level";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import type { ActionCtx } from "@/business/action-performer";
 import { Key } from "@/components/core/Key.tsx";

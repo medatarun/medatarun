@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { InlineEditRichTextLayout } from "./InlineEditRichTextLayout.tsx";
+import { InlineEditRichTextController } from "./InlineEditRichTextController.tsx";
 import { Markdown } from "./Markdown.tsx";
 import {
   MarkdownEditor,
@@ -48,7 +48,7 @@ export function InlineEditDescription({
 
   return (
     <div className={styles.root}>
-      <InlineEditRichTextLayout
+      <InlineEditRichTextController
         editor={
           <MarkdownEditor
             ref={editorRef}
@@ -67,7 +67,7 @@ export function InlineEditDescription({
         ) : (
           <MissingInformation>{placeholder}</MissingInformation>
         )}
-      </InlineEditRichTextLayout>
+      </InlineEditRichTextController>
     </div>
   );
 }

@@ -99,7 +99,7 @@ function Layout({ children }: PropsWithChildren) {
   );
 }
 
-function StepLoginForm({}: {}) {
+function StepLoginForm() {
   const { t } = useAppI18n();
   const styles = useStyles();
   const config = window.__MEDATARUN_CONFIG__ ?? {};

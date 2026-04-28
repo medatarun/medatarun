@@ -53,7 +53,7 @@ import { KeyRegular } from "@fluentui/react-icons";
 import { Key } from "@/components/core/Key.tsx";
 import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { useDetailLevelContext } from "@/components/business/detail-level";
 import { useActionRegistry } from "@/components/business/actions";
 import {
   useEntityUpdateDescription,

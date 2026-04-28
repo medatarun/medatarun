@@ -1,6 +1,6 @@
 import { Card, CardHeader, Text } from "@fluentui/react-components";
 import type { ModelListItemDto } from "@/business/model";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { useDetailLevelContext } from "@/components/business/detail-level";
 import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
 import { Key } from "@/components/core/Key.tsx";
 

@@ -30,7 +30,7 @@ import {
   createAuthenticationConfig,
 } from "@seij/common-ui-auth";
 import { getOrDefault } from "@/utils/getOrDefault.ts";
-import { DetailLevelProvider } from "@/components/business/DetailLevelContext.tsx";
+import { DetailLevelProvider } from "@/components/business/detail-level";
 import { PreferencesPage } from "@/views/preferences/PreferencesPage.tsx";
 import { AttributeEditPage } from "@/views/attribute/AttributeEditPage.tsx";
 import { TypeEditPage } from "@/views/type/TypeEditPage.tsx";
@@ -54,6 +54,7 @@ import { actionRegistryStatic } from "@/business/action_registry/action_registry
 import { ActionPerformer } from "@/business/action-performer";
 import { ActionPerformerProvider } from "@/components/business/actions/ActionPerformerProvider.tsx";
 import { ActionRegistryContext } from "@/components/business/actions";
+import { InlineEditCoordinatorProvider } from "@/components/core/inline-edit-coordinator";
 
 function AdminActorListRouteComponent() {
   return <AdminActorListPage />;
@@ -449,8 +450,10 @@ function App() {
           <DetailLevelProvider>
             <AuthenticationProvider {...authenticationConfig}>
               <QueryClientProvider client={queryClient}>
-                <RouterProvider router={router} />
-                <ReactQueryDevtools initialIsOpen={false} />
+                <InlineEditCoordinatorProvider>
+                  <RouterProvider router={router} />
+                  <ReactQueryDevtools initialIsOpen={false} />
+                </InlineEditCoordinatorProvider>
               </QueryClientProvider>
             </AuthenticationProvider>
           </DetailLevelProvider>

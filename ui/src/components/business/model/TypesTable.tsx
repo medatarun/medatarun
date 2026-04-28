@@ -7,7 +7,7 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { useModelContext } from "./ModelContext.tsx";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { useDetailLevelContext } from "@/components/business/detail-level";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { Key } from "@/components/core/Key.tsx";
 import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";

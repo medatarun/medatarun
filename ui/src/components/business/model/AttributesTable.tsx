@@ -10,7 +10,7 @@ import {
 } from "@fluentui/react-components";
 import type { AttributeDto } from "@/business/model";
 import { useModelContext } from "./ModelContext.tsx";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { useDetailLevelContext } from "@/components/business/detail-level";
 import { modelTagScope, TagsCondensed } from "@/components/core/Tag.tsx";
 import type { ActionCtx } from "@/business/action-performer";
 import { Key } from "@/components/core/Key.tsx";
