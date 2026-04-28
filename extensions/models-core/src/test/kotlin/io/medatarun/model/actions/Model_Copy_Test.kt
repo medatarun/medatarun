@@ -28,14 +28,14 @@ class Model_Copy_Test {
         val env = ModelTestEnv()
         val sourceRef = modelRefKey("copy-source-core")
         val copiedRef = modelRefKey("copy-target-core")
-        val sourceName = LocalizedTextNotLocalized("Source model")
+        val sourceName = TextSingleLine("Source model")
 
         val version = ModelVersion("1.2.3")
         env.dispatch(
             ModelAction.Model_Create(
                 key = sourceRef.key,
                 name = sourceName,
-                description = LocalizedMarkdownNotLocalized("Source description"),
+                description = TextMarkdown("Source description"),
                 version = version
             )
         )
@@ -66,8 +66,8 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = sourceRef.key,
-                name = LocalizedTextNotLocalized("Source model"),
-                description = LocalizedMarkdownNotLocalized("Before copy"),
+                name = TextSingleLine("Source model"),
+                description = TextMarkdown("Before copy"),
                 version = ModelVersion("2.0.0")
             )
         )
@@ -115,7 +115,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceRef.key,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -126,7 +126,7 @@ class Model_Copy_Test {
             ModelAction.Entity_Create(
                 sourceRef,
                 EntityKey("customer"),
-                LocalizedTextNotLocalized("Customer"),
+                TextSingleLine("Customer"),
                 null,
                 null
             )
@@ -135,7 +135,7 @@ class Model_Copy_Test {
             ModelAction.Entity_Create(
                 sourceRef,
                 EntityKey("order"),
-                LocalizedTextNotLocalized("Order"),
+                TextSingleLine("Order"),
                 null,
                 null
             )
@@ -147,7 +147,7 @@ class Model_Copy_Test {
                 attributeKey = AttributeKey("vip"),
                 type = typeBooleanRef,
                 optional = false,
-                name = LocalizedTextNotLocalized("VIP"),
+                name = TextSingleLine("VIP"),
                 description = null
             )
         )
@@ -155,15 +155,15 @@ class Model_Copy_Test {
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
                 relationshipKey = RelationshipKey("places"),
-                name = LocalizedTextNotLocalized("Places"),
+                name = TextSingleLine("Places"),
                 description = null,
                 roleAKey = RelationshipRoleKey("buyer"),
                 roleAEntityRef = customerRef,
-                roleAName = LocalizedTextNotLocalized("Buyer"),
+                roleAName = TextSingleLine("Buyer"),
                 roleACardinality = RelationshipCardinality.One,
                 roleBKey = RelationshipRoleKey("purchase"),
                 roleBEntityRef = orderRef,
-                roleBName = LocalizedTextNotLocalized("Purchase"),
+                roleBName = TextSingleLine("Purchase"),
                 roleBCardinality = RelationshipCardinality.Many
             )
         )
@@ -174,7 +174,7 @@ class Model_Copy_Test {
                 attributeKey = AttributeKey("confirmed"),
                 type = typeBooleanRef,
                 optional = false,
-                name = LocalizedTextNotLocalized("Confirmed"),
+                name = TextSingleLine("Confirmed"),
                 description = null
             )
         )
@@ -233,7 +233,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = sourceKey,
-                name = LocalizedTextNotLocalized("Source"),
+                name = TextSingleLine("Source"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
@@ -241,7 +241,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = existingTargetKey,
-                name = LocalizedTextNotLocalized("Already exists"),
+                name = TextSingleLine("Already exists"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
@@ -279,7 +279,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = sourceKey,
-                name = LocalizedTextNotLocalized("Minimal model"),
+                name = TextSingleLine("Minimal model"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
@@ -306,8 +306,8 @@ class Model_Copy_Test {
         val copiedKey = ModelKey("copy-target-model-fields")
         val sourceRef = modelRefKey(sourceKey)
         val copiedRef = modelRefKey(copiedKey)
-        val sourceName = LocalizedTextNotLocalized("Billing model")
-        val sourceDescription = LocalizedMarkdownNotLocalized("Billing domain model")
+        val sourceName = TextSingleLine("Billing model")
+        val sourceDescription = TextMarkdown("Billing domain model")
         val sourceVersion = ModelVersion("3.4.5")
         val sourceDocHome = URI("https://example.org/models/billing").toString()
 
@@ -341,7 +341,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = sourceRef.key,
-                name = LocalizedTextNotLocalized("Source model"),
+                name = TextSingleLine("Source model"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
@@ -370,7 +370,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = sourceRef.key,
-                name = LocalizedTextNotLocalized("Type source"),
+                name = TextSingleLine("Type source"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
@@ -379,16 +379,16 @@ class Model_Copy_Test {
             ModelAction.Type_Create(
                 modelRef = sourceRef,
                 typeKey = TypeKey("String"),
-                name = LocalizedTextNotLocalized("String"),
-                description = LocalizedMarkdownNotLocalized("Text type")
+                name = TextSingleLine("String"),
+                description = TextMarkdown("Text type")
             )
         )
         env.dispatch(
             ModelAction.Type_Create(
                 modelRef = sourceRef,
                 typeKey = TypeKey("Boolean"),
-                name = LocalizedTextNotLocalized("Boolean"),
-                description = LocalizedMarkdownNotLocalized("Boolean type")
+                name = TextSingleLine("Boolean"),
+                description = TextMarkdown("Boolean type")
             )
         )
 
@@ -423,7 +423,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceRef.key,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -433,8 +433,8 @@ class Model_Copy_Test {
             ModelAction.Entity_Create(
                 modelRef = sourceRef,
                 entityKey = entityKey,
-                name = LocalizedTextNotLocalized("Customer"),
-                description = LocalizedMarkdownNotLocalized("Customer aggregate"),
+                name = TextSingleLine("Customer"),
+                description = TextMarkdown("Customer aggregate"),
                 documentationHome = docHome
             )
         )
@@ -470,7 +470,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceRef.key,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -534,7 +534,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceKey,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -548,8 +548,8 @@ class Model_Copy_Test {
                 attributeKey = AttributeKey("email"),
                 type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = true,
-                name = LocalizedTextNotLocalized("Email"),
-                description = LocalizedMarkdownNotLocalized("Customer email")
+                name = TextSingleLine("Email"),
+                description = TextMarkdown("Customer email")
             )
         )
 
@@ -579,7 +579,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceKey,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -625,7 +625,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceKey,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -637,8 +637,8 @@ class Model_Copy_Test {
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
                 relationshipKey = RelationshipKey("places"),
-                name = LocalizedTextNotLocalized("Places"),
-                description = LocalizedMarkdownNotLocalized("Customer places an order"),
+                name = TextSingleLine("Places"),
+                description = TextMarkdown("Customer places an order"),
                 roleAKey = RelationshipRoleKey("buyer"),
                 roleAEntityRef = customerRef,
                 roleAName = null,
@@ -671,7 +671,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceKey,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -687,11 +687,11 @@ class Model_Copy_Test {
                 description = null,
                 roleAKey = RelationshipRoleKey("buyer"),
                 roleAEntityRef = EntityRef.ByKey(EntityKey("customer")),
-                roleAName = LocalizedTextNotLocalized("Buyer"),
+                roleAName = TextSingleLine("Buyer"),
                 roleACardinality = RelationshipCardinality.One,
                 roleBKey = RelationshipRoleKey("purchase"),
                 roleBEntityRef = EntityRef.ByKey(EntityKey("order")),
-                roleBName = LocalizedTextNotLocalized("Purchase"),
+                roleBName = TextSingleLine("Purchase"),
                 roleBCardinality = RelationshipCardinality.Many
             )
         )
@@ -720,7 +720,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceKey,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -784,7 +784,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceKey,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -838,7 +838,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceKey,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -869,8 +869,8 @@ class Model_Copy_Test {
                 attributeKey = AttributeKey("startedAt"),
                 type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = true,
-                name = LocalizedTextNotLocalized("Started at"),
-                description = LocalizedMarkdownNotLocalized("Relationship start time")
+                name = TextSingleLine("Started at"),
+                description = TextMarkdown("Relationship start time")
             )
         )
 
@@ -901,7 +901,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceKey,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -963,7 +963,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceKey,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -1004,7 +1004,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceKey,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -1046,7 +1046,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceKey,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -1098,7 +1098,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceKey,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -1157,7 +1157,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceKey,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -1223,7 +1223,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceKey,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )
@@ -1310,7 +1310,7 @@ class Model_Copy_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 sourceKey,
-                LocalizedTextNotLocalized("Source"),
+                TextSingleLine("Source"),
                 null,
                 ModelVersion("1.0.0")
             )

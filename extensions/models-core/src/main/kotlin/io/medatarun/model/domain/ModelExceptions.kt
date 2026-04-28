@@ -106,10 +106,6 @@ class ModelEventConcurrentWriteException(
 )
 
 
-class LocalizedTextMapEmptyException :
-    MedatarunException("When creating a LocalizedTextMap you must provide at least one language value or a 'default' key with a value")
-
-
 class UpdateAttributeDuplicateKeyException(
     entityRef: EntityRef,
     attributeRef: EntityAttributeRef,

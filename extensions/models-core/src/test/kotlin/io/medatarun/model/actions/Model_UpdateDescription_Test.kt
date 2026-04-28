@@ -1,7 +1,7 @@
 package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
-import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
+import io.medatarun.model.domain.TextMarkdown
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -15,11 +15,11 @@ class Model_UpdateDescription_Test {
         env.dispatch(
             ModelAction.Model_UpdateDescription(
                 modelRef = env.modelRef,
-                value = LocalizedMarkdownNotLocalized("Model description 2")
+                value = TextMarkdown("Model description 2")
             )
         )
         assertEquals(
-            LocalizedMarkdownNotLocalized("Model description 2"),
+            TextMarkdown("Model description 2"),
             env.query.findModelAggregate(env.modelRef).description
         )
     }
@@ -30,7 +30,7 @@ class Model_UpdateDescription_Test {
         env.dispatch(
             ModelAction.Model_UpdateDescription(
                 modelRef = env.modelRef,
-                value = LocalizedMarkdownNotLocalized("Model description 2")
+                value = TextMarkdown("Model description 2")
             )
         )
         env.dispatch(ModelAction.Model_UpdateDescription(env.modelRef, null))

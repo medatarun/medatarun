@@ -65,8 +65,8 @@ internal class JsonSerializerV3Test {
             addType(
                 id = typeWithLabelsId,
                 key = TypeKey("string"),
-                name = LocalizedTextNotLocalized("String"),
-                description = LocalizedMarkdownNotLocalized("String value type")
+                name = TextSingleLine("String"),
+                description = TextMarkdown("String value type")
             )
             addType(
                 id = typeWithoutLabelsId,
@@ -215,8 +215,8 @@ internal class JsonSerializerV3Test {
             addEntity(
                 id = entityId,
                 key = EntityKey("customer"),
-                name = LocalizedTextNotLocalized("Customer"),
-                description = LocalizedMarkdownNotLocalized("Customer description"),
+                name = TextSingleLine("Customer"),
+                description = TextMarkdown("Customer description"),
                 origin = EntityOrigin.Uri(URI(entityOrigin)),
                 documentationHome = URI(entityDoc).toURL()
             )
@@ -377,8 +377,8 @@ internal class JsonSerializerV3Test {
                 id = attrId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
                 key = AttributeKey("customer-code"),
-                name = LocalizedTextNotLocalized("Customer Code"),
-                description = LocalizedMarkdownNotLocalized("Unique customer code"),
+                name = TextSingleLine("Customer Code"),
+                description = TextMarkdown("Unique customer code"),
                 typeId = typeId,
                 optional = true,
                 tags = listOf(attrTag)
@@ -550,8 +550,8 @@ internal class JsonSerializerV3Test {
             addRelationship(
                 id = relationshipId,
                 key = RelationshipKey("customer-order"),
-                name = LocalizedTextNotLocalized("Customer Order"),
-                description = LocalizedMarkdownNotLocalized("Links customers to orders"),
+                name = TextSingleLine("Customer Order"),
+                description = TextMarkdown("Links customers to orders"),
                 roles = listOf(
                     RelationshipRoleInMemory(
                         id = roleId,
@@ -625,7 +625,7 @@ internal class JsonSerializerV3Test {
                         id = roleId,
                         key = RelationshipRoleKey("customer-role"),
                         entityId = entityId,
-                        name = LocalizedTextNotLocalized("Customer"),
+                        name = TextSingleLine("Customer"),
                         cardinality = RelationshipCardinality.Many
                     )
                 ),
@@ -764,8 +764,8 @@ internal class JsonSerializerV3Test {
                 id = relationshipAttrId,
                 ownerId = AttributeOwnerId.OwnerRelationshipId(relationshipId),
                 key = AttributeKey("relationship-code"),
-                name = LocalizedTextNotLocalized("Relationship Code"),
-                description = LocalizedMarkdownNotLocalized("Relationship attribute description"),
+                name = TextSingleLine("Relationship Code"),
+                description = TextMarkdown("Relationship attribute description"),
                 typeId = typeId,
                 optional = true,
                 tags = listOf(attrTag)
@@ -1050,8 +1050,8 @@ internal class JsonSerializerV3Test {
                     PBKeyParticipantInMemory(attributeId = attrFirstId, position = 1),
                     PBKeyParticipantInMemory(attributeId = attrSecondId, position = 2)
                 ),
-                name = LocalizedTextNotLocalized("Customer BK"),
-                description = LocalizedMarkdownNotLocalized("Uniquely identifies customer")
+                name = TextSingleLine("Customer BK"),
+                description = TextMarkdown("Uniquely identifies customer")
             )
         }
 
@@ -1244,16 +1244,16 @@ internal class JsonSerializerV3Test {
                 key = BusinessKeyKey("customer-bk"),
                 entityId = entityAId,
                 participants = listOf(PBKeyParticipantInMemory(attributeId = attrAId, position = 1)),
-                name = LocalizedTextNotLocalized("Customer BK"),
-                description = LocalizedMarkdownNotLocalized("Customer key")
+                name = TextSingleLine("Customer BK"),
+                description = TextMarkdown("Customer key")
             )
             addBusinessKey(
                 id = businessKeyBId,
                 key = BusinessKeyKey("order-bk"),
                 entityId = entityBId,
                 participants = listOf(PBKeyParticipantInMemory(attributeId = attrBId, position = 1)),
-                name = LocalizedTextNotLocalized("Order BK"),
-                description = LocalizedMarkdownNotLocalized("Order key")
+                name = TextSingleLine("Order BK"),
+                description = TextMarkdown("Order key")
             )
         }
 

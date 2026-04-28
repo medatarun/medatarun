@@ -6,7 +6,7 @@ data class RelationshipRoleInMemory(
     override val id: RelationshipRoleId,
     override val key: RelationshipRoleKey,
     override val entityId: EntityId,
-    override val name: LocalizedText?,
+    override val name: TextSingleLine?,
     override val cardinality: RelationshipCardinality
 ) : RelationshipRole {
     companion object {

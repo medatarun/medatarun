@@ -24,7 +24,7 @@ class BusinessKey_UpdateDescription_Test {
         val entityRef = entityRefKey("order")
         val idAttributeRef = entityAttributeRefKey("id")
         val businessKeyRef = businessKeyRefKey("order_business_key")
-        val newDescription = LocalizedMarkdownNotLocalized("Updated business key description")
+        val newDescription = TextMarkdown("Updated business key description")
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
@@ -35,8 +35,8 @@ class BusinessKey_UpdateDescription_Test {
             key = businessKeyRef.key,
             entityRef = entityRef,
             participants = listOf(idAttributeRef),
-            name = LocalizedTextNotLocalized("Order business key"),
-            description = LocalizedMarkdownNotLocalized("Order business key description")
+            name = TextSingleLine("Order business key"),
+            description = TextMarkdown("Order business key description")
         )
 
         env.dispatch(ModelAction.BusinessKey_Update_Description(modelRef, businessKeyRef, newDescription))
@@ -65,8 +65,8 @@ class BusinessKey_UpdateDescription_Test {
             key = businessKeyRef.key,
             entityRef = entityRef,
             participants = listOf(idAttributeRef),
-            name = LocalizedTextNotLocalized("Order business key"),
-            description = LocalizedMarkdownNotLocalized("Order business key description")
+            name = TextSingleLine("Order business key"),
+            description = TextMarkdown("Order business key description")
         )
 
         env.dispatch(ModelAction.BusinessKey_Update_Description(modelRef, businessKeyRef, null))
@@ -94,8 +94,8 @@ class BusinessKey_UpdateDescription_Test {
             key = businessKeyRef.key,
             entityRef = entityRef,
             participants = listOf(idAttributeRef),
-            name = LocalizedTextNotLocalized("Order business key"),
-            description = LocalizedMarkdownNotLocalized("Order business key description")
+            name = TextSingleLine("Order business key"),
+            description = TextMarkdown("Order business key description")
         )
 
         val beforeEventId = env.findLastStoredModelChangeEvent(modelRef).eventId
@@ -103,7 +103,7 @@ class BusinessKey_UpdateDescription_Test {
             ModelAction.BusinessKey_Update_Description(
                 modelRef = modelRef,
                 businessKeyRef = businessKeyRef,
-                value = LocalizedMarkdownNotLocalized("Order business key description")
+                value = TextMarkdown("Order business key description")
             )
         )
         val afterEventId = env.findLastStoredModelChangeEvent(modelRef).eventId

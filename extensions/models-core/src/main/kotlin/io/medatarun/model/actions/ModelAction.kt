@@ -168,13 +168,13 @@ sealed interface ModelAction {
             name = "Name",
             description = "Name of this model."
         )
-        val name: LocalizedText,
+        val name: TextSingleLine,
         @ActionParamDoc(
             order = 40,
             name = "Description",
             description = "Provide a comprehensive description of this model, including what it represents, its business meaning, its role in the company or in the application, its context, its rules, its usage, and any other useful information for someone discovering it."
         )
-        val description: LocalizedMarkdown?,
+        val description: TextMarkdown?,
 
         @ActionParamDoc(
             order = 50,
@@ -244,7 +244,7 @@ sealed interface ModelAction {
             description = "Name of this model.",
             order = 20
         )
-        val value: LocalizedText
+        val value: TextSingleLine
     ) : ModelAction
 
     @ActionDoc(
@@ -265,7 +265,7 @@ sealed interface ModelAction {
             description = "Provide a comprehensive description of this model, including what it represents, its business meaning, its role in the company or in the application, its context, its rules, its usage, and any other useful information for someone discovering it.",
             order = 20
         )
-        val value: LocalizedMarkdown?
+        val value: TextMarkdown?
     ) : ModelAction
 
     @ActionDoc(
@@ -418,13 +418,13 @@ sealed interface ModelAction {
             description = "Name of this data type.",
             order = 20
         )
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @ActionParamDoc(
             name = "Description",
             description = "Provide a comprehensive description of this data type, including how and where to use it, business rules, constraints or possible values.",
             order = 40
         )
-        val description: LocalizedMarkdown?
+        val description: TextMarkdown?
     ) : ModelAction
 
 
@@ -479,7 +479,7 @@ sealed interface ModelAction {
             description = "Name of this data type.",
             order = 30
         )
-        val value: LocalizedText?
+        val value: TextSingleLine?
     ) : ModelAction
 
     @ActionDoc(
@@ -506,7 +506,7 @@ sealed interface ModelAction {
             description = "Provide a comprehensive description of this data type, including how and where to use it, business rules, constraints or possible values.",
             order = 30
         )
-        val value: LocalizedMarkdown?
+        val value: TextMarkdown?
     ) :
         ModelAction
 
@@ -559,13 +559,13 @@ sealed interface ModelAction {
             description = "Name of this entity.",
             order = 20
         )
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @ActionParamDoc(
             name = "Description",
             description = "Provide a comprehensive description of what this entity represents in the domain. Explain the business concept behind it, what belongs in it, the main rules that apply to it, how it should be used, etc.",
             order = 40
         )
-        val description: LocalizedMarkdown?,
+        val description: TextMarkdown?,
         @ActionParamDoc(
             name = "External documentation",
             description = "Link to external documentation for this entity.",
@@ -626,7 +626,7 @@ sealed interface ModelAction {
             description = "Name of this entity.",
             order = 30
         )
-        val value: LocalizedText?
+        val value: TextSingleLine?
     ) : ModelAction
 
     @ActionDoc(
@@ -653,7 +653,7 @@ sealed interface ModelAction {
             description = "Provide a comprehensive description of what this entity represents in the domain. Explain the business concept behind it, what belongs in it, the main rules that apply to it, how it should be used, and any other information.",
             order = 30
         )
-        val value: LocalizedMarkdown?
+        val value: TextMarkdown?
     ) : ModelAction
 
     @ActionDoc(
@@ -789,7 +789,7 @@ sealed interface ModelAction {
             description = "Name of this attribute.",
             order = 30
         )
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @ActionParamDoc(
             name = "Attribute key",
             description = "Provide a stable code for this attribute. This code is used to identify it uniquely in the entity. Use a short value, keep it stable over time, and avoid quotes, backslashes, and unusual special characters.",
@@ -813,7 +813,7 @@ sealed interface ModelAction {
             description = "Provide a comprehensive description of what this attribute represents, what information it contains, which values are expected, the main rules that apply to it, and any useful examples or notes.",
             order = 70
         )
-        val description: LocalizedMarkdown?,
+        val description: TextMarkdown?,
     ) : ModelAction
 
 
@@ -880,7 +880,7 @@ sealed interface ModelAction {
             description = "Name of this attribute.",
             order = 40
         )
-        val value: LocalizedText?
+        val value: TextSingleLine?
     ) : ModelAction
 
 
@@ -914,7 +914,7 @@ sealed interface ModelAction {
             description = "Provide a comprehensive description of what this attribute represents, what information it contains, which values are expected, the main rules that apply to it, and any useful examples or notes.",
             order = 40
         )
-        val value: LocalizedMarkdown?
+        val value: TextMarkdown?
     ) : ModelAction
 
 
@@ -1133,13 +1133,13 @@ sealed interface ModelAction {
             description = "Name of this relationship.",
             order = 20
         )
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @ActionParamDoc(
             name = "Description",
             description = "Provide a comprehensive description of what this relationship represents in the domain. Explain what link or fact it expresses between entities, the main rules that apply to it, how to read it, and any useful examples or notes.",
             order = 40
         )
-        val description: LocalizedMarkdown?,
+        val description: TextMarkdown?,
         @ActionParamDoc(
             name = "Role A key",
             description = "Provide a stable code for the first role in this relationship. This code is used to identify the role within the relationship.",
@@ -1157,7 +1157,7 @@ sealed interface ModelAction {
             description = "Name of the first role. Use it to express how this entity participates in the relationship.",
             order = 50
         )
-        val roleAName: LocalizedText?,
+        val roleAName: TextSingleLine?,
         @ActionParamDoc(
             name = "Role A cardinality",
             description = "Choose how many occurrences of this entity may participate through the first role in one occurrence of the relationship.",
@@ -1181,7 +1181,7 @@ sealed interface ModelAction {
             description = "Name of the second role. Use it to express how this entity participates in the relationship.",
             order = 90
         )
-        val roleBName: LocalizedText?,
+        val roleBName: TextSingleLine?,
         @ActionParamDoc(
             name = "Role B cardinality",
             description = "Choose how many occurrences of this entity may participate through the second role in one occurrence of the relationship.",
@@ -1241,7 +1241,7 @@ sealed interface ModelAction {
             description = "Name of this relationship.",
             order = 30
         )
-        val value: LocalizedText?,
+        val value: TextSingleLine?,
     ) : ModelAction
 
     @ActionDoc(
@@ -1268,7 +1268,7 @@ sealed interface ModelAction {
             description = "Provide a comprehensive description of what this relationship represents in the domain. Explain what link or fact it expresses between entities, the main rules that apply to it, how to read it, and any useful examples or notes.",
             order = 30
         )
-        val value: LocalizedMarkdown?,
+        val value: TextMarkdown?,
     ) : ModelAction
 
     @ActionDoc(
@@ -1307,7 +1307,7 @@ sealed interface ModelAction {
             description = "Name of this role. Use it to express how the entity participates in the relationship.",
             order = 30
         )
-        val roleName: LocalizedText?,
+        val roleName: TextSingleLine?,
         @ActionParamDoc(
             name = "Cardinality",
             description = "Choose how many occurrences of this entity may participate through this role in one occurrence of the relationship.",
@@ -1376,7 +1376,7 @@ sealed interface ModelAction {
             description = "Name of this role. Use it to express how the entity participates in the relationship.",
             order = 40
         )
-        val value: LocalizedText?,
+        val value: TextSingleLine?,
     ) : ModelAction
 
     @ActionDoc(
@@ -1483,7 +1483,7 @@ sealed interface ModelAction {
             description = "Name of this attribute.",
             order = 30
         )
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @ActionParamDoc(
             name = "Attribute key",
             description = "Provide a stable code for this attribute. This code is used to identify it uniquely in the relationship. Use a short value, keep it stable over time, and avoid quotes, backslashes, and unusual special characters.",
@@ -1507,7 +1507,7 @@ sealed interface ModelAction {
             description = "Provide a comprehensive description of what this attribute represents, what information it contains, which values are expected, the main rules that apply to it, and any useful examples or notes.",
             order = 70
         )
-        val description: LocalizedMarkdown?,
+        val description: TextMarkdown?,
     ) : ModelAction
 
     @ActionDoc(
@@ -1553,7 +1553,7 @@ sealed interface ModelAction {
         @ActionParamDoc(name = "Attribute", description = "Attribute to update.", order = 30)
         val attributeRef: RelationshipAttributeRef,
         @ActionParamDoc(name = "Name", description = "Name of this attribute.", order = 40)
-        val value: LocalizedText?
+        val value: TextSingleLine?
     ) : ModelAction
 
     @ActionDoc(
@@ -1578,7 +1578,7 @@ sealed interface ModelAction {
             description = "Provide a comprehensive description of what this attribute represents, what information it contains, which values are expected, the main rules that apply to it, and any useful examples or notes.",
             order = 40
         )
-        val value: LocalizedMarkdown?
+        val value: TextMarkdown?
     ) : ModelAction
 
     @ActionDoc(
@@ -1714,7 +1714,7 @@ sealed interface ModelAction {
             description = "Business key name",
             order = 11
         )
-        val name: LocalizedText?,
+        val name: TextSingleLine?,
         @ActionParamDoc(
             name = "Key",
             description = "Business key's own key",
@@ -1726,7 +1726,7 @@ sealed interface ModelAction {
             description = "Business key description",
             order = 14
         )
-        val description: LocalizedMarkdown?,
+        val description: TextMarkdown?,
         @ActionParamDoc(
             name = "Entity",
             description = "Entity where this business key is located.",
@@ -1791,7 +1791,7 @@ sealed interface ModelAction {
             description = "New name",
             order = 30
         )
-        val value: LocalizedText?,
+        val value: TextSingleLine?,
     ) : ModelAction
     @ActionDoc(
         key = "business_key_update_description",
@@ -1817,7 +1817,7 @@ sealed interface ModelAction {
             description = "New name",
             order = 30
         )
-        val value: LocalizedMarkdown?,
+        val value: TextMarkdown?,
     ) : ModelAction
 
     @ActionDoc(

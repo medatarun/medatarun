@@ -23,10 +23,10 @@ data class StoreModelAggregateModel(
     val key: ModelKey,
     @Contextual
     @SerialName("name")
-    val name: LocalizedText?,
+    val name: TextSingleLine?,
     @Contextual
     @SerialName("description")
-    val description: LocalizedMarkdown?,
+    val description: TextMarkdown?,
     @Contextual
     @SerialName("version")
     val version: ModelVersion,
@@ -51,10 +51,10 @@ data class StoreModelAggregateType(
     val key: TypeKey,
     @Contextual
     @SerialName("name")
-    val name: LocalizedText?,
+    val name: TextSingleLine?,
     @Contextual
     @SerialName("description")
-    val description: LocalizedMarkdown?
+    val description: TextMarkdown?
 )
 
 @Serializable
@@ -67,10 +67,10 @@ data class StoreModelAggregateEntityDeprecated(
     val key: EntityKey,
     @Contextual
     @SerialName("name")
-    val name: LocalizedText?,
+    val name: TextSingleLine?,
     @Contextual
     @SerialName("description")
-    val description: LocalizedMarkdown?,
+    val description: TextMarkdown?,
     @Contextual
     @SerialName("identifierAttributeId")
     val identifierAttributeId: AttributeId,
@@ -92,10 +92,10 @@ data class StoreModelAggregateEntityCurrent(
     val key: EntityKey,
     @Contextual
     @SerialName("name")
-    val name: LocalizedText?,
+    val name: TextSingleLine?,
     @Contextual
     @SerialName("description")
-    val description: LocalizedMarkdown?,
+    val description: TextMarkdown?,
     @Contextual
     @SerialName("origin")
     val origin: EntityOrigin,
@@ -117,10 +117,10 @@ data class StoreModelAggregateEntityAttribute(
     val key: AttributeKey,
     @Contextual
     @SerialName("name")
-    val name: LocalizedText?,
+    val name: TextSingleLine?,
     @Contextual
     @SerialName("description")
-    val description: LocalizedMarkdown?,
+    val description: TextMarkdown?,
     @Contextual
     @SerialName("typeId")
     val typeId: TypeId,
@@ -138,10 +138,10 @@ data class StoreModelAggregateRelationship(
     val key: RelationshipKey,
     @Contextual
     @SerialName("name")
-    val name: LocalizedText?,
+    val name: TextSingleLine?,
     @Contextual
     @SerialName("description")
-    val description: LocalizedMarkdown?,
+    val description: TextMarkdown?,
     @SerialName("roles")
     val roles: List<StoreModelAggregateRelationshipRole>
 )
@@ -159,7 +159,7 @@ data class StoreModelAggregateRelationshipRole(
     val entityId: EntityId,
     @Contextual
     @SerialName("name")
-    val name: LocalizedText?,
+    val name: TextSingleLine?,
     @Contextual
     @SerialName("cardinality")
     val cardinality: RelationshipCardinality
@@ -178,10 +178,10 @@ data class StoreModelAggregateRelationshipAttribute(
     val key: AttributeKey,
     @Contextual
     @SerialName("name")
-    val name: LocalizedText?,
+    val name: TextSingleLine?,
     @Contextual
     @SerialName("description")
-    val description: LocalizedMarkdown?,
+    val description: TextMarkdown?,
     @Contextual
     @SerialName("typeId")
     val typeId: TypeId,
@@ -212,10 +212,10 @@ data class StoreModelAggregateBusinessKey(
     val key: BusinessKeyKey,
     @Contextual
     @SerialName("name")
-    val name: LocalizedText?,
+    val name: TextSingleLine?,
     @Contextual
     @SerialName("description")
-    val description: LocalizedMarkdown?,
+    val description: TextMarkdown?,
     @Contextual
     @SerialName("participants")
     val participants: List<@Contextual AttributeId>,

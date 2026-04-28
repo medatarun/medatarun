@@ -4,7 +4,7 @@ import io.medatarun.model.domain.AttributeKey
 import io.medatarun.model.domain.EntityAttributeRef.Companion.entityAttributeRefId
 import io.medatarun.model.domain.EntityAttributeRef.Companion.entityAttributeRefKey
 import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
-import io.medatarun.model.domain.LocalizedTextNotLocalized
+import io.medatarun.model.domain.TextSingleLine
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
 import io.medatarun.model.domain.UpdateAttributeDuplicateKeyException
@@ -125,7 +125,7 @@ class EntityAttribute_UpdateKey_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, TextSingleLine("Entity primary"))
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = modelRef,

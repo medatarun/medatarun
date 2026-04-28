@@ -57,27 +57,27 @@ object ModelJsonSerializers {
     }
     val url = stringSerializer("URL", { URL(it) }) { it.toExternalForm() }
 
-    val localizedTextAsString = object : KSerializer<LocalizedText> {
-        override val descriptor = PrimitiveSerialDescriptor("LocalizedText", PrimitiveKind.STRING)
+    val textSingleLineAsString = object : KSerializer<TextSingleLine> {
+        override val descriptor = PrimitiveSerialDescriptor("io.medatarun.TextSingleLineSerializer", PrimitiveKind.STRING)
 
-        override fun serialize(encoder: Encoder, value: LocalizedText) {
+        override fun serialize(encoder: Encoder, value: TextSingleLine) {
             encoder.encodeString(value.name)
         }
 
-        override fun deserialize(decoder: Decoder): LocalizedText {
-            return LocalizedTextNotLocalized(decoder.decodeString())
+        override fun deserialize(decoder: Decoder): TextSingleLine {
+            return TextSingleLine(decoder.decodeString())
         }
     }
 
-    val localizedMarkdownAsString = object : KSerializer<LocalizedMarkdown> {
-        override val descriptor = PrimitiveSerialDescriptor("LocalizedMarkdown", PrimitiveKind.STRING)
+    val textMarkdownAsString = object : KSerializer<TextMarkdown> {
+        override val descriptor = PrimitiveSerialDescriptor("io.medatarun.TextMarkdownSerializer", PrimitiveKind.STRING)
 
-        override fun serialize(encoder: Encoder, value: LocalizedMarkdown) {
+        override fun serialize(encoder: Encoder, value: TextMarkdown) {
             encoder.encodeString(value.name)
         }
 
-        override fun deserialize(decoder: Decoder): LocalizedMarkdown {
-            return LocalizedMarkdownNotLocalized(decoder.decodeString())
+        override fun deserialize(decoder: Decoder): TextMarkdown {
+            return TextMarkdown(decoder.decodeString())
         }
     }
 
@@ -207,8 +207,8 @@ object ModelJsonSerializers {
             contextual(BusinessKeyKey::class, businessKeyKey)
             contextual(ModelVersion::class, modelVersion)
             contextual(URL::class, url)
-            contextual(LocalizedText::class, localizedTextAsString)
-            contextual(LocalizedMarkdown::class, localizedMarkdownAsString)
+            contextual(TextSingleLine::class, textSingleLineAsString)
+            contextual(TextMarkdown::class, textMarkdownAsString)
             contextual(ModelOrigin::class, modelOrigin)
             contextual(EntityOrigin::class, entityOrigin)
             contextual(ModelAuthority::class, modelAuthority)

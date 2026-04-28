@@ -204,7 +204,7 @@ internal class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectio
             id = entityId,
             key = EntityKey(table.tableName),
             name = null,
-            description = table.remarks?.let(::LocalizedMarkdownNotLocalized),
+            description = table.remarks?.let(::TextMarkdown),
             origin = EntityOrigin.Uri(URI(path)),
             documentationHome = null,
             tags = emptyList()
@@ -224,7 +224,7 @@ internal class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectio
             id = AttributeId.generate(),
             key = AttributeKey(column.columnName),
             name = null,
-            description = column.remarks?.let(::LocalizedMarkdownNotLocalized),
+            description = column.remarks?.let(::TextMarkdown),
             typeId = type.id,
             optional = column.isNullable != false,
             tags = emptyList(),
@@ -246,7 +246,7 @@ internal class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectio
         val m = ModelInMemory(
             id = ModelId.generate(),
             key = ModelKey(modelKeyOrGenerated),
-            name = LocalizedTextNotLocalized(modelNameOrGenerated),
+            name = TextSingleLine(modelNameOrGenerated),
             version = ModelVersion("0.0.1"),
             description = null,
             origin = ModelOrigin.Uri(URI(path)),

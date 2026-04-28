@@ -32,8 +32,8 @@ class BusinessKey_UpdateX_Test {
             key = businessKeyRef.key,
             entityRef = entityRef,
             participants = listOf(idAttributeRef),
-            name = LocalizedTextNotLocalized("Order business key"),
-            description = LocalizedMarkdownNotLocalized("Order business key description")
+            name = TextSingleLine("Order business key"),
+            description = TextMarkdown("Order business key description")
         )
 
         assertThrows<ModelNotFoundException> {

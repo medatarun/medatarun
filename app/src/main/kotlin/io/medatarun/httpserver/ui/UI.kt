@@ -45,12 +45,12 @@ class UI(runtime: PlatformRuntime) {
         return buildJsonObject {
             put("id", model.id.asString())
             put("key", model.key.asString())
-            put("name", model.name?.get(locale))
+            put("name", model.name?.name)
             put("version", model.version.value)
             put("authority", model.authority.code)
             put("documentationHome", model.documentationHome?.toExternalForm())
             put("tags", JsonArray(model.tags.map { JsonPrimitive(it.value.toString()) }))
-            put("description", model.description?.get(locale))
+            put("description", model.description?.name)
             val origin = model.origin
             put(
                 "origin", when {
@@ -83,8 +83,8 @@ class UI(runtime: PlatformRuntime) {
                     addJsonObject {
                         put("id", t.id.value.toString())
                         put("key", t.key.value)
-                        put("name", t.name?.get(locale))
-                        put("description", t.description?.get(locale))
+                        put("name", t.name?.name)
+                        put("description", t.description?.name)
                     }
                 }
             }
@@ -128,15 +128,15 @@ class UI(runtime: PlatformRuntime) {
         val relationshipJson = buildJsonObject {
             put("id", relationship.id.asString())
             put("key", relationship.key.asString())
-            put("name", relationship.name?.get(locale))
-            put("description", relationship.description?.get(locale))
+            put("name", relationship.name?.name)
+            put("description", relationship.description?.name)
             put("tags", JsonArray(relationship.tags.map { JsonPrimitive(it.value.toString()) }))
             putJsonArray("roles") {
                 relationship.roles.forEach { role ->
                     addJsonObject {
                         put("id", role.id.asString())
                         put("key", role.key.asString())
-                        put("name", role.name?.get(locale))
+                        put("name", role.name?.name)
                         put("entityId", role.entityId.value.toString())
                         put("cardinality", role.cardinality.code)
                     }
@@ -146,8 +146,8 @@ class UI(runtime: PlatformRuntime) {
                 addJsonObject {
                     put("id", attr.id.asString())
                     put("key", attr.key.asString())
-                    put("name", attr.name?.get(locale))
-                    put("description", attr.description?.get(locale))
+                    put("name", attr.name?.name)
+                    put("description", attr.description?.name)
                     put("type", attr.typeId.value.toString())
                     put("optional", attr.optional)
                     put("identifierAttribute", false)
@@ -165,8 +165,8 @@ class UI(runtime: PlatformRuntime) {
         locale: Locale,
         model: ModelAggregate
     ): JsonObject {
-        val name = e.name?.get(locale)
-        val description = e.description?.get(locale)
+        val name = e.name?.name
+        val description = e.description?.name
         val origin = e.origin
         val documentationHome = e.documentationHome
         return buildJsonObject {
@@ -196,8 +196,8 @@ class UI(runtime: PlatformRuntime) {
                     addJsonObject {
                         put("id", attr.id.asString())
                         put("key", attr.key.asString())
-                        put("name", attr.name?.get(locale))
-                        put("description", attr.description?.get(locale))
+                        put("name", attr.name?.name)
+                        put("description", attr.description?.name)
                         put("type", attr.typeId.value.toString())
                         put("optional", attr.optional)
                         putJsonArray("tags") {

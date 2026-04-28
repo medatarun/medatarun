@@ -17,8 +17,8 @@ class Model_Create_Test {
         val query: ModelQueries = env.queries
 
         val modelKey = ModelKey("m-")
-        val name = LocalizedTextNotLocalized("Model name")
-        val description = LocalizedMarkdownNotLocalized("Model description")
+        val name = TextSingleLine("Model name")
+        val description = TextMarkdown("Model description")
         val version = ModelVersion("2.0.0")
 
         env.dispatch(ModelAction.Model_Create(modelKey, name, description, version))
@@ -40,7 +40,7 @@ class Model_Create_Test {
         val query: ModelQueries = env.queries
 
         val modelKey = ModelKey("m")
-        val name = LocalizedTextNotLocalized("Model without description")
+        val name = TextSingleLine("Model without description")
         val version = ModelVersion("3.0.0")
 
         env.dispatch(ModelAction.Model_Create(modelKey, name, null, version))

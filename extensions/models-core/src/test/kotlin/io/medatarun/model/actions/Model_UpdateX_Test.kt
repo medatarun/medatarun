@@ -20,7 +20,7 @@ class Model_UpdateX_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = modelRef.key,
-                name = LocalizedTextNotLocalized("Model name"),
+                name = TextSingleLine("Model name"),
                 description = null,
                 version = ModelVersion("2.0.0")
             )
@@ -38,7 +38,7 @@ class Model_UpdateX_Test {
             env.dispatch(
                 ModelAction.Model_UpdateName(
                     modelRef = modelKeyWrong,
-                    value = LocalizedTextNotLocalized("other")
+                    value = TextSingleLine("other")
                 )
             )
         }
@@ -46,7 +46,7 @@ class Model_UpdateX_Test {
             env.dispatch(
                 ModelAction.Model_UpdateDescription(
                     modelRef = modelKeyWrong,
-                    value = LocalizedMarkdownNotLocalized("other description")
+                    value = TextMarkdown("other description")
                 )
             )
         }
@@ -69,10 +69,10 @@ class Model_UpdateX_Test {
         env.dispatch(
             ModelAction.Model_UpdateName(
                 modelRef = modelRef,
-                value = LocalizedTextNotLocalized("Model name 2")
+                value = TextSingleLine("Model name 2")
             )
         )
-        assertEquals(LocalizedTextNotLocalized("Model name 2"), query.findModelRoot(modelRef).name)
+        assertEquals(TextSingleLine("Model name 2"), query.findModelRoot(modelRef).name)
     }
 
 }

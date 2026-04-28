@@ -2,8 +2,8 @@ package io.medatarun.ext.modeljson.internal.v2
 
 import io.medatarun.ext.modeljson.internal.base.ModelTypeJson
 import io.medatarun.ext.modeljson.internal.base.RelationshipJson
-import io.medatarun.model.domain.LocalizedMarkdown
-import io.medatarun.model.domain.LocalizedText
+import io.medatarun.model.domain.TextMarkdown
+import io.medatarun.model.domain.TextSingleLine
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -16,8 +16,8 @@ internal class ModelJsonV2(
     @SerialName($$"$schema")
     val schema: String,
     val version: String,
-    val name: @Contextual LocalizedText? = null,
-    val description: @Contextual LocalizedMarkdown? = null,
+    val name: @Contextual TextSingleLine? = null,
+    val description: @Contextual TextMarkdown? = null,
     val origin: String? = null,
     val authority: String? = null,
     val tags: List<String>? = emptyList(),

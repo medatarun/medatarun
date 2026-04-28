@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.12.0]
+
+### Changes
+
+- Model exports do not export models in JSON v2 format anymore.
+
+### Technical changes
+
+- Got rid of initial debt around LocalizedText and LocalizedMarkdown.
+
+
 ## [0.11.0]
 
 ### Added

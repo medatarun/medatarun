@@ -101,8 +101,8 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
     // Model_Create
     fun modelCreate(
         key: ModelKey,
-        name: LocalizedText = LocalizedTextNotLocalized(key.value),
-        description: LocalizedMarkdown? = null,
+        name: TextSingleLine = TextSingleLine(key.value),
+        description: TextMarkdown? = null,
         version: ModelVersion? = ModelVersion("1.0.0")
     ): Any? {
         return dispatch(
@@ -119,8 +119,8 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
     fun typeCreate(
         modelRef: ModelRef,
         typeKey: TypeKey,
-        name: LocalizedText? = null,
-        description: LocalizedMarkdown? = null
+        name: TextSingleLine? = null,
+        description: TextMarkdown? = null
     ): Any? {
         return dispatch(
             ModelAction.Type_Create(
@@ -136,8 +136,8 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
     fun entityCreate(
         modelRef: ModelRef,
         entityKey: EntityKey,
-        name: LocalizedText? = null,
-        description: LocalizedMarkdown? = null,
+        name: TextSingleLine? = null,
+        description: TextMarkdown? = null,
         documentationHome: String? = null
     ): Any? {
         return dispatch(
@@ -157,9 +157,9 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         entityRef: EntityRef,
         attributeKey: AttributeKey,
         type: TypeRef,
-        name: LocalizedText? = null,
+        name: TextSingleLine? = null,
         optional: Boolean = false,
-        description: LocalizedMarkdown? = null
+        description: TextMarkdown? = null
     ): Any? {
         return dispatch(
             ModelAction.EntityAttribute_Create(
@@ -182,11 +182,11 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         roleAEntityRef: EntityRef,
         roleBKey: RelationshipRoleKey,
         roleBEntityRef: EntityRef,
-        name: LocalizedText? = null,
-        description: LocalizedMarkdown? = null,
-        roleAName: LocalizedText? = null,
+        name: TextSingleLine? = null,
+        description: TextMarkdown? = null,
+        roleAName: TextSingleLine? = null,
         roleACardinality: RelationshipCardinality = RelationshipCardinality.One,
-        roleBName: LocalizedText? = null,
+        roleBName: TextSingleLine? = null,
         roleBCardinality: RelationshipCardinality = RelationshipCardinality.Many
     ): Any? {
         return dispatch(
@@ -213,7 +213,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         relationshipRef: RelationshipRef,
         roleKey: RelationshipRoleKey,
         roleEntityRef: EntityRef,
-        roleName: LocalizedText? = null,
+        roleName: TextSingleLine? = null,
         roleCardinality: RelationshipCardinality = RelationshipCardinality.One
     ): Any? {
         return dispatch(
@@ -234,9 +234,9 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         relationshipRef: RelationshipRef,
         attributeKey: AttributeKey,
         type: TypeRef = typeRefKey("String"),
-        name: LocalizedText? = null,
+        name: TextSingleLine? = null,
         optional: Boolean = false,
-        description: LocalizedMarkdown? = null
+        description: TextMarkdown? = null
     ): Any? {
         return dispatch(
             ModelAction.RelationshipAttribute_Create(
@@ -257,8 +257,8 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         key: BusinessKeyKey,
         entityRef: EntityRef,
         participants: List<EntityAttributeRef>,
-        name: LocalizedText? = null,
-        description: LocalizedMarkdown? = null
+        name: TextSingleLine? = null,
+        description: TextMarkdown? = null
     ): Any? {
         return dispatch(
             ModelAction.BusinessKey_Create(

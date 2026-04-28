@@ -24,7 +24,7 @@ class ModelAndTag_Event_Test {
             env.dispatch(
                 ModelAction.Model_Create(
                     key = ModelKey("cooking"),
-                    name = LocalizedTextNotLocalized("Cooking"),
+                    name = TextSingleLine("Cooking"),
                     description = null,
                     version = ModelVersion("1.0.0")
                 )
@@ -134,7 +134,7 @@ class ModelAndTag_Event_Test {
             env.dispatch(
                 ModelAction.Model_Create(
                     key = ModelKey("crm"),
-                    name = LocalizedTextNotLocalized("CRM"),
+                    name = TextSingleLine("CRM"),
                     description = null,
                     version = ModelVersion("1.0.0")
                 )
@@ -311,7 +311,7 @@ class ModelAndTag_Event_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = ModelKey("cooking-rebuild"),
-                name = LocalizedTextNotLocalized("Cooking rebuild"),
+                name = TextSingleLine("Cooking rebuild"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
@@ -319,7 +319,7 @@ class ModelAndTag_Event_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = ModelKey("crm-rebuild"),
-                name = LocalizedTextNotLocalized("CRM rebuild"),
+                name = TextSingleLine("CRM rebuild"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )

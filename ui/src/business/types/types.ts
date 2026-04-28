@@ -80,12 +80,12 @@ export const registeredTypes: TypeDeclaration<any>[] = [
     normalize: normalizeString,
   },
   {
-    id: "LocalizedMarkdown",
+    id: "TextMarkdown",
     validate: validateString,
     normalize: normalizeString,
   },
   {
-    id: "LocalizedText",
+    id: "TextSingleLine",
     validate: validateString,
     normalize: normalizeString,
   },

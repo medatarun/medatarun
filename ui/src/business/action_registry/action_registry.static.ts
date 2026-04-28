@@ -1681,7 +1681,7 @@ export const actionRegistryStatic = {
       parameters: [
         {
           name: "description",
-          type: "LocalizedMarkdown",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -1718,7 +1718,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "name",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -1833,7 +1833,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "LocalizedMarkdown",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -1943,7 +1943,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -2178,7 +2178,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "description",
-          type: "LocalizedMarkdown",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -2207,7 +2207,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "name",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -2425,7 +2425,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "LocalizedMarkdown",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -2565,7 +2565,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -2862,7 +2862,7 @@ export const actionRegistryStatic = {
       parameters: [
         {
           name: "description",
-          type: "LocalizedMarkdown",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -2900,7 +2900,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "name",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -3057,7 +3057,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "LocalizedMarkdown",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -3224,7 +3224,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -3495,7 +3495,7 @@ export const actionRegistryStatic = {
       parameters: [
         {
           name: "description",
-          type: "LocalizedMarkdown",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -3515,7 +3515,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "name",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: false,
           title: "Name",
@@ -3798,7 +3798,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "LocalizedMarkdown",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -3926,7 +3926,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: false,
           title: "Name",
@@ -4037,7 +4037,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "description",
-          type: "LocalizedMarkdown",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -4056,7 +4056,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "name",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -4280,7 +4280,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "LocalizedMarkdown",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -4418,7 +4418,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -4645,7 +4645,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "roleName",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Role name",
@@ -4986,7 +4986,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -5083,7 +5083,7 @@ export const actionRegistryStatic = {
       parameters: [
         {
           name: "description",
-          type: "LocalizedMarkdown",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -5102,7 +5102,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "name",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -5151,7 +5151,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "roleAName",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Role A name",
@@ -5191,7 +5191,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "roleBName",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Role B name",
@@ -5364,7 +5364,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "LocalizedMarkdown",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -5476,7 +5476,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -5554,7 +5554,7 @@ export const actionRegistryStatic = {
       parameters: [
         {
           name: "description",
-          type: "LocalizedMarkdown",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -5573,7 +5573,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "name",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -5685,7 +5685,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "LocalizedMarkdown",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -5797,7 +5797,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "LocalizedText",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",

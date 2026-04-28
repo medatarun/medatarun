@@ -504,7 +504,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         env.dispatch(
             ModelAction.Model_Create(
                 key = refs.crm.key,
-                name = LocalizedTextNotLocalized("CRM"),
+                name = TextSingleLine("CRM"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
@@ -641,7 +641,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         env.dispatch(
             ModelAction.Model_Create(
                 key = refs.cooking.key,
-                name = LocalizedTextNotLocalized("Cooking"),
+                name = TextSingleLine("Cooking"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )

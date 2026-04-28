@@ -18,10 +18,10 @@ interface ModelType {
     /**
      * Display name of the type
      */
-    val name: LocalizedText?
+    val name: TextSingleLine?
 
     /**
      * Display description of the type
      */
-    val description: LocalizedMarkdown?
+    val description: TextMarkdown?
 }

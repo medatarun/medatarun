@@ -40,8 +40,8 @@ data class ModelAggregateInMemory(
         class Builder(
             var id: ModelId = ModelId.generate(),
             val key: ModelKey,
-            var name: LocalizedText? = null,
-            var description: LocalizedMarkdown? = null,
+            var name: TextSingleLine? = null,
+            var description: TextMarkdown? = null,
             val version: ModelVersion,
             var origin: ModelOrigin = ModelOrigin.Manual,
             var types: MutableList<ModelTypeInMemory> = mutableListOf(),
@@ -85,8 +85,8 @@ data class ModelAggregateInMemory(
             fun addType(
                 key: TypeKey,
                 id: TypeId = Id.generate(::TypeId),
-                name: LocalizedText? = null,
-                description: LocalizedMarkdown? = null
+                name: TextSingleLine? = null,
+                description: TextMarkdown? = null
             ): ModelTypeInMemory {
                 val type = ModelTypeInMemory(id, key, name, description)
                 types.add(type)
@@ -101,8 +101,8 @@ data class ModelAggregateInMemory(
             fun addEntity(
                 id: EntityId = EntityId.generate(),
                 key: EntityKey,
-                name: LocalizedText? = null,
-                description: LocalizedMarkdown? = null,
+                name: TextSingleLine? = null,
+                description: TextMarkdown? = null,
                 origin: EntityOrigin = EntityOrigin.Manual,
                 documentationHome: URL? = null,
                 tags: MutableList<TagId> = mutableListOf()
@@ -128,8 +128,8 @@ data class ModelAggregateInMemory(
             fun addRelationship(
                 id: RelationshipId = Id.generate(::RelationshipId),
                 key: RelationshipKey,
-                name: LocalizedText? = null,
-                description: LocalizedMarkdown? = null,
+                name: TextSingleLine? = null,
+                description: TextMarkdown? = null,
                 roles: List<RelationshipRoleInMemory>,
                 tags: List<TagId> = emptyList(),
 
@@ -149,8 +149,8 @@ data class ModelAggregateInMemory(
                 id: AttributeId,
                 ownerId: AttributeOwnerId,
                 key: AttributeKey,
-                name: LocalizedText? = null,
-                description: LocalizedMarkdown? = null,
+                name: TextSingleLine? = null,
+                description: TextMarkdown? = null,
                 typeId: TypeId,
                 optional: Boolean = false,
                 tags: List<TagId> = emptyList(),
@@ -209,8 +209,8 @@ data class ModelAggregateInMemory(
                 id: BusinessKeyId = Id.generate(::BusinessKeyId),
                 key: BusinessKeyKey,
                 entityId: EntityId,
-                name: LocalizedText? = null,
-                description: LocalizedMarkdown? = null,
+                name: TextSingleLine? = null,
+                description: TextMarkdown? = null,
                 participants: List<PBKeyParticipantInMemory>,
             ): BusinessKeyInMemory {
                 val bk = BusinessKeyInMemory(

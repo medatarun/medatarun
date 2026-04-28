@@ -1,8 +1,6 @@
 package io.medatarun.model.actions.compare
 
 import io.medatarun.model.domain.EntityOrigin
-import io.medatarun.model.domain.LocalizedMarkdown
-import io.medatarun.model.domain.LocalizedText
 import io.medatarun.model.domain.ModelOrigin
 import io.medatarun.model.domain.diff.*
 import kotlinx.serialization.Serializable
@@ -186,8 +184,8 @@ private fun toSnapshotJson(snapshot: ModelDiffSnapshot): JsonObject {
         is ModelDiffModelSnapshot -> buildJsonObject {
             put("objectType", snapshot.objectType)
             put("key", snapshot.key.value)
-            putNullableJsonField(this, "name", toLocalizedTextJson(snapshot.name))
-            putNullableJsonField(this, "description", toLocalizedMarkdownJson(snapshot.description))
+            put("name", snapshot.name?.name)
+            put("description", snapshot.description?.name)
             put("version", snapshot.version.value)
             put("origin", toModelOriginCode(snapshot.origin))
             put("authority", snapshot.authority.code)
@@ -200,15 +198,15 @@ private fun toSnapshotJson(snapshot: ModelDiffSnapshot): JsonObject {
         is ModelDiffTypeSnapshot -> buildJsonObject {
             put("objectType", snapshot.objectType)
             put("key", snapshot.key.value)
-            putNullableJsonField(this, "name", toLocalizedTextJson(snapshot.name))
-            putNullableJsonField(this, "description", toLocalizedMarkdownJson(snapshot.description))
+            put("name", snapshot.name?.name)
+            put("description", snapshot.description?.name)
         }
 
         is ModelDiffEntitySnapshot -> buildJsonObject {
             put("objectType", snapshot.objectType)
             put("key", snapshot.key.value)
-            putNullableJsonField(this, "name", toLocalizedTextJson(snapshot.name))
-            putNullableJsonField(this, "description", toLocalizedMarkdownJson(snapshot.description))
+            put("name", snapshot.name?.name)
+            put("description", snapshot.description?.name)
             put("origin", toEntityOriginCode(snapshot.origin))
             put("documentationHome", snapshot.documentationHome?.toExternalForm())
             putJsonArray("tags") {
@@ -219,8 +217,8 @@ private fun toSnapshotJson(snapshot: ModelDiffSnapshot): JsonObject {
         is ModelDiffEntityAttributeSnapshot -> buildJsonObject {
             put("objectType", snapshot.objectType)
             put("key", snapshot.key.value)
-            putNullableJsonField(this, "name", toLocalizedTextJson(snapshot.name))
-            putNullableJsonField(this, "description", toLocalizedMarkdownJson(snapshot.description))
+            put("name", snapshot.name?.name)
+            put("description", snapshot.description?.name)
             put("typeKey", snapshot.typeKey.value)
             put("optional", snapshot.optional)
             putJsonArray("tags") {
@@ -231,8 +229,8 @@ private fun toSnapshotJson(snapshot: ModelDiffSnapshot): JsonObject {
         is ModelDiffRelationshipSnapshot -> buildJsonObject {
             put("objectType", snapshot.objectType)
             put("key", snapshot.key.value)
-            putNullableJsonField(this, "name", toLocalizedTextJson(snapshot.name))
-            putNullableJsonField(this, "description", toLocalizedMarkdownJson(snapshot.description))
+            put("name", snapshot.name?.name)
+            put("description", snapshot.description?.name)
             putJsonArray("tags") {
                 snapshot.tags.forEach { tag -> add(tag.value.toString()) }
             }
@@ -242,15 +240,15 @@ private fun toSnapshotJson(snapshot: ModelDiffSnapshot): JsonObject {
             put("objectType", snapshot.objectType)
             put("key", snapshot.key.value)
             put("entityKey", snapshot.entityKey.value)
-            putNullableJsonField(this, "name", toLocalizedTextJson(snapshot.name))
+            put("name", snapshot.name?.name)
             put("cardinality", snapshot.cardinality.code)
         }
 
         is ModelDiffRelationshipAttributeSnapshot -> buildJsonObject {
             put("objectType", snapshot.objectType)
             put("key", snapshot.key.value)
-            putNullableJsonField(this, "name", toLocalizedTextJson(snapshot.name))
-            putNullableJsonField(this, "description", toLocalizedMarkdownJson(snapshot.description))
+            put("name", snapshot.name?.name)
+            put("description", snapshot.description?.name)
             put("typeKey", snapshot.typeKey.value)
             put("optional", snapshot.optional)
             putJsonArray("tags") {
@@ -272,27 +270,6 @@ private fun putNullableJsonField(
     builder.put(key, value)
 }
 
-private fun toLocalizedTextJson(value: LocalizedText?): JsonElement? {
-    if (value == null) return null
-    if (!value.isLocalized) return JsonPrimitive(value.name)
-    val values = value.all()
-    return buildJsonObject {
-        values.entries.forEach { item ->
-            put(item.key, item.value)
-        }
-    }
-}
-
-private fun toLocalizedMarkdownJson(value: LocalizedMarkdown?): JsonElement? {
-    if (value == null) return null
-    if (!value.isLocalized) return JsonPrimitive(value.name)
-    val values = value.all()
-    return buildJsonObject {
-        values.entries.forEach { item ->
-            put(item.key, item.value)
-        }
-    }
-}
 
 private fun toModelOriginCode(origin: ModelOrigin): String {
     return when (origin) {

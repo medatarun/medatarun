@@ -1,8 +1,8 @@
 package io.medatarun.model.actions
 
 import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
-import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
-import io.medatarun.model.domain.LocalizedTextNotLocalized
+import io.medatarun.model.domain.TextMarkdown
+import io.medatarun.model.domain.TextSingleLine
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
@@ -20,15 +20,15 @@ class Entity_UpdateDescription_Test {
         val modelRef = modelRefKey("entity-update-description")
         val typeRef = typeRefKey("String")
         val entityRef = entityRefKey("entity-primary")
-        val initialDescription = LocalizedMarkdownNotLocalized("Entity primary description")
-        val newDescription = LocalizedMarkdownNotLocalized("Primary entity updated description")
+        val initialDescription = TextMarkdown("Entity primary description")
+        val newDescription = TextMarkdown("Primary entity updated description")
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
         env.entityCreate(
             modelRef = modelRef,
             entityKey = entityRef.key,
-            name = LocalizedTextNotLocalized("Entity primary"),
+            name = TextSingleLine("Entity primary"),
             description = initialDescription
         )
 
@@ -58,8 +58,8 @@ class Entity_UpdateDescription_Test {
         env.entityCreate(
             modelRef = modelRef,
             entityKey = entityRef.key,
-            name = LocalizedTextNotLocalized("Entity primary"),
-            description = LocalizedMarkdownNotLocalized("Entity primary description")
+            name = TextSingleLine("Entity primary"),
+            description = TextMarkdown("Entity primary description")
         )
 
         env.dispatch(
@@ -80,14 +80,14 @@ class Entity_UpdateDescription_Test {
         val modelRef = modelRefKey("entity-update-description-noop")
         val typeRef = typeRefKey("String")
         val entityRef = entityRefKey("entity-primary")
-        val currentDescription = LocalizedMarkdownNotLocalized("Entity primary description")
+        val currentDescription = TextMarkdown("Entity primary description")
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
         env.entityCreate(
             modelRef = modelRef,
             entityKey = entityRef.key,
-            name = LocalizedTextNotLocalized("Entity primary"),
+            name = TextSingleLine("Entity primary"),
             description = currentDescription
         )
 

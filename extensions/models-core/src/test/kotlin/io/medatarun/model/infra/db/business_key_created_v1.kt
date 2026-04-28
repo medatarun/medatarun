@@ -4,8 +4,8 @@ import io.medatarun.model.domain.AttributeId
 import io.medatarun.model.domain.BusinessKeyId
 import io.medatarun.model.domain.BusinessKeyKey
 import io.medatarun.model.domain.EntityId
-import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
-import io.medatarun.model.domain.LocalizedTextNotLocalized
+import io.medatarun.model.domain.TextMarkdown
+import io.medatarun.model.domain.TextSingleLine
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.infra.db.ModelEventJsonCodecTest.CmdTestCase
 import io.medatarun.model.ports.needs.ModelStorageCmd.BusinessKeyCreate
@@ -29,8 +29,8 @@ private fun sample() = BusinessKeyCreate(
     entityId = entityId,
     businessKeyId = businessKeyId,
     key = BusinessKeyKey("erp_invoice"),
-    name = LocalizedTextNotLocalized("ERP Invoice"),
-    description = LocalizedMarkdownNotLocalized("ERP invoice key"),
+    name = TextSingleLine("ERP Invoice"),
+    description = TextMarkdown("ERP invoice key"),
     participantAttributeIds = listOf(participantAttributeId1, participantAttributeId2)
 )
 

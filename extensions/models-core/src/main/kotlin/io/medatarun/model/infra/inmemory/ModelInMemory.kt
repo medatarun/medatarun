@@ -6,8 +6,8 @@ import java.net.URL
 data class ModelInMemory(
     override val id: ModelId,
     override val key: ModelKey,
-    override val name: LocalizedText?,
-    override val description: LocalizedMarkdown?,
+    override val name: TextSingleLine?,
+    override val description: TextMarkdown?,
     override val version: ModelVersion,
     override val origin: ModelOrigin,
     override val authority: ModelAuthority,

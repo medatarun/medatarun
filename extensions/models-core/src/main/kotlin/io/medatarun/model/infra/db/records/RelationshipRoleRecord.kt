@@ -10,7 +10,7 @@ data class RelationshipRoleRecord(
     val relationshipSnapshotId: RelationshipSnapshotId,
     val key: RelationshipRoleKey,
     val entitySnapshotId: EntitySnapshotId,
-    val name: LocalizedText?,
+    val name: TextSingleLine?,
     val cardinality: String
 ) {
     companion object {
