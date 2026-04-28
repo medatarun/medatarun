@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useState } from "react";
 import { type Problem, toProblem } from "@seij/common-types";
 import {
   makeStyles,
@@ -9,6 +9,7 @@ import {
 import { Icon } from "@seij/common-ui-icons";
 import { Button, ButtonBar, ErrorBox } from "@seij/common-ui";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import { InlineEditStarted } from "./InlineEditStarted.tsx";
 
 const useStyles = makeStyles({
   readRoot: {
@@ -109,7 +110,6 @@ export function InlineEditRichTextController({
   const { t } = useAppI18n();
   const styles = useStyles();
   const [editing, setEditing] = useState<boolean>(false);
-  const [editStartedCalled, setEditStartedCalled] = useState<boolean>(false);
   const [error, setError] = useState<Problem | null>(null);
   const [pending, setPending] = useState<boolean>(false);
 
@@ -118,7 +118,6 @@ export function InlineEditRichTextController({
       setError(null);
       await onEditStart();
       setEditing(true);
-      setEditStartedCalled(false);
     } catch (err) {
       setError(toProblem(err));
     }
@@ -131,7 +130,6 @@ export function InlineEditRichTextController({
       await onEditOK();
       setEditing(false);
       setPending(false);
-      setEditStartedCalled(false);
     } catch (err) {
       setError(toProblem(err));
       setPending(false);
@@ -144,19 +142,11 @@ export function InlineEditRichTextController({
       await onEditCancel();
       setEditing(false);
       setPending(false);
-      setEditStartedCalled(false);
     } catch (err: unknown) {
       setError(toProblem(err));
       setPending(false);
     }
   };
-
-  useEffect(() => {
-    if (editing && onEditStarted && !editStartedCalled) {
-      onEditStarted();
-      setEditStartedCalled(true);
-    }
-  }, [editing, onEditStarted, editStartedCalled]);
 
   if (!editing || disabled) {
     const rootClassName = mergeClasses(
@@ -181,6 +171,7 @@ export function InlineEditRichTextController({
   }
   return (
     <div>
+      <InlineEditStarted onEditStarted={onEditStarted} />
       <div className={styles.editorRoot}>
         <div className={styles.editorActionBar}>
           <ButtonBar variant="end">
