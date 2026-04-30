@@ -1,6 +1,12 @@
 # Changelog
 
-## [0.12.0]
+## v0.13.0
+
+### Changes
+
+- Improved user menu 
+
+## v0.12.0
 
 ### Changes
 
@@ -12,7 +18,7 @@
 
 - Got rid of the initial debt around LocalizedText and LocalizedMarkdown.
 
-## [0.11.0]
+## v0.11.0
 
 ### Added
 
@@ -23,7 +29,7 @@
 
 - Upgrade dependencies to the latest version of `@seij/common-authentication`
 
-## [0.10.0]
+## v0.10.0
 
 ### Added
 
@@ -106,7 +112,7 @@
 - [ui] Replaced gradle-node-plugin that seems dead and has vulnerabilities with
   `org.siouan.frontend-jdk21` Frontend Gradle Plugin latest version
 
-## [0.9.0]
+## v0.9.0
 
 ### Added
 
@@ -227,7 +233,7 @@ General:
 - Copying models now creates a release event
 - Tag scope deletion on model delete
 
-## [0.8.0]
+## v0.8.0
 
 ### Added
 
