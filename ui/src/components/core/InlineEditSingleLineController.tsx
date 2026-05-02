@@ -23,7 +23,9 @@ import {
   useInlineEditCoordinator,
   useInlineEditIdentifier,
 } from "@/components/core/inline-edit-coordinator";
+import { Logger } from "tslog";
 
+const logger = new Logger();
 const useStyles = makeStyles({
   readRoot: {
     position: "relative",
@@ -175,7 +177,7 @@ export const InlineEditSingleLineController = ({
   }, [onEditCancel, pending]);
 
   const handleEditOK = async () => {
-    console.log("handleEditOK");
+    logger.debug("handleEditOK");
     try {
       setError(null);
       setPending(true);
@@ -188,7 +190,7 @@ export const InlineEditSingleLineController = ({
     }
   };
   const handleEditCancel = async () => {
-    console.log("handleEditCancel");
+    logger.debug("handleEditCancel");
     await cancelEdit();
   };
 

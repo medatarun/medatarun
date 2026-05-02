@@ -21,10 +21,10 @@ import {
   type ActionResp,
 } from "@/business/action-performer";
 import {
-  type FormDataType,
-  type FormFieldType,
-  validateForm,
-} from "@/business/action_form";
+  type ActionFormData,
+  type ActionFormFieldDescription,
+  ActionFormService,
+} from "@/business/action-form";
 import { ActionDescriptor } from "@/business/action_registry";
 import ReactMarkdown from "react-markdown";
 import {
@@ -32,12 +32,13 @@ import {
   type ValidationResult,
 } from "@seij/common-validation";
 import { Button, ErrorBox } from "@seij/common-ui";
-import { formDataNormalize } from "@/business/action_form/action_form.normalize.ts";
 import { isPlainObject } from "lodash-es";
 import { toProblem } from "@seij/common-types";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { useNavigate } from "@tanstack/react-router";
-import type { ActionPerformerInputProps } from "./inputs/ActionPerformerInputProps.tsx";
+import type {
+  ActionPerformerInputElement,
+  ActionPerformerInputProps,
+} from "./inputs/ActionPerformerInputProps.tsx";
 import { ActionPerformerInputList } from "./inputs/ActionPerformerInputList.tsx";
 import { TypeRegistryInstance } from "@/business/types/TypeRegistry.ts";
 import {
@@ -47,9 +48,10 @@ import {
 import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
 import { useActionRegistry } from "@/components/business/actions/action_registry.hooks.ts";
 import { Markdown } from "@/components/core/Markdown.tsx";
+import { Logger } from "tslog";
 
 const DEBUG = false;
-
+const logger = new Logger();
 export function ActionPerformerView() {
   // Separate state extraction here, so that when state changes all ActionPerformView is redrawn
   const { performer } = useActionPerformer();
@@ -68,7 +70,7 @@ export function ActionPerformerView() {
     return null;
   }
 
-  const defaultFormData: FormDataType = {};
+  const defaultFormData: ActionFormData = {};
   for (const actionParam of action.parameters) {
     // Take the default value from parameters. Normalize the value so that
     // we always have null (not undefined)
@@ -100,16 +102,21 @@ export function ActionPerformerViewLoaded({
   state: ActionPerformerRequestState;
   request: ActionRequest;
   action: ActionDescriptor;
-  defaultFormData: FormDataType;
-  formFields: FormFieldType[];
+  defaultFormData: ActionFormData;
+  formFields: ActionFormFieldDescription[];
 }) {
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
   const { confirmAction, cancelAction, finishAction, performer } =
     useActionPerformer();
   const [actionResp, setActionResp] = useState<ActionResp | null>(null);
-  const [formData, setFormData] = useState<FormDataType>(defaultFormData);
-  const firstInputRef = useRef<HTMLInputElement>(null);
+  const [formData, setFormData] = useState<ActionFormData>(defaultFormData);
+  const firstInputRef = useRef<ActionPerformerInputElement>(null);
+
+  const formService = new ActionFormService(
+    TypeRegistryInstance,
+    actionRegistry,
+  );
 
   const displayExecute = state.kind == "pendingUser" || state.kind == "error";
   const displayCancel =
@@ -118,18 +125,17 @@ export function ActionPerformerViewLoaded({
     state.kind == "error";
   const displayFinish = state.kind == "done";
 
-  const validationResults = validateForm({ formData, formFields });
+  const validationResults = formService.validateForm(formData, formFields);
   const validationResult = combineValidationResults([
     ...validationResults.values(),
   ]);
   const valid = validationResult.valid;
 
   const onValidate = async () => {
-    const payload = formDataNormalize(
+    const payload = formService.formDataNormalize(
       action.actionGroupKey,
       action.key,
       formData,
-      actionRegistry,
     );
     const output = await confirmAction(state.requestId, payload);
     setActionResp(output);
@@ -143,8 +149,17 @@ export function ActionPerformerViewLoaded({
     finishAction(state.requestId);
   };
 
-  const handleChangeFormFieldInput = (field: FormFieldType, value: unknown) => {
-    setFormData({ ...formData, [field.key]: value });
+  const handleChangeFormFieldInput = (
+    field: ActionFormFieldDescription,
+    value: unknown,
+  ) => {
+    const next = { ...formData, [field.key]: value };
+    logger.debug(
+      "ActionPerformerView:handleChangeFormFieldInput",
+      formData,
+      next,
+    );
+    setFormData(next);
   };
 
   useEffect(() => {
@@ -246,11 +261,11 @@ function FormFieldInput({
   onChange,
 }: {
   request: ActionRequest;
-  field: FormFieldType;
+  field: ActionFormFieldDescription;
   value: unknown;
   validationResult: ValidationResult | undefined;
-  onChange: (field: FormFieldType, value: unknown) => void;
-  inputRef?: Ref<HTMLInputElement>;
+  onChange: (field: ActionFormFieldDescription, value: unknown) => void;
+  inputRef?: Ref<ActionPerformerInputElement>;
 }) {
   const valueNormalized = value === null || value === undefined ? null : value;
   const validationState: FieldProps["validationState"] =
@@ -313,12 +328,12 @@ function FormFieldInput({
 }
 
 function createFormFields(action: ActionDescriptor, actionCtx: ActionCtx) {
-  const formFields: FormFieldType[] = [];
+  const formFields: ActionFormFieldDescription[] = [];
   action.parameters.forEach((param) => {
     const isReadOnly = actionCtx.isReadonly(param.name) ?? false;
     const isVisible = actionCtx.isVisible(param.name) ?? true;
     const isPresent = actionCtx.isPresent(param.name);
-    const field: FormFieldType = {
+    const field: ActionFormFieldDescription = {
       key: param.name,
       title: param.title ?? param.name,
       description: param.description,
@@ -337,7 +352,9 @@ function createFormFields(action: ActionDescriptor, actionCtx: ActionCtx) {
   return sortFields(formFields);
 }
 
-function sortFields(fields: FormFieldType[]): FormFieldType[] {
+function sortFields(
+  fields: ActionFormFieldDescription[],
+): ActionFormFieldDescription[] {
   return [...fields].sort((a, b) => a.order - b.order);
 }
 

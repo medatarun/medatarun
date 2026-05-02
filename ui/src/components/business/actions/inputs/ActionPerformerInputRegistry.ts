@@ -10,6 +10,7 @@ import { ActionPerformerInputRoleRef } from "./ActionPerformerInputRoleRef.tsx";
 import { ActionPerformerInputSecurityPermission } from "./ActionPerformerInputSecurityPermission.tsx";
 import { ActionPerformerInputTextBase } from "./ActionPerformerInputTextBase.tsx";
 import { ActionPerformerInputTypeRef } from "./ActionPerformerInputTypeRef.tsx";
+import { ActionPerformerInputTextMarkdown } from "./ActionPerformerInputTextMarkdown.tsx";
 
 /**
  * Registry used by the action performer to map a scalar type id to its input component.
@@ -26,6 +27,7 @@ export const ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE: Record<
   PasswordClear: ActionPerformerInputPasswordClear,
   RoleRef: ActionPerformerInputRoleRef,
   RelationshipCardinality: ActionPerformerInputRelationshipCardinality,
+  TextMarkdown: ActionPerformerInputTextMarkdown,
   TypeRef: ActionPerformerInputTypeRef,
 };
 
