@@ -21,7 +21,7 @@
     "@seij/common-ui-auth": "^0.2.0",
     "@seij/common-ui-csv-export": "^0.1.1",
     "@seij/common-ui-icons": "^0.2.0",
-    "@seij/common-ui-richtext": "^0.2.1",
+    "@seij/common-ui-richtext": "^0.2.2",
     "@seij/common-validation": "^0.1.2",
     "@tanstack/react-query": "^5.100.8",
     "@tanstack/react-query-devtools": "^5.100.8",
