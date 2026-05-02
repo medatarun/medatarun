@@ -35,7 +35,10 @@ import { Button, ErrorBox } from "@seij/common-ui";
 import { isPlainObject } from "lodash-es";
 import { toProblem } from "@seij/common-types";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import type { ActionPerformerInputProps } from "./inputs/ActionPerformerInputProps.tsx";
+import type {
+  ActionPerformerInputElement,
+  ActionPerformerInputProps,
+} from "./inputs/ActionPerformerInputProps.tsx";
 import { ActionPerformerInputList } from "./inputs/ActionPerformerInputList.tsx";
 import { TypeRegistryInstance } from "@/business/types/TypeRegistry.ts";
 import {
@@ -47,7 +50,7 @@ import { useActionRegistry } from "@/components/business/actions/action_registry
 import { Markdown } from "@/components/core/Markdown.tsx";
 import { Logger } from "tslog";
 
-const DEBUG = true;
+const DEBUG = false;
 const logger = new Logger();
 export function ActionPerformerView() {
   // Separate state extraction here, so that when state changes all ActionPerformView is redrawn
@@ -108,7 +111,7 @@ export function ActionPerformerViewLoaded({
     useActionPerformer();
   const [actionResp, setActionResp] = useState<ActionResp | null>(null);
   const [formData, setFormData] = useState<ActionFormData>(defaultFormData);
-  const firstInputRef = useRef<HTMLInputElement>(null);
+  const firstInputRef = useRef<ActionPerformerInputElement>(null);
 
   const formService = new ActionFormService(
     TypeRegistryInstance,
@@ -262,7 +265,7 @@ function FormFieldInput({
   value: unknown;
   validationResult: ValidationResult | undefined;
   onChange: (field: ActionFormFieldDescription, value: unknown) => void;
-  inputRef?: Ref<HTMLInputElement>;
+  inputRef?: Ref<ActionPerformerInputElement>;
 }) {
   const valueNormalized = value === null || value === undefined ? null : value;
   const validationState: FieldProps["validationState"] =
