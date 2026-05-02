@@ -1,8 +1,10 @@
 import * as React from "react";
 import { forwardRef, type PropsWithChildren, useRef, useState } from "react";
-
+import { Logger } from "tslog";
 import { Input } from "@fluentui/react-components";
 import { InlineEditSingleLineController } from "./InlineEditSingleLineController.tsx";
+
+const logger = new Logger();
 
 export function InlineEditSingleLine({
   value,
@@ -18,12 +20,12 @@ export function InlineEditSingleLine({
   const ref = useRef<HTMLInputElement>(null);
 
   const handleEditStart = async () => {
-    console.log("handleEditStart");
+    logger.debug("handleEditStart");
     setEditValue(value ?? "");
   };
 
   const handleEditStarted = () => {
-    console.log("handleEditStarted", ref);
+    logger.debug("handleEditStarted");
     ref?.current?.focus();
   };
 

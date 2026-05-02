@@ -45,9 +45,10 @@ import {
 import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
 import { useActionRegistry } from "@/components/business/actions/action_registry.hooks.ts";
 import { Markdown } from "@/components/core/Markdown.tsx";
+import { Logger } from "tslog";
 
-const DEBUG = false;
-
+const DEBUG = true;
+const logger = new Logger();
 export function ActionPerformerView() {
   // Separate state extraction here, so that when state changes all ActionPerformView is redrawn
   const { performer } = useActionPerformer();
@@ -149,7 +150,13 @@ export function ActionPerformerViewLoaded({
     field: ActionFormFieldDescription,
     value: unknown,
   ) => {
-    setFormData({ ...formData, [field.key]: value });
+    const next = { ...formData, [field.key]: value };
+    logger.debug(
+      "ActionPerformerView:handleChangeFormFieldInput",
+      formData,
+      next,
+    );
+    setFormData(next);
   };
 
   useEffect(() => {

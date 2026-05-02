@@ -6,13 +6,14 @@ import {
 } from "react";
 import { toProblem } from "@seij/common-types";
 import { appT } from "@/services/appI18n.tsx";
+import { Logger } from "tslog";
 
 type ErrorBoundaryProps = PropsWithChildren;
 type ErrorBoundaryState = {
   hasError: boolean;
   error: Error | null;
 };
-
+const logger = new Logger();
 export class ErrorBoundary extends Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
@@ -27,7 +28,7 @@ export class ErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    console.error(error, info);
+    logger.error(error, info);
   }
 
   render(): ReactNode {

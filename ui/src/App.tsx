@@ -55,6 +55,9 @@ import { ActionPerformer } from "@/business/action-performer";
 import { ActionPerformerProvider } from "@/components/business/actions/ActionPerformerProvider.tsx";
 import { ActionRegistryContext } from "@/components/business/actions";
 import { InlineEditCoordinatorProvider } from "@/components/core/inline-edit-coordinator";
+import { Logger } from "tslog";
+
+const logger = new Logger();
 
 function AdminActorListRouteComponent() {
   return <AdminActorListPage />;
@@ -466,13 +469,13 @@ function App() {
 function getOidcAuthority() {
   const win = window.__MEDATARUN_CONFIG__?.oidcAuthority;
   if (win) {
-    console.log("oidcAuthority from window:", win);
+    logger.debug("oidcAuthority from window:", win);
     return win;
   }
 
   const vite = import.meta.env.VITE_OIDC_AUTHORITY;
   if (vite) {
-    console.log("oidcAuthority from Vite config:", vite);
+    logger.debug("oidcAuthority from Vite config:", vite);
     return vite;
   }
 
@@ -482,13 +485,13 @@ function getOidcAuthority() {
 function getOidcClientId() {
   const win = window.__MEDATARUN_CONFIG__?.oidcClientId;
   if (win) {
-    console.log("oidcAuthority from window:", win);
+    logger.debug("oidcClientId from window:", win);
     return win;
   }
 
   const vite = import.meta.env.VITE_OIDC_CLIENT_ID;
   if (vite) {
-    console.log("oidcAuthority from Vite config:", vite);
+    logger.debug("oidcClientId from Vite config:", vite);
     return vite;
   }
 
