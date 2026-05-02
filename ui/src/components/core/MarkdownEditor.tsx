@@ -14,6 +14,7 @@ export interface MarkdownEditorHandle {
 
 export interface MarkdownEditorProps {
   value: string;
+  disabled: boolean;
   onChange: (value: string) => void;
 }
 
@@ -45,6 +46,13 @@ export const MarkdownEditor = forwardRef(function MarkdownEditor(
     }
   }, [props.value]);
 
+  const handleChange = () => {
+    if (props.disabled) return;
+    const nextValue = editorRef.current?.getInstance().getMarkdown();
+    if (nextValue != null) {
+      props.onChange(nextValue);
+    }
+  };
   return (
     <Editor
       ref={editorRef}
@@ -59,12 +67,7 @@ export const MarkdownEditor = forwardRef(function MarkdownEditor(
         ["ul", "ol", "task", "indent", "outdent"],
         ["link"],
       ]}
-      onChange={() => {
-        const nextValue = editorRef.current?.getInstance().getMarkdown();
-        if (nextValue != null) {
-          props.onChange(nextValue);
-        }
-      }}
+      onChange={handleChange}
     />
   );
 });

@@ -53,6 +53,7 @@ export function InlineEditDescription({
           <MarkdownEditor
             ref={editorRef}
             value={editValue}
+            disabled={disabled}
             onChange={setEditValue}
           />
         }

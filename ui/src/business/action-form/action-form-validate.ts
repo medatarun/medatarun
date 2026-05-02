@@ -1,7 +1,8 @@
 import { invalid, type ValidationResult } from "@seij/common-validation";
 import { type AppMessageKey, appT } from "@/services/appI18n.tsx";
-import type { FormDataType, FormFieldType } from "./action_form.types.ts";
-import { TypeRegistryInstance } from "@/business/types/TypeRegistry.ts";
+import type { ActionFormFieldDescription } from "./action-form-field-description.ts";
+import { TypeRegistry } from "@/business/types/TypeRegistry.ts";
+import type { ActionFormData } from "./action-form-data";
 
 const t = (key: AppMessageKey, values?: Record<string, unknown>) =>
   appT(key, values);
@@ -9,15 +10,17 @@ const t = (key: AppMessageKey, values?: Record<string, unknown>) =>
 export function validateForm({
   formData,
   formFields,
+  typeRegistry,
 }: {
-  formData: FormDataType;
-  formFields: FormFieldType[];
+  formData: ActionFormData;
+  formFields: ActionFormFieldDescription[];
+  typeRegistry: TypeRegistry;
 }): Map<string, ValidationResult> {
   const validationResults: Map<string, ValidationResult> = new Map();
   for (const formField of formFields) {
     let result;
     try {
-      result = TypeRegistryInstance.validate(
+      result = typeRegistry.validate(
         formField.type,
         formField,
         formData[formField.key],
