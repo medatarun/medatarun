@@ -1,10 +1,4 @@
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { type Problem, toProblem } from "@seij/common-types";
 import {
   makeStyles,
@@ -17,7 +11,6 @@ import { Button, ButtonBar, ErrorBox } from "@seij/common-ui";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { InlineEditStarted } from "./InlineEditStarted.tsx";
 import {
-  type InlineEditIdentifier,
   useInlineEditCoordinator,
   useInlineEditIdentifier,
 } from "@/components/core/inline-edit-coordinator";
@@ -26,6 +19,9 @@ const useStyles = makeStyles({
   readRoot: {
     cursor: "text",
     boxSizing: "border-box",
+    backgroundColor: tokens.colorNeutralBackground1,
+    border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStroke2}`,
+    borderRadius: tokens.borderRadiusMedium,
     paddingTop: tokens.spacingVerticalM,
     paddingBottom: tokens.spacingVerticalM,
     paddingLeft: tokens.spacingHorizontalM,
@@ -33,7 +29,7 @@ const useStyles = makeStyles({
   },
   editable: {
     "&:hover": {
-      backgroundColor: tokens.colorBrandBackground2Hover,
+      backgroundColor: tokens.colorNeutralBackground1Hover,
     },
     "&:hover > .editIcon": {
       display: "block",
@@ -47,14 +43,15 @@ const useStyles = makeStyles({
     opacity: 0.2,
   },
   editorRoot: {
-    paddingTop: tokens.spacingVerticalM,
-    paddingBottom: tokens.spacingVerticalM,
-    paddingLeft: tokens.spacingHorizontalM,
-    paddingRight: tokens.spacingHorizontalM,
-    backgroundColor: tokens.colorBrandBackground2,
+    //    paddingTop: tokens.spacingVerticalM,
+    //    paddingBottom: tokens.spacingVerticalM,
+    // paddingLeft: tokens.spacingHorizontalM,
+    // paddingRight: tokens.spacingHorizontalM,
+    // backgroundColor: tokens.colorNeutralBackground1,
   },
   editorActionBar: {
-    borderBottom: "1px solid " + tokens.colorNeutralStroke1,
+    paddingTop: tokens.spacingVerticalM,
+    // borderBottom: "1px solid " + tokens.colorNeutralStroke1,
   },
 });
 
@@ -208,8 +205,12 @@ export function InlineEditRichTextController({
     <div>
       <InlineEditStarted onEditStarted={onEditStarted} />
       <div className={styles.editorRoot}>
+        <div>{editor}</div>
         <div className={styles.editorActionBar}>
-          <ButtonBar variant="end">
+          <ButtonBar variant="default">
+            <Button disabled={pending} onClick={handleEditOK} variant="primary">
+              {t("inlineEditRichTextLayout_confirm")}
+            </Button>
             <Button
               disabled={pending}
               onClick={handleEditCancel}
@@ -217,12 +218,8 @@ export function InlineEditRichTextController({
             >
               {t("inlineEditRichTextLayout_cancel")}
             </Button>
-            <Button disabled={pending} onClick={handleEditOK} variant="primary">
-              {t("inlineEditRichTextLayout_confirm")}
-            </Button>
           </ButtonBar>
         </div>
-        <div>{editor}</div>
       </div>
       {error && <ErrorBox error={error} />}
     </div>
