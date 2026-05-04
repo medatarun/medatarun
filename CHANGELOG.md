@@ -5,7 +5,7 @@
 - UI: Rich text editor from ToastUI replaced by new rich text editor from 
   `@seij/common-ui-richtext`
 - UI: Better rich text editor UX
-- UI: Added rich text editor in action forms when field format is Markdown
+- UI: Added rich text editor in action forms when the field format is Markdown
 
 ## v0.13.0
 
