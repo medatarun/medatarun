@@ -1,3 +1,4 @@
+import { makeStyles } from "@fluentui/react-components";
 import { useRef, useState } from "react";
 import { InlineEditRichTextController } from "./InlineEditRichTextController.tsx";
 import { Markdown } from "./Markdown.tsx";
@@ -6,6 +7,15 @@ import {
   type MarkdownEditorHandle,
 } from "./MarkdownEditor.tsx";
 import { MissingInformation } from "./MissingInformation.tsx";
+
+const useStyles = makeStyles({
+  editor: {
+    maxHeight: "75vh",
+  },
+  contentEditable: {
+    minHeight: "160px",
+  },
+});
 
 export function InlineEditDescription({
   value,
@@ -18,6 +28,7 @@ export function InlineEditDescription({
   onChange: (value: string) => Promise<unknown>;
   disabled?: boolean;
 }) {
+  const styles = useStyles();
   const editorRef = useRef<MarkdownEditorHandle>(null);
   const [editValue, setEditValue] = useState(value ?? "");
 
@@ -44,6 +55,10 @@ export function InlineEditDescription({
           ref={editorRef}
           value={editValue}
           disabled={disabled}
+          classNames={{
+            editor: styles.editor,
+            contentEditable: styles.contentEditable,
+          }}
           onChange={setEditValue}
         />
       }

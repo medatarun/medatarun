@@ -199,6 +199,7 @@ export function ActionPerformerViewLoaded({
                 rowGap: tokens.spacingVerticalM,
                 columnGap: tokens.spacingVerticalM,
                 marginBottom: tokens.spacingVerticalM,
+                overflowX: "hidden",
               }}
             >
               {action.description && <Markdown value={action.description} />}

@@ -1,5 +1,6 @@
 import { type ForwardedRef, forwardRef } from "react";
 import {
+  type RichTextEditorClassNames,
   RichTextEditorMarkdown,
   type RichTextEditorRef,
 } from "@seij/common-ui-richtext";
@@ -10,6 +11,7 @@ export type MarkdownEditorHandle = RichTextEditorRef;
 export interface MarkdownEditorProps {
   value: string;
   disabled: boolean;
+  classNames?: RichTextEditorClassNames;
   onChange: (value: string) => void;
 }
 const logger = new Logger();
@@ -26,6 +28,7 @@ export const MarkdownEditor = forwardRef(function MarkdownEditor(
       ref={ref}
       value={props.value}
       disabled={props.disabled}
+      classNames={props.classNames}
       onChange={handleChange}
     />
   );
