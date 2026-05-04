@@ -83,6 +83,7 @@ export class TypeRegistry {
     const normalized = [];
     if (isArray(value)) {
       for (const item of value) {
+        if (isNil(item)) continue;
         const itemNormalized = typeDeclared.normalize(ctx, item);
         if (!isNil(itemNormalized)) normalized.push(itemNormalized);
       }
