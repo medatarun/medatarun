@@ -60,7 +60,7 @@ export function TagsTable({
 
   const tagActions = (tag: Tag) =>
     actionRegistry.findActionDescriptors(
-      tag.isLocal ? ["tag_local_delete"] : ["tag_global_delete"],
+      tag.isLocal ? ["tag/tag_local_delete"] : ["tag/tag_global_delete"],
     );
 
   return (

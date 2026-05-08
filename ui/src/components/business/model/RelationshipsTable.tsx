@@ -51,7 +51,7 @@ export function RelationshipsTable({
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
   const itemActions = actionRegistry.findActionDescriptors([
-    "relationship_delete",
+    "model/relationship_delete",
   ]);
   const { isDetailLevelTech } = useDetailLevelContext();
   const styles = useStyles();

@@ -38,9 +38,9 @@ export function AdminUserListPage() {
   const actionRegistry = useActionRegistry();
   const usersResult = useUserList();
   const itemActions = actionRegistry.findActionDescriptors([
-    "user_enable",
-    "user_disable",
-    "user_change_fullname",
+    "auth/user_enable",
+    "auth/user_disable",
+    "auth/user_change_fullname",
   ]);
 
   if (usersResult.isPending) return null;
@@ -65,7 +65,7 @@ export function AdminUserListPage() {
     titleIcon: <PersonRegular />,
     actions: {
       label: t("adminUsersPage_actions"),
-      itemActions: actionRegistry.findActionDescriptors(["user_create"]),
+      itemActions: actionRegistry.findActionDescriptors(["auth/user_create"]),
       actionCtx: actionCtxPage,
     },
   };

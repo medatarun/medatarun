@@ -37,8 +37,8 @@ export function AdminActorListPage() {
   const actionRegistry = useActionRegistry();
   const actorListResult = useActorList();
   const itemActions = actionRegistry.findActionDescriptors([
-    "actor_enable",
-    "actor_disable",
+    "auth/actor_enable",
+    "auth/actor_disable",
   ]);
 
   if (actorListResult.isPending) return null;

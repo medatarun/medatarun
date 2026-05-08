@@ -12,8 +12,7 @@ export const useSecurityRuleDescriptions = () => {
     queryFn: async () =>
       (
         await performer.executeJson<SecurityRulesDescriptionsResp>(
-          "config",
-          "inspect_security_rules",
+          "config/inspect_security_rules",
           {},
         )
       ).items,
@@ -27,8 +26,7 @@ export const useSecurityPermissions = () => {
     queryFn: async () =>
       (
         await performer.executeJson<SecurityPermissionsResp>(
-          "config",
-          "inspect_permissions",
+          "config/inspect_permissions",
           {},
         )
       ).items,

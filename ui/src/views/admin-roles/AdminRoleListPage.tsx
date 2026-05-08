@@ -55,11 +55,11 @@ export function AdminRoleListPage() {
     createActionCtxRole(role, displaySubjectNone);
   const actionListRole = (role: AuthRole) =>
     actionRegistry.findActionDescriptors([
-      role.managedRole ? undefined : "role_update_name",
-      role.managedRole ? undefined : "role_update_description",
-      role.managedRole ? undefined : "role_update_key",
-      "role_update_autoassign",
-      role.managedRole ? undefined : "role_delete",
+      role.managedRole ? undefined : "auth/role_update_name",
+      role.managedRole ? undefined : "auth/role_update_description",
+      role.managedRole ? undefined : "auth/role_update_key",
+      "auth/role_update_autoassign",
+      role.managedRole ? undefined : "auth/role_delete",
     ]);
 
   const headerProps: ViewLayoutHeaderProps = {
@@ -68,7 +68,7 @@ export function AdminRoleListPage() {
     titleIcon: <KeyMultipleRegular />,
     actions: {
       label: t("authRolesPage_actions"),
-      itemActions: actionRegistry.findActionDescriptors(["role_create"]),
+      itemActions: actionRegistry.findActionDescriptors(["auth/role_create"]),
       actionCtx: actionCtxPage,
     },
   };

@@ -8,8 +8,7 @@ export function useDatabaseDrivers() {
     queryKey: ["admin", "database", "drivers"],
     queryFn: async () => {
       const resp = await performer.executeJson<{ drivers: DriverDto[] }>(
-        "databases",
-        "driver_list",
+        "databases/driver_list",
         {},
       );
       return resp.drivers;
@@ -24,7 +23,7 @@ export function useDatabaseDatasources() {
     queryFn: async () => {
       const resp = await performer.executeJson<{
         datasources: DatasourceDto[];
-      }>("databases", "datasource_list", {});
+      }>("databases/datasource_list", {});
       return resp.datasources;
     },
   });

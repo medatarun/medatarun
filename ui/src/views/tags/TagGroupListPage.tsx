@@ -26,7 +26,9 @@ export function TagGroupListPage() {
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const tagsResult = useTags();
-  const actions = actionRegistry.findActionDescriptors(["tag_group_create"]);
+  const actions = actionRegistry.findActionDescriptors([
+    "tag/tag_group_create",
+  ]);
 
   const handleClickTagGroup = (tagGroupId: string) => {
     navigate({
@@ -66,7 +68,7 @@ export function TagGroupListPage() {
 
       <SectionTitle
         icon={<TagGroupIcon />}
-        actions={["tag_group_create"]}
+        actions={["tag/tag_group_create"]}
         actionCtx={actionCtxPage}
       >
         {t("tagGroupsPage_sectionTitle")}

@@ -15,17 +15,15 @@ import type { ActionPayload, ActionResp } from "./action-types.ts";
  *
  * This is a quite raw function, don't use it publicly
  *
- * @param actionGroup group of action
- * @param actionName key of the action
+ * @param actionRef action reference
  * @param payload payload to send
  */
 export async function executeActionInternal<T = unknown>(
-  actionGroup: string,
-  actionName: string,
+  actionRef: string,
   payload: ActionPayload,
 ): Promise<ActionResp<T>> {
   const headers = api().createHeaders();
-  return fetch("/api/" + actionGroup + "/" + actionName, {
+  return fetch("/api/" + actionRef, {
     method: "POST",
     headers: headers,
     body: JSON.stringify(payload),
@@ -64,17 +62,12 @@ export async function executeActionInternal<T = unknown>(
  * Throws when the endpoint responds with a non-JSON content type.
  */
 export async function executeActionJsonInternal<T = unknown>(
-  actionGroup: string,
-  actionName: string,
+  actionRef: string,
   payload: ActionPayload,
 ): Promise<T> {
-  const response = await executeActionInternal<T>(
-    actionGroup,
-    actionName,
-    payload,
-  );
+  const response = await executeActionInternal<T>(actionRef, payload);
   if (response.contentType !== "json") {
-    throw Error("Expected JSON response for " + actionGroup + "/" + actionName);
+    throw Error("Expected JSON response for " + actionRef);
   }
   return response.json;
 }

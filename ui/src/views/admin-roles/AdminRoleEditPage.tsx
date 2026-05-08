@@ -109,9 +109,9 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
     actions: {
       label: t("authRolePage_actions"),
       itemActions: actionRegistry.findActionDescriptors([
-        role.managedRole ? undefined : "role_update_key",
-        role.managedRole ? undefined : "role_delete",
-        "role_update_autoassign",
+        role.managedRole ? undefined : "auth/role_update_key",
+        role.managedRole ? undefined : "auth/role_delete",
+        "auth/role_update_autoassign",
       ]),
       actionCtx: actionCtxPage,
     },
@@ -142,7 +142,7 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
 
       <SectionTitle
         icon={undefined}
-        actions={[role.managedRole ? undefined : "role_add_permission"]}
+        actions={[role.managedRole ? undefined : "auth/role_add_permission"]}
         actionCtx={actionCtxPage}
       >
         {t("authRolePage_permissionsLabel")}
@@ -188,7 +188,7 @@ function PermissionTable({
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
   const permissionActions = actionRegistry.findActionDescriptors([
-    managedRole ? undefined : "role_delete_permission",
+    managedRole ? undefined : "auth/role_delete_permission",
   ]);
   const { registry: permissionRegistry } = usePermissionRegistry();
 

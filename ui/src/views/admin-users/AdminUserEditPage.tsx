@@ -68,10 +68,10 @@ export function AdminUserEditPage({ userId }: { userId: string }) {
     actions: {
       label: t("adminUserPage_actions"),
       itemActions: actionRegistry.findActionDescriptors([
-        "user_enable",
-        "user_disable",
-        "user_change_fullname",
-        "user_change_password",
+        "auth/user_enable",
+        "auth/user_disable",
+        "auth/user_change_fullname",
+        "auth/user_change_password",
       ]),
       actionCtx: actionCtxPage,
     },

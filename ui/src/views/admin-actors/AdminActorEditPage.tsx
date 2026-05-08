@@ -51,8 +51,8 @@ export function AdminActorEditPage({ actorId }: { actorId: string }) {
 
   const actor = actorResult.data;
   const actorActions = actionRegistry.findActionDescriptors([
-    "actor_enable",
-    "actor_disable",
+    "auth/actor_enable",
+    "auth/actor_disable",
   ]);
 
   const displayedSubject = createDisplayedSubjectActor(actor.id);
@@ -129,7 +129,7 @@ export function AdminActorEditPage({ actorId }: { actorId: string }) {
 
       <SectionTitle
         icon={undefined}
-        actions={["actor_add_role"]}
+        actions={["auth/actor_add_role"]}
         actionCtx={actionCtxPage}
       >
         {t("adminActorPage_rolesTitle")}
@@ -155,7 +155,7 @@ function ActorRolesTable({
 
   // Derived
   const roleActions = actionRegistry.findActionDescriptors([
-    "actor_delete_role",
+    "auth/actor_delete_role",
   ]);
   const rolesItems = roleRegistry.searchRolesByIdsSorted(actor.roles);
 

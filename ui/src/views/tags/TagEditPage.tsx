@@ -55,19 +55,19 @@ export function TagEditPage({ tagId }: { tagId: string }) {
     return <ErrorBox error={toProblem(t("tagEdit_notFound", { tagId }))} />;
 
   const updateNameDisabled = !sec.canExecuteAction(
-    tag.isLocal ? "tag_local_update_name" : "tag_global_update_name",
+    tag.isLocal ? "tag/tag_local_update_name" : "tag/tag_global_update_name",
   );
   const updateDescriptionDisabled = !sec.canExecuteAction(
     tag.isLocal
-      ? "tag_local_update_description"
-      : "tag_global_update_description",
+      ? "tag/tag_local_update_description"
+      : "tag/tag_global_update_description",
   );
   const isGlobalTag = tag.isGlobal;
 
   const actions = actionRegistry.findActionDescriptors(
     tag.isLocal
-      ? ["tag_local_update_key", "tag_local_delete"]
-      : ["tag_global_update_key", "tag_global_delete"],
+      ? ["tag/tag_local_update_key", "tag/tag_local_delete"]
+      : ["tag/tag_global_update_key", "tag/tag_global_delete"],
   );
 
   const handleChangeName = (value: string) => {

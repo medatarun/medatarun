@@ -18,16 +18,9 @@ type ActionItem = (typeof actionRegistryStatic.items)[number];
 /**
  * Union of all action keys declared in the static registry.
  *
- * type ActionKey = "batch_run" | "actor_disable" | "actor_enable" | "actor_get" | "actor_list" | ...
+ * type ActionKey = "batch/batch_run" | "actor/actor_disable" | "auth/actor_enable" | "auth/actor_get" | "auth/actor_list" | ...
  */
-export type ActionKey = ActionItem["actionKey"];
-
-/**
- * Union of all action group keys declared in the static registry.
- *
- * type ActionGroupKey = "batch" | "auth" | "tag" | "model" | "config" | "databases"
- */
-export type ActionGroupKey = ActionItem["groupKey"];
+export type ActionKey = ActionItem["actionRef"];
 
 /**
  * Picks the action descriptor that matches a given action key.
@@ -36,7 +29,7 @@ export type ActionGroupKey = ActionItem["groupKey"];
  * So for example, type ModelAddTag = ItemByAction<"model_add_tag">, for example,
  * will give the exact type of the DTO
  */
-type ItemByAction<K extends ActionKey> = Extract<ActionItem, { actionKey: K }>;
+type ItemByAction<K extends ActionKey> = Extract<ActionItem, { actionRef: K }>;
 
 /**
  * Extracts the parameter union for a specific action.
