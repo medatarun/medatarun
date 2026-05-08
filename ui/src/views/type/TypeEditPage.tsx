@@ -77,17 +77,17 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const actions = actionRegistry.findActionDescriptors([
-    "model/type_update_key",
-    "model/type_delete",
+    "models/type_update_key",
+    "models/type_delete",
   ]);
   const typeUpdateName = useTypeUpdateName();
   const typeUpdateDescription = useTypeUpdateDescription();
   const { t } = useAppI18n();
   const sec = useSecurityContext();
 
-  const updateNameDisabled = !sec.canExecuteAction("model/type_update_name");
+  const updateNameDisabled = !sec.canExecuteAction("models/type_update_name");
   const updateDescriptionDisabled = !sec.canExecuteAction(
-    "model/type_update_description",
+    "models/type_update_description",
   );
 
   const handleClickModel = () => {
@@ -195,7 +195,7 @@ export function TypeOverview({ type, model }: { type: TypeDto; model: Model }) {
   const { t } = useAppI18n();
   const sec = useSecurityContext();
 
-  const updatekeyDisabled = !sec.canExecuteAction("model/type_update_key");
+  const updatekeyDisabled = !sec.canExecuteAction("models/type_update_key");
 
   const handleChangeKey = (value: string) => {
     return typeUpdateKey.mutateAsync({

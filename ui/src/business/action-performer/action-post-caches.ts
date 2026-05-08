@@ -36,9 +36,9 @@ export async function actionPostCacheManagement(
       "tag_global",
     ]) ||
     actionSpecificInvalidation(action, [
-      "model/import",
-      "model/model_create",
-      "model/maintenance_rebuild_caches",
+      "models/import",
+      "models/model_create",
+      "models/maintenance_rebuild_caches",
     ])
   ) {
     keysToInvalidate.push(["model"]);

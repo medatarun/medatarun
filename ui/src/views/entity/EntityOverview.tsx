@@ -40,14 +40,14 @@ export function EntityOverview({
   const { t } = useAppI18n();
 
   const changeKeyDisabled = !securityContext.canExecuteAction(
-    "model/entity_update_key",
+    "models/entity_update_key",
   );
   const changeDocumentationHomeDisabled = !securityContext.canExecuteAction(
-    "model/entity_update_documentation_link",
+    "models/entity_update_documentation_link",
   );
   const changeTagsDisabled = !securityContext.canExecuteActions(
-    "model/entity_add_tag",
-    "model/entity_delete_tag",
+    "models/entity_add_tag",
+    "models/entity_delete_tag",
   );
 
   const handleChangeKey = (value: string) => {

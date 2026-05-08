@@ -160,6 +160,6 @@ class ModelActionProvider(
         /**
          * Changing this will break APIs or CLI. It is the name clients are using to reference action group
          */
-        const val ACTION_GROUP_KEY = "model"
+        const val ACTION_GROUP_KEY = "models"
     }
 }

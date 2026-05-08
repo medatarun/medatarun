@@ -95,7 +95,7 @@ This command does not modify anything and is a good way to verify that:
 Parameters are passed using named options, like you did for login before:
 
 ```bash
-medatarun model import --from="http://my.schemas/schema.json"
+medatarun models import --from="http://my.schemas/schema.json"
 ```
 
 The option names match the action parameters.
@@ -159,10 +159,10 @@ Once the server is launched, you can run commands against it. Examples:
 
 ```
 medatarun config inspect_json
-medatarun model import --from="http://my.schemas/schema.json"
-medatarun model import --from="datasource:myapp"
-medatarun model inspect_json --modelKey=mymodel
-medatarun model model_add_tag --modelKey=mymodel --tag="my tag"
+medatarun models import --from="http://my.schemas/schema.json"
+medatarun models import --from="datasource:myapp"
+medatarun models inspect_json --modelKey=mymodel
+medatarun models model_add_tag --modelKey=mymodel --tag="my tag"
 ```
 
 for example

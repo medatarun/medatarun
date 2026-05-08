@@ -87,13 +87,13 @@ export const createActionCtxTag = (
       },
       {
         actionGroupKey: "tag",
-        actionKey: "tag/tag_local_create",
+        actionKey: "tags/tag_local_create",
         actionParamKey: "key",
         defaultValue: () => tagCreateKey,
       },
       {
         actionGroupKey: "tag",
-        actionKey: "tag/tag_global_create",
+        actionKey: "tags/tag_global_create",
         actionParamKey: "key",
         defaultValue: () => tagCreateKey,
       },

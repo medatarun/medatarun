@@ -29,8 +29,8 @@ export function ModelListPage({
   const actionRegistry = useActionRegistry();
   const security = useSecurityContext();
   const actions = actionRegistry.findActionDescriptors([
-    "model/model_create",
-    "model/import",
+    "models/model_create",
+    "models/import",
   ]);
   const { t } = useAppI18n();
   const canonicalModels = data.filter(
@@ -50,7 +50,7 @@ export function ModelListPage({
     },
   };
 
-  const canRead = security.canExecuteAction("model/model_list");
+  const canRead = security.canExecuteAction("models/model_list");
   const displayEmptyMesage = canRead && data.length === 0;
 
   return (

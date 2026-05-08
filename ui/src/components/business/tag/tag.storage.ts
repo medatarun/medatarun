@@ -31,7 +31,7 @@ export const useTagSearch = (req: TagSearchReq, enabled: boolean = true) => {
       if (req.filters !== undefined) {
         payload.filters = req.filters;
       }
-      return performer.executeJson<TagSearchResp>("tag/tag_search", payload);
+      return performer.executeJson<TagSearchResp>("tags/tag_search", payload);
     },
   });
 };
@@ -41,7 +41,7 @@ export const useTagGroupList = () => {
   return useQuery({
     queryKey: ["action", "tag", "tag_group_list"],
     queryFn: () =>
-      performer.executeJson<TagGroupListResp>("tag/tag_group_list", {}),
+      performer.executeJson<TagGroupListResp>("tags/tag_group_list", {}),
   });
 };
 
@@ -79,29 +79,29 @@ function useTagLocalMutation(actionRef: ActionKey) {
 }
 
 export const useTagGroupUpdateName = () => {
-  return useTagGroupMutation("tag/tag_group_update_name");
+  return useTagGroupMutation("tags/tag_group_update_name");
 };
 
 export const useTagGroupUpdateDescription = () => {
-  return useTagGroupMutation("tag/tag_group_update_description");
+  return useTagGroupMutation("tags/tag_group_update_description");
 };
 
 export const useTagGroupUpdateKey = () => {
-  return useTagGroupMutation("tag/tag_group_update_key");
+  return useTagGroupMutation("tags/tag_group_update_key");
 };
 
 export const useTagGlobalUpdateName = () => {
-  return useTagGlobalMutation("tag/tag_global_update_name");
+  return useTagGlobalMutation("tags/tag_global_update_name");
 };
 
 export const useTagGlobalUpdateDescription = () => {
-  return useTagGlobalMutation("tag/tag_global_update_description");
+  return useTagGlobalMutation("tags/tag_global_update_description");
 };
 
 export const useTagLocalUpdateName = () => {
-  return useTagLocalMutation("tag/tag_local_update_name");
+  return useTagLocalMutation("tags/tag_local_update_name");
 };
 
 export const useTagLocalUpdateDescription = () => {
-  return useTagLocalMutation("tag/tag_local_update_description");
+  return useTagLocalMutation("tags/tag_local_update_description");
 };
