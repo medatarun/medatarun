@@ -16,7 +16,7 @@ import {
 } from "@/business/action-performer";
 import { api } from "@/services/api.ts";
 import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
-import type { ActionKey } from "@/business/action_registry";
+import type { ActionKey } from "../../../business/action-registry";
 
 export type ModelSearchReq = {
   operator: ModelSearchOperator;

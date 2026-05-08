@@ -2,7 +2,7 @@ import {
   ActionDescriptor,
   type ActionKey,
   type ActionRegistry,
-} from "../action_registry";
+} from "../action-registry";
 import type { ActionPayload } from "../action-performer";
 import { isNil } from "lodash-es";
 import {
@@ -17,7 +17,7 @@ export function formDataNormalize(
   actionRegistry: ActionRegistry,
   typeRegistry: TypeRegistry,
 ): ActionPayload {
-  const action = actionRegistry.findActionByGroupKeyAndActionKey(actionRef);
+  const action = actionRegistry.findActionDescriptor(actionRef);
   const payload = formDataToPayload(action, formData, typeRegistry);
   return payload;
 }

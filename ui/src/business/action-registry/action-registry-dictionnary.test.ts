@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { createAction } from "@/business/action_registry/actionRegistry.dictionnary.ts";
+import { createAction } from "./action-registry-dictionnary.ts";
 
 describe("action registry dictionnary builds", () => {
   test("action created", () => {

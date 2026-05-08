@@ -21,7 +21,7 @@ import {
   SquareHintRegular,
 } from "@fluentui/react-icons";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import type { ActionKey } from "@/business/action_registry/actionRegistry.dictionnary.ts";
+import type { ActionKey } from "../../../business/action-registry";
 import { useActionRegistry } from "@/components/business/actions";
 
 const useStyles = makeStyles({

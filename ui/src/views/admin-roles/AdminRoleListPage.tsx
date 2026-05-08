@@ -33,7 +33,7 @@ import { createActionCtxRole } from "@/business/auth_actor/actor.actioncontexts.
 import { useActionRegistry } from "@/components/business/actions";
 import { useRoleList } from "@/components/business/auth-actor";
 import { MessageBox } from "@/components/core/MessageBox.tsx";
-import { ActionDescriptor } from "@/business/action_registry";
+import { ActionDescriptor } from "../../business/action-registry";
 
 export function AdminRoleListPage() {
   const { t } = useAppI18n();

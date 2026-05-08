@@ -1,6 +1,6 @@
 import type { QueryClient, QueryKey } from "@tanstack/react-query";
-import type { ActionKey } from "@/business/action_registry";
-import { ActionDescriptor, ActionRegistry } from "@/business/action_registry";
+import type { ActionKey } from "../action-registry";
+import { ActionDescriptor, ActionRegistry } from "../action-registry";
 import { ACTION_AUTH_QUERY_KEY_USER_LIST } from "@/components/business/auth-user";
 
 /**
@@ -16,7 +16,7 @@ export async function actionPostCacheManagement(
   queryClient: QueryClient,
   actionRegistry: ActionRegistry,
 ) {
-  const action = actionRegistry.findActionByActionKey(actionKey);
+  const action = actionRegistry.findActionDescriptorOptional(actionKey);
   if (!action) return;
   if (action.semantics.intent === "read") return;
 

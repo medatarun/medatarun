@@ -1,5 +1,5 @@
-import { actionRegistryStatic } from "./action_registry.static";
-import type { DomainTypeMap } from "./action_registry.domain_types.ts";
+import { actionRegistryStatic } from "./action-registry-static";
+import type { DomainTypeMap } from "./action-registry-domain-types.ts";
 
 /**
  * Represents an object with no allowed properties.

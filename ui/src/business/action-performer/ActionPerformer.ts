@@ -1,4 +1,4 @@
-import { type ActionKey, ActionRegistry } from "@/business/action_registry";
+import { type ActionKey, ActionRegistry } from "../action-registry";
 import type { ActionRequest } from "./action-request.ts";
 import {
   executeActionInternal,
@@ -155,7 +155,9 @@ export class ActionPerformer {
     if (displayedSubject.kind == "none") return;
     actionPostNavigate({
       action:
-        this.actionRegistry.findActionByActionKey(context.request.actionRef) ??
+        this.actionRegistry.findActionDescriptorOptional(
+          context.request.actionRef,
+        ) ??
         throwError("Action not found in registry " + context.request.actionRef),
       request: context.request,
       navigate: this.navigate,

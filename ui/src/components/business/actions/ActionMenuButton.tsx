@@ -1,4 +1,4 @@
-import type { ActionDescriptor } from "@/business/action_registry";
+import type { ActionDescriptor } from "../../../business/action-registry";
 import { type ActionCtx } from "@/business/action-performer";
 import {
   Button,

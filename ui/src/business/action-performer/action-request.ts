@@ -1,5 +1,5 @@
 import type { ActionCtx } from "./action-ctx.ts";
-import type { ActionKey } from "@/business/action_registry";
+import type { ActionKey } from "../action-registry";
 
 /**
  * Action execution request captured at trigger time.

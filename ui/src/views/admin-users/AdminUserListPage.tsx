@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import type { ActionDescriptor } from "@/business/action_registry";
+import type { ActionDescriptor } from "../../business/action-registry";
 import { type UserInfoDto } from "@/business/auth_user";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";

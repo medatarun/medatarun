@@ -1,4 +1,4 @@
-import type { ActionKey } from "@/business/action_registry/actionRegistry.dictionnary.ts";
+import type { ActionKey } from "../../../business/action-registry";
 import { useActionRegistry } from "@/components/business/actions";
 import { useCurrentActor } from "@/components/business/auth-actor";
 import { useSecurityRuleDescriptionRegistry } from "@/components/business/config";
@@ -28,7 +28,7 @@ export function useSecurityContext() {
   };
 
   const canExecuteAction = (actionKey: ActionKey): boolean => {
-    const actionFound = actionRegistry.findActionByActionKey(actionKey);
+    const actionFound = actionRegistry.findActionDescriptorOptional(actionKey);
     if (!actionFound) return false;
     const rule = actionFound.securityRule;
     return canExecute(rule);

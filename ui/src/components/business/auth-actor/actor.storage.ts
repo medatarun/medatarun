@@ -7,7 +7,7 @@ import type {
 } from "@/business/actor/actor.dto.ts";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
-import type { ActionKey } from "@/business/action_registry";
+import type { ActionKey } from "../../../business/action-registry";
 
 /**
  * Returns the current user details with roles and permissions.

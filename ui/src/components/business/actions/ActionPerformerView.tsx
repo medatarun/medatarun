@@ -25,7 +25,7 @@ import {
   type ActionFormFieldDescription,
   ActionFormService,
 } from "@/business/action-form";
-import { ActionDescriptor } from "@/business/action_registry";
+import { ActionDescriptor } from "../../../business/action-registry";
 import ReactMarkdown from "react-markdown";
 import {
   combineValidationResults,
@@ -62,7 +62,7 @@ export function ActionPerformerView() {
     return null;
   }
   const request = state.request;
-  const action = actionRegistry.findActionOptional(request.actionRef);
+  const action = actionRegistry.findActionDescriptorOptional(request.actionRef);
   if (!action) {
     return null;
   }

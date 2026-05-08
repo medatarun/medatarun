@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { ActionRegistryContext } from "./action_registry.context.ts";
-import { ActionRegistry } from "@/business/action_registry";
+import { ActionRegistry } from "../../../business/action-registry";
 
 export const useActionRegistry = (): ActionRegistry => {
   const actions = useContext(ActionRegistryContext);

@@ -4,7 +4,7 @@ import type {
   ActionRequest,
 } from "@/business/action-performer/index.ts";
 import type { NavigateFn } from "@tanstack/react-router";
-import type { ActionDescriptor } from "@/business/action_registry";
+import type { ActionDescriptor } from "../action-registry";
 
 /**
  * Called after an action was successfully completed and the action state is done.

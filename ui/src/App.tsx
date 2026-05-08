@@ -49,8 +49,10 @@ import { AdminActorListPage } from "@/views/admin-actors/AdminActorListPage.tsx"
 import { AdminActorEditPage } from "@/views/admin-actors/AdminActorEditPage.tsx";
 import { AdminUserListPage } from "@/views/admin-users/AdminUserListPage.tsx";
 import { AdminUserEditPage } from "@/views/admin-users/AdminUserEditPage.tsx";
-import { ActionRegistry } from "@/business/action_registry";
-import { actionRegistryStatic } from "@/business/action_registry/action_registry.static.ts";
+import {
+  ActionRegistry,
+  actionRegistryStatic,
+} from "./business/action-registry";
 import { ActionPerformer } from "@/business/action-performer";
 import { ActionPerformerProvider } from "@/components/business/actions/ActionPerformerProvider.tsx";
 import { ActionRegistryContext } from "@/components/business/actions";

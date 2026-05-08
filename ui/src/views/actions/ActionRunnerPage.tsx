@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { type ActionResp } from "@/business/action-performer";
-import { ActionRegistry } from "@/business/action_registry";
+import { ActionRegistry } from "../../business/action-registry";
 import { ActionOutput } from "@/components/business/actions/ActionOutput.tsx";
 import { SecurityRuleBadge } from "@/views/actions/components/SecurityRuleBadge.tsx";
 import { Markdown } from "@/components/core/Markdown.tsx";
@@ -265,7 +265,7 @@ function ActionLaucher({
   const { performer } = useActionPerformer();
 
   const selectedActionDescriptor = useMemo(() => {
-    return actionRegistry.findActionOptional(selectedActionRef);
+    return actionRegistry.findActionDescriptorOptional(selectedActionRef);
   }, [actionRegistry, selectedActionRef]);
 
   const payloadTemplate = useMemo(() => {
@@ -534,7 +534,7 @@ function ActionsTree({
         .map((groupKey) => ({
           groupKey,
           actions: actionRegistry
-            .findActionDtoListByResource(groupKey)
+            .findActionDescriptorsByGroupKey(groupKey)
             .slice()
             .sort((a, b) => a.actionRef.localeCompare(b.actionRef)),
         })),

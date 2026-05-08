@@ -7,7 +7,7 @@ import type {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ActionPayload } from "@/business/action-performer";
 import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
-import type { ActionKey } from "@/business/action_registry";
+import type { ActionKey } from "../../../business/action-registry";
 
 export type TagSearchReq = {
   filters?: TagSearchFilters | null;

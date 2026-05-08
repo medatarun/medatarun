@@ -1,5 +1,5 @@
 import type { TypeRegistry } from "@/business/types/TypeRegistry.ts";
-import { type ActionKey, ActionRegistry } from "@/business/action_registry";
+import { type ActionKey, ActionRegistry } from "../action-registry";
 import type { ActionFormData } from "@/business/action-form/action-form-data.ts";
 import type { ActionPayload } from "@/business/action-performer";
 import { formDataNormalize } from "@/business/action-form/action-form-normalize.ts";

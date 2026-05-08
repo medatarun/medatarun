@@ -1,4 +1,4 @@
-import type { ActionRegistryDto } from "@/business/action_registry/action_registry.dto.ts";
+import type { ActionRegistryDto } from "./action-registry-dto.ts";
 
 export const actionRegistryStatic = {
   items: [
