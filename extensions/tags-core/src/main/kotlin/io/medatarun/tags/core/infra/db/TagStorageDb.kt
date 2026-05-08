@@ -1,6 +1,7 @@
 package io.medatarun.tags.core.infra.db
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.storage.eventsourcing.StorageEventEncoded
 import io.medatarun.tags.core.domain.*
@@ -26,7 +27,7 @@ import java.time.Instant
 import java.time.Instant.now
 
 class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagStorage {
-    private class TagStorageDbEventNotFoundException(eventId: String) : MedatarunException("Tag event [$eventId] was appended but cannot be read back from storage.")
+    private class TagStorageDbEventNotFoundException(eventId: String) : MedatarunTechnicalException("Tag event [$eventId] was appended but cannot be read back from storage.")
     private data class EventScope(
         val scopeType: String,
         val scopeId: TagScopeId?

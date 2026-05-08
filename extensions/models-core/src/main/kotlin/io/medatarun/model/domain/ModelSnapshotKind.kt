@@ -1,6 +1,7 @@
 package io.medatarun.model.domain
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import io.medatarun.type.commons.enums.EnumWithCode
 
 enum class ModelSnapshotKind(override val code: String) : EnumWithCode {
@@ -21,4 +22,4 @@ enum class ModelSnapshotKind(override val code: String) : EnumWithCode {
 }
 
 class ModelSnapshotKindIllegalCodeException(code: String) :
-    MedatarunException("Unknown model snapshot kind code: $code")
+    MedatarunTechnicalException("Unknown model snapshot kind code: $code")

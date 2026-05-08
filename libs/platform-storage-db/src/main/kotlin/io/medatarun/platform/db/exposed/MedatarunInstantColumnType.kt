@@ -1,6 +1,7 @@
 package io.medatarun.platform.db.exposed
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import kotlinx.datetime.*
 import kotlinx.datetime.format.DateTimeFormat
 import kotlinx.datetime.format.char
@@ -148,6 +149,6 @@ private fun LocalDateTime.toMedatarunSqlTimestamp(
 }
 
 class InvalidSQLiteTimestampException(type: String) :
-    MedatarunException("Invalid type from SQLite driver, expected Timestamp or String, got $type")
+    MedatarunTechnicalException("Invalid type from SQLite driver, expected Timestamp or String, got $type")
 
-class InvalidDatabaseDialectException(type: String) : MedatarunException("Unsupported database dialect $type")
+class InvalidDatabaseDialectException(type: String) : MedatarunTechnicalException("Unsupported database dialect $type")

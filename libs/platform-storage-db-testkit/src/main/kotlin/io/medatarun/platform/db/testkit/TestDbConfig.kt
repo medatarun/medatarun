@@ -1,6 +1,7 @@
 package io.medatarun.platform.db.testkit
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import io.medatarun.platform.db.PlatformStorageDbConfigProperty
 
 /**
@@ -71,11 +72,11 @@ class TestDbConfig {
 }
 
 class DatabaseLifecycleExtensionNotActiveInTestDbConfigException :
-    MedatarunException(
+    MedatarunTechnicalException(
         "TestDbConfig requires @EnableDatabaseTests so the lifecycle extension can prepare DB properties."
     )
 
 class RequiredDatabasePropertyMissingInTestDbConfigException(key: String) :
-    MedatarunException(
+    MedatarunTechnicalException(
         "TestDbConfig requires property '$key' to be prepared by the database lifecycle extension."
     )

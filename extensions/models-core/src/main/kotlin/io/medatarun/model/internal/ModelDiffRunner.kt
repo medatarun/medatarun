@@ -435,11 +435,3 @@ class ModelDiffRunner {
         val attributeKey: AttributeKey
     )
 }
-
-class ModelDiffEntityIdentifierAttributeNotFoundException(
-    modelKey: ModelKey,
-    entityKey: EntityKey,
-    attributeId: AttributeId
-) : MedatarunException(
-    "Cannot build entity snapshot for model [${modelKey.value}] and entity [${entityKey.value}] because identifier attribute id [${attributeId.value}] was not found"
-)

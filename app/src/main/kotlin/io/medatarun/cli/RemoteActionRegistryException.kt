@@ -1,5 +1,5 @@
 package io.medatarun.cli
 
-import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunUserException
 
-class RemoteActionRegistryException(message: String) : MedatarunException(message)
+class RemoteActionRegistryException(message: String) : MedatarunUserException(message)

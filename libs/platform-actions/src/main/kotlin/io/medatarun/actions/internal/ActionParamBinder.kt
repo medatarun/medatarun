@@ -1,7 +1,6 @@
 package io.medatarun.actions.internal
 
-import io.medatarun.actions.domain.ActionDescriptor
-import io.medatarun.actions.domain.ActionInvocationException
+import io.medatarun.actions.domain.*
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.lang.http.StatusCode
 import kotlinx.serialization.json.JsonNull
@@ -25,10 +24,9 @@ internal class ActionParamBinder(private val actionTypesRegistry: ActionTypesReg
     ): ActionParamBindings {
         val callArgs = mutableMapOf<KParameter, ActionParamBindingState>()
 
-        val function = actionClass.primaryConstructor ?: throw ActionInvocationException(
-            StatusCode.INTERNAL_SERVER_ERROR,
-            "Action class $actionClass has no primary constructor"
-        )
+        val function = actionClass.primaryConstructor
+            ?: throw ActionInvocationClassHasNoPrimaryConstructorException(actionClass)
+
         function.parameters.forEach { parameter ->
             when (parameter.kind) {
                 // Action classes are inner classes of ActionProvider(s).
@@ -37,15 +35,10 @@ internal class ActionParamBinder(private val actionTypesRegistry: ActionTypesReg
                 // otherwise the reflective call fails.
                 KParameter.Kind.INSTANCE -> callArgs[parameter] = ActionParamBindingState.Ok(actionProviderInstance)
                 KParameter.Kind.VALUE -> {
-                    val paramSerialName = parameter.name ?: throw ActionInvocationException(
-                        StatusCode.INTERNAL_SERVER_ERROR,
-                        "Parameter [${parameter}] has no name"
-                    )
+                    val paramSerialName =
+                        parameter.name ?: throw ActionInvocationParameterWithNoNameException(parameter)
                     val paramDescriptor = actionDescriptor.findParamByName(paramSerialName)
-                        ?: throw ActionInvocationException(
-                            StatusCode.INTERNAL_SERVER_ERROR,
-                            "No action parameter descriptor found for [$paramSerialName]"
-                        )
+                        ?: throw ActionInvocationParameterDescriptorNotFoundException(paramSerialName)
 
                     if (isNullish(actionPayload, paramSerialName)) {
                         if (!paramDescriptor.optional) {
@@ -54,10 +47,8 @@ internal class ActionParamBinder(private val actionTypesRegistry: ActionTypesReg
                             callArgs[parameter] = ActionParamBindingState.Ok(null)
                         }
                     } else {
-                        val raw = actionPayload.get(paramSerialName) ?: throw ActionInvocationException(
-                            StatusCode.INTERNAL_SERVER_ERROR,
-                            "Parameter [${paramSerialName}] could not be found in Json payload"
-                        )
+                        val raw = actionPayload.get(paramSerialName)
+                            ?: throw ActionInvocationParameterNotFoundInPayloadException(paramSerialName)
 
                         when (val conversion = jsonValueConverter.convert(raw, parameter.type)) {
                             is ActionParamJsonValueConverter.ConversionResult.Error ->

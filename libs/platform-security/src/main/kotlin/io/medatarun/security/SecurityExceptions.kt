@@ -1,5 +1,5 @@
 package io.medatarun.security
 
-import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 
-class SecurityRuleEvaluatorNotFoundException(ruleKey: String) : MedatarunException("Security rule not found with key [$ruleKey]")
+class SecurityRuleEvaluatorNotFoundException(ruleKey: String) : MedatarunTechnicalException("Security rule not found with key [$ruleKey]")

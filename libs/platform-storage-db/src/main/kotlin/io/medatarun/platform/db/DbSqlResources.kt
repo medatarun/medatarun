@@ -1,6 +1,8 @@
 package io.medatarun.platform.db
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
+import io.medatarun.lang.exceptions.MedatarunUserException
 
 /**
  * Loads SQL scripts from the application classpath and executes them through the DB bridge.
@@ -35,5 +37,5 @@ object DbSqlResources {
     }
 
     class DbSqlResourceNotFoundException(path: String) :
-        MedatarunException("SQL resource not found on classpath: $path")
+        MedatarunTechnicalException("SQL resource not found on classpath: $path")
 }

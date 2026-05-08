@@ -9,6 +9,7 @@ import io.ktor.server.response.*
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.httpserver.commons.AppHttpServerJwtSecurity.AUTH_MEDATARUN_JWT
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunUserException
 import io.medatarun.lang.http.StatusCode
 
 object AppHttpServerJwtSecurity {
@@ -65,4 +66,4 @@ private fun extractBearerToken(header: HttpAuthHeader): String? {
     return header.blob
 }
 
-class JwtInvalidTokenException : MedatarunException("Invalid Jwt token, must contain iss and sub.", StatusCode.UNAUTHORIZED)
+class JwtInvalidTokenException : MedatarunUserException("Invalid Jwt token, must contain iss and sub.", StatusCode.UNAUTHORIZED)

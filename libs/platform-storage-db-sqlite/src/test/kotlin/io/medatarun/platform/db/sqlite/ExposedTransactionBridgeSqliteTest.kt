@@ -1,6 +1,7 @@
 package io.medatarun.platform.db.sqlite
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import io.medatarun.platform.db.adapters.DbConnectionFactoryImpl
 import io.medatarun.platform.db.adapters.DbTransactionManagerImpl
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
@@ -8,10 +9,10 @@ import kotlin.test.*
 
 class ExposedTransactionBridgeSqliteTest {
     private class ExposedTransactionBridgeOriginalNestedException :
-        MedatarunException("Original nested transaction failure")
+        MedatarunTechnicalException("Original nested transaction failure")
 
     private class ExposedTransactionBridgeRethrownNestedException(cause: Throwable) :
-        MedatarunException("Nested transaction failure was translated") {
+        MedatarunTechnicalException("Nested transaction failure was translated") {
         init {
             initCause(cause)
         }

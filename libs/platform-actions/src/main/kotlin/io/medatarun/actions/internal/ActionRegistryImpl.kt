@@ -167,7 +167,7 @@ internal class ActionRegistryImpl(
         when (action.descriptor.accessType) {
             ActionAccessType.DISPATCH -> {
                 val actionProviderInstance: ActionProvider<Any> = findProviderOptional(action.descriptor.id)
-                    ?: throw ActionInvocationException(StatusCode.NOT_FOUND, "Action provider not found for [${action.descriptor.id}]")
+                    ?: throw ActionInvocationProviderNotFoundException(action.descriptor.id)
                 return ActionPayloadDeserializerFromProviders(
                     actionProviderInstance,
                     actionTypesRegistry

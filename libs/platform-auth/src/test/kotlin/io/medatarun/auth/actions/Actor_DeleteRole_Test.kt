@@ -1,6 +1,7 @@
 package io.medatarun.auth.actions
 
 import io.medatarun.actions.domain.ActionInvocationException
+import io.medatarun.actions.domain.ActionInvocationForbiddenException
 import io.medatarun.auth.domain.ActorDeleteRoleNotFoundException
 import io.medatarun.auth.domain.ActorNotFoundException
 import io.medatarun.auth.domain.PermissionKey
@@ -181,7 +182,7 @@ class Actor_DeleteRole_Test {
         env.dispatch(AuthAction.Actor_AddRole(johnActor.id, roleRef))
         env.asUser(env.johnUsername)
 
-        val error = assertThrows<ActionInvocationException> {
+        val error = assertThrows<ActionInvocationForbiddenException> {
             env.dispatch(AuthAction.Actor_DeleteRole(johnActor.id, roleRef))
         }
 

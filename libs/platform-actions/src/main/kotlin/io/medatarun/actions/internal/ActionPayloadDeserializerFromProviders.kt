@@ -1,14 +1,10 @@
 package io.medatarun.actions.internal
 
-import io.medatarun.actions.domain.ActionInvocationException
-import io.medatarun.actions.domain.ActionRegistered
+import io.medatarun.actions.domain.*
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionProvider
-import io.medatarun.lang.http.StatusCode
 import kotlinx.serialization.json.JsonObject
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.primaryConstructor
@@ -36,9 +32,8 @@ internal class ActionPayloadDeserializerFromProviders(
         val correct = groupKey == action.descriptor.group
                 && actionKey == action.descriptor.key
                 && findActionClassFromDescriptorClass(action) == actionPayload::class
-        if (!correct) throw ActionInvocationException(
-            StatusCode.NOT_FOUND,
-            "Action payload class ${actionPayload::class} does't match expected payload for ${action.descriptor.group}/${action.descriptor.key}."
+        if (!correct) throw ActionInvocationDeserializePayloadRawMismatchException(
+            actionPayload::class, action.descriptor.group, action.descriptor.key
         )
         return actionPayload
     }
@@ -47,9 +42,10 @@ internal class ActionPayloadDeserializerFromProviders(
         return actionProviderInstance.findCommandClass()
             ?.sealedSubclasses
             ?.firstOrNull { it.simpleName == action.descriptor.actionClassName }
-            ?: throw ActionInvocationException(
-                StatusCode.NOT_FOUND,
-                "Action ${action.descriptor.group}/${action.descriptor.key} not found"
+            ?: throw ActionInvocationClassFromDescriptorNotFoundException(
+                action.descriptor.group,
+                action.descriptor.key,
+                action.descriptor.actionClassName
             )
     }
 
@@ -64,10 +60,7 @@ internal class ActionPayloadDeserializerFromProviders(
         val actionClass = actionProviderInstance.findCommandClass()
             ?.sealedSubclasses
             ?.firstOrNull { it.simpleName == actionDescriptor.actionClassName }
-            ?: throw ActionInvocationException(
-                StatusCode.NOT_FOUND,
-                "Action $actionGroupKey/$actionKey not found"
-            )
+            ?: throw ActionInvocationNotFoundException(actionGroupKey, actionKey)
 
         val bindings = actionParamBinder.buildConstructorArgs(
             actionClass = actionClass,
@@ -81,10 +74,7 @@ internal class ActionPayloadDeserializerFromProviders(
 
         // Now we can assume there is no error anymore on parameters
         val cmd = actionClass.primaryConstructor?.callBy(bindings.toCallArgs())
-            ?: throw ActionInvocationException(
-                StatusCode.INTERNAL_SERVER_ERROR,
-                "Action class $actionClass has no primary constructor"
-            )
+            ?: throw ActionInvocationClassHasNoPrimaryConstructorException(actionClass)
         return cmd
     }
 

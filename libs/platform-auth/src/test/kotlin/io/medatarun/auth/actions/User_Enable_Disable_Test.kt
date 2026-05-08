@@ -1,6 +1,7 @@
 package io.medatarun.auth.actions
 
 import io.medatarun.actions.domain.ActionInvocationException
+import io.medatarun.actions.domain.ActionInvocationForbiddenException
 import io.medatarun.auth.domain.AuthNotAuthenticatedException
 import io.medatarun.auth.domain.UserDisableSelfException
 import io.medatarun.auth.domain.user.Fullname
@@ -117,7 +118,7 @@ class User_Enable_Disable_Test {
         val env = AuthEnvTest()
         env.createJohn()
         env.asUser(env.johnUsername)
-        val e = assertThrows<ActionInvocationException> {
+        val e = assertThrows<ActionInvocationForbiddenException> {
         env.dispatch(AuthAction.User_Enable(env.johnUsername))
         }
         assertEquals(StatusCode.FORBIDDEN, e.status)
