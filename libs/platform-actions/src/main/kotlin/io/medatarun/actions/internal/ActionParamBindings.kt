@@ -1,7 +1,8 @@
 package io.medatarun.actions.internal
 
-import io.medatarun.actions.domain.ActionInvocationException
-import io.medatarun.lang.http.StatusCode
+import io.medatarun.actions.domain.ActionInvocationValidationErrorException
+import io.medatarun.actions.domain.ActionInvocationValidationMissingException
+import io.medatarun.actions.domain.ActionInvocationValidationOverflowException
 import kotlin.reflect.KParameter
 
 internal data class ActionParamBindings(
@@ -15,15 +16,13 @@ internal data class ActionParamBindings(
                 is ActionParamBindingState.Ok -> {
 
                 }
+
                 is ActionParamBindingState.Error -> {
-                    throw ActionInvocationException(state.statusCode, state.message, mapOf("details" to state.message))
+                    throw ActionInvocationValidationErrorException(state)
                 }
 
                 is ActionParamBindingState.Missing -> {
-                    throw ActionInvocationException(
-                        state.statusCode,
-                        "Parameter [${param.name}] is missing", mapOf("details" to "Missing parameter [${param.name}]")
-                    )
+                    throw ActionInvocationValidationMissingException(param.name ?: "unknown")
                 }
             }
         }
@@ -39,10 +38,7 @@ internal data class ActionParamBindings(
                 }
 
                 is ActionParamBindingState.Error, is ActionParamBindingState.Missing -> {
-                    throw ActionInvocationException(
-                        StatusCode.INTERNAL_SERVER_ERROR,
-                        "Parameter [${param.name}] is invalid. Error should have been thrown before."
-                    )
+                    throw ActionInvocationValidationOverflowException(param)
                 }
             }
         }

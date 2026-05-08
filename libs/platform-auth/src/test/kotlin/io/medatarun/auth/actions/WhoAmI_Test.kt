@@ -1,6 +1,7 @@
 package io.medatarun.auth.actions
 
 import io.medatarun.actions.domain.ActionInvocationException
+import io.medatarun.actions.domain.ActionInvocationUnauthorizedException
 import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
@@ -31,7 +32,7 @@ class WhoAmI_Test {
             )
         )
         env.logout()
-        val error = assertThrows<ActionInvocationException> {
+        val error = assertThrows<ActionInvocationUnauthorizedException> {
             env.dispatch(AuthAction.WhoAmI())
         }
         assertEquals(StatusCode.UNAUTHORIZED, error.status)

@@ -1,6 +1,7 @@
 package io.medatarun.auth.actions
 
 import io.medatarun.actions.domain.ActionInvocationException
+import io.medatarun.actions.domain.ActionInvocationForbiddenException
 import io.medatarun.auth.domain.PermissionKey
 import io.medatarun.auth.domain.RolePermissionNotFoundException
 import io.medatarun.auth.domain.RoleUpdatePermissionsManagedRoleException
@@ -107,7 +108,7 @@ class Role_DeletePermission_Test {
         env.createJohn()
         env.asUser(env.johnUsername)
 
-        val error = assertThrows<ActionInvocationException> {
+        val error = assertThrows<ActionInvocationForbiddenException> {
             env.dispatch(AuthAction.Role_DeletePermission(roleRef, PermissionKey(permission)))
         }
 

@@ -1,6 +1,7 @@
 package io.medatarun.platform.db.adapters.internal
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import java.sql.Connection
 import java.sql.Savepoint
 import java.sql.ShardingKey
@@ -13,13 +14,13 @@ class DbTxBoundConnection(
     private val delegateConnection: Connection
 ) : Connection by delegateConnection {
     class DbTxBoundConnectionCommitNotAllowedException :
-        MedatarunException("Manual commit is not allowed on a transaction-bound connection")
+        MedatarunTechnicalException("Manual commit is not allowed on a transaction-bound connection")
 
     class DbTxBoundConnectionRollbackNotAllowedException :
-        MedatarunException("Manual rollback is not allowed on a transaction-bound connection")
+        MedatarunTechnicalException("Manual rollback is not allowed on a transaction-bound connection")
 
     class DbTxBoundConnectionSetAutoCommitNotAllowedException :
-        MedatarunException("Changing autoCommit is not allowed on a transaction-bound connection")
+        MedatarunTechnicalException("Changing autoCommit is not allowed on a transaction-bound connection")
 
     override fun close() {
         // No-op: the transaction manager owns the lifecycle of the underlying connection.

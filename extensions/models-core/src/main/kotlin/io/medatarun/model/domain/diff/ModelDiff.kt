@@ -1,6 +1,7 @@
 package io.medatarun.model.domain.diff
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import io.medatarun.model.domain.*
 import io.medatarun.tags.core.domain.TagId
 import java.net.URL
@@ -81,7 +82,7 @@ enum class ModelDiffScope {
 }
 
 class ModelDiffScopeIllegalCodeException(code: String) :
-    MedatarunException("Unknown model diff scope code: $code")
+    MedatarunTechnicalException("Unknown model diff scope code: $code")
 
 /**
  * Diff result for two model references.

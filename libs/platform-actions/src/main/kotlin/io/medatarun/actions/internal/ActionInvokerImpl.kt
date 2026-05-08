@@ -1,19 +1,7 @@
 package io.medatarun.actions.internal
 
-import io.medatarun.actions.domain.ActionInstanceId
-import io.medatarun.actions.domain.ActionInvocationException
-import io.medatarun.actions.domain.ActionInvoker
-import io.medatarun.actions.ports.needs.ActionAuditFailed
-import io.medatarun.actions.ports.needs.ActionAuditReceived
-import io.medatarun.actions.ports.needs.ActionAuditRecorder
-import io.medatarun.actions.ports.needs.ActionAuditRejected
-import io.medatarun.actions.ports.needs.ActionAuditSucceeded
-import io.medatarun.actions.ports.needs.ActionCtx
-import io.medatarun.actions.ports.needs.ActionPayload
-import io.medatarun.actions.ports.needs.ActionPrincipalCtx
-import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.ports.needs.ActionRequestCtx
-import io.medatarun.lang.http.StatusCode
+import io.medatarun.actions.domain.*
+import io.medatarun.actions.ports.needs.*
 import io.medatarun.security.SecurityRuleEvaluatorResult
 import io.medatarun.type.commons.id.Id
 
@@ -78,24 +66,16 @@ internal class ActionInvokerImpl(
 
         // Find action, throws if not found
         val action = registry.findActionOptional(actionGroupKey, actionKey)
-            ?: throw ActionInvocationException(StatusCode.NOT_FOUND, "Unknown action '$actionGroupKey/$actionKey'")
+            ?: throw ActionInvocationNotFoundException(actionGroupKey, actionKey)
 
         // Evaluate security first, before any attempt to decode the payload
         val securityRuleEvaluationResult =
             actionSecurityRuleEvaluators.evaluateSecurity(action.descriptor.securityRule, actionRequestCtx)
         if (securityRuleEvaluationResult is SecurityRuleEvaluatorResult.AuthenticationError) {
-            throw ActionInvocationException(
-                StatusCode.UNAUTHORIZED,
-                "Unauthorized",
-                mapOf("details" to securityRuleEvaluationResult.msg)
-            )
+            throw ActionInvocationUnauthorizedException(securityRuleEvaluationResult.msg)
         }
         if (securityRuleEvaluationResult is SecurityRuleEvaluatorResult.AuthorizationError) {
-            throw ActionInvocationException(
-                StatusCode.FORBIDDEN,
-                "Unauthorized",
-                mapOf("details" to securityRuleEvaluationResult.msg)
-            )
+            throw ActionInvocationForbiddenException(securityRuleEvaluationResult.msg)
         }
 
         // Deserialize the payload if needed
@@ -132,7 +112,7 @@ internal class ActionInvokerImpl(
         actionRequestCtx: ActionRequestCtx
     ): Boolean {
         val action = registry.findActionOptional(actionGroupKey, actionKey)
-            ?: throw ActionInvocationException(StatusCode.NOT_FOUND, "Unknown action '$actionGroupKey/$actionKey'")
+            ?: throw ActionInvocationNotFoundException(actionGroupKey, actionKey)
         val securityRuleEvaluationResult =
             actionSecurityRuleEvaluators.evaluateSecurity(action.descriptor.securityRule, actionRequestCtx)
         return securityRuleEvaluationResult is SecurityRuleEvaluatorResult.Ok

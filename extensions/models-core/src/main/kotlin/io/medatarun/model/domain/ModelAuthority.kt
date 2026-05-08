@@ -1,6 +1,7 @@
 package io.medatarun.model.domain
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import io.medatarun.type.commons.enums.EnumWithCode
 
 /**
@@ -31,4 +32,4 @@ enum class ModelAuthority(override val code: String): EnumWithCode {
 }
 
 class ModelAuthorityIllegalCodeException(code: String) :
-    MedatarunException("Unknown model authority code: $code")
+    MedatarunTechnicalException("Unknown model authority code: $code")

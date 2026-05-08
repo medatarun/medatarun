@@ -1,6 +1,7 @@
 package io.medatarun.model.domain
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import io.medatarun.type.commons.enums.EnumWithCode
 
 enum class RelationshipCardinality(override val code: String): EnumWithCode {
@@ -14,4 +15,4 @@ enum class RelationshipCardinality(override val code: String): EnumWithCode {
 
 
 class RelationshipCardinalityIllegalCodeException(code: String) :
-    MedatarunException("Unknown relationship cardinality code: $code")
+    MedatarunTechnicalException("Unknown relationship cardinality code: $code")

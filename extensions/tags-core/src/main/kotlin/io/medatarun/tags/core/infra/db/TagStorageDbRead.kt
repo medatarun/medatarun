@@ -1,6 +1,7 @@
 package io.medatarun.tags.core.infra.db
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.infra.db.tables.TagViewHistory_TagGroup_Table
 import io.medatarun.tags.core.infra.db.tables.TagViewCurrent_TagGroup_Table
@@ -13,7 +14,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.time.Instant
 
 internal class TagStorageDbRead {
-    private class TagStorageDbInvalidGlobalLookupException : MedatarunException("Global tag lookup requires groupId")
+    private class TagStorageDbInvalidGlobalLookupException : MedatarunTechnicalException("Global tag lookup requires groupId")
 
     fun findAllTag(): List<Tag> {
         return TagViewCurrent_Tag_Table.selectAll().map { row -> tagFromRow(row) }

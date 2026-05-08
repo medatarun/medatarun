@@ -1,6 +1,7 @@
 package io.medatarun.actions.infra.db
 
 import io.medatarun.actions.domain.ActionInvocationException
+import io.medatarun.actions.domain.ActionInvocationForbiddenException
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
@@ -29,7 +30,7 @@ class ActionAuditRecorderDbTest {
     fun `rejected action is stored in database`() {
         val env = ActionAuditDbTestEnv()
 
-        assertThrows<ActionInvocationException> {
+        assertThrows<ActionInvocationForbiddenException> {
             env.dispatch(ActionAuditDbTestEnv.TestDbAction.Denied)
         }
 
@@ -37,7 +38,7 @@ class ActionAuditRecorderDbTest {
         assertEquals("security-denied", row.actionKey)
         assertEquals("REJECTED", row.status)
         assertEquals("FORBIDDEN", row.errorCode)
-        assertEquals("Unauthorized", row.errorMessage)
+        assertEquals("Forbidden", row.errorMessage)
     }
 
     @Test

@@ -1,6 +1,7 @@
 package io.medatarun.auth.actions
 
 import io.medatarun.actions.domain.ActionInvocationException
+import io.medatarun.actions.domain.ActionInvocationForbiddenException
 import io.medatarun.auth.domain.RoleNotFoundByKeyException
 import io.medatarun.auth.domain.role.RoleRef
 import io.medatarun.auth.domain.role.RoleRef.Companion.roleRefKey
@@ -73,7 +74,7 @@ class Role_UpdateDescription_Test {
         env.createJohn()
         env.asUser(env.johnUsername)
 
-        val error = assertThrows<ActionInvocationException> {
+        val error = assertThrows<ActionInvocationForbiddenException> {
             env.dispatch(AuthAction.Role_UpdateDescription(roleRef, "Updated by a non admin user"))
         }
 

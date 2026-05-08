@@ -1,6 +1,7 @@
 package io.medatarun.auth.actions
 
 import io.medatarun.actions.domain.ActionInvocationException
+import io.medatarun.actions.domain.ActionInvocationForbiddenException
 import io.medatarun.auth.domain.AuthUnknownPermissionException
 import io.medatarun.auth.domain.PermissionKey
 import io.medatarun.auth.domain.RolePermissionAlreadyExistsException
@@ -124,7 +125,7 @@ class Role_AddPermission_Test {
         env.createJohn()
         env.asUser(env.johnUsername)
 
-        val error = assertThrows<ActionInvocationException> {
+        val error = assertThrows<ActionInvocationForbiddenException> {
             env.dispatch(AuthAction.Role_AddPermission(roleRef, PermissionKey(permission)))
         }
 

@@ -1,18 +1,23 @@
 package io.medatarun.runtime.internal
 
-import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import io.medatarun.runtime.internal.AppRuntimeConfigFactory.Companion.USER_DIR_PROPERTY
 
 
-class RootDirNotFoundException:
-    MedatarunException("Could not guess the current user directory. Configure MEDATARUN_APPLICATION_DATA if needed.")
+class RootDirNotFoundException :
+    MedatarunTechnicalException("Could not guess the current user directory. Configure MEDATARUN_APPLICATION_DATA if needed.")
 
 class ProjectDirApplicationDataDoesNotExistException(path: String, envVar: String) :
-    MedatarunException("The project directory '$path' specified via environment variable $envVar does not exist.")
+    MedatarunTechnicalException("The project directory '$path' specified via environment variable $envVar does not exist.")
 
 class ProjectDirNotAdirectoryException(path: String) :
-        MedatarunException("Project directory found $path is not a directory.")
+    MedatarunTechnicalException("Project directory found $path is not a directory.")
 
-class MedatarunHomeDoesNotExistException(path: String) : MedatarunException("MEDATARUN_HOME directory '$path' does not exist.")
-class MedatarunHomeNotADirectoryException(path: String) : MedatarunException("MEDATARUN_HOME directory '$path' is not a directory.")
-class MedatarunUserDirUndefinedException : MedatarunException("Property $USER_DIR_PROPERTY is not defined.")
+class MedatarunHomeDoesNotExistException(path: String) :
+    MedatarunTechnicalException("MEDATARUN_HOME directory '$path' does not exist.")
+
+class MedatarunHomeNotADirectoryException(path: String) :
+    MedatarunTechnicalException("MEDATARUN_HOME directory '$path' is not a directory.")
+
+class MedatarunUserDirUndefinedException :
+    MedatarunTechnicalException("Property $USER_DIR_PROPERTY is not defined.")

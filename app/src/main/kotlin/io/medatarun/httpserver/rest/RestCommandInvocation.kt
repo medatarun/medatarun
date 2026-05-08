@@ -5,6 +5,8 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.medatarun.actions.domain.ActionExceptionInterpreter
+import io.medatarun.actions.domain.ActionInvocationActionGroupKeyRequiredException
+import io.medatarun.actions.domain.ActionInvocationActionKeyRequiredException
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.domain.ActionInvoker
 import io.medatarun.actions.ports.needs.ActionPayload
@@ -24,16 +26,8 @@ class RestCommandInvocation(
         val actionGroupKeyPathValue = call.parameters["actionGroupKey"]
         val actionKeyPathValue = call.parameters["actionKey"]
         try {
-            val actionGroupKey = actionGroupKeyPathValue ?: throw ActionInvocationException(
-                StatusCode.BAD_REQUEST,
-                message = "Missing resource name",
-
-                )
-            val actionKey = actionKeyPathValue ?: throw ActionInvocationException(
-                StatusCode.BAD_REQUEST,
-                "Missing function name",
-
-                )
+            val actionGroupKey = actionGroupKeyPathValue ?: throw ActionInvocationActionGroupKeyRequiredException()
+            val actionKey = actionKeyPathValue ?: throw ActionInvocationActionKeyRequiredException()
 
             val body = call.receiveText()
             val json = if (body.isBlank()) buildJsonObject { } else Json.parseToJsonElement(body).jsonObject

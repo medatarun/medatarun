@@ -3,6 +3,7 @@
 ## v0.15.0
 
 - UI: Fix missing action on entities to manage primary key
+- Code: Better error classifications
 
 ## v0.14.0
 

@@ -5,77 +5,96 @@ import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.auth.domain.role.RoleKey
 import io.medatarun.auth.internal.users.UserPasswordEncrypter
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle.Companion.SECRET_MIN_SIZE
-import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
+import io.medatarun.lang.exceptions.MedatarunUserException
 import io.medatarun.lang.http.StatusCode
 
 class BootstrapSecretNotReadyException :
-    MedatarunException("Auth embedded service is not ready. Bootstrap has not been done yet")
+    MedatarunTechnicalException("Auth embedded service is not ready. Bootstrap has not been done yet")
 
 class BootstrapSecretPrefilledToShortException :
-    MedatarunException("Bootstrap secret, when prefilled, shall have a minimum size of $SECRET_MIN_SIZE chars.")
+    MedatarunTechnicalException("Bootstrap secret, when prefilled, shall have a minimum size of $SECRET_MIN_SIZE chars.")
 
 class BootstrapSecretAlreadyConsumedException :
-    MedatarunException("Bootstrap already consumed.", StatusCode.GONE)
+    MedatarunTechnicalException("Bootstrap already consumed.", StatusCode.GONE)
 
 class BootstrapSecretBadSecretException :
-    MedatarunException("Bad bootstrap secret.", StatusCode.UNAUTHORIZED)
+    MedatarunTechnicalException("Bad bootstrap secret.", StatusCode.UNAUTHORIZED)
 
 class UserCreatePasswordFailException(reason: UserPasswordEncrypter.PasswordPolicyFailReason) :
-    MedatarunException("Bad password: " + reason.label, StatusCode.BAD_REQUEST)
+    MedatarunUserException("Bad password: " + reason.label, StatusCode.BAD_REQUEST)
 
 class AuthNotAuthenticatedException :
-    MedatarunException("Bad credentials.", StatusCode.UNAUTHORIZED)
+    MedatarunUserException("Bad credentials.", StatusCode.UNAUTHORIZED)
 
 class AuthNotAuthorizedException :
-    MedatarunException("Bad credentials.", StatusCode.FORBIDDEN)
+    MedatarunUserException("Bad credentials.", StatusCode.FORBIDDEN)
 
 class UserNotFoundException :
-    MedatarunException("User not found.", StatusCode.NOT_FOUND)
+    MedatarunUserException("User not found.", StatusCode.NOT_FOUND)
 
 class UserAlreadyExistsException :
-    MedatarunException("User already exists.", StatusCode.CONFLICT)
+    MedatarunUserException("User already exists.", StatusCode.CONFLICT)
 
 class ActorNotFoundException :
-    MedatarunException("Actor not found.", StatusCode.NOT_FOUND)
+    MedatarunUserException("Actor not found.", StatusCode.NOT_FOUND)
 
 class ActorAddRoleAlreadyExistException(actorId: ActorId, roleId: RoleId) :
-    MedatarunException("Can not add to actor. Actor [${actorId.value}] already has role [$roleId]", StatusCode.BAD_REQUEST)
+    MedatarunUserException(
+        "Can not add to actor. Actor [${actorId.asString()}] already has role [${roleId.asString()}]",
+        StatusCode.BAD_REQUEST
+    )
 
 class ActorDeleteRoleNotFoundException(actorId: ActorId, roleId: RoleId) :
-    MedatarunException("Can not remove role from actor. Actor [${actorId.value}] doesn't have role [$roleId]", StatusCode.BAD_REQUEST)
+    MedatarunUserException(
+        "Can not remove role from actor. Actor [${actorId.asString()}] doesn't have role [${roleId.asString()}]",
+        StatusCode.BAD_REQUEST
+    )
 
 class ActorCreateFailedWithNotFoundException :
-    MedatarunException("Create failed. Can not find actor after creation.")
+    MedatarunTechnicalException("Create failed. Can not find actor after creation.")
 
-class ActorDisabledException : MedatarunException("Actor is disabled.", StatusCode.FORBIDDEN)
+class ActorDisabledException : MedatarunUserException("Actor is disabled.", StatusCode.FORBIDDEN)
 
-class AuthUnknownPermissionException(val key: String) : MedatarunException("Unknown role: $key")
-class RoleNotFoundByIdException(roleId: RoleId) : MedatarunException("Role [$roleId] not found.", StatusCode.NOT_FOUND)
+class AuthUnknownPermissionException(val key: String) :
+    MedatarunUserException("Unknown permission [$key].", StatusCode.BAD_REQUEST)
+
+class RoleNotFoundByIdException(roleId: RoleId) :
+    MedatarunUserException("Role [$roleId] not found.", StatusCode.NOT_FOUND)
+
 class RoleNotFoundByKeyException(roleKey: RoleKey) :
-    MedatarunException("Role [$roleKey] not found.", StatusCode.NOT_FOUND)
+    MedatarunUserException("Role [${roleKey.asString()}] not found.", StatusCode.NOT_FOUND)
 
-class RoleAlreadyExistsException(val key: String) : MedatarunException("Role already exists: $key", StatusCode.CONFLICT)
+class RoleAlreadyExistsException(val key: String) :
+    MedatarunUserException("Role [$key] already exists.", StatusCode.CONFLICT)
+
 class RolePermissionAlreadyExistsException(roleId: String, permission: String) :
-    MedatarunException(
+    MedatarunUserException(
         "Role permission already exists for role=$roleId and permission=$permission",
         StatusCode.CONFLICT
     )
 
 class RolePermissionNotFoundException(roleId: String, permission: String) :
-    MedatarunException("Role permission not found for role=$roleId and permission=$permission", StatusCode.NOT_FOUND)
+    MedatarunUserException(
+        "Role permission not found for role [$roleId] and permission [$permission]",
+        StatusCode.NOT_FOUND
+    )
 
-class UsernameEmptyException : MedatarunException("Username can not be empty", StatusCode.BAD_REQUEST)
+class UsernameEmptyException : MedatarunUserException("Username can not be empty", StatusCode.BAD_REQUEST)
 class UsernameTooShortException(minsize: Int) :
-    MedatarunException("Username shall be at least $minsize characters.", StatusCode.BAD_REQUEST)
+    MedatarunUserException("Username shall be at least $minsize characters.", StatusCode.BAD_REQUEST)
 
 class UsernameTooLongException(maxsize: Int) :
-    MedatarunException("Username shall be at most $maxsize characters.", StatusCode.BAD_REQUEST)
+    MedatarunUserException("Username shall be at most $maxsize characters.", StatusCode.BAD_REQUEST)
 
-class UsernameInvalidFormatException(minSize: Int, maxSize:Int) : MedatarunException("Usernames must be of $minSize to $maxSize characters, and contain only lowercase letters, numbers, dot, underscore or minus symbols.", StatusCode.BAD_REQUEST)
+class UsernameInvalidFormatException(minSize: Int, maxSize: Int) : MedatarunUserException(
+    "Usernames must be of $minSize to $maxSize characters, and contain only lowercase letters, numbers, dot, underscore or minus symbols.",
+    StatusCode.BAD_REQUEST
+)
 
 
 open class UserFullnameException(msg: String) :
-    MedatarunException(msg, StatusCode.BAD_REQUEST)
+    MedatarunUserException(msg, StatusCode.BAD_REQUEST)
 
 class UserFullnameEmptyException :
     UserFullnameException("fullname is empty")
@@ -86,13 +105,30 @@ class UserFullnameTooLongException :
 class UserFullnameInvalidFormatException :
     UserFullnameException("invalid fullname format")
 
-class UserDisableSelfException: MedatarunException("You can not disable yourself", StatusCode.BAD_REQUEST)
-class UserEnableSelfException: MedatarunException("You can not disable yourself", StatusCode.BAD_REQUEST)
-class ActorDisableSelfException: MedatarunException("You can not disable yourself", StatusCode.BAD_REQUEST)
-class ActorEnableSelfException: MedatarunException("You can not disable yourself", StatusCode.BAD_REQUEST)
+class UserDisableSelfException : MedatarunUserException("You can not disable yourself", StatusCode.BAD_REQUEST)
+class UserEnableSelfException : MedatarunUserException("You can not disable yourself", StatusCode.BAD_REQUEST)
+class ActorDisableSelfException : MedatarunUserException("You can not disable yourself", StatusCode.BAD_REQUEST)
+class ActorEnableSelfException : MedatarunUserException("You can not disable yourself", StatusCode.BAD_REQUEST)
 
-class RoleDeleteManagedForbiddenException(key: RoleKey): MedatarunException("Can not delete role [${key.value}] because it is managed by the application.", StatusCode.BAD_REQUEST)
-class RoleCreateConflictsWithManagedKeyException(key: RoleKey): MedatarunException("Can not create a new role with [${key.value}] because the application already manages roles with the same key.", StatusCode.BAD_REQUEST)
-class RoleUpdateKeyConflictsWithManagedKeyException(key : RoleKey): MedatarunException("Can not change this role key to [${key.value}] because the application manages another role with this key.", StatusCode.BAD_REQUEST)
-class RoleUpdatePermissionsManagedRoleException(key : RoleKey): MedatarunException("Can not change the permissions on [${key.value}] role, as this role is managed by the application", StatusCode.BAD_REQUEST)
-class RoleUpdateAutoAssignAdminRoleForbiddenException(): MedatarunException("Can not automatically assign admin role. Too dangerous.", StatusCode.BAD_REQUEST)
+class RoleDeleteManagedForbiddenException(key: RoleKey) : MedatarunUserException(
+    "Can not delete role [${key.asString()}] because it is managed by the application.",
+    StatusCode.BAD_REQUEST
+)
+
+class RoleCreateConflictsWithManagedKeyException(key: RoleKey) : MedatarunUserException(
+    "Can not create a new role with [${key.asString()}] because the application already manages roles with the same key.",
+    StatusCode.BAD_REQUEST
+)
+
+class RoleUpdateKeyConflictsWithManagedKeyException(key: RoleKey) : MedatarunUserException(
+    "Can not change this role key to [${key.asString()}] because the application manages another role with this key.",
+    StatusCode.BAD_REQUEST
+)
+
+class RoleUpdatePermissionsManagedRoleException(key: RoleKey) : MedatarunUserException(
+    "Can not change the permissions on [${key.asString()}] role, as this role is managed by the application",
+    StatusCode.BAD_REQUEST
+)
+
+class RoleUpdateAutoAssignAdminRoleForbiddenException() :
+    MedatarunUserException("Can not automatically assign admin role. Too dangerous.", StatusCode.BAD_REQUEST)

@@ -1,6 +1,7 @@
 package io.medatarun.platform.db.internal
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import io.medatarun.platform.db.*
 import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.Service
@@ -187,7 +188,7 @@ CREATE TABLE IF NOT EXISTS $SCHEMA_VERSION_HISTORY_TABLE_NAME (
         pluginId: String,
         currentVersion: Int,
         latestVersion: Int
-    ) : MedatarunException(
+    ) : MedatarunTechnicalException(
         "Migration plugin [$pluginId] declares latest version [$latestVersion] but database is already at version [$currentVersion]"
     )
 

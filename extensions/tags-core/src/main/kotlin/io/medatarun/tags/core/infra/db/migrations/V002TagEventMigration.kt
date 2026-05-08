@@ -1,6 +1,7 @@
 package io.medatarun.tags.core.infra.db.migrations
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.DbDialect
 import io.medatarun.platform.db.DbMigrationContext
@@ -20,7 +21,7 @@ import java.util.*
  * Backfills v002 `tag_event` and history tables from legacy v001 snapshot tables.
  */
 internal class V002TagEventMigration(private val maintenanceActorId: AppActorId) {
-    private class V002TagEventMigrationException(message: String) : MedatarunException(message)
+    private class V002TagEventMigrationException(message: String) : MedatarunTechnicalException(message)
 
     fun migrate(ctx: DbMigrationContext) {
         if (ctx.dialect != DbDialect.SQLITE) {

@@ -3,6 +3,8 @@ package io.medatarun.actions.internal
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.ports.needs.*
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
+import io.medatarun.lang.exceptions.MedatarunUserException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
@@ -513,7 +515,7 @@ class ActionInvokerTest {
         val runtime = TestRuntime()
         val payload = buildJsonObject { }
 
-        assertThrows<ActionInvocationException> {
+        assertFailsWith<ActionInvocationException> {
             runtime.invoke(ACTION_NAME_DENIED_AUTHENTICATION, payload)
         }
 
@@ -858,10 +860,10 @@ class ActionInvokerTest {
     }
 
     private class AbbreviationTooLongException :
-        MedatarunException("Abbreviation must be at most 4 chars")
+        MedatarunUserException("Abbreviation must be at most 4 chars")
 
     private class TestActionDispatchFailedException :
-        MedatarunException("boom")
+        MedatarunTechnicalException("boom")
 
     private class TestActionProvider : ActionProvider<TestAction>, Service {
         override val actionGroupKey: String = "test"

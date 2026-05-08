@@ -1,6 +1,7 @@
 package io.medatarun.tags.core.infra.db
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import io.medatarun.tags.core.domain.TagEventId
 import io.medatarun.tags.core.domain.TagGroupId
 import io.medatarun.tags.core.domain.TagId
@@ -24,10 +25,10 @@ import java.time.Instant
 
 internal class TagStorageDbHistoryProjection {
     private class TagStorageDbHistoryProjectionTagRowMissingException(tagId: TagId) :
-        MedatarunException("Tag projection row [${tagId.asString()}] was expected but not found while writing tag history projection.")
+        MedatarunTechnicalException("Tag projection row [${tagId.asString()}] was expected but not found while writing tag history projection.")
 
     private class TagStorageDbHistoryProjectionTagGroupRowMissingException(tagGroupId: TagGroupId) :
-        MedatarunException("Tag group projection row [${tagGroupId.asString()}] was expected but not found while writing tag history projection.")
+        MedatarunTechnicalException("Tag group projection row [${tagGroupId.asString()}] was expected but not found while writing tag history projection.")
 
     fun projectCommandFromEvent(cmd: TagStorageCmd, tagEventId: TagEventId, eventCreatedAt: Instant) {
         val scope = cmd.scope

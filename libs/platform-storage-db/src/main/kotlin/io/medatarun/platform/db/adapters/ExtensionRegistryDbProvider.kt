@@ -1,6 +1,7 @@
 package io.medatarun.platform.db.adapters
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import io.medatarun.platform.db.DbDialect
 import io.medatarun.platform.db.DbProvider
 import io.medatarun.platform.kernel.ExtensionRegistry
@@ -25,5 +26,5 @@ class ExtensionRegistryDbProvider(
     }
 
     class ExtensionRegistryDbProviderNoDbProviderFoundException :
-        MedatarunException("No database provider found. Please provide a plugin with a DbProvider contribution like 'platform-storage-db-sqlite'")
+        MedatarunTechnicalException("No database provider found. Please provide a plugin with a DbProvider contribution like 'platform-storage-db-sqlite'")
 }

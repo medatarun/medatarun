@@ -1,5 +1,5 @@
 package io.medatarun.model.actions
 
-import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunUserException
 
-class ModelImportActionNotFoundException(location: String) : MedatarunException("Could not find importer for $location")
+class ModelImportActionNotFoundException(location: String) : MedatarunUserException("Could not find importer for $location")
