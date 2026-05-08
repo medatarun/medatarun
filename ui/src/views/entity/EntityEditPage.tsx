@@ -91,7 +91,10 @@ export function EntityView({ entity }: { entity: EntityDto }) {
   const { isDetailLevelTech } = useDetailLevelContext();
   const { t } = useAppI18n();
 
-  const actions = actionRegistry.findActionDescriptors(["entity_delete"]);
+  const actions = actionRegistry.findActionDescriptors([
+    "entity_primary_key_update",
+    "entity_delete",
+  ]);
   const relationshipsInvolved = model.dto.relationships.filter((it) =>
     it.roles.some((r) => r.entityId === entity.id),
   );
@@ -214,7 +217,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
       <SectionTitle
         icon={<AttributeIcon />}
         actionCtx={actionCtxPage}
-        actions={["entity_attribute_create"]}
+        actions={["entity_attribute_create", "entity_primary_key_update"]}
       >
         {t("entityEditPage_attributesTitle")}
       </SectionTitle>
