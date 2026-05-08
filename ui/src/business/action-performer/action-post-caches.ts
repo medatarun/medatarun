@@ -34,6 +34,11 @@ export async function actionPostCacheManagement(
       "tag_local",
       "tag_group",
       "tag_global",
+    ]) ||
+    actionSpecificInvalidation(action, [
+      "import",
+      "model_create",
+      "maintenance_rebuild_caches",
     ])
   ) {
     keysToInvalidate.push(["model"]);
@@ -60,4 +65,10 @@ export async function actionPostCacheManagement(
 
 function concerns(action: ActionDescriptor, subjects: string[]): boolean {
   return action.semantics.subjects.some((s) => subjects.includes(s.type));
+}
+function actionSpecificInvalidation(
+  action: ActionDescriptor,
+  keys: ActionKey[],
+): boolean {
+  return keys.includes(action.key);
 }
