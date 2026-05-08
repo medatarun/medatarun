@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.15.0
+
+- UI: Fix missing action on entities to manage primary key
+
 ## v0.14.0
 
 - UI: Rich text editor from ToastUI replaced by new rich text editor from 
