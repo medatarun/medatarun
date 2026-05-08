@@ -62,10 +62,7 @@ export function ActionPerformerView() {
     return null;
   }
   const request = state.request;
-  const action = actionRegistry.findActionOptional(
-    request.actionGroupKey,
-    request.actionKey,
-  );
+  const action = actionRegistry.findActionOptional(request.actionRef);
   if (!action) {
     return null;
   }
@@ -132,11 +129,7 @@ export function ActionPerformerViewLoaded({
   const valid = validationResult.valid;
 
   const onValidate = async () => {
-    const payload = formService.formDataNormalize(
-      action.actionGroupKey,
-      action.key,
-      formData,
-    );
+    const payload = formService.formDataNormalize(action.actionRef, formData);
     const output = await confirmAction(state.requestId, payload);
     setActionResp(output);
   };
@@ -184,7 +177,7 @@ export function ActionPerformerViewLoaded({
 
   useEffect(() => {
     firstInputRef?.current?.focus();
-  }, [focusedFieldKey, action.key]);
+  }, [focusedFieldKey, action.actionRef]);
 
   return (
     <Dialog open={true}>

@@ -38,11 +38,10 @@ export function ActionMenuButton({
         <MenuList>
           {itemActionsSafe.map((action) => (
             <MenuItem
-              key={action.key}
+              key={action.actionRef}
               onClick={() => {
                 actionPerformer.performAction({
-                  actionKey: action.key,
-                  actionGroupKey: action.actionGroupKey,
+                  actionRef: action.actionRef,
                   ctx: actionCtx,
                 });
               }}

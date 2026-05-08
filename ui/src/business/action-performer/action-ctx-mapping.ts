@@ -37,9 +37,7 @@ export class ActionCtxMapping implements ActionCtx {
   }
 
   getDefaultValue = (paramKey: string, req: ActionRequest) => {
-    const found = this.mappings.find((m) =>
-      match(req.actionGroupKey, req.actionKey, paramKey, m),
-    );
+    const found = this.mappings.find((m) => match(req.actionRef, paramKey, m));
     if (found) {
       return found.defaultValue();
     }
@@ -77,14 +75,14 @@ const matchValue = (
 };
 
 const match = (
-  actionGroupKey: string,
-  actionKey: string,
+  actionRef: ActionKey,
   actionParamKey: string,
   mapping: ActionCtxMappingParam,
 ): boolean => {
+  const actionGroupKey = actionRef.split("/")[0];
   const matchGroup = matchValue(actionGroupKey, mapping.actionGroupKey);
   if (!matchGroup) return false;
-  const matchAction = matchValue(actionKey, mapping.actionKey);
+  const matchAction = matchValue(actionRef, mapping.actionKey);
   if (!matchAction) return false;
   return actionParamKey === mapping.actionParamKey;
 };

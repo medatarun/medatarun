@@ -36,9 +36,9 @@ export async function actionPostCacheManagement(
       "tag_global",
     ]) ||
     actionSpecificInvalidation(action, [
-      "import",
-      "model_create",
-      "maintenance_rebuild_caches",
+      "model/import",
+      "model/model_create",
+      "model/maintenance_rebuild_caches",
     ])
   ) {
     keysToInvalidate.push(["model"]);
@@ -70,5 +70,5 @@ function actionSpecificInvalidation(
   action: ActionDescriptor,
   keys: ActionKey[],
 ): boolean {
-  return keys.includes(action.key);
+  return keys.includes(action.actionRef);
 }

@@ -13,6 +13,6 @@ export const useUserList = () => {
   const { performer } = useActionPerformer();
   return useQuery({
     queryKey: ACTION_AUTH_QUERY_KEY_USER_LIST,
-    queryFn: () => performer.executeJson<UserListDto>("auth", "user_list", {}),
+    queryFn: () => performer.executeJson<UserListDto>("auth/user_list", {}),
   });
 };

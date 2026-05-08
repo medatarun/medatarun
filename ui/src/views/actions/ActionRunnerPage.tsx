@@ -190,27 +190,24 @@ export function ActionsPageLoaded({
   const styles = useActionPageStyles();
   const { t } = useAppI18n();
   const defaultGroupKey = actionRegistry.findFirstGroupKey();
-  const defaultActionKey = defaultGroupKey
-    ? actionRegistry.findFirstActionKey(defaultGroupKey)
+  const defaultActionRef = defaultGroupKey
+    ? actionRegistry.findFirstActionRefOfGroup(defaultGroupKey)
     : undefined;
-  const defaultPayload = actionRegistry.createPayloadTemplate(
-    defaultGroupKey,
-    defaultActionKey,
-  );
+  const defaultPayload = actionRegistry.createPayloadTemplate(defaultActionRef);
 
   const [selectedAction, setSelectedAction] = useState<{
     groupKey: string | undefined;
-    actionKey: string | undefined;
+    actionRef: string | undefined;
   }>({
     groupKey: defaultGroupKey,
-    actionKey: defaultActionKey,
+    actionRef: defaultActionRef,
   });
 
   const handleActionSelectionChange = (
     groupKey: string | undefined,
-    actionKey: string | undefined,
+    actionRef: string | undefined,
   ) => {
-    setSelectedAction({ groupKey, actionKey });
+    setSelectedAction({ groupKey, actionRef });
   };
 
   const headerProps: ViewLayoutHeaderProps = {
@@ -231,7 +228,7 @@ export function ActionsPageLoaded({
             <ActionsTree
               actionRegistry={actionRegistry}
               defaultGroupKey={defaultGroupKey}
-              defaultActionKey={defaultActionKey}
+              defaultActionRef={defaultActionRef}
               onActionSelect={handleActionSelectionChange}
             />
           </div>
@@ -239,7 +236,7 @@ export function ActionsPageLoaded({
             <ActionLaucher
               actionRegistry={actionRegistry}
               selectedGroupKey={selectedAction.groupKey}
-              selectedActionKey={selectedAction.actionKey}
+              selectedActionRef={selectedAction.actionRef}
               defaultPayload={defaultPayload}
             />
           </div>
@@ -252,12 +249,12 @@ export function ActionsPageLoaded({
 function ActionLaucher({
   actionRegistry,
   selectedGroupKey,
-  selectedActionKey,
+  selectedActionRef,
   defaultPayload,
 }: {
   actionRegistry: ActionRegistry;
   selectedGroupKey: string | undefined;
-  selectedActionKey: string | undefined;
+  selectedActionRef: string | undefined;
   defaultPayload: string;
 }) {
   const styles = useActionLauncherStyles();
@@ -268,18 +265,12 @@ function ActionLaucher({
   const { performer } = useActionPerformer();
 
   const selectedActionDescriptor = useMemo(() => {
-    return actionRegistry.findActionOptional(
-      selectedGroupKey,
-      selectedActionKey,
-    );
-  }, [actionRegistry, selectedGroupKey, selectedActionKey]);
+    return actionRegistry.findActionOptional(selectedActionRef);
+  }, [actionRegistry, selectedActionRef]);
 
   const payloadTemplate = useMemo(() => {
-    return actionRegistry.createPayloadTemplate(
-      selectedGroupKey,
-      selectedActionKey,
-    );
-  }, [actionRegistry, selectedActionKey, selectedGroupKey]);
+    return actionRegistry.createPayloadTemplate(selectedActionRef);
+  }, [actionRegistry, selectedActionRef]);
 
   useEffect(() => {
     setPayload(payloadTemplate);
@@ -288,7 +279,7 @@ function ActionLaucher({
   useEffect(() => {
     setOutput(null);
     setErrorMessage(null);
-  }, [selectedGroupKey, selectedActionKey]);
+  }, [selectedGroupKey, selectedActionRef]);
 
   const toProblem = (problemJson: ProblemJson): Problem => {
     return new Problem(problemJson);
@@ -301,7 +292,7 @@ function ActionLaucher({
   };
 
   const handleSubmit = () => {
-    if (!selectedGroupKey || !selectedActionKey) {
+    if (!selectedActionRef) {
       setErrorMessage(
         toProblem({
           type: "action-runner/validation-error",
@@ -330,7 +321,7 @@ function ActionLaucher({
     setErrorMessage(null);
 
     performer
-      .executeAny(selectedGroupKey, selectedActionKey, parsedPayload)
+      .executeAny(selectedActionRef, parsedPayload)
       .then((data) => setOutput(data))
       .catch((err) => {
         const problem =
@@ -372,10 +363,10 @@ function ActionLaucher({
       <div className={styles.titleRow}>
         <div className={styles.titleBlock}>
           <div className={styles.title}>
-            {selectedActionKey ?? t("actionRunnerPage_noActionSelected")}
+            {selectedActionRef ?? t("actionRunnerPage_noActionSelected")}
           </div>
           {selectedActionDescriptor &&
-          selectedActionDescriptor.title !== selectedActionKey ? (
+          selectedActionDescriptor.title !== selectedActionRef ? (
             <div className={styles.subtitle}>
               {selectedActionDescriptor.title}
             </div>
@@ -509,34 +500,31 @@ function ActionLaucher({
 function ActionsTree({
   actionRegistry,
   defaultGroupKey,
-  defaultActionKey,
+  defaultActionRef,
   onActionSelect,
 }: {
   actionRegistry: ActionRegistry;
   defaultGroupKey: string | undefined;
-  defaultActionKey: string | undefined;
+  defaultActionRef: string | undefined;
   onActionSelect: (
     groupKey: string | undefined,
-    actionKey: string | undefined,
+    actionRef: string | undefined,
   ) => void;
 }) {
   const styles = useActionTreeStyles();
   const [selectedGroupKey, setSelectedGroupKey] = useState<string | undefined>(
     defaultGroupKey,
   );
-  const [selectedActionKey, setSelectedActionKey] = useState<
+  const [selectedActionRef, setSelectedActionRef] = useState<
     string | undefined
-  >(defaultActionKey);
+  >(defaultActionRef);
   const [openGroupKeys, setOpenGroupKeys] = useState<TreeItemValue[]>(
     defaultGroupKey ? [defaultGroupKey] : [],
   );
 
   const selectedActionValue = useMemo(
-    () =>
-      selectedGroupKey && selectedActionKey
-        ? `${selectedGroupKey}:${selectedActionKey}`
-        : undefined,
-    [selectedGroupKey, selectedActionKey],
+    () => selectedActionRef,
+    [selectedActionRef],
   );
   const treeGroups = useMemo(
     () =>
@@ -548,7 +536,7 @@ function ActionsTree({
           actions: actionRegistry
             .findActionDtoListByResource(groupKey)
             .slice()
-            .sort((a, b) => a.key.localeCompare(b.key)),
+            .sort((a, b) => a.actionRef.localeCompare(b.actionRef)),
         })),
     [actionRegistry],
   );
@@ -561,10 +549,10 @@ function ActionsTree({
           ? groupKey
           : undefined;
     const nextAction = nextGroup
-      ? actionRegistry.findFirstActionKey(nextGroup)
+      ? actionRegistry.findFirstActionRefOfGroup(nextGroup)
       : undefined;
     setSelectedGroupKey(nextGroup);
-    setSelectedActionKey(nextAction);
+    setSelectedActionRef(nextAction);
     setOpenGroupKeys((currentOpenGroupKeys) => {
       if (!nextGroup) {
         return currentOpenGroupKeys;
@@ -579,14 +567,14 @@ function ActionsTree({
     onActionSelect(nextGroup, nextAction);
   };
 
-  const handleSelectActionFromTree = (groupKey: string, actionKey: string) => {
-    if (!actionRegistry.existsAction(groupKey, actionKey)) {
-      setSelectedActionKey(undefined);
+  const handleSelectActionFromTree = (groupKey: string, actionRef: string) => {
+    if (!actionRegistry.existsAction(actionRef)) {
+      setSelectedActionRef(undefined);
       onActionSelect(groupKey, undefined);
       return;
     }
     setSelectedGroupKey(groupKey);
-    setSelectedActionKey(actionKey);
+    setSelectedActionRef(actionRef);
     setOpenGroupKeys((currentOpenGroupKeys) => {
       const hasGroupAlreadyOpen = currentOpenGroupKeys.some(
         (openItem) => openItem === groupKey,
@@ -595,7 +583,7 @@ function ActionsTree({
         ? currentOpenGroupKeys
         : [...currentOpenGroupKeys, groupKey];
     });
-    onActionSelect(groupKey, actionKey);
+    onActionSelect(groupKey, actionRef);
   };
 
   return (
@@ -619,22 +607,25 @@ function ActionsTree({
             <Tree>
               {group.actions.map((action) => (
                 <TreeItem
-                  key={`${group.groupKey}:${action.key}`}
+                  key={action.actionRef}
                   itemType="leaf"
-                  value={`${group.groupKey}:${action.key}`}
+                  value={action.actionRef}
                 >
                   <TreeItemLayout
                     className={mergeClasses(
                       styles.actionItem,
-                      selectedActionValue === `${group.groupKey}:${action.key}`
+                      selectedActionValue === action.actionRef
                         ? styles.actionItemSelected
                         : undefined,
                     )}
                     onClick={() =>
-                      handleSelectActionFromTree(group.groupKey, action.key)
+                      handleSelectActionFromTree(
+                        group.groupKey,
+                        action.actionRef,
+                      )
                     }
                   >
-                    {action.key}
+                    {action.actionRef}
                   </TreeItemLayout>
                 </TreeItem>
               ))}

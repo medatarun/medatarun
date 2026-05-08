@@ -7,14 +7,14 @@ class AppCLIActionRegistry(
     actionDescriptorDtoList: List<ActionDescriptorDto>
 ) {
     private val actionGroupDtoList: List<AppCLIActionGroup> = actionDescriptorDtoList
-        .groupBy { it.groupKey }
+        .groupBy { it.actionGroupKey() }
         .map { groupEntry ->
             AppCLIActionGroup(
                 name = groupEntry.key,
                 actions = groupEntry.value.map { action ->
                     AppCLIAction(
-                        actionGroupKey = action.groupKey,
-                        actionKey = action.actionKey,
+                        actionGroupKey = action.actionGroupKey(),
+                        actionKey = action.actionKey(),
                         title = action.title,
                         description = action.description,
                         parameters = action.parameters.map { parameter ->

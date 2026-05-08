@@ -25,7 +25,7 @@ export const createActionCtxUser = (
         defaultValue: () => user.username,
       },
       {
-        actionKey: "user_change_fullname",
+        actionKey: "auth/user_change_fullname",
         actionParamKey: "fullname",
         readonly: false,
         visible: true,

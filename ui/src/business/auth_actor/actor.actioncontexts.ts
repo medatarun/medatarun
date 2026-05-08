@@ -50,14 +50,14 @@ export const createActionCtxRole = (
         defaultValue: () => "id:" + role.id,
       },
       {
-        actionKey: "role_update_key",
+        actionKey: "auth/role_update_key",
         actionParamKey: "value",
         readonly: false,
         visible: true,
         defaultValue: () => role.key,
       },
       {
-        actionKey: "role_update_autoassign",
+        actionKey: "auth/role_update_autoassign",
         actionParamKey: "value",
         readonly: false,
         visible: true,

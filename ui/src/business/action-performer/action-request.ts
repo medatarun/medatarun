@@ -1,4 +1,5 @@
 import type { ActionCtx } from "./action-ctx.ts";
+import type { ActionKey } from "@/business/action_registry";
 
 /**
  * Action execution request captured at trigger time.
@@ -8,13 +9,9 @@ import type { ActionCtx } from "./action-ctx.ts";
  */
 export type ActionRequest = {
   /**
-   * Action group
+   * Action
    */
-  actionGroupKey: string;
-  /**
-   * Action to launch
-   */
-  actionKey: string;
+  actionRef: ActionKey;
   /**
    * Contextual information for the action (prefilled parameters, where we
    * are on screens, etc.)

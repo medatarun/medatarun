@@ -1,5 +1,5 @@
 import type { TypeRegistry } from "@/business/types/TypeRegistry.ts";
-import { ActionRegistry } from "@/business/action_registry";
+import { type ActionKey, ActionRegistry } from "@/business/action_registry";
 import type { ActionFormData } from "@/business/action-form/action-form-data.ts";
 import type { ActionPayload } from "@/business/action-performer";
 import { formDataNormalize } from "@/business/action-form/action-form-normalize.ts";
@@ -15,12 +15,10 @@ export class ActionFormService {
   }
 
   formDataNormalize(
-    actionGroupKey: string,
-    actionKey: string,
+    actionKey: ActionKey,
     formData: ActionFormData,
   ): ActionPayload {
     return formDataNormalize(
-      actionGroupKey,
       actionKey,
       formData,
       this.actionRegistry,

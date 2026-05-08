@@ -3,8 +3,7 @@ import type { ActionRegistryDto } from "@/business/action_registry/action_regist
 export const actionRegistryStatic = {
   items: [
     {
-      groupKey: "batch",
-      actionKey: "batch_run",
+      actionRef: "batch/batch_run",
       title: "Batch commands",
       description: "Process a list of commands all at once",
       parameters: [
@@ -27,111 +26,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "actor_disable",
-      title: "Disable actor",
-      description: "Disable an actor. Only available for admins.",
-      parameters: [
-        {
-          name: "actorId",
-          type: "ActorId",
-          jsonType: "string",
-          optional: false,
-          title: "actorId",
-          description: "Actor identifier",
-          order: 1,
-        },
-      ],
-      securityRule: "admin",
-      semantics: {
-        intent: "update",
-        subjects: [
-          {
-            type: "actor",
-            referencingParams: [
-              {
-                name: "actorId",
-                kind: "id",
-              },
-            ],
-          },
-        ],
-        returns: [],
-      },
-    },
-    {
-      groupKey: "auth",
-      actionKey: "actor_enable",
-      title: "Enable actor",
-      description: "Enable an actor. Only available for admins.",
-      parameters: [
-        {
-          name: "actorId",
-          type: "ActorId",
-          jsonType: "string",
-          optional: false,
-          title: "actorId",
-          description: "Actor identifier",
-          order: 1,
-        },
-      ],
-      securityRule: "admin",
-      semantics: {
-        intent: "update",
-        subjects: [
-          {
-            type: "actor",
-            referencingParams: [
-              {
-                name: "actorId",
-                kind: "id",
-              },
-            ],
-          },
-        ],
-        returns: [],
-      },
-    },
-    {
-      groupKey: "auth",
-      actionKey: "actor_get",
-      title: "Get actor",
-      description: "Get an actor by identifier. Only available for admins.",
-      parameters: [
-        {
-          name: "actorId",
-          type: "ActorId",
-          jsonType: "string",
-          optional: false,
-          title: "actorId",
-          description: "Actor identifier",
-          order: 1,
-        },
-      ],
-      securityRule: "admin",
-      semantics: {
-        intent: "read",
-        subjects: [],
-        returns: ["actor"],
-      },
-    },
-    {
-      groupKey: "auth",
-      actionKey: "actor_list",
-      title: "List actors",
-      description:
-        "List all known actors: all actors maintained by Medatarun and also all external actor that have connected at least once. Only available for admins.",
-      parameters: [],
-      securityRule: "admin",
-      semantics: {
-        intent: "read",
-        subjects: [],
-        returns: ["actor"],
-      },
-    },
-    {
-      groupKey: "auth",
-      actionKey: "actor_add_role",
+      actionRef: "auth/actor_add_role",
       title: "Add actor role",
       description: "Add role to actor.",
       parameters: [
@@ -176,8 +71,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "actor_delete_role",
+      actionRef: "auth/actor_delete_role",
       title: "Delete actor role",
       description: "Delete role from actor.",
       parameters: [
@@ -222,8 +116,106 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "admin_bootstrap",
+      actionRef: "auth/actor_disable",
+      title: "Disable actor",
+      description: "Disable an actor. Only available for admins.",
+      parameters: [
+        {
+          name: "actorId",
+          type: "ActorId",
+          jsonType: "string",
+          optional: false,
+          title: "actorId",
+          description: "Actor identifier",
+          order: 1,
+        },
+      ],
+      securityRule: "admin",
+      semantics: {
+        intent: "update",
+        subjects: [
+          {
+            type: "actor",
+            referencingParams: [
+              {
+                name: "actorId",
+                kind: "id",
+              },
+            ],
+          },
+        ],
+        returns: [],
+      },
+    },
+    {
+      actionRef: "auth/actor_enable",
+      title: "Enable actor",
+      description: "Enable an actor. Only available for admins.",
+      parameters: [
+        {
+          name: "actorId",
+          type: "ActorId",
+          jsonType: "string",
+          optional: false,
+          title: "actorId",
+          description: "Actor identifier",
+          order: 1,
+        },
+      ],
+      securityRule: "admin",
+      semantics: {
+        intent: "update",
+        subjects: [
+          {
+            type: "actor",
+            referencingParams: [
+              {
+                name: "actorId",
+                kind: "id",
+              },
+            ],
+          },
+        ],
+        returns: [],
+      },
+    },
+    {
+      actionRef: "auth/actor_get",
+      title: "Get actor",
+      description: "Get an actor by identifier. Only available for admins.",
+      parameters: [
+        {
+          name: "actorId",
+          type: "ActorId",
+          jsonType: "string",
+          optional: false,
+          title: "actorId",
+          description: "Actor identifier",
+          order: 1,
+        },
+      ],
+      securityRule: "admin",
+      semantics: {
+        intent: "read",
+        subjects: [],
+        returns: ["actor"],
+      },
+    },
+    {
+      actionRef: "auth/actor_list",
+      title: "List actors",
+      description:
+        "List all known actors: all actors maintained by Medatarun and also all external actor that have connected at least once. Only available for admins.",
+      parameters: [],
+      securityRule: "admin",
+      semantics: {
+        intent: "read",
+        subjects: [],
+        returns: ["actor"],
+      },
+    },
+    {
+      actionRef: "auth/admin_bootstrap",
       title: "Creates admin user",
       description:
         "Creates admin user account and bootstrap credentials. Consumes the one-time secret generated at install. This will automatically make the admin available as an actor and able to connect with tokens.",
@@ -273,41 +265,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "change_my_password",
-      title: "Change own password",
-      description:
-        "Change connected user password. Must provide current password and a new password. Only available to authentified user.",
-      parameters: [
-        {
-          name: "newPassword",
-          type: "PasswordClear",
-          jsonType: "string",
-          optional: false,
-          title: "newPassword",
-          description: "New Password",
-          order: 2,
-        },
-        {
-          name: "oldPassword",
-          type: "PasswordClear",
-          jsonType: "string",
-          optional: false,
-          title: "currentPassword",
-          description: "Current Password",
-          order: 1,
-        },
-      ],
-      securityRule: "signed_in",
-      semantics: {
-        intent: "other",
-        subjects: [],
-        returns: [],
-      },
-    },
-    {
-      groupKey: "auth",
-      actionKey: "login",
+      actionRef: "auth/login",
       title: "Login user",
       description:
         "Generates a JWT Access Token for API calls that users can reuse to authenticate themselves in API or CLI calls (OAuth format, not OIDC)",
@@ -339,8 +297,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "role_add_permission",
+      actionRef: "auth/role_add_permission",
       title: "Add role permission",
       description: "Add a permission to a role.",
       parameters: [
@@ -385,8 +342,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "role_create",
+      actionRef: "auth/role_create",
       title: "Create role",
       description: "Create a new role.",
       parameters: [
@@ -438,8 +394,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "role_delete",
+      actionRef: "auth/role_delete",
       title: "Delete role",
       description: "Delete a role.",
       parameters: [
@@ -471,8 +426,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "role_delete_permission",
+      actionRef: "auth/role_delete_permission",
       title: "Delete role permission",
       description: "Delete a permission from a role.",
       parameters: [
@@ -517,8 +471,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "role_get",
+      actionRef: "auth/role_get",
       title: "Get role",
       description: "Get a role and its permissions.",
       parameters: [
@@ -540,8 +493,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "role_list",
+      actionRef: "auth/role_list",
       title: "List roles",
       description: "List all roles.",
       parameters: [],
@@ -553,8 +505,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "role_update_autoassign",
+      actionRef: "auth/role_update_autoassign",
       title: "Update role auto assign",
       description:
         "When auto assign is on, all new actors (users and tools) will be given this role as a default role.\n\nIf any other role had the feature, it will be removed from the other role and added to this one.\n\nYou can also disable this completely.",
@@ -597,8 +548,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "role_update_description",
+      actionRef: "auth/role_update_description",
       title: "Update role description",
       description: "Update a role description.",
       parameters: [
@@ -639,8 +589,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "role_update_key",
+      actionRef: "auth/role_update_key",
       title: "Update role key",
       description: "Update a role key.",
       parameters: [
@@ -681,8 +630,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "role_update_name",
+      actionRef: "auth/role_update_name",
       title: "Update role name",
       description: "Update a role name.",
       parameters: [
@@ -723,8 +671,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "user_change_fullname",
+      actionRef: "auth/user_change_fullname",
       title: "Change user full name",
       description:
         "Change user full name. Only available for admins. This will automatically change the corresponding actor fullname.",
@@ -766,8 +713,39 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "user_change_password",
+      actionRef: "auth/change_my_password",
+      title: "Change own password",
+      description:
+        "Change connected user password. Must provide current password and a new password. Only available to authentified user.",
+      parameters: [
+        {
+          name: "newPassword",
+          type: "PasswordClear",
+          jsonType: "string",
+          optional: false,
+          title: "newPassword",
+          description: "New Password",
+          order: 2,
+        },
+        {
+          name: "oldPassword",
+          type: "PasswordClear",
+          jsonType: "string",
+          optional: false,
+          title: "currentPassword",
+          description: "Current Password",
+          order: 1,
+        },
+      ],
+      securityRule: "signed_in",
+      semantics: {
+        intent: "other",
+        subjects: [],
+        returns: [],
+      },
+    },
+    {
+      actionRef: "auth/user_change_password",
       title: "Change user password",
       description: "Change a user password. Only available for admins.",
       parameters: [
@@ -798,8 +776,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "user_create",
+      actionRef: "auth/user_create",
       title: "Create user",
       description:
         "Create a new user. This will automatically make this user available as an actor and able to connect with security tokens.",
@@ -857,8 +834,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "user_disable",
+      actionRef: "auth/user_disable",
       title: "Disable user",
       description:
         "Disable a user account. Only available for admins. This will automatically make the corresponding actor disabled and unable to connect with tokens.",
@@ -891,8 +867,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "user_enable",
+      actionRef: "auth/user_enable",
       title: "Enable user",
       description:
         "Enable a user account. Only available for admins. This will automatically make the corresponding actor enabled and able to connect with tokens.",
@@ -925,8 +900,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "user_list",
+      actionRef: "auth/user_list",
       title: "User list",
       description: "Lists available users. Only available for admins.",
       parameters: [],
@@ -938,8 +912,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "auth",
-      actionKey: "whoami",
+      actionRef: "auth/whoami",
       title: "Who am i",
       description:
         "Tells who is the connected user. Allow you to know if you have the credentials you need",
@@ -952,8 +925,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "maintenance_rebuild_caches",
+      actionRef: "tag/maintenance_rebuild_caches",
       title: "Maintenance rebuild caches",
       description:
         "\n            Rebuilds tag application caches from stored events.\n            \n            Use this only as an exceptional maintenance action when data appears out of date.\n            If you need to run it, we recommend contacting us on the project GitHub because it\n            usually means you identified a bug.\n        ",
@@ -966,8 +938,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_global_create",
+      actionRef: "tag/tag_global_create",
       title: "Create a global tag",
       description: "Creates a tag inside a group.",
       parameters: [
@@ -1032,8 +1003,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_global_delete",
+      actionRef: "tag/tag_global_delete",
       title: "Delete global tag",
       description: "Deletes a global tag.",
       parameters: [
@@ -1065,8 +1035,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_global_update_description",
+      actionRef: "tag/tag_global_update_description",
       title: "Update global tag description",
       description: "Updates the description of a global tag.",
       parameters: [
@@ -1108,8 +1077,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_global_update_key",
+      actionRef: "tag/tag_global_update_key",
       title: "Update global tag key",
       description: "Updates the key of a global tag.",
       parameters: [
@@ -1151,8 +1119,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_global_update_name",
+      actionRef: "tag/tag_global_update_name",
       title: "Update global tag name",
       description: "Updates the name of a global tag.",
       parameters: [
@@ -1193,8 +1160,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_group_create",
+      actionRef: "tag/tag_group_create",
       title: "Create a tag group",
       description:
         "Creates a group used to organize global tags that belong together.",
@@ -1247,8 +1213,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_group_delete",
+      actionRef: "tag/tag_group_delete",
       title: "Delete tag group",
       description: "Deletes a tag group.",
       parameters: [
@@ -1280,8 +1245,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_group_list",
+      actionRef: "tag/tag_group_list",
       title: "Tag group list",
       description: "Lists all tag groups.",
       parameters: [],
@@ -1293,8 +1257,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_group_update_description",
+      actionRef: "tag/tag_group_update_description",
       title: "Update tag group description",
       description: "Updates the description of a tag group.",
       parameters: [
@@ -1336,8 +1299,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_group_update_key",
+      actionRef: "tag/tag_group_update_key",
       title: "Update tag group key",
       description: "Updates the key of a tag group.",
       parameters: [
@@ -1379,8 +1341,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_group_update_name",
+      actionRef: "tag/tag_group_update_name",
       title: "Update global tag group name",
       description: "Updates the name of a tag group.",
       parameters: [
@@ -1421,8 +1382,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_local_create",
+      actionRef: "tag/tag_local_create",
       title: "Create a local tag",
       description:
         "Creates a tag, local to a scope (a model for example), without belonging to a group.",
@@ -1488,8 +1448,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_local_delete",
+      actionRef: "tag/tag_local_delete",
       title: "Delete local tag",
       description: "Deletes a local tag from its scope.",
       parameters: [
@@ -1521,8 +1480,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_local_update_description",
+      actionRef: "tag/tag_local_update_description",
       title: "Update local tag description",
       description: "Updates the description of a local tag.",
       parameters: [
@@ -1564,8 +1522,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_local_update_key",
+      actionRef: "tag/tag_local_update_key",
       title: "Update local tag key",
       description: "Updates the key of a local tag.",
       parameters: [
@@ -1607,8 +1564,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_local_update_name",
+      actionRef: "tag/tag_local_update_name",
       title: "Update local tag name",
       description: "Updates the name of a local tag.",
       parameters: [
@@ -1649,8 +1605,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "tag",
-      actionKey: "tag_search",
+      actionRef: "tag/tag_search",
       title: "Tag search",
       description:
         "Searches known tags. Without filters, returns all tags. Use filters to narrow the result.",
@@ -1673,8 +1628,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "business_key_create",
+      actionRef: "model/business_key_create",
       title: "Create a business key",
       description:
         "Creates a business key to represent wich attributes of an entity uniquely identifies the objet in a business manner.",
@@ -1762,8 +1716,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "business_key_delete",
+      actionRef: "model/business_key_delete",
       title: "Delete business key",
       description: "Delete the business key. Attributes are kept in entity.",
       parameters: [
@@ -1808,8 +1761,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "business_key_update_description",
+      actionRef: "model/business_key_update_description",
       title: "Update business key description",
       description: "Changes the description of a business key.",
       parameters: [
@@ -1863,8 +1815,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "business_key_update_key",
+      actionRef: "model/business_key_update_key",
       title: "Update business key's key",
       description: "Changes the key of a business key.",
       parameters: [
@@ -1918,8 +1869,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "business_key_update_name",
+      actionRef: "model/business_key_update_name",
       title: "Update business key name",
       description: "Changes the name of a business key.",
       parameters: [
@@ -1973,8 +1923,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "business_key_update_participants",
+      actionRef: "model/business_key_update_participants",
       title: "Update business key participants",
       description:
         "Changes the participants of a business key, meaning all attributes that define the business key meaning.",
@@ -2030,8 +1979,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "model_compare",
+      actionRef: "model/model_compare",
       title: "Compare models",
       description: "Compares two model states and returns their differences.",
       parameters: [
@@ -2092,8 +2040,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_attribute_add_tag",
+      actionRef: "model/entity_attribute_add_tag",
       title: "Add tag to entity attribute",
       description: "Adds a tag to an entity attribute.",
       parameters: [
@@ -2161,8 +2108,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_attribute_create",
+      actionRef: "model/entity_attribute_create",
       title: "Create entity attribute",
       description: "Creates an attribute on an entity.",
       parameters: [
@@ -2261,8 +2207,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_attribute_delete",
+      actionRef: "model/entity_attribute_delete",
       title: "Delete entity attribute",
       description: "Deletes an attribute from an entity.",
       parameters: [
@@ -2321,8 +2266,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_attribute_delete_tag",
+      actionRef: "model/entity_attribute_delete_tag",
       title: "Delete tag from entity attribute",
       description: "Removes a tag from an entity attribute.",
       parameters: [
@@ -2390,8 +2334,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_attribute_update_description",
+      actionRef: "model/entity_attribute_update_description",
       title: "Update entity attribute description",
       description: "Updates the description of an entity attribute.",
       parameters: [
@@ -2460,8 +2403,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_attribute_update_key",
+      actionRef: "model/entity_attribute_update_key",
       title: "Update entity attribute key",
       description: "Updates the key of an entity attribute.",
       parameters: [
@@ -2530,8 +2472,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_attribute_update_name",
+      actionRef: "model/entity_attribute_update_name",
       title: "Update entity attribute name",
       description: "Updates the name of an entity attribute.",
       parameters: [
@@ -2599,8 +2540,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_attribute_update_optional",
+      actionRef: "model/entity_attribute_update_optional",
       title: "Update entity attribute optionality",
       description: "Updates whether an entity attribute is optional.",
       parameters: [
@@ -2669,8 +2609,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_attribute_update_type",
+      actionRef: "model/entity_attribute_update_type",
       title: "Update entity attribute type",
       description: "Updates the data type of an entity attribute.",
       parameters: [
@@ -2739,8 +2678,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_primary_key_update",
+      actionRef: "model/entity_primary_key_update",
       title: "Update entity primary key",
       description:
         "Defines the primary key of an entity. Note that if the list of attributes is empty, the primary key will be removed.",
@@ -2800,8 +2738,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_add_tag",
+      actionRef: "model/entity_add_tag",
       title: "Add entity tag",
       description: "Adds a tag to an entity.",
       parameters: [
@@ -2855,8 +2792,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_create",
+      actionRef: "model/entity_create",
       title: "Create entity",
       description: "Creates an entity in an existing model.",
       parameters: [
@@ -2930,8 +2866,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_delete",
+      actionRef: "model/entity_delete",
       title: "Delete model entity",
       description:
         "Removes an entity and all its attributes from the given model.",
@@ -2977,8 +2912,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_delete_tag",
+      actionRef: "model/entity_delete_tag",
       title: "Delete entity tag",
       description: "Removes a tag from an entity.",
       parameters: [
@@ -3032,8 +2966,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_update_description",
+      actionRef: "model/entity_update_description",
       title: "Update entity description",
       description: "Updates the description of an entity.",
       parameters: [
@@ -3088,8 +3021,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_update_documentation_link",
+      actionRef: "model/entity_update_documentation_link",
       title: "Update entity external documentation",
       description: "Updates the external documentation link of an entity.",
       parameters: [
@@ -3143,8 +3075,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_update_key",
+      actionRef: "model/entity_update_key",
       title: "Update entity key",
       description: "Updates the key of an entity.",
       parameters: [
@@ -3199,8 +3130,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "entity_update_name",
+      actionRef: "model/entity_update_name",
       title: "Update entity name",
       description: "Updates the name of an entity.",
       parameters: [
@@ -3254,8 +3184,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "history_version_changes",
+      actionRef: "model/history_version_changes",
       title: "Version changes",
       description:
         "Lists the changes included in a version. When no version is provided, lists the changes since the last released version.",
@@ -3295,8 +3224,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "history_versions",
+      actionRef: "model/history_versions",
       title: "Versions",
       description: "Lists the released versions of a model.",
       parameters: [
@@ -3325,8 +3253,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "import",
+      actionRef: "model/import",
       title: "Import model",
       description: "Imports a model from various locations.",
       parameters: [
@@ -3369,8 +3296,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "inspect_models_json",
+      actionRef: "model/inspect_models_json",
       title: "Inspect models (JSON)",
       description:
         "Returns the registered models, entities, and attributes with all metadata encoded as JSON. Preferred method for AI agents to understand the model.",
@@ -3383,8 +3309,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "maintenance_rebuild_caches",
+      actionRef: "model/maintenance_rebuild_caches",
       title: "Maintenance rebuild caches",
       description:
         "\n            Rebuilds model application caches from stored events.\n            \n            Use this only as an exceptional maintenance action when data appears out of date.\n            If you need to run it, we recommend contacting us on the project GitHub because it\n            usually means you identified a bug.\n        ",
@@ -3397,8 +3322,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "model_add_tag",
+      actionRef: "model/model_add_tag",
       title: "Add tag to model",
       description: "Adds a tag to a model.",
       parameters: [
@@ -3439,8 +3363,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "model_copy",
+      actionRef: "model/model_copy",
       title: "Copy model",
       description:
         "Creates a copy of a model with a new key. The copied model keeps the same name and has its own lifecycle.",
@@ -3487,8 +3410,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "model_create",
+      actionRef: "model/model_create",
       title: "Create model",
       description:
         "Creates a new model with a key, a name, an optional description, and an optional version.",
@@ -3551,8 +3473,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "model_delete",
+      actionRef: "model/model_delete",
       title: "Delete model",
       description: "Removes a model and all of its entities from the runtime.",
       parameters: [
@@ -3584,8 +3505,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "model_delete_tag",
+      actionRef: "model/model_delete_tag",
       title: "Delete tag from model",
       description: "Removes a tag from a model.",
       parameters: [
@@ -3626,8 +3546,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "model_export",
+      actionRef: "model/model_export",
       title: "Export model",
       description: "Returns the exported view of a model.",
       parameters: [
@@ -3649,8 +3568,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "model_export_version",
+      actionRef: "model/model_export_version",
       title: "Export model at a specific version",
       description:
         "Returns the exported view of a model at a specific version.",
@@ -3682,8 +3600,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "model_list",
+      actionRef: "model/model_list",
       title: "Models list",
       description: "Returns a summary list of the models.",
       parameters: [],
@@ -3695,8 +3612,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "model_release",
+      actionRef: "model/model_release",
       title: "Release version",
       description:
         "Releases a new version of a model. The new version must be greater than the previous one.",
@@ -3738,8 +3654,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "model_update_authority",
+      actionRef: "model/model_update_authority",
       title: "Update model authority",
       description:
         "Updates whether this model serves as a canonical business reference or describes an existing system.",
@@ -3782,8 +3697,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "model_update_description",
+      actionRef: "model/model_update_description",
       title: "Update model description",
       description: "Updates the description of a model.",
       parameters: [
@@ -3825,8 +3739,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "model_update_documentation_link",
+      actionRef: "model/model_update_documentation_link",
       title: "Update model external documentation",
       description: "Updates the external documentation link of a model.",
       parameters: [
@@ -3867,8 +3780,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "model_update_key",
+      actionRef: "model/model_update_key",
       title: "Update model key",
       description: "Updates the key of a model.",
       parameters: [
@@ -3910,8 +3822,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "model_update_name",
+      actionRef: "model/model_update_name",
       title: "Update model name",
       description: "Updates the name of a model.",
       parameters: [
@@ -3952,8 +3863,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_attribute_add_tag",
+      actionRef: "model/relationship_attribute_add_tag",
       title: "Add tag to relationship attribute",
       description: "Adds a tag to a relationship attribute.",
       parameters: [
@@ -4020,8 +3930,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_attribute_create",
+      actionRef: "model/relationship_attribute_create",
       title: "Create relationship attribute",
       description: "Creates an attribute on a relationship.",
       parameters: [
@@ -4119,8 +4028,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_attribute_delete",
+      actionRef: "model/relationship_attribute_delete",
       title: "Delete relationship attribute",
       description: "Deletes an attribute from a relationship.",
       parameters: [
@@ -4178,8 +4086,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_attribute_delete_tag",
+      actionRef: "model/relationship_attribute_delete_tag",
       title: "Delete tag from relationship attribute",
       description: "Removes a tag from a relationship attribute.",
       parameters: [
@@ -4246,8 +4153,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_attribute_update_description",
+      actionRef: "model/relationship_attribute_update_description",
       title: "Update relationship attribute description",
       description: "Updates the description of a relationship attribute.",
       parameters: [
@@ -4315,8 +4221,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_attribute_update_key",
+      actionRef: "model/relationship_attribute_update_key",
       title: "Update relationship attribute key",
       description: "Updates the key of a relationship attribute.",
       parameters: [
@@ -4384,8 +4289,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_attribute_update_name",
+      actionRef: "model/relationship_attribute_update_name",
       title: "Update relationship attribute name",
       description: "Updates the name of a relationship attribute.",
       parameters: [
@@ -4452,8 +4356,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_attribute_update_optional",
+      actionRef: "model/relationship_attribute_update_optional",
       title: "Update relationship attribute optionality",
       description: "Updates whether a relationship attribute is optional.",
       parameters: [
@@ -4521,8 +4424,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_attribute_update_type",
+      actionRef: "model/relationship_attribute_update_type",
       title: "Update relationship attribute type",
       description: "Updates the data type of a relationship attribute.",
       parameters: [
@@ -4590,8 +4492,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_role_create",
+      actionRef: "model/relationship_role_create",
       title: "Create relationship role",
       description: "Creates a role in a relationship.",
       parameters: [
@@ -4684,8 +4585,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_role_delete",
+      actionRef: "model/relationship_role_delete",
       title: "Delete relationship role",
       description:
         "Deletes a role from a relationship. This action fails if fewer than two roles would remain.",
@@ -4744,8 +4644,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_role_update_cardinality",
+      actionRef: "model/relationship_role_update_cardinality",
       title: "Update relationship role cardinality",
       description: "Updates the cardinality of a relationship role.",
       parameters: [
@@ -4813,8 +4712,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_role_update_entity",
+      actionRef: "model/relationship_role_update_entity",
       title: "Update relationship role entity",
       description:
         "Updates which entity participates through a relationship role.",
@@ -4883,8 +4781,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_role_update_key",
+      actionRef: "model/relationship_role_update_key",
       title: "Update relationship role key",
       description: "Updates the key of a relationship role.",
       parameters: [
@@ -4952,8 +4849,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_role_update_name",
+      actionRef: "model/relationship_role_update_name",
       title: "Update relationship role name",
       description: "Updates the name of a relationship role.",
       parameters: [
@@ -5021,8 +4917,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_add_tag",
+      actionRef: "model/relationship_add_tag",
       title: "Add tag to relationship",
       description: "Adds a tag to a relationship.",
       parameters: [
@@ -5076,8 +4971,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_create",
+      actionRef: "model/relationship_create",
       title: "Create relationship",
       description: "Creates a relationship between entities in a model.",
       parameters: [
@@ -5238,8 +5132,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_delete",
+      actionRef: "model/relationship_delete",
       title: "Delete relationship",
       description: "Deletes a relationship.",
       parameters: [
@@ -5284,8 +5177,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_delete_tag",
+      actionRef: "model/relationship_delete_tag",
       title: "Delete relationship tag",
       description: "Removes a tag from a relationship.",
       parameters: [
@@ -5339,8 +5231,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_update_description",
+      actionRef: "model/relationship_update_description",
       title: "Update relationship description",
       description: "Updates the description of a relationship.",
       parameters: [
@@ -5395,8 +5286,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_update_key",
+      actionRef: "model/relationship_update_key",
       title: "Update relationship key",
       description: "Updates the key of a relationship.",
       parameters: [
@@ -5451,8 +5341,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "relationship_update_name",
+      actionRef: "model/relationship_update_name",
       title: "Update relationship name",
       description: "Updates the name of a relationship.",
       parameters: [
@@ -5506,8 +5395,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "search",
+      actionRef: "model/search",
       title: "Search",
       description: "Searches models and model objects.",
       parameters: [
@@ -5547,8 +5435,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "type_create",
+      actionRef: "model/type_create",
       title: "Create type",
       description: "Creates a data type in an existing model.",
       parameters: [
@@ -5613,8 +5500,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "type_delete",
+      actionRef: "model/type_delete",
       title: "Delete type",
       description:
         "Deletes a data type from a model. This action fails if the data type is still used by entity attributes.",
@@ -5660,8 +5546,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "type_update_description",
+      actionRef: "model/type_update_description",
       title: "Update type description",
       description: "Updates the description of a data type.",
       parameters: [
@@ -5716,8 +5601,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "type_update_key",
+      actionRef: "model/type_update_key",
       title: "Update type key",
       description: "Updates the key of a data type.",
       parameters: [
@@ -5772,8 +5656,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "model",
-      actionKey: "type_update_name",
+      actionRef: "model/type_update_name",
       title: "Update type name",
       description: "Updates the name of a data type.",
       parameters: [
@@ -5827,8 +5710,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "config",
-      actionKey: "ai_agents_instructions",
+      actionRef: "config/ai_agents_instructions",
       title: "AI Agents Instructions",
       description:
         "Each AI Agent should read that first. Returns a usage guide for AI Agents. Use it for your AGENTS.md files if your agent doesn't support instructions in MCP.",
@@ -5841,8 +5723,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "config",
-      actionKey: "inspect_config_text",
+      actionRef: "config/inspect_config_text",
       title: "Inspect config as text file",
       description:
         "Returns a human-readable list of the configuration, including extension contributions and contribution points, what provides what to whom.",
@@ -5855,8 +5736,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "config",
-      actionKey: "inspect_actions",
+      actionRef: "config/inspect_actions",
       title: "Inspect actions",
       description:
         "Returns all known actions with their parameter descriptions.",
@@ -5869,8 +5749,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "config",
-      actionKey: "inspect_actions_all",
+      actionRef: "config/inspect_actions_all",
       title: "Inspect all actions",
       description: "Returns all known from the system.",
       parameters: [],
@@ -5882,8 +5761,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "config",
-      actionKey: "inspect_config",
+      actionRef: "config/inspect_config",
       title: "Inspect config",
       description:
         "Returns a Json representation of the configuration, including extension contributions and contribution points, what provides what to whom.",
@@ -5896,8 +5774,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "config",
-      actionKey: "inspect_permissions",
+      actionRef: "config/inspect_permissions",
       title: "Inspect permissions",
       description:
         "Returns all known permissions registered in application with their descriptions.",
@@ -5910,8 +5787,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "config",
-      actionKey: "inspect_security_rules",
+      actionRef: "config/inspect_security_rules",
       title: "Inspect security rules",
       description:
         "Returns all known security rules registered in application with their descriptions.",
@@ -5924,8 +5800,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "config",
-      actionKey: "inspect_type_system",
+      actionRef: "config/inspect_type_system",
       title: "Inspect type system",
       description:
         "Returns all known types declared in application with their description.",
@@ -5938,8 +5813,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "databases",
-      actionKey: "driver_list",
+      actionRef: "databases/driver_list",
       title: "Database drivers",
       description: "Lists available database drivers",
       parameters: [],
@@ -5951,8 +5825,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      groupKey: "databases",
-      actionKey: "datasource_list",
+      actionRef: "databases/datasource_list",
       title: "Database sources",
       description: "Lists available datasources",
       parameters: [],

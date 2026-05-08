@@ -86,18 +86,16 @@ export class ActionPerformer {
   }
 
   executeAny<T = unknown>(
-    actionGroup: string,
-    actionName: string,
+    actionRef: string,
     payload: ActionPayload,
   ): Promise<ActionResp<T>> {
-    return executeActionInternal(actionGroup, actionName, payload);
+    return executeActionInternal(actionRef, payload);
   }
   executeJson<T = unknown>(
-    actionGroup: string,
-    actionName: string,
+    actionRef: ActionKey,
     payload: ActionPayload,
   ): Promise<T> {
-    return executeActionJsonInternal(actionGroup, actionName, payload);
+    return executeActionJsonInternal(actionRef, payload);
   }
 
   async confirmAction(
@@ -138,11 +136,7 @@ export class ActionPerformer {
     request: ActionRequest,
     payload: ActionPayload,
   ): Promise<ActionResp> {
-    const resp = await executeActionInternal(
-      request.actionGroupKey,
-      request.actionKey,
-      payload,
-    );
+    const resp = await executeActionInternal(request.actionRef, payload);
     await this.onActionSuccess(request);
     return resp;
   }
@@ -161,8 +155,8 @@ export class ActionPerformer {
     if (displayedSubject.kind == "none") return;
     actionPostNavigate({
       action:
-        this.actionRegistry.findActionByActionKey(context.request.actionKey) ??
-        throwError("Action not found in registry " + context.request.actionKey),
+        this.actionRegistry.findActionByActionKey(context.request.actionRef) ??
+        throwError("Action not found in registry " + context.request.actionRef),
       request: context.request,
       navigate: this.navigate,
       displayedSubject: context.request.ctx.displayedSubject,
@@ -185,7 +179,7 @@ export class ActionPerformer {
    */
   private async onActionSuccess(request: ActionRequest) {
     return actionPostCacheManagement(
-      request.actionKey as ActionKey,
+      request.actionRef as ActionKey,
       this.queryClient,
       this.actionRegistry,
     );

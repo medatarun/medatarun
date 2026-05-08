@@ -12,8 +12,7 @@ import { isNil } from "lodash-es";
 import { actionRegistryStatic } from "@/business/action_registry/action_registry.static.ts";
 
 export class ActionDescriptor {
-  public actionGroupKey: string;
-  public key: ActionKey;
+  public actionRef: ActionKey;
   public description: string | null;
   public parameters: ActionDescriptorParam[];
   public title: string;
@@ -25,12 +24,11 @@ export class ActionDescriptor {
 
   constructor(dto: ActionDescriptorDto) {
     this.dto = dto;
-    this.actionGroupKey = dto.groupKey;
-    this.key = dto.actionKey as ActionKey;
+    this.actionRef = dto.actionRef as ActionKey;
     this.description = dto.description;
     this.parameters = dto.parameters.map((it) => new ActionDescriptorParam(it));
-    this.title = dto.title ?? dto.groupKey + "/" + dto.actionKey;
-    this.path = dto.groupKey + "/" + dto.actionKey;
+    this.title = dto.title ?? dto.actionRef;
+    this.path = dto.actionRef;
     this.securityRule = dto.securityRule;
     this.semantics = new ActionDescriptorSemantics(dto.semantics);
   }
@@ -98,52 +96,46 @@ export class ActionRegistry {
 
   public constructor(dto: ActionRegistryDto) {
     this.dto = dto;
-    this.actionGroupKeys = [
-      ...new Set(this.dto.items.map((it) => it.groupKey)),
-    ];
     this.actionDescriptors = dto.items.map((it) => new ActionDescriptor(it));
+    this.actionGroupKeys = [
+      ...new Set(dto.items.map((it) => it.actionRef.split("/")[0])),
+    ];
   }
 
   public findActionDtoListByResource(
     groupKey: string | undefined | null,
   ): ActionDescriptor[] {
     if (!groupKey) return [];
-    return this.actionDescriptors.filter(
-      (it) => it.actionGroupKey === groupKey,
+    return this.actionDescriptors.filter((it) =>
+      it.actionRef.startsWith(groupKey + "/"),
     );
   }
 
   public findActionOptional(
-    actionGroupKey: string | undefined | null,
-    actionKey: string | undefined | null,
+    actionRef: string | undefined | null,
   ): ActionDescriptor | undefined {
-    if (!actionGroupKey) return undefined;
-    if (!actionKey) return undefined;
-    return this.actionDescriptors.find(
-      (it) => actionGroupKey === it.actionGroupKey && actionKey == it.key,
-    );
+    if (!actionRef) return undefined;
+    return this.actionDescriptors.find((it) => it.actionRef == actionRef);
   }
 
   public findActionByActionKey(
     actionKey: string | undefined | null,
   ): ActionDescriptor | undefined {
     if (!actionKey) return undefined;
-    return this.actionDescriptors.find((it) => actionKey == it.key);
+    return this.actionDescriptors.find((it) => actionKey == it.actionRef);
   }
 
-  public findActionByGroupKeyAndActionKey(
-    actionGroupKey: string,
-    actionKey: string,
-  ): ActionDescriptor {
+  public findActionByGroupKeyAndActionKey(actionRef: string): ActionDescriptor {
     return (
-      this.findActionOptional(actionGroupKey, actionKey) ??
-      throwError(`Unknown action ${actionGroupKey}/${actionKey}`)
+      this.findActionOptional(actionRef) ??
+      throwError(`Unknown action ${actionRef}`)
     );
   }
 
-  public findFirstActionKey(resource: string): string | undefined {
-    return this.actionDescriptors.find((it) => it.actionGroupKey === resource)
-      ?.key;
+  public findFirstActionRefOfGroup(groupKey: string): string | undefined {
+    return this.actionDescriptors.find((it) =>
+      it.actionRef.startsWith(groupKey + "/"),
+    )?.actionRef;
   }
 
   public findFirstGroupKey() {
@@ -152,19 +144,16 @@ export class ActionRegistry {
       : this.actionGroupKeys[0];
   }
 
-  public existsGroup(resource: string) {
-    return this.actionGroupKeys.some((it) => it === resource);
+  public existsGroup(actionGroupKey: string) {
+    return this.actionGroupKeys.some((it) => it === actionGroupKey);
   }
 
-  public existsAction(resource: string, action: string) {
-    return this.findActionOptional(resource, action) !== undefined;
+  public existsAction(actionRef: string) {
+    return this.findActionOptional(actionRef) !== undefined;
   }
 
-  public createPayloadTemplate(
-    resource: string | undefined | null,
-    actionName: string | undefined | null,
-  ): string {
-    const action = this.findActionOptional(resource, actionName);
+  public createPayloadTemplate(actionRef: string | undefined | null): string {
+    const action = this.findActionOptional(actionRef);
     if (!action) return "{}";
     return buildPayloadTemplate(action);
   }
@@ -199,7 +188,3 @@ function buildPayloadTemplate(action: ActionDescriptor): string {
   });
   return JSON.stringify(payload, null, 2);
 }
-
-export const ActionRegistryInstance: ActionRegistry = new ActionRegistry(
-  actionRegistryStatic,
-);

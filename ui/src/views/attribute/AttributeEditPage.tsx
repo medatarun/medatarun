@@ -171,8 +171,8 @@ export function AttributeView({
 
   const actions = actionRegistry.findActionDescriptors(
     parentType == "entity"
-      ? ["entity_attribute_delete"]
-      : ["relationship_attribute_delete"],
+      ? ["model/entity_attribute_delete"]
+      : ["model/relationship_attribute_delete"],
   );
 
   const handleClickModel = () => {
@@ -203,12 +203,12 @@ export function AttributeView({
     parentType === "relationship" ? (parent as RelationshipDto) : null;
 
   const updateNameDisabled = parentAsEntity
-    ? !sec.canExecuteAction("entity_attribute_update_name")
-    : !sec.canExecuteAction("relationship_attribute_update_name");
+    ? !sec.canExecuteAction("model/entity_attribute_update_name")
+    : !sec.canExecuteAction("model/relationship_attribute_update_name");
 
   const updateDescriptionDisabled = parentAsEntity
-    ? !sec.canExecuteAction("entity_attribute_update_description")
-    : !sec.canExecuteAction("relationship_attribute_update_description");
+    ? !sec.canExecuteAction("model/entity_attribute_update_description")
+    : !sec.canExecuteAction("model/relationship_attribute_update_description");
 
   const displayedSubject: ActionDisplayedSubject =
     parentAsEntity !== null
@@ -407,26 +407,26 @@ export function AttributeOverview({
     model.isEntityAttributePK(parentAsEntity.id, attribute.id);
 
   const updateKeyDisabled = parentAsEntity
-    ? !sec.canExecuteAction("entity_attribute_update_key")
-    : !sec.canExecuteAction("relationship_attribute_update_key");
+    ? !sec.canExecuteAction("model/entity_attribute_update_key")
+    : !sec.canExecuteAction("model/relationship_attribute_update_key");
 
   const updateTypeDisabled = parentAsEntity
-    ? !sec.canExecuteAction("entity_attribute_update_type")
-    : !sec.canExecuteAction("relationship_attribute_update_type");
+    ? !sec.canExecuteAction("model/entity_attribute_update_type")
+    : !sec.canExecuteAction("model/relationship_attribute_update_type");
 
   const updateTagDisabled = parentAsEntity
     ? !sec.canExecuteActions(
-        "entity_attribute_add_tag",
-        "entity_attribute_delete_tag",
+        "model/entity_attribute_add_tag",
+        "model/entity_attribute_delete_tag",
       )
     : !sec.canExecuteActions(
-        "relationship_attribute_add_tag",
-        "relationship_attribute_delete_tag",
+        "model/relationship_attribute_add_tag",
+        "model/relationship_attribute_delete_tag",
       );
 
   const updateOptionalDisabled = parentAsEntity
-    ? !sec.canExecuteAction("entity_attribute_update_optional")
-    : !sec.canExecuteAction("relationship_attribute_update_optional");
+    ? !sec.canExecuteAction("model/entity_attribute_update_optional")
+    : !sec.canExecuteAction("model/relationship_attribute_update_optional");
 
   const handleChangeKey = (value: string) => {
     if (parentAsEntity) {

@@ -39,14 +39,15 @@ export function EntityOverview({
   const securityContext = useSecurityContext();
   const { t } = useAppI18n();
 
-  const changeKeyDisabled =
-    !securityContext.canExecuteAction("entity_update_key");
+  const changeKeyDisabled = !securityContext.canExecuteAction(
+    "model/entity_update_key",
+  );
   const changeDocumentationHomeDisabled = !securityContext.canExecuteAction(
-    "entity_update_documentation_link",
+    "model/entity_update_documentation_link",
   );
   const changeTagsDisabled = !securityContext.canExecuteActions(
-    "entity_add_tag",
-    "entity_delete_tag",
+    "model/entity_add_tag",
+    "model/entity_delete_tag",
   );
 
   const handleChangeKey = (value: string) => {

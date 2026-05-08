@@ -2,8 +2,14 @@
 
 ## v0.15.0
 
+### Features
+
 - UI: Fix missing action on entities to manage primary key
-- Code: Better error classifications
+- Code: Better error display based on new error classifications
+
+### Architecture
+
+- UI: Refactored action references into a single actionRef. 
 
 ## v0.14.0
 

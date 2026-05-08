@@ -91,13 +91,13 @@ export const createActionCtxModel = (
         visible: false,
       },
       {
-        actionKey: "model_update_authority",
+        actionKey: "model/model_update_authority",
         actionParamKey: "value",
         defaultValue: () => model.authority,
       },
       {
         actionGroupKey: "tag",
-        actionKey: /^tag_local/,
+        actionKey: /^tag\/tag_local/,
         actionParamKey: "scopeRef",
         defaultValue: () => ({ type: "model", id: model.id }),
         readonly: true,
@@ -134,7 +134,7 @@ export const createActionCtxEntity = (
         visible: false,
       },
       {
-        actionKey: "entity_primary_key_update",
+        actionKey: "model/entity_primary_key_update",
         actionParamKey: "attributeRef",
         defaultValue: () => model.findEntityPKAttributes(entity.id),
         readonly: false,
@@ -202,22 +202,22 @@ export const createActionCtxBusinessKey = (
         visible: false,
       },
       {
-        actionKey: "business_key_update_key",
+        actionKey: "model/business_key_update_key",
         actionParamKey: "value",
         defaultValue: () => businessKey.key,
       },
       {
-        actionKey: "business_key_update_name",
+        actionKey: "model/business_key_update_name",
         actionParamKey: "value",
         defaultValue: () => businessKey.name,
       },
       {
-        actionKey: "business_key_update_description",
+        actionKey: "model/business_key_update_description",
         actionParamKey: "value",
         defaultValue: () => businessKey.description,
       },
       {
-        actionKey: "business_key_update_participants",
+        actionKey: "model/business_key_update_participants",
         actionParamKey: "value",
         defaultValue: () =>
           businessKey.participants.map((it) => "id:" + it) ?? [],

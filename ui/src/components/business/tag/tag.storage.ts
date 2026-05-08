@@ -7,6 +7,7 @@ import type {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ActionPayload } from "@/business/action-performer";
 import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
+import type { ActionKey } from "@/business/action_registry";
 
 export type TagSearchReq = {
   filters?: TagSearchFilters | null;
@@ -30,7 +31,7 @@ export const useTagSearch = (req: TagSearchReq, enabled: boolean = true) => {
       if (req.filters !== undefined) {
         payload.filters = req.filters;
       }
-      return performer.executeJson<TagSearchResp>("tag", "tag_search", payload);
+      return performer.executeJson<TagSearchResp>("tag/tag_search", payload);
     },
   });
 };
@@ -40,37 +41,37 @@ export const useTagGroupList = () => {
   return useQuery({
     queryKey: ["action", "tag", "tag_group_list"],
     queryFn: () =>
-      performer.executeJson<TagGroupListResp>("tag", "tag_group_list", {}),
+      performer.executeJson<TagGroupListResp>("tag/tag_group_list", {}),
   });
 };
 
-function useTagGroupMutation(actionKey: string) {
+function useTagGroupMutation(actionRef: ActionKey) {
   const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { tagGroupId: string; value: string }) =>
-      performer.executeJson("tag", actionKey, {
+      performer.executeJson(actionRef, {
         tagGroupRef: "id:" + props.tagGroupId,
         value: props.value,
       }),
   });
 }
 
-function useTagGlobalMutation(actionKey: string) {
+function useTagGlobalMutation(actionRef: ActionKey) {
   const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { tagId: string; value: string }) =>
-      performer.executeJson("tag", actionKey, {
+      performer.executeJson(actionRef, {
         tagRef: "id:" + props.tagId,
         value: props.value,
       }),
   });
 }
 
-function useTagLocalMutation(actionKey: string) {
+function useTagLocalMutation(actionRef: ActionKey) {
   const { performer } = useActionPerformer();
   return useMutation({
     mutationFn: (props: { tagId: string; value: string }) =>
-      performer.executeJson("tag", actionKey, {
+      performer.executeJson(actionRef, {
         tagRef: "id:" + props.tagId,
         value: props.value,
       }),
@@ -78,29 +79,29 @@ function useTagLocalMutation(actionKey: string) {
 }
 
 export const useTagGroupUpdateName = () => {
-  return useTagGroupMutation("tag_group_update_name");
+  return useTagGroupMutation("tag/tag_group_update_name");
 };
 
 export const useTagGroupUpdateDescription = () => {
-  return useTagGroupMutation("tag_group_update_description");
+  return useTagGroupMutation("tag/tag_group_update_description");
 };
 
 export const useTagGroupUpdateKey = () => {
-  return useTagGroupMutation("tag_group_update_key");
+  return useTagGroupMutation("tag/tag_group_update_key");
 };
 
 export const useTagGlobalUpdateName = () => {
-  return useTagGlobalMutation("tag_global_update_name");
+  return useTagGlobalMutation("tag/tag_global_update_name");
 };
 
 export const useTagGlobalUpdateDescription = () => {
-  return useTagGlobalMutation("tag_global_update_description");
+  return useTagGlobalMutation("tag/tag_global_update_description");
 };
 
 export const useTagLocalUpdateName = () => {
-  return useTagLocalMutation("tag_local_update_name");
+  return useTagLocalMutation("tag/tag_local_update_name");
 };
 
 export const useTagLocalUpdateDescription = () => {
-  return useTagLocalMutation("tag_local_update_description");
+  return useTagLocalMutation("tag/tag_local_update_description");
 };
