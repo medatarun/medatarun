@@ -29,12 +29,7 @@ import io.medatarun.platform.kernel.*
 import io.medatarun.security.AppActorResolver
 import io.medatarun.security.SecurityPermissionsProvider
 import io.medatarun.security.SecurityRulesProvider
-import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
-import io.medatarun.tags.core.domain.TagCmds
-import io.medatarun.tags.core.domain.TagQueries
-import io.medatarun.tags.core.domain.TagLocalScopeBeforeDeleteEvent
-import io.medatarun.tags.core.domain.TagScopeRef
-import io.medatarun.tags.core.domain.TagScopeType
+import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.types.TypeDescriptor
 import org.slf4j.LoggerFactory
@@ -117,8 +112,6 @@ open class ModelExtension(
         ctx.registerContribution(TypeDescriptor::class, EntityKeyDescriptor())
         ctx.registerContribution(TypeDescriptor::class, EntityRefDescriptor())
         ctx.registerContribution(TypeDescriptor::class, EntityAttributeRefDescriptor())
-        ctx.registerContribution(TypeDescriptor::class, TextMarkdownDescriptor())
-        ctx.registerContribution(TypeDescriptor::class, TextSingleLineDescriptor())
         ctx.registerContribution(TypeDescriptor::class, ModelAuthorityDescriptor())
         ctx.registerContribution(TypeDescriptor::class, ModelDiffScopeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, ModelKeyDescriptor())

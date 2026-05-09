@@ -3,6 +3,8 @@ package io.medatarun.tags.core.ports.needs
 import io.medatarun.storage.eventsourcing.StorageCmd
 import io.medatarun.storage.eventsourcing.StorageEventContract
 import io.medatarun.tags.core.domain.*
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -26,10 +28,12 @@ sealed interface TagStorageCmd: StorageCmd {
         @Contextual
         @SerialName("key")
         val key: TagKey,
+        @Contextual
         @SerialName("name")
-        val name: String?,
+        val name: TextSingleLine?,
+        @Contextual
         @SerialName("description")
-        val description: String?
+        val description: TextMarkdown?
     ) : TagStorageCmd
 
     @Serializable
@@ -55,8 +59,9 @@ sealed interface TagStorageCmd: StorageCmd {
         @Contextual
         @SerialName("scope")
         override val scope: TagScopeRef,
+        @Contextual
         @SerialName("name")
-        val name: String?
+        val name: TextSingleLine?
     ) : TagStorageCmd
 
     @Serializable
@@ -68,8 +73,9 @@ sealed interface TagStorageCmd: StorageCmd {
         @Contextual
         @SerialName("scope")
         override val scope: TagScopeRef,
+        @Contextual
         @SerialName("description")
-        val description: String?
+        val description: TextMarkdown?
     ) : TagStorageCmd
 
     @Serializable
@@ -100,10 +106,12 @@ sealed interface TagStorageCmd: StorageCmd {
         @Contextual
         @SerialName("key")
         val key: TagGroupKey,
+        @Contextual
         @SerialName("name")
-        val name: String?,
+        val name: TextSingleLine?,
+        @Contextual
         @SerialName("description")
-        val description: String?
+        val description: TextMarkdown?
     ) : TagStorageCmd {
         override val scope: TagScopeRef
             get() = TagScopeRef.Global
@@ -129,8 +137,9 @@ sealed interface TagStorageCmd: StorageCmd {
         @Contextual
         @SerialName("tagGroupId")
         val tagGroupId: TagGroupId,
+        @Contextual
         @SerialName("name")
-        val name: String?
+        val name: TextSingleLine?
     ) : TagStorageCmd {
         override val scope: TagScopeRef
             get() = TagScopeRef.Global
@@ -142,8 +151,9 @@ sealed interface TagStorageCmd: StorageCmd {
         @Contextual
         @SerialName("tagGroupId")
         val tagGroupId: TagGroupId,
+        @Contextual
         @SerialName("description")
-        val description: String?
+        val description: TextMarkdown?
     ) : TagStorageCmd {
         override val scope: TagScopeRef
             get() = TagScopeRef.Global

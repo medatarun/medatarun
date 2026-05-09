@@ -1,4 +1,4 @@
-package io.medatarun.model.infra.db.tables
+package io.medatarun.platform.db.exposed
 
 import io.medatarun.type.commons.text.TextSingleLine
 import org.jetbrains.exposed.v1.core.ColumnTransformer

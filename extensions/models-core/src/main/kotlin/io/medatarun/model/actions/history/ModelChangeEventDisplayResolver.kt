@@ -44,10 +44,10 @@ class ModelChangeEventDisplayResolver(
         val group = if (groupId != null) tagQueries.findTagGroupByIdOptional(groupId) else null
         return buildJsonObject {
             put("tagId", buildJsonObject {
-                put("tagLabelAsOf", tagAsOf?.name ?: tagAsOf?.key?.asString() ?: paramValue.asString())
-                put("groupLabelAsOf", groupAsOf?.name ?: groupAsOf?.key?.asString() ?: groupIdAsOf?.asString())
-                put("tagLabelNow", tag?.name ?: tag?.key?.asString())
-                put("groupLabelNow", group?.name ?: group?.key?.asString())
+                put("tagLabelAsOf", tagAsOf?.name?.name ?: tagAsOf?.key?.asString() ?: paramValue.asString())
+                put("groupLabelAsOf", groupAsOf?.name?.name ?: groupAsOf?.key?.asString() ?: groupIdAsOf?.asString())
+                put("tagLabelNow", tag?.name?.name ?: tag?.key?.asString())
+                put("groupLabelNow", group?.name?.name ?: group?.key?.asString())
             })
         }
     }

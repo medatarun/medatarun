@@ -4,6 +4,8 @@ import io.medatarun.model.domain.*
 import io.medatarun.platform.db.exposed.IdTransformer
 import io.medatarun.platform.db.exposed.instant
 import io.medatarun.platform.db.exposed.KeyTransformer
+import io.medatarun.platform.db.exposed.TextMarkdownTransformer
+import io.medatarun.platform.db.exposed.TextSingleLineTransformer
 import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
@@ -19,7 +21,7 @@ object ModelSnapshotTable : Table("model_snapshot") {
     val modelId = javaUUID("model_id").transform(IdTransformer(::ModelId))
     val key = text("key").transform(KeyTransformer(::ModelKey))
     val name = text("name").transform(TextSingleLineTransformer()).nullable()
-    val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
+    val description = text("description").transform(TextMarkdownTransformer()).nullable()
     val origin = text("origin").transform(ModelOriginTransformer())
     val authority = text("authority").transform(ModelAuthorityTransformer())
     val documentationHome = text("documentation_home").nullable()
@@ -44,7 +46,7 @@ object ModelTypeTable : Table("model_type_snapshot") {
     val modelSnapshotId = javaUUID("model_snapshot_id").transform(IdTransformer(::ModelSnapshotId))
     val key = text("key").transform(KeyTransformer(::TypeKey))
     val name = text("name").transform(TextSingleLineTransformer()).nullable()
-    val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
+    val description = text("description").transform(TextMarkdownTransformer()).nullable()
 
     override val primaryKey = PrimaryKey(id)
 }
@@ -55,7 +57,7 @@ object EntityTable : Table("model_entity_snapshot") {
     val modelSnapshotId = javaUUID("model_snapshot_id").transform(IdTransformer(::ModelSnapshotId))
     val key = text("key").transform(KeyTransformer(::EntityKey))
     val name = text("name").transform(TextSingleLineTransformer()).nullable()
-    val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
+    val description = text("description").transform(TextMarkdownTransformer()).nullable()
     val origin = text("origin").transform(EntityOriginTransformer())
     val documentationHome = text("documentation_home").nullable()
 
@@ -73,7 +75,7 @@ object EntityAttributeTable : Table("model_entity_attribute_snapshot") {
     val entitySnapshotId = javaUUID("model_entity_snapshot_id").transform(IdTransformer(::EntitySnapshotId))
     val key = text("key").transform(KeyTransformer(::AttributeKey))
     val name = text("name").transform(TextSingleLineTransformer()).nullable()
-    val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
+    val description = text("description").transform(TextMarkdownTransformer()).nullable()
     val typeSnapshotId = javaUUID("model_type_snapshot_id").transform(IdTransformer(::TypeSnapshotId))
     val optional = bool("optional")
 
@@ -100,7 +102,7 @@ object BusinessKeyTable : Table("model_business_key_snapshot") {
     val entitySnapshotId = javaUUID("model_entity_snapshot_id").transform(IdTransformer(::EntitySnapshotId))
     val key = text("key").transform(KeyTransformer(::BusinessKeyKey))
     val name = text("name").transform(TextSingleLineTransformer()).nullable()
-    val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
+    val description = text("description").transform(TextMarkdownTransformer()).nullable()
 
     override val primaryKey = PrimaryKey(id)
 }
@@ -122,7 +124,7 @@ object RelationshipTable : Table("model_relationship_snapshot") {
     val modelSnapshotId = javaUUID("model_snapshot_id").transform(IdTransformer(::ModelSnapshotId))
     val key = text("key").transform(KeyTransformer(::RelationshipKey))
     val name = text("name").transform(TextSingleLineTransformer()).nullable()
-    val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
+    val description = text("description").transform(TextMarkdownTransformer()).nullable()
     override val primaryKey = PrimaryKey(id)
 }
 
@@ -153,7 +155,7 @@ object RelationshipAttributeTable : Table("model_relationship_attribute_snapshot
     val relationshipSnapshotId = javaUUID("model_relationship_snapshot_id").transform(IdTransformer(::RelationshipSnapshotId))
     val key = text("key").transform(KeyTransformer(::AttributeKey))
     val name = text("name").transform(TextSingleLineTransformer()).nullable()
-    val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
+    val description = text("description").transform(TextMarkdownTransformer()).nullable()
     val typeSnapshotId = javaUUID("model_type_snapshot_id").transform(IdTransformer(::TypeSnapshotId))
     val optional = bool("optional")
 

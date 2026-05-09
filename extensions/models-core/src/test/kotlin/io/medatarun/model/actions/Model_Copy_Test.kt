@@ -959,8 +959,8 @@ class Model_Copy_Test {
         val sourceRef = modelRefKey(sourceKey)
         val copiedRef = modelRefKey(copiedKey)
         val sourceTagKey = TagKey("local-model-tag")
-        val sourceTagName = "Local model tag"
-        val sourceTagDescription = "Model local tag description"
+        val sourceTagName = TextSingleLine("Local model tag")
+        val sourceTagDescription = TextMarkdown("Model local tag description")
 
         env.dispatch(
             ModelAction.Model_Create(
@@ -999,8 +999,8 @@ class Model_Copy_Test {
         val sourceRef = modelRefKey(sourceKey)
         val copiedRef = modelRefKey(copiedKey)
         val localTagKey = TagKey("rgpd")
-        val localTagName = "RGPD"
-        val localTagDescription = "Personal data"
+        val localTagName = TextSingleLine("RGPD")
+        val localTagDescription = TextMarkdown("Personal data")
 
         // Arrange: create source model and a local tag in its scope, without attaching it.
         env.dispatch(
@@ -1069,7 +1069,7 @@ class Model_Copy_Test {
         val sourceModelId = env.queries.findModelRoot(sourceRef).id
         val sourceScope = ModelTagResolver.modelTagScopeRef(sourceModelId)
         val sourceTagRef = TagRef.ByKey(sourceScope, null, sourceTagKey)
-        env.dispatchTag(TagAction.TagLocalCreate(sourceScope, sourceTagKey, "Entity local", "Entity local tag"))
+        env.dispatchTag(TagAction.TagLocalCreate(sourceScope, sourceTagKey, TextSingleLine("Entity local"), TextMarkdown("Entity local tag")))
         val sourceTag = env.tagQueries.findTagByRef(sourceTagRef)
         env.dispatch(ModelAction.Entity_AddTag(sourceRef, entityRef, sourceTagRef))
 
@@ -1125,8 +1125,8 @@ class Model_Copy_Test {
             TagAction.TagLocalCreate(
                 sourceScope,
                 sourceTagKey,
-                "Entity attr local",
-                "Entity attribute local tag"
+                TextSingleLine("Entity attr local"),
+                TextMarkdown("Entity attribute local tag")
             )
         )
         val sourceTag = env.tagQueries.findTagByRef(sourceTagRef)
@@ -1190,8 +1190,8 @@ class Model_Copy_Test {
             TagAction.TagLocalCreate(
                 sourceScope,
                 sourceTagKey,
-                "Relationship local",
-                "Relationship local tag"
+                TextSingleLine("Relationship local"),
+                TextMarkdown("Relationship local tag")
             )
         )
         val sourceTag = env.tagQueries.findTagByRef(sourceTagRef)
@@ -1268,8 +1268,8 @@ class Model_Copy_Test {
             TagAction.TagLocalCreate(
                 sourceScope,
                 sourceTagKey,
-                "Relationship attr local",
-                "Relationship attribute local tag"
+                TextSingleLine("Relationship attr local"),
+                TextMarkdown("Relationship attribute local tag")
             )
         )
         val sourceTag = env.tagQueries.findTagByRef(sourceTagRef)

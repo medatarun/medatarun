@@ -7,6 +7,7 @@ import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.*
+import io.medatarun.type.commons.text.TextMarkdown
 import io.medatarun.type.commons.text.TextSingleLine
 
 @Suppress("ClassName")
@@ -471,8 +472,8 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
             fixture.env.dispatchTag(
                 TagAction.TagGroupCreate(
                     key = key,
-                    name = name,
-                    description = description
+                    name = TextSingleLine(name),
+                    description = TextMarkdown(description)
                 )
             )
         }
@@ -482,8 +483,8 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 TagAction.TagGlobalCreate(
                     groupRef = TagGroupRef.ByKey(groupKey),
                     key = key,
-                    name = name,
-                    description = description
+                    name = TextSingleLine(name),
+                    description = TextMarkdown(description)
                 )
             )
         }
@@ -494,8 +495,8 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
                 TagAction.TagLocalCreate(
                     scopeRef = scopeRef,
                     key = key,
-                    name = name,
-                    description = description
+                    name = TextSingleLine(name),
+                    description = TextMarkdown(description)
                 )
             )
         }
