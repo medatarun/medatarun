@@ -5,6 +5,7 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.TypeKey
 import io.medatarun.tags.core.domain.TagAttachScopeMismatchException
+import io.medatarun.type.commons.text.TextSingleLine
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

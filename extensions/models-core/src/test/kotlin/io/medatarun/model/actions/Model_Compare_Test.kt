@@ -9,6 +9,8 @@ import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
 import io.medatarun.model.domain.diff.ModelDiffScope
 import io.medatarun.model.domain.fixtures.ModelTestEnv
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import kotlin.test.*
 
 @EnableDatabaseTests

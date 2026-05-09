@@ -1,5 +1,8 @@
 package io.medatarun.model.domain
 
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
+
 interface BusinessKey {
 
     /**

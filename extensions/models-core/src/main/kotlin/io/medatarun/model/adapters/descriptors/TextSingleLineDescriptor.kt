@@ -1,8 +1,8 @@
 package io.medatarun.model.adapters.descriptors
 
 import io.medatarun.model.adapters.json.TextSingleLineJsonConverter
-import io.medatarun.model.domain.TEXT_SINGLE_LINE_DESCRIPTION
-import io.medatarun.model.domain.TextSingleLine
+import io.medatarun.type.commons.text.TEXT_SINGLE_LINE_DESCRIPTION
+import io.medatarun.type.commons.text.TextSingleLine
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonConverter
 import io.medatarun.types.TypeJsonEquiv

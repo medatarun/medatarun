@@ -12,6 +12,8 @@ import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.TagKey
 import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import org.junit.jupiter.api.Test
 import java.net.URI
 import kotlin.test.*

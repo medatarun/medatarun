@@ -1,6 +1,8 @@
 package io.medatarun.model.domain
 
 import io.medatarun.tags.core.domain.TagId
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 
 /**
  * Attribute definition for an [Entity]

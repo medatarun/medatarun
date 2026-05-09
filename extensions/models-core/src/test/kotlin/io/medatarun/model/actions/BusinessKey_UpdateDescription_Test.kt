@@ -1,6 +1,5 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.domain.*
 import io.medatarun.model.domain.BusinessKeyRef.Companion.businessKeyRefKey
 import io.medatarun.model.domain.EntityAttributeRef.Companion.entityAttributeRefKey
 import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
@@ -8,6 +7,8 @@ import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

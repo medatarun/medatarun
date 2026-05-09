@@ -8,6 +8,8 @@ import io.medatarun.model.domain.search.SearchFilters
 import io.medatarun.model.security.ModelSecurityRules
 import io.medatarun.security.SecurityRuleNames
 import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 
 sealed interface ModelAction {
 

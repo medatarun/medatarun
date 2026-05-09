@@ -31,6 +31,8 @@ import io.medatarun.tags.core.actions.TagActionProvider
 import io.medatarun.tags.core.adapters.security.TagSecurityPermissionsProvider
 import io.medatarun.tags.core.domain.*
 import io.medatarun.type.commons.id.Id
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import io.medatarun.types.TypeSystemExtension
 import kotlin.reflect.full.findAnnotation
 import kotlin.test.assertEquals

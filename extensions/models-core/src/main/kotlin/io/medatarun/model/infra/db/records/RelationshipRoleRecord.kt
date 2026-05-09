@@ -2,6 +2,7 @@ package io.medatarun.model.infra.db.records
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.tables.RelationshipRoleTable
+import io.medatarun.type.commons.text.TextSingleLine
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class RelationshipRoleRecord(

@@ -2,8 +2,8 @@ package io.medatarun.ext.modeljson.internal.v2
 
 import io.medatarun.ext.modeljson.internal.base.ModelTypeJson
 import io.medatarun.ext.modeljson.internal.base.RelationshipJson
-import io.medatarun.model.domain.TextMarkdown
-import io.medatarun.model.domain.TextSingleLine
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

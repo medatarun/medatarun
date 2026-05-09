@@ -1,5 +1,7 @@
 package io.medatarun.model.domain
 
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import java.net.URL
 
 interface Model {

@@ -2,6 +2,8 @@ package io.medatarun.model.infra.db.records
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.tables.BusinessKeyTable
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class BusinessKeyRecord(

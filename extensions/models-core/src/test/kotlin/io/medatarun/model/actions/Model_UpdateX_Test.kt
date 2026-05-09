@@ -5,6 +5,8 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.ports.exposed.ModelQueries
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

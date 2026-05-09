@@ -1,5 +1,8 @@
 package io.medatarun.model.domain
 
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
+
 
 /**
  * Defines one of the types known by the model, that can be used as [Attribute]

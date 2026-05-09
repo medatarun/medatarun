@@ -17,6 +17,8 @@ import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.model.infra.inmemory.PBKeyParticipantInMemory
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.type.commons.id.Id
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import kotlinx.serialization.json.JsonPrimitive
 import java.net.URI
 

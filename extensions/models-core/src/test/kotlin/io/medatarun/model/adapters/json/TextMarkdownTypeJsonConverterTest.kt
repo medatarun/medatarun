@@ -1,6 +1,6 @@
 package io.medatarun.model.adapters.json
 
-import io.medatarun.model.domain.TextMarkdown
+import io.medatarun.type.commons.text.TextMarkdown
 import io.medatarun.types.TypeJsonConverterBadFormatException
 import io.medatarun.types.TypeJsonConverterIllegalNullException
 import kotlinx.serialization.json.JsonArray

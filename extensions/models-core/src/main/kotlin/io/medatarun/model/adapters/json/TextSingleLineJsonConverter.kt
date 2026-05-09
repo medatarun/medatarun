@@ -1,7 +1,7 @@
 package io.medatarun.model.adapters.json
 
 import io.medatarun.lang.strings.trimToNull
-import io.medatarun.model.domain.TextSingleLine
+import io.medatarun.type.commons.text.TextSingleLine
 import io.medatarun.types.TypeJsonConverter
 import io.medatarun.types.TypeJsonConverterBadFormatException
 import io.medatarun.types.TypeJsonConverterIllegalNullException

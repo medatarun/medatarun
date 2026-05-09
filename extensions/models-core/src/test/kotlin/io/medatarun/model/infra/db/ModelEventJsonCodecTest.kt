@@ -3,8 +3,8 @@ package io.medatarun.model.infra.db
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.AttributeId
 import io.medatarun.model.domain.EntityId
-import io.medatarun.model.domain.TextMarkdown
-import io.medatarun.model.domain.TextSingleLine
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.RelationshipId
 import io.medatarun.model.domain.RelationshipRoleId

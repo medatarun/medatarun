@@ -5,6 +5,7 @@ import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.ports.exposed.ModelQueries
+import io.medatarun.type.commons.text.TextSingleLine
 
 
 class TestEnvOneModel(version: ModelVersion = ModelVersion("2.0.0")) {

@@ -9,6 +9,7 @@ import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.tags.core.domain.TagAttachScopeMismatchException
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
+import io.medatarun.type.commons.text.TextSingleLine
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -132,7 +133,7 @@ class EntityAttribute_XTag_Test {
         env.dispatch(
             ModelAction.Model_Create(
                 key = ModelKey("sample-model-2"),
-                name = io.medatarun.model.domain.TextSingleLine("Sample model 2"),
+                name = TextSingleLine("Sample model 2"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )

@@ -4,6 +4,8 @@ import io.medatarun.model.domain.*
 import io.medatarun.tags.core.domain.Tag
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import java.net.URL
 
 /**

@@ -6,6 +6,7 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.infra.db.tables.ModelEventTable
 import io.medatarun.model.infra.db.tables.ModelSnapshotTable
+import io.medatarun.type.commons.text.TextSingleLine
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.select

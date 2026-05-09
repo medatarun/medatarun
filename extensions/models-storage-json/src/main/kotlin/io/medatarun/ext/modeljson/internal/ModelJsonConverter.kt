@@ -10,6 +10,8 @@ import io.medatarun.ext.modeljson.internal.v3.JsonSerializerV3
 import io.medatarun.ext.modeljson.internal.v3.ModelJsonV3
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.ModelAggregateInMemory
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject

@@ -1,9 +1,10 @@
 package io.medatarun.model.domain.diff
 
-import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.exceptions.MedatarunTechnicalException
 import io.medatarun.model.domain.*
 import io.medatarun.tags.core.domain.TagId
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import java.net.URL
 
 /**

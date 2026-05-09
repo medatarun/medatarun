@@ -1,6 +1,6 @@
 package io.medatarun.model.infra.db.tables
 
-import io.medatarun.model.domain.TextSingleLine
+import io.medatarun.type.commons.text.TextSingleLine
 import org.jetbrains.exposed.v1.core.ColumnTransformer
 
 class TextSingleLineTransformer: ColumnTransformer<String, TextSingleLine> {
