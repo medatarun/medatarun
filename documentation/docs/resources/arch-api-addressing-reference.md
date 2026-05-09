@@ -115,9 +115,9 @@ Ids and keys are both public-level identifiers for API/CLI/UI usage.
 As an example:
 
 ```bash
-medatarun model model_update_name --modelRef="id:xxxx" --name="New name"
+medatarun models model_update_name --modelRef="id:xxxx" --name="New name"
 # or 
-medatarun model model_update_name --modelRef="key:model" --name="New name"
+medatarun models model_update_name --modelRef="key:model" --name="New name"
 # or 
 curl -X POST https://yourmedatarun/api/actions/model/model_update_name \
     -H "Content-Type: application/json" \
@@ -174,7 +174,7 @@ So addressing an attribute means specifying modelRef, attributeRef, entityRef.
 Example
 
 ```bash
-medatarun model entity_attribute_update_description \
+medatarun models entity_attribute_update_description \
   --modelRef="key:crm" \
   --entityRef="key:customer" \ 
   --attributeRef="key:phone_number" \ 

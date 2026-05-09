@@ -104,10 +104,10 @@ export function ModelView() {
   };
 
   const actions = actionRegistry.findActionDescriptors([
-    "model/model_release",
-    "model/model_update_authority",
-    "model/model_copy",
-    "model/model_delete",
+    "models/model_release",
+    "models/model_update_authority",
+    "models/model_copy",
+    "models/model_delete",
   ]);
 
   const handleChangeName = (value: string) => {
@@ -123,7 +123,7 @@ export function ModelView() {
     createActionCtxTag(modelTagScope(model.id), displayedSubject, { tag: tag });
 
   const updateDescriptionDisabled = !sec.canExecuteAction(
-    "model/model_update_description",
+    "models/model_update_description",
   );
   const handleChangeDescription = (v: string) => {
     return modelUpdateDescription.mutateAsync({
@@ -171,7 +171,7 @@ export function ModelView() {
       <SectionTitle
         icon={<EntityIcon />}
         actionCtx={actionCtxPage}
-        actions={["model/entity_create"]}
+        actions={["models/entity_create"]}
       >
         {t("modelEditPage_entitiesTitle")}
       </SectionTitle>
@@ -194,7 +194,7 @@ export function ModelView() {
       <SectionTitle
         icon={<RelationshipIcon />}
         actionCtx={actionCtxPage}
-        actions={["model/relationship_create"]}
+        actions={["models/relationship_create"]}
       >
         {t("modelEditPage_relationshipsTitle")}
       </SectionTitle>
@@ -219,7 +219,7 @@ export function ModelView() {
       <SectionTitle
         icon={<TypeIcon />}
         actionCtx={actionCtxPage}
-        actions={["model/type_create"]}
+        actions={["models/type_create"]}
       >
         {t("modelEditPage_dataTypesTitle")}
       </SectionTitle>
@@ -240,7 +240,7 @@ export function ModelView() {
       <SectionTitle
         icon={<TagIcon />}
         actionCtx={actionCtxPage}
-        actions={["tag/tag_local_create"]}
+        actions={["tags/tag_local_create"]}
       >
         {t("modelEditPage_localTagsTitle")}
       </SectionTitle>
@@ -278,13 +278,13 @@ export function ModelOverview() {
       ? t("modelEditPage_authorityCanonical")
       : t("modelEditPage_authoritySystem");
 
-  const updateKeyDisabled = !sec.canExecuteAction("model/model_update_key");
+  const updateKeyDisabled = !sec.canExecuteAction("models/model_update_key");
   const updateDocumentationHomeDisabled = !sec.canExecuteAction(
-    "model/model_update_documentation_link",
+    "models/model_update_documentation_link",
   );
   const updateTagDisabled = !sec.canExecuteActions(
-    "model/model_add_tag",
-    "model/model_delete_tag",
+    "models/model_add_tag",
+    "models/model_delete_tag",
   );
 
   const handleChangeKey = (value: string) => {

@@ -80,7 +80,7 @@ export function InlineEditTags({
 
   const handleCreateTag = (key: string) => {
     const requestId = performAction({
-      actionRef: "tag/tag_local_create",
+      actionRef: "tags/tag_local_create",
       ctx: actionCtxTag(key),
     });
     setPendingCreate({ requestId, key });

@@ -55,13 +55,15 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
     );
 
   const actions = actionRegistry.findActionDescriptors([
-    "tag/tag_group_update_key",
-    "tag/tag_group_delete",
+    "tags/tag_group_update_key",
+    "tags/tag_group_delete",
   ]);
 
-  const updateNameDisabled = !sec.canExecuteAction("tag/tag_group_update_name");
+  const updateNameDisabled = !sec.canExecuteAction(
+    "tags/tag_group_update_name",
+  );
   const updateDescriptionDisabled = !sec.canExecuteAction(
-    "tag/tag_group_update_description",
+    "tags/tag_group_update_description",
   );
 
   const handleClickTagGroups = () => {
@@ -143,7 +145,7 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
 
       <SectionTitle
         icon={<TagGroupIcon />}
-        actions={["tag/tag_global_create"]}
+        actions={["tags/tag_global_create"]}
         actionCtx={actionCtxPage}
       >
         {t("tagGroupEdit_tagsTitle")}

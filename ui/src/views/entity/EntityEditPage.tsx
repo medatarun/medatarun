@@ -92,16 +92,16 @@ export function EntityView({ entity }: { entity: EntityDto }) {
   const { t } = useAppI18n();
 
   const actions = actionRegistry.findActionDescriptors([
-    "model/entity_primary_key_update",
-    "model/entity_delete",
+    "models/entity_primary_key_update",
+    "models/entity_delete",
   ]);
   const relationshipsInvolved = model.dto.relationships.filter((it) =>
     it.roles.some((r) => r.entityId === entity.id),
   );
 
-  const canChangeName = sec.canExecuteAction("model/entity_update_name");
+  const canChangeName = sec.canExecuteAction("models/entity_update_name");
   const canEditDescription = sec.canExecuteAction(
-    "model/entity_update_description",
+    "models/entity_update_description",
   );
 
   const handleClickModel = () => {
@@ -220,8 +220,8 @@ export function EntityView({ entity }: { entity: EntityDto }) {
         icon={<AttributeIcon />}
         actionCtx={actionCtxPage}
         actions={[
-          "model/entity_attribute_create",
-          "model/entity_primary_key_update",
+          "models/entity_attribute_create",
+          "models/entity_primary_key_update",
         ]}
       >
         {t("entityEditPage_attributesTitle")}
@@ -230,7 +230,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
       <SectionTable>
         <AttributesTable
           attributes={entity.attributes}
-          actions={["model/entity_attribute_delete"]}
+          actions={["models/entity_attribute_delete"]}
           parentId={entity.id}
           onClickAttribute={handleClickAttribute}
           actionCtxAttribute={actionCtxAttribute}
@@ -240,7 +240,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
       <SectionTitle
         icon={<RelationshipIcon />}
         actionCtx={actionCtxPage}
-        actions={["model/relationship_create"]}
+        actions={["models/relationship_create"]}
       >
         {t("entityEditPage_relationshipsTitle")}
       </SectionTitle>
@@ -256,7 +256,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
       <SectionTitle
         icon={<KeyRegular />}
         actionCtx={actionCtxPage}
-        actions={["model/business_key_create"]}
+        actions={["models/business_key_create"]}
       >
         {t("entityEditPage_businessKeysTitle")}
       </SectionTitle>
@@ -304,11 +304,11 @@ export function EntityView({ entity }: { entity: EntityDto }) {
                   >
                     <ActionMenuButton
                       itemActions={actionRegistry.findActionDescriptors([
-                        "model/business_key_update_name",
-                        "model/business_key_update_description",
-                        "model/business_key_update_key",
-                        "model/business_key_update_participants",
-                        "model/business_key_delete",
+                        "models/business_key_update_name",
+                        "models/business_key_update_description",
+                        "models/business_key_update_key",
+                        "models/business_key_update_participants",
+                        "models/business_key_delete",
                       ])}
                       actionCtx={actionCtxBusinessKey(bk)}
                     />

@@ -37,8 +37,8 @@ export function TagGroupsTable({
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
   const itemActions = actionRegistry.findActionDescriptors([
-    "tag/tag_group_update_key",
-    "tag/tag_group_delete",
+    "tags/tag_group_update_key",
+    "tags/tag_group_delete",
   ]);
   const styles = useStyles();
   const detailLevelContext = useDetailLevelContext();

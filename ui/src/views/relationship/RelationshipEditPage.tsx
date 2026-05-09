@@ -99,8 +99,8 @@ export function RelationshipView({
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const actions = actionRegistry.findActionDescriptors([
-    "model/relationship_update_key",
-    "model/relationship_delete",
+    "models/relationship_update_key",
+    "models/relationship_delete",
   ]);
   const { isDetailLevelTech } = useDetailLevelContext();
   const relationshipUpdateDescription = useRelationshipUpdateDescription();
@@ -108,10 +108,10 @@ export function RelationshipView({
   const sec = useSecurityContext();
 
   const updateNameDisabled = !sec.canExecuteAction(
-    "model/relationship_update_name",
+    "models/relationship_update_name",
   );
   const updateDescriptionDisabled = !sec.canExecuteAction(
-    "model/relationship_update_description",
+    "models/relationship_update_description",
   );
 
   const handleChangeName = (value: string) => {
@@ -242,7 +242,7 @@ export function RelationshipView({
       <SectionTitle
         icon={<AttributeIcon />}
         actionCtx={actionCtxPage}
-        actions={["model/relationship_role_create"]}
+        actions={["models/relationship_role_create"]}
       >
         {t("relationshipEditPage_rolesTitle")}
       </SectionTitle>
@@ -290,11 +290,11 @@ export function RelationshipView({
                   action={
                     <ActionMenuButton
                       itemActions={actionRegistry.findActionDescriptors([
-                        "model/relationship_role_update_name",
-                        "model/relationship_role_update_key",
-                        "model/relationship_role_update_entity",
-                        "model/relationship_role_update_cardinality",
-                        "model/relationship_role_delete",
+                        "models/relationship_role_update_name",
+                        "models/relationship_role_update_key",
+                        "models/relationship_role_update_entity",
+                        "models/relationship_role_update_cardinality",
+                        "models/relationship_role_delete",
                       ])}
                       actionCtx={actionCtxRole(role)}
                     />
@@ -312,7 +312,7 @@ export function RelationshipView({
       <SectionTitle
         icon={<AttributeIcon />}
         actionCtx={actionCtxPage}
-        actions={["model/relationship_attribute_create"]}
+        actions={["models/relationship_attribute_create"]}
       >
         {t("relationshipEditPage_attributesTitle")}
       </SectionTitle>
@@ -328,7 +328,7 @@ export function RelationshipView({
         <SectionTable>
           <AttributesTable
             attributes={relationship.attributes}
-            actions={["model/relationship_attribute_delete"]}
+            actions={["models/relationship_attribute_delete"]}
             actionCtxAttribute={actionCtxAttribute}
             parentId={relationship.id}
             onClickAttribute={handleClickAttribute}
@@ -360,11 +360,11 @@ export function RelationshipOverview({
   const sec = useSecurityContext();
 
   const updateKeyDisabled = !sec.canExecuteAction(
-    "model/relationship_update_key",
+    "models/relationship_update_key",
   );
   const updateTagDisabled = !sec.canExecuteActions(
-    "model/relationship_add_tag",
-    "model/relationship_delete_tag",
+    "models/relationship_add_tag",
+    "models/relationship_delete_tag",
   );
   const handleChangeKey = (value: string) => {
     return relationshipUpdateKey.mutateAsync({

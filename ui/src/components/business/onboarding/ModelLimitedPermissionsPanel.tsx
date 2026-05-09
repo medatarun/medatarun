@@ -10,7 +10,7 @@ export function ModelLimitedPermissionsPanel(props: PropsWithStyle) {
   const sec = useSecurityContext();
   const { t } = useAppI18n();
   const isAdmin = actor.isAdmin();
-  const cannotRead = !sec.canExecuteAction("model/model_list");
+  const cannotRead = !sec.canExecuteAction("models/model_list");
   if (!cannotRead) return null;
 
   return (

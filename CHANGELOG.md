@@ -2,6 +2,10 @@
 
 ## v0.15.0
 
+### Breaking changes
+
+- Changed action group "model" to "models" and action group "tag" to "tags". Please update your scripts. 
+
 ### Features
 
 - UI: Fix missing action on entities to manage primary key

@@ -91,7 +91,7 @@ export const createActionCtxModel = (
         visible: false,
       },
       {
-        actionKey: "model/model_update_authority",
+        actionKey: "models/model_update_authority",
         actionParamKey: "value",
         defaultValue: () => model.authority,
       },
@@ -134,7 +134,7 @@ export const createActionCtxEntity = (
         visible: false,
       },
       {
-        actionKey: "model/entity_primary_key_update",
+        actionKey: "models/entity_primary_key_update",
         actionParamKey: "attributeRef",
         defaultValue: () => model.findEntityPKAttributes(entity.id),
         readonly: false,
@@ -202,22 +202,22 @@ export const createActionCtxBusinessKey = (
         visible: false,
       },
       {
-        actionKey: "model/business_key_update_key",
+        actionKey: "models/business_key_update_key",
         actionParamKey: "value",
         defaultValue: () => businessKey.key,
       },
       {
-        actionKey: "model/business_key_update_name",
+        actionKey: "models/business_key_update_name",
         actionParamKey: "value",
         defaultValue: () => businessKey.name,
       },
       {
-        actionKey: "model/business_key_update_description",
+        actionKey: "models/business_key_update_description",
         actionParamKey: "value",
         defaultValue: () => businessKey.description,
       },
       {
-        actionKey: "model/business_key_update_participants",
+        actionKey: "models/business_key_update_participants",
         actionParamKey: "value",
         defaultValue: () =>
           businessKey.participants.map((it) => "id:" + it) ?? [],

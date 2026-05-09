@@ -50,7 +50,7 @@ class TagActionProvider(
     }
 
     companion object {
-        const val ACTION_GROUP_KEY = "tag"
+        const val ACTION_GROUP_KEY = "tags"
     }
 }
 

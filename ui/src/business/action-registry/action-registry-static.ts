@@ -925,7 +925,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/maintenance_rebuild_caches",
+      actionRef: "tags/maintenance_rebuild_caches",
       title: "Maintenance rebuild caches",
       description:
         "\n            Rebuilds tag application caches from stored events.\n            \n            Use this only as an exceptional maintenance action when data appears out of date.\n            If you need to run it, we recommend contacting us on the project GitHub because it\n            usually means you identified a bug.\n        ",
@@ -938,7 +938,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_global_create",
+      actionRef: "tags/tag_global_create",
       title: "Create a global tag",
       description: "Creates a tag inside a group.",
       parameters: [
@@ -1003,7 +1003,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_global_delete",
+      actionRef: "tags/tag_global_delete",
       title: "Delete global tag",
       description: "Deletes a global tag.",
       parameters: [
@@ -1035,7 +1035,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_global_update_description",
+      actionRef: "tags/tag_global_update_description",
       title: "Update global tag description",
       description: "Updates the description of a global tag.",
       parameters: [
@@ -1077,7 +1077,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_global_update_key",
+      actionRef: "tags/tag_global_update_key",
       title: "Update global tag key",
       description: "Updates the key of a global tag.",
       parameters: [
@@ -1119,7 +1119,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_global_update_name",
+      actionRef: "tags/tag_global_update_name",
       title: "Update global tag name",
       description: "Updates the name of a global tag.",
       parameters: [
@@ -1160,7 +1160,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_group_create",
+      actionRef: "tags/tag_group_create",
       title: "Create a tag group",
       description:
         "Creates a group used to organize global tags that belong together.",
@@ -1213,7 +1213,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_group_delete",
+      actionRef: "tags/tag_group_delete",
       title: "Delete tag group",
       description: "Deletes a tag group.",
       parameters: [
@@ -1245,7 +1245,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_group_list",
+      actionRef: "tags/tag_group_list",
       title: "Tag group list",
       description: "Lists all tag groups.",
       parameters: [],
@@ -1257,7 +1257,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_group_update_description",
+      actionRef: "tags/tag_group_update_description",
       title: "Update tag group description",
       description: "Updates the description of a tag group.",
       parameters: [
@@ -1299,7 +1299,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_group_update_key",
+      actionRef: "tags/tag_group_update_key",
       title: "Update tag group key",
       description: "Updates the key of a tag group.",
       parameters: [
@@ -1341,7 +1341,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_group_update_name",
+      actionRef: "tags/tag_group_update_name",
       title: "Update global tag group name",
       description: "Updates the name of a tag group.",
       parameters: [
@@ -1382,7 +1382,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_local_create",
+      actionRef: "tags/tag_local_create",
       title: "Create a local tag",
       description:
         "Creates a tag, local to a scope (a model for example), without belonging to a group.",
@@ -1448,7 +1448,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_local_delete",
+      actionRef: "tags/tag_local_delete",
       title: "Delete local tag",
       description: "Deletes a local tag from its scope.",
       parameters: [
@@ -1480,7 +1480,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_local_update_description",
+      actionRef: "tags/tag_local_update_description",
       title: "Update local tag description",
       description: "Updates the description of a local tag.",
       parameters: [
@@ -1522,7 +1522,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_local_update_key",
+      actionRef: "tags/tag_local_update_key",
       title: "Update local tag key",
       description: "Updates the key of a local tag.",
       parameters: [
@@ -1564,7 +1564,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_local_update_name",
+      actionRef: "tags/tag_local_update_name",
       title: "Update local tag name",
       description: "Updates the name of a local tag.",
       parameters: [
@@ -1605,7 +1605,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "tag/tag_search",
+      actionRef: "tags/tag_search",
       title: "Tag search",
       description:
         "Searches known tags. Without filters, returns all tags. Use filters to narrow the result.",
@@ -1628,7 +1628,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/business_key_create",
+      actionRef: "models/business_key_create",
       title: "Create a business key",
       description:
         "Creates a business key to represent wich attributes of an entity uniquely identifies the objet in a business manner.",
@@ -1716,7 +1716,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/business_key_delete",
+      actionRef: "models/business_key_delete",
       title: "Delete business key",
       description: "Delete the business key. Attributes are kept in entity.",
       parameters: [
@@ -1761,7 +1761,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/business_key_update_description",
+      actionRef: "models/business_key_update_description",
       title: "Update business key description",
       description: "Changes the description of a business key.",
       parameters: [
@@ -1815,7 +1815,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/business_key_update_key",
+      actionRef: "models/business_key_update_key",
       title: "Update business key's key",
       description: "Changes the key of a business key.",
       parameters: [
@@ -1869,7 +1869,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/business_key_update_name",
+      actionRef: "models/business_key_update_name",
       title: "Update business key name",
       description: "Changes the name of a business key.",
       parameters: [
@@ -1923,7 +1923,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/business_key_update_participants",
+      actionRef: "models/business_key_update_participants",
       title: "Update business key participants",
       description:
         "Changes the participants of a business key, meaning all attributes that define the business key meaning.",
@@ -1979,7 +1979,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/model_compare",
+      actionRef: "models/model_compare",
       title: "Compare models",
       description: "Compares two model states and returns their differences.",
       parameters: [
@@ -2040,7 +2040,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_attribute_add_tag",
+      actionRef: "models/entity_attribute_add_tag",
       title: "Add tag to entity attribute",
       description: "Adds a tag to an entity attribute.",
       parameters: [
@@ -2108,7 +2108,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_attribute_create",
+      actionRef: "models/entity_attribute_create",
       title: "Create entity attribute",
       description: "Creates an attribute on an entity.",
       parameters: [
@@ -2207,7 +2207,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_attribute_delete",
+      actionRef: "models/entity_attribute_delete",
       title: "Delete entity attribute",
       description: "Deletes an attribute from an entity.",
       parameters: [
@@ -2266,7 +2266,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_attribute_delete_tag",
+      actionRef: "models/entity_attribute_delete_tag",
       title: "Delete tag from entity attribute",
       description: "Removes a tag from an entity attribute.",
       parameters: [
@@ -2334,7 +2334,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_attribute_update_description",
+      actionRef: "models/entity_attribute_update_description",
       title: "Update entity attribute description",
       description: "Updates the description of an entity attribute.",
       parameters: [
@@ -2403,7 +2403,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_attribute_update_key",
+      actionRef: "models/entity_attribute_update_key",
       title: "Update entity attribute key",
       description: "Updates the key of an entity attribute.",
       parameters: [
@@ -2472,7 +2472,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_attribute_update_name",
+      actionRef: "models/entity_attribute_update_name",
       title: "Update entity attribute name",
       description: "Updates the name of an entity attribute.",
       parameters: [
@@ -2540,7 +2540,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_attribute_update_optional",
+      actionRef: "models/entity_attribute_update_optional",
       title: "Update entity attribute optionality",
       description: "Updates whether an entity attribute is optional.",
       parameters: [
@@ -2609,7 +2609,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_attribute_update_type",
+      actionRef: "models/entity_attribute_update_type",
       title: "Update entity attribute type",
       description: "Updates the data type of an entity attribute.",
       parameters: [
@@ -2678,7 +2678,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_primary_key_update",
+      actionRef: "models/entity_primary_key_update",
       title: "Update entity primary key",
       description:
         "Defines the primary key of an entity. Note that if the list of attributes is empty, the primary key will be removed.",
@@ -2738,7 +2738,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_add_tag",
+      actionRef: "models/entity_add_tag",
       title: "Add entity tag",
       description: "Adds a tag to an entity.",
       parameters: [
@@ -2792,7 +2792,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_create",
+      actionRef: "models/entity_create",
       title: "Create entity",
       description: "Creates an entity in an existing model.",
       parameters: [
@@ -2866,7 +2866,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_delete",
+      actionRef: "models/entity_delete",
       title: "Delete model entity",
       description:
         "Removes an entity and all its attributes from the given model.",
@@ -2912,7 +2912,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_delete_tag",
+      actionRef: "models/entity_delete_tag",
       title: "Delete entity tag",
       description: "Removes a tag from an entity.",
       parameters: [
@@ -2966,7 +2966,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_update_description",
+      actionRef: "models/entity_update_description",
       title: "Update entity description",
       description: "Updates the description of an entity.",
       parameters: [
@@ -3021,7 +3021,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_update_documentation_link",
+      actionRef: "models/entity_update_documentation_link",
       title: "Update entity external documentation",
       description: "Updates the external documentation link of an entity.",
       parameters: [
@@ -3075,7 +3075,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_update_key",
+      actionRef: "models/entity_update_key",
       title: "Update entity key",
       description: "Updates the key of an entity.",
       parameters: [
@@ -3130,7 +3130,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/entity_update_name",
+      actionRef: "models/entity_update_name",
       title: "Update entity name",
       description: "Updates the name of an entity.",
       parameters: [
@@ -3184,7 +3184,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/history_version_changes",
+      actionRef: "models/history_version_changes",
       title: "Version changes",
       description:
         "Lists the changes included in a version. When no version is provided, lists the changes since the last released version.",
@@ -3224,7 +3224,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/history_versions",
+      actionRef: "models/history_versions",
       title: "Versions",
       description: "Lists the released versions of a model.",
       parameters: [
@@ -3253,7 +3253,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/import",
+      actionRef: "models/import",
       title: "Import model",
       description: "Imports a model from various locations.",
       parameters: [
@@ -3296,7 +3296,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/inspect_models_json",
+      actionRef: "models/inspect_models_json",
       title: "Inspect models (JSON)",
       description:
         "Returns the registered models, entities, and attributes with all metadata encoded as JSON. Preferred method for AI agents to understand the model.",
@@ -3309,7 +3309,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/maintenance_rebuild_caches",
+      actionRef: "models/maintenance_rebuild_caches",
       title: "Maintenance rebuild caches",
       description:
         "\n            Rebuilds model application caches from stored events.\n            \n            Use this only as an exceptional maintenance action when data appears out of date.\n            If you need to run it, we recommend contacting us on the project GitHub because it\n            usually means you identified a bug.\n        ",
@@ -3322,7 +3322,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/model_add_tag",
+      actionRef: "models/model_add_tag",
       title: "Add tag to model",
       description: "Adds a tag to a model.",
       parameters: [
@@ -3363,7 +3363,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/model_copy",
+      actionRef: "models/model_copy",
       title: "Copy model",
       description:
         "Creates a copy of a model with a new key. The copied model keeps the same name and has its own lifecycle.",
@@ -3410,7 +3410,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/model_create",
+      actionRef: "models/model_create",
       title: "Create model",
       description:
         "Creates a new model with a key, a name, an optional description, and an optional version.",
@@ -3473,7 +3473,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/model_delete",
+      actionRef: "models/model_delete",
       title: "Delete model",
       description: "Removes a model and all of its entities from the runtime.",
       parameters: [
@@ -3505,7 +3505,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/model_delete_tag",
+      actionRef: "models/model_delete_tag",
       title: "Delete tag from model",
       description: "Removes a tag from a model.",
       parameters: [
@@ -3546,7 +3546,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/model_export",
+      actionRef: "models/model_export",
       title: "Export model",
       description: "Returns the exported view of a model.",
       parameters: [
@@ -3568,7 +3568,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/model_export_version",
+      actionRef: "models/model_export_version",
       title: "Export model at a specific version",
       description:
         "Returns the exported view of a model at a specific version.",
@@ -3600,7 +3600,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/model_list",
+      actionRef: "models/model_list",
       title: "Models list",
       description: "Returns a summary list of the models.",
       parameters: [],
@@ -3612,7 +3612,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/model_release",
+      actionRef: "models/model_release",
       title: "Release version",
       description:
         "Releases a new version of a model. The new version must be greater than the previous one.",
@@ -3654,7 +3654,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/model_update_authority",
+      actionRef: "models/model_update_authority",
       title: "Update model authority",
       description:
         "Updates whether this model serves as a canonical business reference or describes an existing system.",
@@ -3697,7 +3697,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/model_update_description",
+      actionRef: "models/model_update_description",
       title: "Update model description",
       description: "Updates the description of a model.",
       parameters: [
@@ -3739,7 +3739,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/model_update_documentation_link",
+      actionRef: "models/model_update_documentation_link",
       title: "Update model external documentation",
       description: "Updates the external documentation link of a model.",
       parameters: [
@@ -3780,7 +3780,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/model_update_key",
+      actionRef: "models/model_update_key",
       title: "Update model key",
       description: "Updates the key of a model.",
       parameters: [
@@ -3822,7 +3822,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/model_update_name",
+      actionRef: "models/model_update_name",
       title: "Update model name",
       description: "Updates the name of a model.",
       parameters: [
@@ -3863,7 +3863,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_attribute_add_tag",
+      actionRef: "models/relationship_attribute_add_tag",
       title: "Add tag to relationship attribute",
       description: "Adds a tag to a relationship attribute.",
       parameters: [
@@ -3930,7 +3930,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_attribute_create",
+      actionRef: "models/relationship_attribute_create",
       title: "Create relationship attribute",
       description: "Creates an attribute on a relationship.",
       parameters: [
@@ -4028,7 +4028,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_attribute_delete",
+      actionRef: "models/relationship_attribute_delete",
       title: "Delete relationship attribute",
       description: "Deletes an attribute from a relationship.",
       parameters: [
@@ -4086,7 +4086,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_attribute_delete_tag",
+      actionRef: "models/relationship_attribute_delete_tag",
       title: "Delete tag from relationship attribute",
       description: "Removes a tag from a relationship attribute.",
       parameters: [
@@ -4153,7 +4153,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_attribute_update_description",
+      actionRef: "models/relationship_attribute_update_description",
       title: "Update relationship attribute description",
       description: "Updates the description of a relationship attribute.",
       parameters: [
@@ -4221,7 +4221,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_attribute_update_key",
+      actionRef: "models/relationship_attribute_update_key",
       title: "Update relationship attribute key",
       description: "Updates the key of a relationship attribute.",
       parameters: [
@@ -4289,7 +4289,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_attribute_update_name",
+      actionRef: "models/relationship_attribute_update_name",
       title: "Update relationship attribute name",
       description: "Updates the name of a relationship attribute.",
       parameters: [
@@ -4356,7 +4356,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_attribute_update_optional",
+      actionRef: "models/relationship_attribute_update_optional",
       title: "Update relationship attribute optionality",
       description: "Updates whether a relationship attribute is optional.",
       parameters: [
@@ -4424,7 +4424,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_attribute_update_type",
+      actionRef: "models/relationship_attribute_update_type",
       title: "Update relationship attribute type",
       description: "Updates the data type of a relationship attribute.",
       parameters: [
@@ -4492,7 +4492,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_role_create",
+      actionRef: "models/relationship_role_create",
       title: "Create relationship role",
       description: "Creates a role in a relationship.",
       parameters: [
@@ -4585,7 +4585,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_role_delete",
+      actionRef: "models/relationship_role_delete",
       title: "Delete relationship role",
       description:
         "Deletes a role from a relationship. This action fails if fewer than two roles would remain.",
@@ -4644,7 +4644,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_role_update_cardinality",
+      actionRef: "models/relationship_role_update_cardinality",
       title: "Update relationship role cardinality",
       description: "Updates the cardinality of a relationship role.",
       parameters: [
@@ -4712,7 +4712,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_role_update_entity",
+      actionRef: "models/relationship_role_update_entity",
       title: "Update relationship role entity",
       description:
         "Updates which entity participates through a relationship role.",
@@ -4781,7 +4781,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_role_update_key",
+      actionRef: "models/relationship_role_update_key",
       title: "Update relationship role key",
       description: "Updates the key of a relationship role.",
       parameters: [
@@ -4849,7 +4849,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_role_update_name",
+      actionRef: "models/relationship_role_update_name",
       title: "Update relationship role name",
       description: "Updates the name of a relationship role.",
       parameters: [
@@ -4917,7 +4917,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_add_tag",
+      actionRef: "models/relationship_add_tag",
       title: "Add tag to relationship",
       description: "Adds a tag to a relationship.",
       parameters: [
@@ -4971,7 +4971,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_create",
+      actionRef: "models/relationship_create",
       title: "Create relationship",
       description: "Creates a relationship between entities in a model.",
       parameters: [
@@ -5132,7 +5132,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_delete",
+      actionRef: "models/relationship_delete",
       title: "Delete relationship",
       description: "Deletes a relationship.",
       parameters: [
@@ -5177,7 +5177,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_delete_tag",
+      actionRef: "models/relationship_delete_tag",
       title: "Delete relationship tag",
       description: "Removes a tag from a relationship.",
       parameters: [
@@ -5231,7 +5231,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_update_description",
+      actionRef: "models/relationship_update_description",
       title: "Update relationship description",
       description: "Updates the description of a relationship.",
       parameters: [
@@ -5286,7 +5286,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_update_key",
+      actionRef: "models/relationship_update_key",
       title: "Update relationship key",
       description: "Updates the key of a relationship.",
       parameters: [
@@ -5341,7 +5341,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/relationship_update_name",
+      actionRef: "models/relationship_update_name",
       title: "Update relationship name",
       description: "Updates the name of a relationship.",
       parameters: [
@@ -5395,7 +5395,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/search",
+      actionRef: "models/search",
       title: "Search",
       description: "Searches models and model objects.",
       parameters: [
@@ -5435,7 +5435,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/type_create",
+      actionRef: "models/type_create",
       title: "Create type",
       description: "Creates a data type in an existing model.",
       parameters: [
@@ -5500,7 +5500,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/type_delete",
+      actionRef: "models/type_delete",
       title: "Delete type",
       description:
         "Deletes a data type from a model. This action fails if the data type is still used by entity attributes.",
@@ -5546,7 +5546,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/type_update_description",
+      actionRef: "models/type_update_description",
       title: "Update type description",
       description: "Updates the description of a data type.",
       parameters: [
@@ -5601,7 +5601,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/type_update_key",
+      actionRef: "models/type_update_key",
       title: "Update type key",
       description: "Updates the key of a data type.",
       parameters: [
@@ -5656,7 +5656,7 @@ export const actionRegistryStatic = {
       },
     },
     {
-      actionRef: "model/type_update_name",
+      actionRef: "models/type_update_name",
       title: "Update type name",
       description: "Updates the name of a data type.",
       parameters: [
