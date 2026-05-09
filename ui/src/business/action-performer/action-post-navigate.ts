@@ -69,21 +69,30 @@ function navigateAfterDelete(
     navigate({ to: "/admin/roles" });
   } else if (type === "tag_group") {
     navigate({ to: "/tag-groups" });
-  } else if (type === "tag") {
+  } else if (type === "tag_global") {
     const tagGroupId = refs.tagGroupId;
-    const modelId = refs.modelId;
     if (tagGroupId) {
       navigate({
         to: "/tag-group/$tagGroupId",
         params: { tagGroupId: tagGroupId },
       });
-    } else if (modelId) {
+    } else {
+      // Should not happen, security only
+      navigate({
+        to: "/tag-groups",
+        params: {},
+      });
+    }
+  } else if (type === "tag_local") {
+    const modelId = refs.modelId;
+    if (modelId) {
       navigate({
         to: "/model/$modelId",
         params: { modelId: modelId },
       });
     } else {
-      navigate({ to: "/tag-groups" });
+      // Should not happen, security only
+      navigate({ to: "/models" });
     }
   }
 }

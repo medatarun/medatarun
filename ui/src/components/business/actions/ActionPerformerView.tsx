@@ -25,7 +25,7 @@ import {
   type ActionFormFieldDescription,
   ActionFormService,
 } from "@/business/action-form";
-import { ActionDescriptor } from "../../../business/action-registry";
+import { ActionDescriptor } from "@/business/action-registry";
 import ReactMarkdown from "react-markdown";
 import {
   combineValidationResults,
@@ -179,6 +179,12 @@ export function ActionPerformerViewLoaded({
     firstInputRef?.current?.focus();
   }, [focusedFieldKey, action.actionRef]);
 
+  const handleDumpDebug = () => {
+    logger.debug("Request:", request);
+    logger.debug("Form data default:", defaultFormData);
+    logger.debug("Form data:", formData);
+  };
+
   return (
     <Dialog open={true}>
       <DialogSurface>
@@ -216,11 +222,19 @@ export function ActionPerformerViewLoaded({
                 <ErrorBox error={toProblem(state.error)} />
               ) : null}
               {actionResp ? <ActionOutputBox resp={actionResp} /> : null}
-              {DEBUG && <pre>{JSON.stringify(formData, null, 2)}</pre>}
             </div>
           </DialogContent>
         </DialogBody>
         <DialogActions>
+          {DEBUG && (
+            <Button
+              variant="secondary"
+              onClick={handleDumpDebug}
+              disabled={false}
+            >
+              DUMP DEBUG
+            </Button>
+          )}
           {displayExecute && (
             <Button variant="primary" onClick={onValidate} disabled={!valid}>
               {t("actionPerformerView_execute")}

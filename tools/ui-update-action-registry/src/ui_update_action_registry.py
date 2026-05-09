@@ -17,7 +17,7 @@ def main() -> None:
     items_json = json.dumps(items, indent=2, ensure_ascii=False, )
     items_json = re.sub(r'"([A-Za-z_][A-Za-z0-9_]*)":', r"\1:", items_json)
     content = (
-        'import type { ActionRegistryDto } from "./action-registry.dto.ts";\n'
+        'import type { ActionRegistryDto } from "./action-registry-dto.ts";\n'
         "\n"
         "/** This file is auto-generated from the ActionRegistry backend. Do not modify.*/"
         "\n"

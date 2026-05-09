@@ -96,8 +96,8 @@ export const createActionCtxModel = (
         defaultValue: () => model.authority,
       },
       {
-        actionGroupKey: "tag",
-        actionKey: /^tag\/tag_local/,
+        actionGroupKey: "tags",
+        actionKey: /^tags\/tag_local/,
         actionParamKey: "scopeRef",
         defaultValue: () => ({ type: "model", id: model.id }),
         readonly: true,

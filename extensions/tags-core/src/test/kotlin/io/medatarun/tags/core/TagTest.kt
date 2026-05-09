@@ -9,6 +9,8 @@ import io.medatarun.tags.core.domain.TagRef.Companion.tagRefId
 import io.medatarun.tags.core.fixtures.*
 import io.medatarun.tags.core.fixtures.SampleId.Companion.sampleId
 import io.medatarun.tags.core.ports.needs.TagScopeManager
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import kotlin.test.*
 
 @EnableDatabaseTests
@@ -40,24 +42,24 @@ class TagTest {
         val scopeRef = createRecipeScope(env.recipeService)
         val key = TagKey("mykey")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagLocalCreate(scopeRef, key, "name", "description"))
+        env.dispatch(TagAction.TagLocalCreate(scopeRef, key, TextSingleLine("name"), TextMarkdown("description")))
         val found = env.tagQueries.findTagByRef(tagRef(scopeRef, key))
         assertEquals(key, found.key)
         assertFalse(found.isGlobal)
         assertEquals(scopeRef, found.scope)
         assertNull(found.groupId)
-        assertEquals("name", found.name)
-        assertEquals("description", found.description)
+        assertEquals(TextSingleLine("name"), found.name)
+        assertEquals(TextMarkdown("description"), found.description)
 
         // create again
-        env.dispatch(TagAction.TagLocalCreate(scopeRef, key2, "name2", "description2"))
+        env.dispatch(TagAction.TagLocalCreate(scopeRef, key2, TextSingleLine("name2"), TextMarkdown("description2")))
         val found2 = env.tagQueries.findTagByRef(tagRef(scopeRef, key2))
         assertEquals(key2, found2.key)
         assertFalse(found2.isGlobal)
         assertEquals(scopeRef, found2.scope)
         assertNull(found2.groupId)
-        assertEquals("name2", found2.name)
-        assertEquals("description2", found2.description)
+        assertEquals(TextSingleLine("name2"), found2.name)
+        assertEquals(TextMarkdown("description2"), found2.description)
 
         assertNotEquals(found.id, found2.id)
 
@@ -99,38 +101,38 @@ class TagTest {
         env.dispatch(TagAction.TagLocalCreate(scopeRef, key1, null, null))
         env.dispatch(TagAction.TagLocalCreate(scopeRef, key2, null, null))
 
-        fun assertTagName(expected: String?, key: TagKey) {
+        fun assertTagName(expected: TextSingleLine?, key: TagKey) {
             val found = env.tagQueries.findTagByRef(tagRef(scopeRef, key))
             assertEquals(expected, found.name)
             assertFalse(found.isGlobal)
         }
 
         // Update tag1 name
-        env.dispatch(TagAction.TagLocalUpdateName(tagRef(scopeRef, key1), "newname1"))
+        env.dispatch(TagAction.TagLocalUpdateName(tagRef(scopeRef, key1), TextSingleLine("newname1")))
 
         // Then tag1 name shall be set and tag2 still null
-        assertTagName("newname1", key1)
+        assertTagName(TextSingleLine("newname1"), key1)
         assertTagName(null, key2)
 
         // Update tag2 name
-        env.dispatch(TagAction.TagLocalUpdateName(tagRef(scopeRef, key2), "newname2"))
+        env.dispatch(TagAction.TagLocalUpdateName(tagRef(scopeRef, key2), TextSingleLine("newname2")))
 
         // Then tag2 name shall be set and tag1 unmodified
-        assertTagName("newname1", key1)
-        assertTagName("newname2", key2)
+        assertTagName(TextSingleLine("newname1"), key1)
+        assertTagName(TextSingleLine("newname2"), key2)
 
         // Changes the now not null tag1 name
-        env.dispatch(TagAction.TagLocalUpdateName(tagRef(scopeRef, key1), "newname1bis"))
+        env.dispatch(TagAction.TagLocalUpdateName(tagRef(scopeRef, key1), TextSingleLine("newname1bis")))
 
         // Then tag1 name shall be set and tag2 unmodified
-        assertTagName("newname1bis", key1)
-        assertTagName("newname2", key2)
+        assertTagName(TextSingleLine("newname1bis"), key1)
+        assertTagName(TextSingleLine("newname2"), key2)
 
         // Changes the now not null tag2 name to null
         env.dispatch(TagAction.TagLocalUpdateName(tagRef(scopeRef, key2), null))
 
         // Then tag2 name shall be null and tag1 unmodified
-        assertTagName("newname1bis", key1)
+        assertTagName(TextSingleLine("newname1bis"), key1)
         assertTagName(null, key2)
 
     }
@@ -145,38 +147,38 @@ class TagTest {
         env.dispatch(TagAction.TagLocalCreate(scopeRef, key1, null, null))
         env.dispatch(TagAction.TagLocalCreate(scopeRef, key2, null, null))
 
-        fun assertTagDescription(expected: String?, key: TagKey) {
+        fun assertTagDescription(expected: TextMarkdown?, key: TagKey) {
             val found = env.tagQueries.findTagByRef(tagRef(scopeRef, key))
             assertEquals(expected, found.description)
             assertFalse(found.isGlobal)
         }
 
         // Update tag1 description
-        env.dispatch(TagAction.TagLocalUpdateDescription(tagRef(scopeRef, key1), "newname1"))
+        env.dispatch(TagAction.TagLocalUpdateDescription(tagRef(scopeRef, key1), TextMarkdown("newname1")))
 
         // Then tag1 description shall be set and tag2 still null
-        assertTagDescription("newname1", key1)
+        assertTagDescription(TextMarkdown("newname1"), key1)
         assertTagDescription(null, key2)
 
         // Update tag2 description
-        env.dispatch(TagAction.TagLocalUpdateDescription(tagRef(scopeRef, key2), "newname2"))
+        env.dispatch(TagAction.TagLocalUpdateDescription(tagRef(scopeRef, key2), TextMarkdown("newname2")))
 
         // Then tag2 description shall be set and tag1 unmodified
-        assertTagDescription("newname1", key1)
-        assertTagDescription("newname2", key2)
+        assertTagDescription(TextMarkdown("newname1"), key1)
+        assertTagDescription(TextMarkdown("newname2"), key2)
 
         // Changes the now not null tag1 description
-        env.dispatch(TagAction.TagLocalUpdateDescription(tagRef(scopeRef, key1), "newname1bis"))
+        env.dispatch(TagAction.TagLocalUpdateDescription(tagRef(scopeRef, key1), TextMarkdown("newname1bis")))
 
         // Then tag1 description shall be set and tag2 unmodified
-        assertTagDescription("newname1bis", key1)
-        assertTagDescription("newname2", key2)
+        assertTagDescription(TextMarkdown("newname1bis"), key1)
+        assertTagDescription(TextMarkdown("newname2"), key2)
 
         // Changes the now not null tag2 description to null
         env.dispatch(TagAction.TagLocalUpdateDescription(tagRef(scopeRef, key2), null))
 
         // Then tag2 description shall be null and tag1 unmodified
-        assertTagDescription("newname1bis", key1)
+        assertTagDescription(TextMarkdown("newname1bis"), key1)
         assertTagDescription(null, key2)
     }
 
@@ -243,20 +245,20 @@ class TagTest {
         val env = createEnvironment()
         val key = TagGroupKey("mykey")
         val key2 = TagGroupKey("mykey2")
-        env.dispatch(TagAction.TagGroupCreate(key, "name", "description"))
+        env.dispatch(TagAction.TagGroupCreate(key, TextSingleLine("name"), TextMarkdown("description")))
         val found = env.tagQueries.findTagGroupByKeyOptional(key)
         assertNotNull(found)
         assertEquals(key, found.key)
-        assertEquals("name", found.name)
-        assertEquals("description", found.description)
+        assertEquals(TextSingleLine("name"), found.name)
+        assertEquals(TextMarkdown("description"), found.description)
 
         // create again
-        env.dispatch(TagAction.TagGroupCreate(key2, "name2", "description2"))
+        env.dispatch(TagAction.TagGroupCreate(key2, TextSingleLine("name2"), TextMarkdown("description2")))
         val found2 = env.tagQueries.findTagGroupByKeyOptional(key2)
         assertNotNull(found2)
         assertEquals(key2, found2.key)
-        assertEquals("name2", found2.name)
-        assertEquals("description2", found2.description)
+        assertEquals(TextSingleLine("name2"), found2.name)
+        assertEquals(TextMarkdown("description2"), found2.description)
 
         assertNotEquals(found.id, found2.id)
     }
@@ -292,32 +294,32 @@ class TagTest {
         env.dispatch(TagAction.TagGroupCreate(key1, null, null))
         env.dispatch(TagAction.TagGroupCreate(key2, null, null))
 
-        fun assertTagGroupName(expected: String?, key: TagGroupKey) {
+        fun assertTagGroupName(expected: TextSingleLine?, key: TagGroupKey) {
             val found = env.tagQueries.findTagGroupByKeyOptional(key)
             assertNotNull(found)
             assertEquals(expected, found.name)
         }
 
         // Update group1 name
-        env.dispatch(TagAction.TagGroupUpdateName(TagGroupRef.ByKey(key1), "newname1"))
+        env.dispatch(TagAction.TagGroupUpdateName(TagGroupRef.ByKey(key1), TextSingleLine("newname1")))
 
         // Then group1 name shall be set and group2 still null
-        assertTagGroupName("newname1", key1)
+        assertTagGroupName(TextSingleLine("newname1"), key1)
         assertTagGroupName(null, key2)
 
         // Update group2 name
-        env.dispatch(TagAction.TagGroupUpdateName(TagGroupRef.ByKey(key2), "newname2"))
+        env.dispatch(TagAction.TagGroupUpdateName(TagGroupRef.ByKey(key2), TextSingleLine("newname2")))
 
         // Then group2 name shall be set and group1 unmodified
-        assertTagGroupName("newname1", key1)
-        assertTagGroupName("newname2", key2)
+        assertTagGroupName(TextSingleLine("newname1"), key1)
+        assertTagGroupName(TextSingleLine("newname2"), key2)
 
         // Changes group1 name
-        env.dispatch(TagAction.TagGroupUpdateName(TagGroupRef.ByKey(key1), "newname1bis"))
+        env.dispatch(TagAction.TagGroupUpdateName(TagGroupRef.ByKey(key1), TextSingleLine("newname1bis")))
 
         // Then group1 name shall be set and group2 unmodified
-        assertTagGroupName("newname1bis", key1)
-        assertTagGroupName("newname2", key2)
+        assertTagGroupName(TextSingleLine("newname1bis"), key1)
+        assertTagGroupName(TextSingleLine("newname2"), key2)
     }
 
     @Test
@@ -329,32 +331,32 @@ class TagTest {
         env.dispatch(TagAction.TagGroupCreate(key1, null, null))
         env.dispatch(TagAction.TagGroupCreate(key2, null, null))
 
-        fun assertTagGroupDescription(expected: String?, key: TagGroupKey) {
+        fun assertTagGroupDescription(expected: TextMarkdown?, key: TagGroupKey) {
             val found = env.tagQueries.findTagGroupByKeyOptional(key)
             assertNotNull(found)
             assertEquals(expected, found.description)
         }
 
         // Update group1 description
-        env.dispatch(TagAction.TagGroupUpdateDescription(TagGroupRef.ByKey(key1), "newdescription1"))
+        env.dispatch(TagAction.TagGroupUpdateDescription(TagGroupRef.ByKey(key1), TextMarkdown("newdescription1")))
 
         // Then group1 description shall be set and group2 still null
-        assertTagGroupDescription("newdescription1", key1)
+        assertTagGroupDescription(TextMarkdown("newdescription1"), key1)
         assertTagGroupDescription(null, key2)
 
         // Update group2 description
-        env.dispatch(TagAction.TagGroupUpdateDescription(TagGroupRef.ByKey(key2), "newdescription2"))
+        env.dispatch(TagAction.TagGroupUpdateDescription(TagGroupRef.ByKey(key2), TextMarkdown("newdescription2")))
 
         // Then group2 description shall be set and group1 unmodified
-        assertTagGroupDescription("newdescription1", key1)
-        assertTagGroupDescription("newdescription2", key2)
+        assertTagGroupDescription(TextMarkdown("newdescription1"), key1)
+        assertTagGroupDescription(TextMarkdown("newdescription2"), key2)
 
         // Changes group1 description
-        env.dispatch(TagAction.TagGroupUpdateDescription(TagGroupRef.ByKey(key1), "newdescription1bis"))
+        env.dispatch(TagAction.TagGroupUpdateDescription(TagGroupRef.ByKey(key1), TextMarkdown("newdescription1bis")))
 
         // Then group1 description shall be set and group2 unmodified
-        assertTagGroupDescription("newdescription1bis", key1)
-        assertTagGroupDescription("newdescription2", key2)
+        assertTagGroupDescription(TextMarkdown("newdescription1bis"), key1)
+        assertTagGroupDescription(TextMarkdown("newdescription2"), key2)
     }
 
     @Test
@@ -523,17 +525,17 @@ class TagTest {
     fun `tag global created with name and description`() {
         val env = createEnvironment()
         val groupKey = TagGroupKey("group-key")
-        env.dispatch(TagAction.TagGroupCreate(groupKey, "group", "group-description"))
+        env.dispatch(TagAction.TagGroupCreate(groupKey, TextSingleLine("group"), TextMarkdown("group-description")))
 
         val group = env.tagQueries.findTagGroupByKeyOptional(groupKey)
         assertNotNull(group)
 
         val globalKey = TagKey("global-key")
         val globalKey2 = TagKey("global-key2")
-        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey, "name", "description"))
+        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey, TextSingleLine("name"), TextMarkdown("description")))
         // This test also checks that a second global tag can be created in the same group
         // (with a different key) and gets a distinct identifier.
-        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey2, "name2", "description2"))
+        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey2, TextSingleLine("name2"), TextMarkdown("description2")))
 
         val found = env.tagQueries.findTagByKeyOptional(group.id, globalKey)
         assertNotNull(found)
@@ -541,8 +543,8 @@ class TagTest {
         assertTrue(found.isGlobal)
         assertEquals(group.id, found.groupId)
         assertEquals(globalKey, found.key)
-        assertEquals("name", found.name)
-        assertEquals("description", found.description)
+        assertEquals(TextSingleLine("name"), found.name)
+        assertEquals(TextMarkdown("description"), found.description)
 
         val found2 = env.tagQueries.findTagByKeyOptional(group.id, globalKey2)
         assertNotNull(found2)
@@ -550,8 +552,8 @@ class TagTest {
         assertTrue(found2.isGlobal)
         assertEquals(group.id, found2.groupId)
         assertEquals(globalKey2, found2.key)
-        assertEquals("name2", found2.name)
-        assertEquals("description2", found2.description)
+        assertEquals(TextSingleLine("name2"), found2.name)
+        assertEquals(TextMarkdown("description2"), found2.description)
         assertNotEquals(found.id, found2.id)
     }
 
@@ -605,8 +607,8 @@ class TagTest {
         assertNotNull(group2)
 
         val globalKey = TagKey("shared-key")
-        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group1.id), globalKey, "name-1", "description-1"))
-        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group2.id), globalKey, "name-2", "description-2"))
+        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group1.id), globalKey, TextSingleLine("name-1"), TextMarkdown("description-1")))
+        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group2.id), globalKey, TextSingleLine("name-2"), TextMarkdown("description-2")))
 
         val found1 = env.tagQueries.findTagByKeyOptional(group1.id, globalKey)
         assertNotNull(found1)
@@ -628,8 +630,8 @@ class TagTest {
                 TagAction.TagGlobalCreate(
                     TagGroupRef.ByKey(TagGroupKey("missing-group")),
                     TagKey("global-key"),
-                    "name",
-                    "description"
+                    TextSingleLine("name"),
+                    TextMarkdown("description")
                 )
             )
         }
@@ -645,10 +647,10 @@ class TagTest {
 
         val globalKey1 = TagKey("global-key1")
         val globalKey2 = TagKey("global-key2")
-        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey1, "name-1", null))
-        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey2, "name-2", null))
+        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey1, TextSingleLine("name-1"), null))
+        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey2, TextSingleLine("name-2"), null))
 
-        fun assertTagGlobalName(expected: String, key: TagKey) {
+        fun assertTagGlobalName(expected: TextSingleLine, key: TagKey) {
             val found = env.tagQueries.findTagByKeyOptional(group.id, key)
             assertNotNull(found)
             assertEquals(expected, found.name)
@@ -656,19 +658,19 @@ class TagTest {
 
         env.dispatch(
             TagAction.TagGlobalUpdateName(
-                tagRef(groupKey, globalKey1), "new-name-1"
+                tagRef(groupKey, globalKey1), TextSingleLine("new-name-1")
             )
         )
-        assertTagGlobalName("new-name-1", globalKey1)
-        assertTagGlobalName("name-2", globalKey2)
+        assertTagGlobalName(TextSingleLine("new-name-1"), globalKey1)
+        assertTagGlobalName(TextSingleLine("name-2"), globalKey2)
 
         env.dispatch(
             TagAction.TagGlobalUpdateName(
-                tagRef(groupKey, globalKey2), "new-name-2"
+                tagRef(groupKey, globalKey2), TextSingleLine("new-name-2")
             )
         )
-        assertTagGlobalName("new-name-1", globalKey1)
-        assertTagGlobalName("new-name-2", globalKey2)
+        assertTagGlobalName(TextSingleLine("new-name-1"), globalKey1)
+        assertTagGlobalName(TextSingleLine("new-name-2"), globalKey2)
     }
 
     @Test
@@ -681,10 +683,10 @@ class TagTest {
 
         val globalKey1 = TagKey("global-key1")
         val globalKey2 = TagKey("global-key2")
-        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey1, null, "description-1"))
-        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey2, null, "description-2"))
+        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey1, null, TextMarkdown("description-1")))
+        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey2, null, TextMarkdown("description-2")))
 
-        fun assertTagGlobalDescription(expected: String, key: TagKey) {
+        fun assertTagGlobalDescription(expected: TextMarkdown, key: TagKey) {
             val found = env.tagQueries.findTagByKeyOptional(group.id, key)
             assertNotNull(found)
             assertEquals(expected, found.description)
@@ -692,19 +694,19 @@ class TagTest {
 
         env.dispatch(
             TagAction.TagGlobalUpdateDescription(
-                tagRef(groupKey, globalKey1), "new-description-1"
+                tagRef(groupKey, globalKey1), TextMarkdown("new-description-1")
             )
         )
-        assertTagGlobalDescription("new-description-1", globalKey1)
-        assertTagGlobalDescription("description-2", globalKey2)
+        assertTagGlobalDescription(TextMarkdown("new-description-1"), globalKey1)
+        assertTagGlobalDescription(TextMarkdown("description-2"), globalKey2)
 
         env.dispatch(
             TagAction.TagGlobalUpdateDescription(
-                tagRef(groupKey, globalKey2), "new-description-2"
+                tagRef(groupKey, globalKey2), TextMarkdown("new-description-2")
             )
         )
-        assertTagGlobalDescription("new-description-1", globalKey1)
-        assertTagGlobalDescription("new-description-2", globalKey2)
+        assertTagGlobalDescription(TextMarkdown("new-description-1"), globalKey1)
+        assertTagGlobalDescription(TextMarkdown("new-description-2"), globalKey2)
     }
 
     @Test
@@ -717,7 +719,7 @@ class TagTest {
         assertNotNull(group)
 
         val globalKey1 = TagKey("global-key1")
-        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey1, null, "description-1"))
+        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey1, null, TextMarkdown("description-1")))
         env.dispatch(TagAction.TagGlobalUpdateDescription(tagRef(groupKey, globalKey1), null))
 
         val found = env.tagQueries.findTagByKeyOptional(group.id, globalKey1)
@@ -793,7 +795,7 @@ class TagTest {
             env.dispatch(
                 TagAction.TagGlobalUpdateDescription(
                     tagRef(groupKey, TagKey("missing-tag")),
-                    "new-description"
+                    TextMarkdown("new-description")
                 )
             )
         }
@@ -807,7 +809,7 @@ class TagTest {
         val group = env.tagQueries.findTagGroupByKeyOptional(groupKey)
         assertNotNull(group)
         val globalKey = TagKey("global-key")
-        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey, "name", "description"))
+        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey, TextSingleLine("name"), TextMarkdown("description")))
         val tag = env.tagQueries.findTagByKeyOptional(group.id, globalKey)
         assertNotNull(tag)
 
@@ -816,20 +818,20 @@ class TagTest {
         env.dispatch(
             TagAction.TagGlobalUpdateName(
                 tagRef(tag.id),
-                "new-name"
+                TextSingleLine("new-name")
             )
         )
         env.dispatch(
             TagAction.TagGlobalUpdateDescription(
                 tagRef(tag.id),
-                "new-description"
+                TextMarkdown("new-description")
             )
         )
 
         val updated = env.tagQueries.findTagByIdOptional(tag.id)
         assertNotNull(updated)
-        assertEquals("new-name", updated.name)
-        assertEquals("new-description", updated.description)
+        assertEquals(TextSingleLine("new-name"), updated.name)
+        assertEquals(TextMarkdown("new-description"), updated.description)
     }
 
     @Test
@@ -911,19 +913,19 @@ class TagTest {
             TagAction.TagGlobalCreate(
                 TagGroupRef.ByKey(groupKey),
                 globalKey,
-                "name",
-                "description"
+                TextSingleLine("name"),
+                TextMarkdown("description")
             )
         )
 
         env.dispatch(
             TagAction.TagGlobalUpdateName(
-                tagRef(groupKey, globalKey), "new-name"
+                tagRef(groupKey, globalKey), TextSingleLine("new-name")
             )
         )
         env.dispatch(
             TagAction.TagGlobalUpdateDescription(
-                tagRef(groupKey, globalKey), "new-description"
+                tagRef(groupKey, globalKey), TextMarkdown("new-description")
             )
         )
 
@@ -931,8 +933,8 @@ class TagTest {
         assertNotNull(group)
         val found = env.tagQueries.findTagByKeyOptional(group.id, globalKey)
         assertNotNull(found)
-        assertEquals("new-name", found.name)
-        assertEquals("new-description", found.description)
+        assertEquals(TextSingleLine("new-name"), found.name)
+        assertEquals(TextMarkdown("new-description"), found.description)
 
         env.dispatch(TagAction.TagGlobalDelete(tagRef(groupKey, globalKey)))
         assertNull(env.tagQueries.findTagByKeyOptional(group.id, globalKey))
@@ -946,7 +948,7 @@ class TagTest {
         val group = env.tagQueries.findTagGroupByKeyOptional(groupKey)
         assertNotNull(group)
         val globalKey = TagKey("global-key")
-        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey, "name", "description"))
+        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey, TextSingleLine("name"), TextMarkdown("description")))
         val tag = env.tagQueries.findTagByKeyOptional(group.id, globalKey)
         assertNotNull(tag)
 
@@ -1112,8 +1114,8 @@ class TagTest {
         val scopeRef2 = createRecipeScope(env.recipeService, "recipe-2")
         val sharedKey = TagKey("shared-key")
 
-        env.dispatch(TagAction.TagLocalCreate(scopeRef1, sharedKey, "name-1", null))
-        env.dispatch(TagAction.TagLocalCreate(scopeRef2, sharedKey, "name-2", null))
+        env.dispatch(TagAction.TagLocalCreate(scopeRef1, sharedKey, TextSingleLine("name-1"), null))
+        env.dispatch(TagAction.TagLocalCreate(scopeRef2, sharedKey, TextSingleLine("name-2"), null))
 
         val found1 = env.tagQueries.findTagByRef(tagRef(scopeRef1, sharedKey))
         val found2 = env.tagQueries.findTagByRef(tagRef(scopeRef2, sharedKey))
@@ -1188,7 +1190,7 @@ class TagTest {
         env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey, null, null))
 
         assertFailsWith<TagLocalCommandIncompatibleTagRefException> {
-            env.dispatch(TagAction.TagLocalUpdateName(tagRef(groupKey, globalKey), "new-name"))
+            env.dispatch(TagAction.TagLocalUpdateName(tagRef(groupKey, globalKey), TextSingleLine("new-name")))
         }
     }
 
@@ -1202,7 +1204,7 @@ class TagTest {
         env.dispatch(TagAction.TagLocalCreate(scopeRef, localKey, null, null))
 
         assertFailsWith<TagGlobalCommandIncompatibleTagRefException> {
-            env.dispatch(TagAction.TagGlobalUpdateDescription(tagRef(scopeRef, localKey), "new-description"))
+            env.dispatch(TagAction.TagGlobalUpdateDescription(tagRef(scopeRef, localKey), TextMarkdown("new-description")))
         }
     }
 

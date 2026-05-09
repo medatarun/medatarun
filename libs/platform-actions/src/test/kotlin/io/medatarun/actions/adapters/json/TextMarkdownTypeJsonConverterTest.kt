@@ -1,6 +1,7 @@
-package io.medatarun.model.adapters.json
+package io.medatarun.actions.adapters.json
 
-import io.medatarun.type.commons.text.TextSingleLine
+import io.medatarun.actions.adapters.json.TextMarkdownTypeJsonConverter
+import io.medatarun.type.commons.text.TextMarkdown
 import io.medatarun.types.TypeJsonConverterBadFormatException
 import io.medatarun.types.TypeJsonConverterIllegalNullException
 import kotlinx.serialization.json.JsonArray
@@ -11,18 +12,18 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-class TextSingleLineTypeJsonConverterTest {
+class TextMarkdownTypeJsonConverterTest {
 
-    private val converter = TextSingleLineJsonConverter()
+    private val converter = TextMarkdownTypeJsonConverter()
 
     @Test
     fun `deserialize should accept string and object formats`() {
-        val text = converter.deserialize(JsonPrimitive("hello"))
-        assertEquals(TextSingleLine("hello"), text)
+        val text = converter.deserialize(JsonPrimitive("**hello**"))
+        assertEquals(TextMarkdown("**hello**"), text)
     }
 
     @Test
-    fun `deserialize should reject non string or object inputs`() {
+    fun `deserialize should reject non string inputs`() {
         assertFailsWith<TypeJsonConverterIllegalNullException> {
             converter.deserialize(JsonNull)
         }
@@ -34,6 +35,7 @@ class TextSingleLineTypeJsonConverterTest {
         assertFailsWith<TypeJsonConverterBadFormatException> {
             converter.deserialize(JsonPrimitive(12))
         }
+
         assertFailsWith<TypeJsonConverterBadFormatException> {
             converter.deserialize(JsonObject(emptyMap()))
         }

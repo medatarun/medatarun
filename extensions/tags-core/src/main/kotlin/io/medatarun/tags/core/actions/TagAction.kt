@@ -7,6 +7,8 @@ import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.security.SecurityRuleNames
 import io.medatarun.tags.core.adapters.security.TagSecurityRules
 import io.medatarun.tags.core.domain.*
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 
 sealed interface TagAction {
 
@@ -46,7 +48,7 @@ sealed interface TagAction {
                 Name of this tag.
             """
         )
-        val name: String?,
+        val name: TextSingleLine?,
         @ActionParamDoc(
             order = 40,
             name = "Description",
@@ -56,7 +58,7 @@ sealed interface TagAction {
                 Explain what the tag means and when it should be used.
             """
         )
-        val description: String?
+        val description: TextMarkdown?
     ) : TagAction
 
     @ActionDoc(
@@ -77,7 +79,7 @@ sealed interface TagAction {
             name = "Name",
             description = "Name of this tag."
         )
-        val value: String?
+        val value: TextSingleLine?
     ) : TagAction
 
     @ActionDoc(
@@ -98,7 +100,7 @@ sealed interface TagAction {
             name = "Description",
             description = "Explain what this tag means and when it should be used."
         )
-        val value: String?
+        val value: TextMarkdown?
     ) : TagAction
 
     @ActionDoc(
@@ -167,13 +169,13 @@ sealed interface TagAction {
             description = "Name of this group.",
             order = 20,
         )
-        val name: String?,
+        val name: TextSingleLine?,
         @ActionParamDoc(
             name = "Description",
             description = "Explain what this group is for and which tags belong in it.",
             order = 40,
         )
-        val description: String?
+        val description: TextMarkdown?
     ) : TagAction
 
     @ActionDoc(
@@ -194,7 +196,7 @@ sealed interface TagAction {
             description = "Name of this group.",
             order = 20,
         )
-        val value: String
+        val value: TextSingleLine?
     ) : TagAction
 
     @ActionDoc(
@@ -215,7 +217,7 @@ sealed interface TagAction {
             description = "Explain what this group is for and which tags belong in it.",
             order = 20,
         )
-        val value: String?
+        val value: TextMarkdown?
     ) : TagAction
 
     @ActionDoc(
@@ -290,13 +292,13 @@ sealed interface TagAction {
             description = "Name of this tag.",
             order = 20,
         )
-        val name: String?,
+        val name: TextSingleLine?,
         @ActionParamDoc(
             name = "Description",
             description = "Explain what this tag means and when it should be used.",
             order = 40,
         )
-        val description: String?
+        val description: TextMarkdown?
     ) : TagAction
 
     @ActionDoc(
@@ -317,7 +319,7 @@ sealed interface TagAction {
             description = "Name of this tag.",
             order = 20,
         )
-        val value: String
+        val value: TextSingleLine
     ) : TagAction
 
     @ActionDoc(
@@ -338,7 +340,7 @@ sealed interface TagAction {
             description = "Explain what this tag means and when it should be used.",
             order = 20,
         )
-        val value: String?
+        val value: TextMarkdown?
     ) : TagAction
 
     @ActionDoc(

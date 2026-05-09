@@ -156,8 +156,8 @@ class TagActionHandler(
                             put("groupId", groupId.asString())
                         }
                         put("tagScopeRef", tagScopeRefJson(it.scope))
-                        put("name", it.name)
-                        put("description", it.description)
+                        put("name", it.name?.name)
+                        put("description", it.description?.name)
                     }
                 }
             }
@@ -186,8 +186,8 @@ class TagActionHandler(
                     addJsonObject {
                         put("id", it.id.asString())
                         put("key", it.key.asString())
-                        put("name", it.name)
-                        put("description", it.description)
+                        put("name", it.name?.name)
+                        put("description", it.description?.name)
                     }
                 }
             }

@@ -5,6 +5,8 @@ import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.infra.db.TagStorageEventInvalidScopeRefException
 import io.medatarun.type.commons.id.Id
 import io.medatarun.type.commons.serialization.SerializationUtils.stringSerializer
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -20,6 +22,8 @@ object TagsJsonSerializers {
     val tagGroupKey = stringSerializer("TagGroupKey", { TagGroupKey(it) }) { it.value }
     val tagScopeType = stringSerializer("TagScopeType", { TagScopeType(it) }) { it.value }
     val tagScopeId = stringSerializer("TagScopeId", { Id.fromString(it, ::TagScopeId) }) { it.value.toString() }
+    val textSingleLine = stringSerializer("TextSingleLine", { TextSingleLine(it) }) { it.name }
+    val textMarkdown = stringSerializer("TextMarkdown", { TextMarkdown(it) }) { it.name }
 
     val tagScopeRef = object : KSerializer<TagScopeRef> {
         override val descriptor: SerialDescriptor = JsonElement.serializer().descriptor
@@ -90,6 +94,8 @@ object TagsJsonSerializers {
             contextual(TagScopeType::class, tagScopeType)
             contextual(TagScopeId::class, tagScopeId)
             contextual(TagScopeRef::class, tagScopeRef)
+            contextual(TextMarkdown::class, textMarkdown)
+            contextual(TextSingleLine::class, textSingleLine)
         }
     }
 }

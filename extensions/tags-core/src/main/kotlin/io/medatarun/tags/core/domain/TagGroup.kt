@@ -1,5 +1,8 @@
 package io.medatarun.tags.core.domain
 
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
+
 /**
  * Group of global tags, e.g. a category. It helps grouping tags related to the
  * same subjects and provide a way to control the tag forms.
@@ -23,10 +26,10 @@ interface TagGroup {
     /**
      * Clear tag group name
      */
-    val name: String?
+    val name: TextSingleLine?
 
     /**
      * Description of the group, its usage and meaning
      */
-    val description: String?
+    val description: TextMarkdown?
 }

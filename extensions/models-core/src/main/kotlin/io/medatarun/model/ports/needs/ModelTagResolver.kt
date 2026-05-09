@@ -9,6 +9,8 @@ import io.medatarun.tags.core.domain.TagScopeId
 import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.tags.core.domain.TagScopeType
 import io.medatarun.tags.core.domain.Tag
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 
 /**
  * Port used by model commands to resolve tags and validate attachment rules
@@ -62,7 +64,13 @@ interface ModelTagResolver {
      * The caller must forward the traceability record that triggered the model command so the tag
      * layer keeps the original call identity.
      */
-    fun create(traceabilityRecord: AppTraceabilityRecord, modelId: ModelId, key: TagKey, name: String?, description: String?)
+    fun create(
+        traceabilityRecord: AppTraceabilityRecord,
+        modelId: ModelId,
+        key: TagKey,
+        name: TextSingleLine?,
+        description: TextMarkdown?
+    )
 
     /**
      * Signals that the model local tag scope is about to be deleted.

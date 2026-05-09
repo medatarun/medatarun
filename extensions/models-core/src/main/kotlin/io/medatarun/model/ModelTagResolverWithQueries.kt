@@ -7,6 +7,8 @@ import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeTy
 import io.medatarun.platform.kernel.EventNotifier
 import io.medatarun.security.AppTraceabilityRecord
 import io.medatarun.tags.core.domain.*
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 
 internal class ModelTagResolverWithQueries(
     private val tagQueries: TagQueries,
@@ -59,8 +61,8 @@ internal class ModelTagResolverWithQueries(
         traceabilityRecord: AppTraceabilityRecord,
         modelId: ModelId,
         key: TagKey,
-        name: String?,
-        description: String?
+        name: TextSingleLine?,
+        description: TextMarkdown?
     ) {
         tagCmds.dispatch(
             TagCmdEnveloppe(

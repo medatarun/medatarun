@@ -1,14 +1,19 @@
-package io.medatarun.model.adapters.json
+package io.medatarun.actions.adapters.json
 
 import io.medatarun.lang.strings.trimToNull
-import io.medatarun.type.commons.text.TextSingleLine
+import io.medatarun.type.commons.text.TextMarkdown
 import io.medatarun.types.TypeJsonConverter
 import io.medatarun.types.TypeJsonConverterBadFormatException
 import io.medatarun.types.TypeJsonConverterIllegalNullException
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 
-class TextSingleLineJsonConverter : TypeJsonConverter<TextSingleLine> {
-    override fun deserialize(json: JsonElement): TextSingleLine {
+class TextMarkdownTypeJsonConverter : TypeJsonConverter<TextMarkdown> {
+    override fun deserialize(json: JsonElement): TextMarkdown {
         return when (json) {
             is JsonNull -> throw TypeJsonConverterIllegalNullException()
             is JsonArray -> throw TypeJsonConverterBadFormatException("expected a JsonString")
@@ -17,9 +22,10 @@ class TextSingleLineJsonConverter : TypeJsonConverter<TextSingleLine> {
                 if (json.isString) {
                     val content = json.contentOrNull ?: throw TypeJsonConverterIllegalNullException()
                     val contentTrimmed = content.trimToNull()
-                    if (contentTrimmed == null) throw TypeJsonConverterBadFormatException("Can not be empty") else TextSingleLine(content)
+                    if (contentTrimmed == null) throw TypeJsonConverterBadFormatException("Can not be empty")
+                    else TextMarkdown(content)
                 } else {
-                    throw TypeJsonConverterBadFormatException("expected a JsonString")
+                    throw TypeJsonConverterBadFormatException("expected a JsonObject or a JsonString")
                 }
             }
         }

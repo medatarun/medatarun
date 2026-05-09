@@ -1,5 +1,8 @@
 package io.medatarun.tags.core.domain
 
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
+
 /**
  * Unified tag model used as migration target for both local tags and global tags.
  *
@@ -30,12 +33,12 @@ interface Tag {
     /**
      * Display name of the tag
      */
-    val name: String?
+    val name: TextSingleLine?
 
     /**
      * Description of the tag
      */
-    val description: String?
+    val description: TextMarkdown?
 
     /**
      * True when the tag is attached to a group and is therefore a global tag.

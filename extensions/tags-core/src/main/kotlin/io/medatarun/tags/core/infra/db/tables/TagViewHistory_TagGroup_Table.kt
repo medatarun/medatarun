@@ -6,6 +6,8 @@ import io.medatarun.tags.core.domain.TagGroupKey
 import io.medatarun.platform.db.exposed.IdTransformer
 import io.medatarun.platform.db.exposed.instant
 import io.medatarun.platform.db.exposed.KeyTransformer
+import io.medatarun.platform.db.exposed.TextMarkdownTransformer
+import io.medatarun.platform.db.exposed.TextSingleLineTransformer
 import io.medatarun.tags.core.infra.db.types.TagGroupHistoryProjectionId
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
@@ -15,8 +17,8 @@ internal object TagViewHistory_TagGroup_Table : Table("tag_view_history_tag_grou
     val tagEventId = javaUUID("tag_event_id").transform(IdTransformer(::TagEventId))
     val tagGroupId = javaUUID("tag_group_id").transform(IdTransformer(::TagGroupId))
     val key = text("key").transform(KeyTransformer(::TagGroupKey))
-    val name = text("name").nullable()
-    val description = text("description").nullable()
+    val name = text("name").transform(TextSingleLineTransformer()).nullable()
+    val description = text("description").transform(TextMarkdownTransformer()).nullable()
     val validFrom = instant("valid_from")
     val validTo = instant("valid_to").nullable()
 

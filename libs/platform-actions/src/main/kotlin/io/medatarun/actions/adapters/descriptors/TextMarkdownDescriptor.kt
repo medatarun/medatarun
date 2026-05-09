@@ -1,6 +1,6 @@
-package io.medatarun.model.adapters.descriptors
+package io.medatarun.actions.adapters.descriptors
 
-import io.medatarun.model.adapters.json.TextMarkdownTypeJsonConverter
+import io.medatarun.actions.adapters.json.TextMarkdownTypeJsonConverter
 import io.medatarun.type.commons.text.TEXT_MARKDOWN_DESCRIPTION
 import io.medatarun.type.commons.text.TextMarkdown
 import io.medatarun.types.TypeDescriptor

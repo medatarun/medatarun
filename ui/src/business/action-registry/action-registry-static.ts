@@ -1,5 +1,6 @@
 import type { ActionRegistryDto } from "./action-registry-dto.ts";
 
+/** This file is auto-generated from the ActionRegistry backend. Do not modify.*/
 export const actionRegistryStatic = {
   items: [
     {
@@ -944,7 +945,7 @@ export const actionRegistryStatic = {
       parameters: [
         {
           name: "description",
-          type: "String",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -973,7 +974,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "name",
-          type: "String",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -1050,7 +1051,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "String",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -1134,7 +1135,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "String",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: false,
           title: "Name",
@@ -1167,7 +1168,7 @@ export const actionRegistryStatic = {
       parameters: [
         {
           name: "description",
-          type: "String",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -1187,7 +1188,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "name",
-          type: "String",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -1272,7 +1273,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "String",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -1356,9 +1357,9 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "String",
+          type: "TextSingleLine",
           jsonType: "string",
-          optional: false,
+          optional: true,
           title: "Name",
           description: "Name of this group.",
           order: 20,
@@ -1389,7 +1390,7 @@ export const actionRegistryStatic = {
       parameters: [
         {
           name: "description",
-          type: "String",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -1409,7 +1410,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "name",
-          type: "String",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",
@@ -1495,7 +1496,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "String",
+          type: "TextMarkdown",
           jsonType: "string",
           optional: true,
           title: "Description",
@@ -1579,7 +1580,7 @@ export const actionRegistryStatic = {
         },
         {
           name: "value",
-          type: "String",
+          type: "TextSingleLine",
           jsonType: "string",
           optional: true,
           title: "Name",

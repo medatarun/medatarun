@@ -1,9 +1,9 @@
-package io.medatarun.model.infra.db.tables
+package io.medatarun.platform.db.exposed
 
 import io.medatarun.type.commons.text.TextMarkdown
 import org.jetbrains.exposed.v1.core.ColumnTransformer
 
-class LocalizedMarkdownTransformer : ColumnTransformer<String, TextMarkdown> {
+class TextMarkdownTransformer : ColumnTransformer<String, TextMarkdown> {
     override fun unwrap(value: TextMarkdown): String {
         return value.name
     }
