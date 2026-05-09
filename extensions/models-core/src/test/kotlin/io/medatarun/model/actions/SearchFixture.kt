@@ -7,6 +7,7 @@ import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.*
+import io.medatarun.type.commons.text.TextSingleLine
 
 @Suppress("ClassName")
 internal object refs {

@@ -7,6 +7,8 @@ import io.medatarun.model.infra.db.ModelRepoCmdEventUnknownOriginTypeException
 import io.medatarun.tags.core.adapters.jsonserializers.TagsJsonSerializers
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.type.commons.serialization.SerializationUtils.stringSerializer
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind

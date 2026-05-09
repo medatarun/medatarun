@@ -1,6 +1,7 @@
 package io.medatarun.model.infra
 
 import io.medatarun.model.domain.*
+import io.medatarun.type.commons.text.TextSingleLine
 
 data class RelationshipRoleInMemory(
     override val id: RelationshipRoleId,

@@ -6,6 +6,7 @@ import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.*
+import io.medatarun.type.commons.text.TextSingleLine
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 

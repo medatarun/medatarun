@@ -1,6 +1,6 @@
 package io.medatarun.model.infra.db.tables
 
-import io.medatarun.model.domain.TextMarkdown
+import io.medatarun.type.commons.text.TextMarkdown
 import org.jetbrains.exposed.v1.core.ColumnTransformer
 
 class LocalizedMarkdownTransformer : ColumnTransformer<String, TextMarkdown> {

@@ -1,6 +1,8 @@
 package io.medatarun.model.infra.inmemory
 
 import io.medatarun.model.domain.*
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import java.net.URL
 
 data class ModelInMemory(

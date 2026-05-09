@@ -3,6 +3,8 @@ package io.medatarun.model.ports.needs
 import io.medatarun.model.domain.*
 import io.medatarun.storage.eventsourcing.StorageEventContract
 import io.medatarun.tags.core.domain.TagId
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

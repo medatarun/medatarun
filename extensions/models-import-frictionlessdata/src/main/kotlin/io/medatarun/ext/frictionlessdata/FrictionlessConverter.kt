@@ -13,6 +13,8 @@ import io.medatarun.model.ports.needs.ModelImporterData
 import io.medatarun.platform.kernel.ResourceLocator
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.type.commons.id.Id
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import org.slf4j.LoggerFactory
 import java.net.URI
 

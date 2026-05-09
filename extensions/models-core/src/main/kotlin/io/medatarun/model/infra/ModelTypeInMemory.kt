@@ -1,6 +1,8 @@
 package io.medatarun.model.infra
 
 import io.medatarun.model.domain.*
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 
 /**
  * Default implementation of ModelType

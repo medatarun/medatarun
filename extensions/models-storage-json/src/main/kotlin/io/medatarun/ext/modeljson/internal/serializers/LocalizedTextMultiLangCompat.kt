@@ -1,7 +1,7 @@
 package io.medatarun.ext.modeljson.internal.serializers
 
-import io.medatarun.model.domain.TextMarkdown
-import io.medatarun.model.domain.TextSingleLine
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 
 data class LocalizedTextMultiLangCompat(val value : String ) {
     fun toTextSingleLine() = TextSingleLine(value)

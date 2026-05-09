@@ -1,7 +1,7 @@
 package io.medatarun.model.infra.db
 
 import io.medatarun.model.domain.BusinessKeyId
-import io.medatarun.model.domain.TextSingleLine
+import io.medatarun.type.commons.text.TextSingleLine
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.infra.db.ModelEventJsonCodecTest.CmdTestCase
 import io.medatarun.model.ports.needs.ModelStorageCmd.BusinessKeyUpdateName

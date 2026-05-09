@@ -1,6 +1,8 @@
 package io.medatarun.model.domain
 
 import io.medatarun.tags.core.domain.TagId
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 
 /**
  * A [Relationship] describes the conceptual structure of a link between entities.
