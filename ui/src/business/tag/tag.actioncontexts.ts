@@ -33,6 +33,8 @@ export const createDisplayedSubjectTag = (params: {
     tagId: params.tagId,
     tagScopeRefType: params.tagScopeRef.type,
   };
+  const tag_local_or_global: string =
+    params.tagScopeRef.type == "global" ? "tag_global" : "tag_local";
   if (params.tagScopeRef.type == "global" && params.tagGroupId !== null) {
     refs.tagGroupId = params.tagGroupId;
   }
@@ -45,7 +47,7 @@ export const createDisplayedSubjectTag = (params: {
 
   return {
     kind: "resource",
-    type: "tag",
+    type: tag_local_or_global,
     refs: refs,
   };
 };
@@ -72,45 +74,55 @@ export const createActionCtxTag = (
   return new ActionCtxMapping(
     [
       {
-        actionGroupKey: "tag",
+        actionGroupKey: "tags",
         actionParamKey: "tagRef",
         defaultValue: () => (tagId ? "id:" + tagId : undefined),
         readonly: !isNil(tagId),
         visible: isNil(tagId),
       },
       {
-        actionGroupKey: "tag",
+        actionGroupKey: "tags",
         actionParamKey: "scopeRef",
         defaultValue: () => scope,
         readonly: true,
         visible: false,
       },
       {
-        actionGroupKey: "tag",
+        actionGroupKey: "tags",
         actionKey: "tags/tag_local_create",
         actionParamKey: "key",
         defaultValue: () => tagCreateKey,
       },
       {
-        actionGroupKey: "tag",
+        actionGroupKey: "tags",
         actionKey: "tags/tag_global_create",
         actionParamKey: "key",
         defaultValue: () => tagCreateKey,
       },
       {
-        actionGroupKey: "tag",
+        actionGroupKey: "tags",
         actionParamKey: "key",
         defaultValue: () => tagKey,
       },
       {
-        actionGroupKey: "tag",
+        actionGroupKey: "tags",
         actionParamKey: "name",
         defaultValue: () => tagName,
       },
       {
-        actionGroupKey: "tag",
+        actionGroupKey: "tags",
         actionParamKey: "description",
         defaultValue: () => tagDescription,
+      },
+      {
+        actionKey: "tags/tag_global_update_key",
+        actionParamKey: "value",
+        defaultValue: () => options?.tag?.key,
+      },
+      {
+        actionKey: "tags/tag_local_update_key",
+        actionParamKey: "value",
+        defaultValue: () => options?.tag?.key,
       },
     ],
     displayedSubject,
@@ -124,18 +136,23 @@ export function createActionCtxTagGroup(
   return new ActionCtxMapping(
     [
       {
-        actionGroupKey: "tag",
+        actionGroupKey: "tags",
         actionParamKey: "tagGroupRef",
         defaultValue: () => "id:" + tagGroup.id,
         readonly: true,
         visible: false,
       },
       {
-        actionGroupKey: "tag",
+        actionGroupKey: "tags",
         actionParamKey: "groupRef",
         defaultValue: () => "id:" + tagGroup.id,
         readonly: true,
         visible: false,
+      },
+      {
+        actionKey: "tags/tag_group_update_key",
+        actionParamKey: "value",
+        defaultValue: () => tagGroup.key,
       },
     ],
     displayedSubject,
