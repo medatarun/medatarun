@@ -15,6 +15,7 @@ import io.medatarun.tags.core.TagsCoreExtension
 import io.medatarun.types.TypeSystemExtension
 import io.medatarun.actions.infra.db.PlatformActionsStorageDbExtension
 import io.medatarun.platform.db.postgresql.PlatformStorageDbPostgresqlExtension
+import io.medatarun.platform.telemetry.TelemetryExtension
 import io.metadatarun.ext.config.SysopsConfigInspectorExtension
 
 class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
@@ -25,6 +26,7 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
         // BE CAREFUL: must be done in correct order, we don't have
         // dependency graphs that launch them in correct order for now
         val extensions = listOf(
+            TelemetryExtension(),
             TypeSystemExtension(),
             SecurityExtension(),
             ActionsExtension(),

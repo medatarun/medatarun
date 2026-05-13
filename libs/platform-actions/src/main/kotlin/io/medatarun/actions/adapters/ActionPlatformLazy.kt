@@ -6,6 +6,7 @@ import io.medatarun.actions.internal.*
 import io.medatarun.actions.ports.needs.ActionAuditRecorder
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.platform.kernel.ExtensionRegistry
+import io.medatarun.platform.telemetry.Telemetry
 import io.medatarun.security.SecurityRulesProvider
 import io.medatarun.types.TypeDescriptor
 import org.slf4j.Logger
@@ -13,7 +14,8 @@ import org.slf4j.LoggerFactory
 
 
 class ActionPlatformLazy(
-    extensionRegistry: ExtensionRegistry
+    extensionRegistry: ExtensionRegistry,
+    telemetry: Telemetry
 ) : ActionPlatform {
 
     private val delegate: ActionPlatformBuilt by lazy {
@@ -21,7 +23,8 @@ class ActionPlatformLazy(
             typeDescriptors = extensionRegistry.findContributionsFlat(TypeDescriptor::class),
             actionProviders = extensionRegistry.findContributionsFlat(ActionProvider::class),
             securityRulesProviders = extensionRegistry.findContributionsFlat(SecurityRulesProvider::class),
-            actionAuditRecorders = extensionRegistry.findContributionsFlat(ActionAuditRecorder::class)
+            actionAuditRecorders = extensionRegistry.findContributionsFlat(ActionAuditRecorder::class),
+            telemetry = telemetry
         )
     }
 
@@ -43,7 +46,8 @@ class ActionPlatformLazy(
         typeDescriptors: List<TypeDescriptor<*>>,
         actionProviders: List<ActionProvider<*>>,
         securityRulesProviders: List<SecurityRulesProvider>,
-        actionAuditRecorders: List<ActionAuditRecorder>
+        actionAuditRecorders: List<ActionAuditRecorder>,
+        telemetry: Telemetry
     ): ActionPlatformBuilt {
 
 
@@ -66,7 +70,8 @@ class ActionPlatformLazy(
         val actionInvoker = ActionInvokerImpl(
             registry,
             actionSecurityRuleEvaluators,
-            actionAuditRecorder
+            actionAuditRecorder,
+            telemetry
         )
 
         return ActionPlatformBuilt(registry, actionInvoker)

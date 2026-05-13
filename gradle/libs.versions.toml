@@ -23,6 +23,9 @@ microprofileConfig = "3.1.1"
 slf4j = "2.0.17"
 smallryeConfig = "3.17.2"
 sqlite="3.53.0.0"
+openTelemetryKtorVersion="2.27.0-alpha"
+openTelemetryVersion ="1.62.0"
+openTelemetrySemconvVersion ="1.41.0"
 postgresql = "42.7.10"
 uuidCreator="6.1.1"
 testcontainers = "2.0.3"
@@ -45,6 +48,7 @@ kotlinxHtml = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.ref =
 kotestAssertionsJson = { module = "io.kotest:kotest-assertions-json", version.ref = "kotest"}
 ktorServerAuth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
 ktorServerAuthJwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
+ktorServerCallId = { module = "io.ktor:ktor-server-call-id", version.ref = "ktor" }
 ktorServerCore = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktorServerCors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
 ktorServerNetty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
@@ -56,6 +60,10 @@ ktorClientCore = { module = "io.ktor:ktor-client-core-jvm", version.ref = "ktor"
 ktorClientCio = { module = "io.ktor:ktor-client-cio-jvm", version.ref = "ktor" }
 ktorClientContentNegotiation = { module = "io.ktor:ktor-client-content-negotiation-jvm", version.ref = "ktor" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback"}
+openTelemetryKtor = { module = "io.opentelemetry.instrumentation:opentelemetry-ktor-3.0", version.ref = "openTelemetryKtorVersion" }
+openTelemetryAutoconfigureSdk = { module = "io.opentelemetry:opentelemetry-sdk-extension-autoconfigure", version.ref = "openTelemetryVersion" }
+openTelemetryExporterOtlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "openTelemetryVersion" }
+openTelemetrySemconv = { module = "io.opentelemetry.semconv:opentelemetry-semconv", version.ref = "openTelemetrySemconvVersion" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j"}
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j"}
 mcpKotlinServer = { module = "io.modelcontextprotocol:kotlin-sdk-server", version.ref = "mcpKotlin" }

@@ -12,6 +12,7 @@ import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.MedatarunServiceCtx
+import io.medatarun.platform.telemetry.Telemetry
 import io.medatarun.types.TypeDescriptor
 
 class ActionsExtension : MedatarunExtension {
@@ -19,7 +20,8 @@ class ActionsExtension : MedatarunExtension {
 
     override fun initServices(ctx: MedatarunServiceCtx) {
         val extensionRegistry = ctx.getService(ExtensionRegistry::class)
-        ctx.register(ActionPlatform::class, ActionPlatformLazy(extensionRegistry))
+        val telemetry = ctx.getService(Telemetry::class)
+        ctx.register(ActionPlatform::class, ActionPlatformLazy(extensionRegistry, telemetry))
     }
 
     override fun initContributions(ctx: MedatarunExtensionCtx) {
