@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.16.0
+
+### Features
+
+- Integration with OpenTelemetry
+
 ## v0.15.0
 
 ### Breaking changes

@@ -2,17 +2,30 @@ package io.medatarun.actions.internal
 
 import io.medatarun.actions.domain.*
 import io.medatarun.actions.ports.needs.*
+import io.medatarun.platform.telemetry.Telemetry
 import io.medatarun.security.SecurityRuleEvaluatorResult
 import io.medatarun.type.commons.id.Id
 
 internal class ActionInvokerImpl(
     val registry: ActionRegistryImpl,
     val actionSecurityRuleEvaluators: ActionSecurityRuleEvaluators,
-    private val actionAuditRecorder: ActionAuditRecorder
+    private val actionAuditRecorder: ActionAuditRecorder,
+    private val telemetry: Telemetry
 ) : ActionInvoker {
 
     override fun handleInvocation(invocation: ActionRequest, actionRequestCtx: ActionRequestCtx): Any? {
+        return telemetry.span("action ${invocation.actionGroupKey}/${invocation.actionKey}") { span ->
+            span.setAttribute("medatarun.action.key", invocation.actionGroupKey+"/"+invocation.actionKey)
+            span.setAttribute("medatarun.action.source", actionRequestCtx.source)
+            handleInvocationTelemetry(invocation, actionRequestCtx)
+        }
+    }
+    private fun handleInvocationTelemetry(invocation: ActionRequest, actionRequestCtx: ActionRequestCtx): Any? {
+
+
         val actionInstanceId = Id.generate(::ActionInstanceId)
+
+
 
         // Record that the action request reached the action system.
         actionAuditRecorder.onActionReceived(

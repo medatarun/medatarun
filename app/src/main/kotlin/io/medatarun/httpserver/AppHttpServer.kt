@@ -7,7 +7,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
-import io.medatarun.actions.runtime.*
+import io.medatarun.actions.runtime.AppHttpServerServices
 import io.medatarun.httpserver.auth.installAuth
 import io.medatarun.httpserver.commons.installCors
 import io.medatarun.httpserver.commons.installHealth
@@ -19,6 +19,7 @@ import io.medatarun.httpserver.oidc.installOidc
 import io.medatarun.httpserver.rest.RestApiDoc
 import io.medatarun.httpserver.rest.RestCommandInvocation
 import io.medatarun.httpserver.rest.installActionsApi
+import io.medatarun.httpserver.telemetry.installTelemetry
 import io.medatarun.httpserver.ui.*
 import io.metadatarun.ext.config.actions.ConfigAgentInstructions
 import org.slf4j.LoggerFactory
@@ -45,7 +46,7 @@ class AppHttpServer(
         actionInvoker = services.actionInvoker,
     )
     private val restApiDoc = RestApiDoc(services.actionRegistry, publicBaseUrl)
-    private val restCommandInvocation = RestCommandInvocation(services.actionInvoker, services.actionRequestCtxFactory)
+    private val restCommandInvocation = RestCommandInvocation(services.actionInvoker, services.actionRequestCtxFactory, services.telemetry)
 
     private val uiIndexTemplate = UIIndexTemplate()
 
@@ -108,9 +109,9 @@ class AppHttpServer(
             oidcClientId
         )
         installJwtSecurity(services.oidcService)
+        installTelemetry(services)
 
         routing {
-
             installUIStaticResources()
             installUIHomepage(uiIndexTemplate, oidcAuthority, oidcClientId)
             installUIApis(services.runtime)

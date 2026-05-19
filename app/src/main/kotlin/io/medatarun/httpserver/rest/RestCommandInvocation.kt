@@ -7,24 +7,30 @@ import io.ktor.server.response.*
 import io.medatarun.actions.domain.ActionExceptionInterpreter
 import io.medatarun.actions.domain.ActionInvocationActionGroupKeyRequiredException
 import io.medatarun.actions.domain.ActionInvocationActionKeyRequiredException
-import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.domain.ActionInvoker
 import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.runtime.ActionRequestCtxFactory
-import io.medatarun.lang.http.StatusCode
+import io.medatarun.platform.telemetry.Telemetry
 import io.medatarun.security.AppPrincipal
+import io.opentelemetry.semconv.HttpAttributes
 import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 
 class RestCommandInvocation(
     private val actionInvoker: ActionInvoker,
-    private val actionRequestCtxFactory: ActionRequestCtxFactory
+    private val actionRequestCtxFactory: ActionRequestCtxFactory,
+    private val telemetry: Telemetry
 ) {
 
     suspend fun processInvocation(call: ApplicationCall, principal: AppPrincipal?) {
         val actionGroupKeyPathValue = call.parameters["actionGroupKey"]
         val actionKeyPathValue = call.parameters["actionKey"]
+
+        val route = "/api/$actionGroupKeyPathValue/$actionKeyPathValue"
+        telemetry.updateName("${call.request.httpMethod.value} $route")
+        telemetry.setAttribute(HttpAttributes.HTTP_ROUTE, route)
+
         try {
             val actionGroupKey = actionGroupKeyPathValue ?: throw ActionInvocationActionGroupKeyRequiredException()
             val actionKey = actionKeyPathValue ?: throw ActionInvocationActionKeyRequiredException()
