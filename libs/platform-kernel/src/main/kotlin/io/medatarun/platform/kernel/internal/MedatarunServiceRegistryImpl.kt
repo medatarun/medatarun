@@ -21,6 +21,11 @@ class MedatarunServiceRegistryImpl : MedatarunServiceRegistry {
         return services[klass] as? T ?: error("No service registered for $klass")
     }
 
+    override fun <T : Service> getServiceOptional(klass: KClass<T>): T? {
+        @Suppress("UNCHECKED_CAST")
+        return services[klass] as? T
+    }
+
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(MedatarunServiceRegistryImpl::class.java)
     }
