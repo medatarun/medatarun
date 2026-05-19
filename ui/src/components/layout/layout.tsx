@@ -9,7 +9,7 @@ import logo from "/favicon/favicon.svg?url";
 import { ErrorBoundary } from "./ErrorBoundary.tsx";
 import { ApplicationShellSecured } from "@seij/common-ui-auth";
 import { UserSessionExpiredDialog } from "@medatarun/ui/components/auth/UserSessionExpiredDialog.tsx";
-import { useMenu } from "./menu.tsx";
+import { useApplicationConfig } from "@medatarun/ui/app-config";
 
 export function Layout() {
   // Navigation tools
@@ -18,7 +18,9 @@ export function Layout() {
   const { pathname } = useLocation();
 
   // Menu
-  const menu = useMenu();
+  const config = useApplicationConfig();
+  const useConfiguredApplicationMenu = config.useApplicationMenu;
+  const menu = useConfiguredApplicationMenu();
 
   const matchPath = (path: string | undefined) =>
     !!matchRoute({ to: path, fuzzy: true });
@@ -27,11 +29,11 @@ export function Layout() {
     <>
       <UserSessionExpiredDialog />
       <ApplicationShellSecured
-        applicationName={"Medatarun"}
+        applicationName={config.applicationName}
         applicationIcon={
           <img
             src={logo}
-            alt="Medatarun logo"
+            alt={config.applicationName + " logo"}
             style={{
               width: "2em",
               height: "2em",

@@ -3,7 +3,7 @@ import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
 import { useCurrentActor } from "@medatarun/ui/components/business/auth-actor";
 
-export function useMenu() {
+export function useMedatarunMenu() {
   const { t } = useAppI18n();
 
   // Used to filter out navigation items if user is not technical
