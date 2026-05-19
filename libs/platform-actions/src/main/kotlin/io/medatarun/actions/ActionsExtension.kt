@@ -3,11 +3,11 @@ package io.medatarun.actions
 import io.medatarun.actions.actions.BatchActionProvider
 import io.medatarun.actions.adapters.ActionPlatform
 import io.medatarun.actions.adapters.ActionPlatformLazy
+import io.medatarun.actions.adapters.descriptors.TextMarkdownDescriptor
+import io.medatarun.actions.adapters.descriptors.TextSingleLineDescriptor
 import io.medatarun.actions.internal.ActionAuditRecorderLogger
 import io.medatarun.actions.ports.needs.ActionAuditRecorder
 import io.medatarun.actions.ports.needs.ActionProvider
-import io.medatarun.actions.adapters.descriptors.TextMarkdownDescriptor
-import io.medatarun.actions.adapters.descriptors.TextSingleLineDescriptor
 import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
@@ -20,7 +20,7 @@ class ActionsExtension : MedatarunExtension {
 
     override fun initServices(ctx: MedatarunServiceCtx) {
         val extensionRegistry = ctx.getService(ExtensionRegistry::class)
-        val telemetry = ctx.getService(Telemetry::class)
+        val telemetry = ctx.getServiceOptional(Telemetry::class) ?: Telemetry.Companion.Noop
         ctx.register(ActionPlatform::class, ActionPlatformLazy(extensionRegistry, telemetry))
     }
 

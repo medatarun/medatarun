@@ -11,6 +11,7 @@ class MedatarunServiceCtxImpl(
 ) : MedatarunServiceCtx, MedatarunExtensionCtxConfig by cfg {
 
     override fun <T : Service> getService(klass: KClass<T>): T = me.getService(klass)
+    override fun <T : Service> getServiceOptional(klass: KClass<T>): T? = me.getServiceOptional(klass)
     override fun <T : Service> register(service: KClass<T>, implem: T) = me.register(service, implem)
 
 }

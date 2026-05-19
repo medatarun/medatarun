@@ -14,6 +14,13 @@ interface MedatarunServiceCtx : MedatarunExtensionCtxConfig {
     fun <T : Service> getService(klass: KClass<T>): T
 
     /**
+     * You can get services from other previously registered extensions (dependent extensions).
+     * They are initialized and usable. Be careful still, if they need contributions, yet, contributions
+     * are not yet populated. So reference them in your tools, avoid calling them unless you know what they do exactly.
+     */
+    fun <T : Service> getServiceOptional(klass: KClass<T>): T?
+
+    /**
      * Register one of your own services.
      *
      * Provide interface in [service] and concrete implementation in [implem].
