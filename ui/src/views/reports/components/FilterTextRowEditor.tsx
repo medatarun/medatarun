@@ -1,9 +1,9 @@
 import {
   type ModelSearchFilter,
   type ModelSearchTextFilter,
-} from "@/business/model";
+} from "@medatarun/ui/business/model";
 import { Input } from "@fluentui/react-components";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 
 export function FilterTextRowEditor({
   filter,

@@ -9,13 +9,13 @@ import type {
   ModelSearchOperator,
   ModelListItemDto,
   SearchResults,
-} from "@/business/model";
+} from "@medatarun/ui/business/model";
 import {
   type ActionPayload,
   ActionPerformer,
-} from "@/business/action-performer";
-import { api } from "@/services/api.ts";
-import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
+} from "@medatarun/ui/business/action-performer";
+import { api } from "@medatarun/ui/services/api.ts";
+import { useActionPerformer } from "@medatarun/ui/components/business/actions/action-performer-hook.tsx";
 import type { ActionKey } from "../../../business/action-registry";
 
 export type ModelSearchReq = {

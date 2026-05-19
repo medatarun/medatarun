@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { type ActionResp } from "@/business/action-performer";
+import { type ActionResp } from "@medatarun/ui/business/action-performer";
 import { ActionRegistry } from "../../business/action-registry";
-import { ActionOutput } from "@/components/business/actions/ActionOutput.tsx";
-import { SecurityRuleBadge } from "@/views/actions/components/SecurityRuleBadge.tsx";
-import { Markdown } from "@/components/core/Markdown.tsx";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { ActionOutput } from "@medatarun/ui/components/business/actions/ActionOutput.tsx";
+import { SecurityRuleBadge } from "@medatarun/ui/views/actions/components/SecurityRuleBadge.tsx";
+import { Markdown } from "@medatarun/ui/components/core/Markdown.tsx";
+import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import {
   Button,
   Field,
@@ -30,16 +30,16 @@ import {
   CopyRegular,
   DismissRegular,
 } from "@fluentui/react-icons";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import { Problem, type ProblemJson } from "@seij/common-types";
 import { ErrorBox } from "@seij/common-ui";
 import { sortBy } from "lodash-es";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
-import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
-import { useActionRegistry } from "@/components/business/actions";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
+import { useActionPerformer } from "@medatarun/ui/components/business/actions/action-performer-hook.tsx";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
 
 const useActionTreeStyles = makeStyles({
   root: {

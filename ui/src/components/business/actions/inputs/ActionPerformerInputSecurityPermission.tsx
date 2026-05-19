@@ -5,7 +5,7 @@ import {
   normalizeValueStringOrEmpty,
 } from "./ActionPerformerInput.utils.ts";
 import { useEffect, useState } from "react";
-import { usePermissionRegistry } from "@/components/business/config";
+import { usePermissionRegistry } from "@medatarun/ui/components/business/config";
 
 export function ActionPerformerInputSecurityPermission(
   props: ActionPerformerInputProps,

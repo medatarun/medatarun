@@ -1,5 +1,5 @@
 import { defaultConnection } from "@seij/common-services";
-import { notifyMaybeUnauthorized } from "@/services/user-session-expired.ts";
+import { notifyMaybeUnauthorized } from "@medatarun/ui/services/user-session-expired.ts";
 
 const apiConnection = {
   createHeaders() {

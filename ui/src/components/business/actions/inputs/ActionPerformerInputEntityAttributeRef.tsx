@@ -1,4 +1,4 @@
-import { Model } from "@/business/model";
+import { Model } from "@medatarun/ui/business/model";
 import {
   ErrorBox,
   InputSelect,
@@ -11,7 +11,7 @@ import {
   adaptPropsRefIdToRawId,
   normalizeValueStringOrEmpty,
 } from "./ActionPerformerInput.utils.ts";
-import { useModel } from "@/components/business/model";
+import { useModel } from "@medatarun/ui/components/business/model";
 
 /**
  * Selects an attribute from the currently displayed entity.

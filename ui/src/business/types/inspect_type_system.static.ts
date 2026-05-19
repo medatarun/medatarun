@@ -1,4 +1,4 @@
-import type { TypeDescriptorDto } from "@/business/types/TypeDescriptorDto.ts";
+import type { TypeDescriptorDto } from "@medatarun/ui/business/types/TypeDescriptorDto.ts";
 
 /**
  * To regenerate the list, run the action "config/inspect_type_system" and copy

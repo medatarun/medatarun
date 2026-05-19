@@ -1,8 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
-import { AuthRoleDetails } from "@/business/actor";
-import { usePermissionRegistry } from "@/components/business/config";
-import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
-import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
+import { AuthRoleDetails } from "@medatarun/ui/business/actor";
+import { usePermissionRegistry } from "@medatarun/ui/components/business/config";
+import { InlineEditDescription } from "@medatarun/ui/components/core/InlineEditDescription.tsx";
+import { InlineEditSingleLine } from "@medatarun/ui/components/core/InlineEditSingleLine.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -16,38 +16,38 @@ import {
   Text,
   tokens,
 } from "@fluentui/react-components";
-import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { SectionTable } from "@medatarun/ui/components/layout/SecionTable.tsx";
+import { SectionTitle } from "@medatarun/ui/components/layout/SectionTitle.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox, InfoBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
-import { Key } from "@/components/core/Key.tsx";
+import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
+import { Key } from "@medatarun/ui/components/core/Key.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
 import {
   ArrowSyncCircleRegular,
   KeyMultipleRegular,
   LockClosedRegular,
 } from "@fluentui/react-icons";
-import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import { type ActionCtx } from "@/business/action-performer";
+import { ViewLayoutTechnicalInfos } from "@medatarun/ui/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { ActionMenuButton } from "@medatarun/ui/components/business/actions/ActionMenuButton.tsx";
+import { type ActionCtx } from "@medatarun/ui/business/action-performer";
 import {
   createActionCtxRole,
   createActionCtxRolePermission,
   createDisplayedSubjectRole,
-} from "@/business/auth_actor/actor.actioncontexts.ts";
-import { useActionRegistry } from "@/components/business/actions";
+} from "@medatarun/ui/business/auth_actor/actor.actioncontexts.ts";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
 import {
   useRole,
   useRoleUpdateDescription,
   useRoleUpdateName,
-} from "@/components/business/auth-actor";
-import { MessageBox } from "@/components/core/MessageBox.tsx";
+} from "@medatarun/ui/components/business/auth-actor";
+import { MessageBox } from "@medatarun/ui/components/core/MessageBox.tsx";
 
 export function AdminRoleEditPage({ roleId }: { roleId: string }) {
   const { t } = useAppI18n();

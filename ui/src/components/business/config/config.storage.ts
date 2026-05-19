@@ -1,9 +1,9 @@
 import type {
   SecurityPermissionsResp,
   SecurityRulesDescriptionsResp,
-} from "@/business/config";
+} from "@medatarun/ui/business/config";
 import { useQuery } from "@tanstack/react-query";
-import { useActionPerformer } from "@/components/business/actions";
+import { useActionPerformer } from "@medatarun/ui/components/business/actions";
 
 export const useSecurityRuleDescriptions = () => {
   const { performer } = useActionPerformer();

@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { Model } from "@/business/model";
+import { Model } from "@medatarun/ui/business/model";
 
 export const ModelContext = createContext<Model | undefined>(undefined);
 

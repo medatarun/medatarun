@@ -11,7 +11,7 @@ import {
   Title3,
 } from "@fluentui/react-components";
 import logoUrl from "/favicon/favicon.svg?url";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 
 const useStyles = makeStyles({
   page: {

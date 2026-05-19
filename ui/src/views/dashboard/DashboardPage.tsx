@@ -1,10 +1,10 @@
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader";
-import { useAppI18n } from "@/services/appI18n.tsx";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import { ChartMultipleRegular } from "@fluentui/react-icons";
 
 export function DashboardPage() {

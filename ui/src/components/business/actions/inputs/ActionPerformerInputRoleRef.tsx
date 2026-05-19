@@ -1,11 +1,11 @@
-import { AuthRole } from "@/business/actor";
+import { AuthRole } from "@medatarun/ui/business/actor";
 import { InputSelect, type InputSelectOption } from "@seij/common-ui";
 import type { ActionPerformerInputProps } from "./ActionPerformerInputProps.tsx";
 import {
   adaptPropsRefIdToRawId,
   normalizeValueStringOrEmpty,
 } from "./ActionPerformerInput.utils.ts";
-import { useRoleRegistry } from "@/components/business/auth-actor";
+import { useRoleRegistry } from "@medatarun/ui/components/business/auth-actor";
 
 /**
  * Selects an auth role by id while exchanging ref values with the action performer.

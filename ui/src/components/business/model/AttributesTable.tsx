@@ -8,21 +8,24 @@ import {
   tokens,
   Tooltip,
 } from "@fluentui/react-components";
-import type { AttributeDto } from "@/business/model";
+import type { AttributeDto } from "@medatarun/ui/business/model";
 import { useModelContext } from "./ModelContext.tsx";
-import { useDetailLevelContext } from "@/components/business/detail-level";
-import { modelTagScope, TagsCondensed } from "@/components/core/Tag.tsx";
-import type { ActionCtx } from "@/business/action-performer";
-import { Key } from "@/components/core/Key.tsx";
-import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
+import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
+import {
+  modelTagScope,
+  TagsCondensed,
+} from "@medatarun/ui/components/core/Tag.tsx";
+import type { ActionCtx } from "@medatarun/ui/business/action-performer";
+import { Key } from "@medatarun/ui/components/core/Key.tsx";
+import { MarkdownSummary } from "@medatarun/ui/components/core/MarkdownSummary.tsx";
 import {
   KeyRegular,
   SquareFilled,
   SquareHintRegular,
 } from "@fluentui/react-icons";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import { ActionMenuButton } from "@medatarun/ui/components/business/actions/ActionMenuButton.tsx";
 import type { ActionKey } from "../../../business/action-registry";
-import { useActionRegistry } from "@/components/business/actions";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
 
 const useStyles = makeStyles({
   titleCell: {

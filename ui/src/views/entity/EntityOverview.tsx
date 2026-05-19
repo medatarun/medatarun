@@ -1,27 +1,27 @@
 import { Text } from "@fluentui/react-components";
 import { ExternalUrl, Origin } from "../model/ModelEditPage.tsx";
 import { Link } from "@tanstack/react-router";
-import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
-import { type EntityDto } from "@/business/model";
+import { modelTagScope, Tags } from "@medatarun/ui/components/core/Tag.tsx";
+import { type EntityDto } from "@medatarun/ui/business/model";
 import {
   useEntityAddTag,
   useEntityDeleteTag,
   useEntityUpdateDocumentationHome,
   useEntityUpdateKey,
-} from "@/components/business/model";
-import { useDetailLevelContext } from "@/components/business/detail-level";
+} from "@medatarun/ui/components/business/model";
+import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
 import {
   PropertiesForm,
   PropertyLabel,
   PropertyValue,
-} from "@/components/layout/PropertiesForm.tsx";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
-import { useModelContext } from "@/components/business/model/ModelContext.tsx";
-import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
-import type { ActionDisplayedSubject } from "@/business/action-performer";
-import { useSecurityContext } from "@/components/business/security";
+} from "@medatarun/ui/components/layout/PropertiesForm.tsx";
+import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
+import { InlineEditSingleLine } from "@medatarun/ui/components/core/InlineEditSingleLine.tsx";
+import { useModelContext } from "@medatarun/ui/components/business/model/ModelContext.tsx";
+import { InlineEditTags } from "@medatarun/ui/components/core/InlineEditTags.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
+import type { ActionDisplayedSubject } from "@medatarun/ui/business/action-performer";
+import { useSecurityContext } from "@medatarun/ui/components/business/security";
 
 export function EntityOverview({
   entity,

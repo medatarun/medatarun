@@ -4,7 +4,7 @@ import type {
   RoleDetailsDto,
   RoleInfoDto,
   WhoAmIRespDto,
-} from "@/business/actor/actor.dto.ts";
+} from "@medatarun/ui/business/actor/actor.dto.ts";
 import { includes, sortBy } from "lodash-es";
 
 export class CurrentActor {

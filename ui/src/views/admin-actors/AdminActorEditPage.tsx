@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { ActorDetails, AuthRole } from "@/business/actor";
+import { ActorDetails, AuthRole } from "@medatarun/ui/business/actor";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -11,33 +11,36 @@ import {
   TableRow,
   tokens,
 } from "@fluentui/react-components";
-import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { SectionTable } from "@medatarun/ui/components/layout/SecionTable.tsx";
+import { SectionTitle } from "@medatarun/ui/components/layout/SectionTitle.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { formatLocalDateTime, toProblem } from "@seij/common-types";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import {
   PropertiesForm,
   PropertyLabel,
   PropertyValue,
-} from "@/components/layout/PropertiesForm.tsx";
-import { Key } from "@/components/core/Key.tsx";
+} from "@medatarun/ui/components/layout/PropertiesForm.tsx";
+import { Key } from "@medatarun/ui/components/core/Key.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
 import { PersonKeyRegular } from "@fluentui/react-icons";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import { type ActionCtx } from "@/business/action-performer";
+import { ActionMenuButton } from "@medatarun/ui/components/business/actions/ActionMenuButton.tsx";
+import { type ActionCtx } from "@medatarun/ui/business/action-performer";
 import {
   createActionCtxActor,
   createActionCtxActorRole,
   createDisplayedSubjectActor,
-} from "@/business/auth_actor/actor.actioncontexts.ts";
-import { useActionRegistry } from "@/components/business/actions";
-import { useActor, useRoleRegistry } from "@/components/business/auth-actor";
+} from "@medatarun/ui/business/auth_actor/actor.actioncontexts.ts";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
+import {
+  useActor,
+  useRoleRegistry,
+} from "@medatarun/ui/components/business/auth-actor";
 
 export function AdminActorEditPage({ actorId }: { actorId: string }) {
   const { t } = useAppI18n();

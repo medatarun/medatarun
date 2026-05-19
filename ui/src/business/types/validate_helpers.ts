@@ -1,6 +1,6 @@
 import { invalid, valid } from "@seij/common-validation";
-import { type AppMessageKey, appT } from "@/services/appI18n.tsx";
-import type { TypeDeclarationValidateCtx } from "@/business/types/TypeDeclaration.ts";
+import { type AppMessageKey, appT } from "@medatarun/ui/services/appI18n.tsx";
+import type { TypeDeclarationValidateCtx } from "@medatarun/ui/business/types/TypeDeclaration.ts";
 
 const t = (key: AppMessageKey, values?: Record<string, unknown>) =>
   appT(key, values);

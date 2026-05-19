@@ -1,8 +1,8 @@
 import { Card, CardHeader, Text } from "@fluentui/react-components";
-import type { ModelListItemDto } from "@/business/model";
-import { useDetailLevelContext } from "@/components/business/detail-level";
-import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
-import { Key } from "@/components/core/Key.tsx";
+import type { ModelListItemDto } from "@medatarun/ui/business/model";
+import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
+import { MarkdownSummary } from "@medatarun/ui/components/core/MarkdownSummary.tsx";
+import { Key } from "@medatarun/ui/components/core/Key.tsx";
 
 export function ModelCard({
   model,

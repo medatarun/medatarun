@@ -1,8 +1,11 @@
-import type { RelationshipDto, RelationshipRoleDto } from "@/business/model";
+import type {
+  RelationshipDto,
+  RelationshipRoleDto,
+} from "@medatarun/ui/business/model";
 import { useModelContext } from "./ModelContext.tsx";
 import { Link } from "@tanstack/react-router";
-import { useAppI18n } from "@/services/appI18n.tsx";
-import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
+import { MarkdownSummary } from "@medatarun/ui/components/core/MarkdownSummary.tsx";
 
 export function RelationshipDescription(props: { rel: RelationshipDto }) {
   const { t } = useAppI18n();

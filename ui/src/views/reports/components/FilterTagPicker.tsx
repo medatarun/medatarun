@@ -1,4 +1,4 @@
-import { type Tags } from "@/business/tag";
+import { type Tags } from "@medatarun/ui/business/tag";
 import {
   Avatar,
   Tag,
@@ -11,7 +11,7 @@ import {
   type TagPickerProps,
 } from "@fluentui/react-components";
 import { useState } from "react";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 
 export function FilterTagPicker({
   disabled,

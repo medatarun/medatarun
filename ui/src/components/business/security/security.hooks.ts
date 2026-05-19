@@ -1,7 +1,7 @@
 import type { ActionKey } from "../../../business/action-registry";
-import { useActionRegistry } from "@/components/business/actions";
-import { useCurrentActor } from "@/components/business/auth-actor";
-import { useSecurityRuleDescriptionRegistry } from "@/components/business/config";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
+import { useCurrentActor } from "@medatarun/ui/components/business/auth-actor";
+import { useSecurityRuleDescriptionRegistry } from "@medatarun/ui/components/business/config";
 
 export function useSecurityContext() {
   const actor = useCurrentActor();

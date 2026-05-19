@@ -9,13 +9,13 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { RelationshipDescription } from "./RelationshipDescription.tsx";
-import type { RelationshipDto } from "@/business/model";
-import { useDetailLevelContext } from "@/components/business/detail-level";
-import { useAppI18n } from "@/services/appI18n.tsx";
-import type { ActionCtx } from "@/business/action-performer";
-import { Key } from "@/components/core/Key.tsx";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import { useActionRegistry } from "@/components/business/actions";
+import type { RelationshipDto } from "@medatarun/ui/business/model";
+import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
+import type { ActionCtx } from "@medatarun/ui/business/action-performer";
+import { Key } from "@medatarun/ui/components/core/Key.tsx";
+import { ActionMenuButton } from "@medatarun/ui/components/business/actions/ActionMenuButton.tsx";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
 
 const useStyles = makeStyles({
   titleCell: {

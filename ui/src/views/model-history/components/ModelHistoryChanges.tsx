@@ -1,10 +1,10 @@
-import { type ModelChangeEventDto } from "@/business/model";
-import { useAppI18n } from "@/services/appI18n.tsx";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
+import { type ModelChangeEventDto } from "@medatarun/ui/business/model";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
+import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
 import { Badge, Text } from "@fluentui/react-components";
 import type { ReactNode } from "react";
-import { Markdown } from "@/components/core/Markdown.tsx";
-import { useModelContext } from "@/components/business/model/ModelContext.tsx";
+import { Markdown } from "@medatarun/ui/components/core/Markdown.tsx";
+import { useModelContext } from "@medatarun/ui/components/business/model/ModelContext.tsx";
 
 export function ModelHistoryChanges({
   items,

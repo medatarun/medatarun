@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import type { DatasourceDto, DriverDto } from "@/business/db/db.dto.ts";
-import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
+import type {
+  DatasourceDto,
+  DriverDto,
+} from "@medatarun/ui/business/db/db.dto.ts";
+import { useActionPerformer } from "@medatarun/ui/components/business/actions/action-performer-hook.tsx";
 
 export function useDatabaseDrivers() {
   const { performer } = useActionPerformer();

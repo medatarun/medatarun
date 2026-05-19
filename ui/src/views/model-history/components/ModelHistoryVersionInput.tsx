@@ -1,6 +1,6 @@
-import type { ModelChangeEventWithVersionDto } from "@/business/model";
+import type { ModelChangeEventWithVersionDto } from "@medatarun/ui/business/model";
 import { InputSelect } from "@seij/common-ui";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 
 const LAST_CHANGES_OPTION = "__last_changes__";
 

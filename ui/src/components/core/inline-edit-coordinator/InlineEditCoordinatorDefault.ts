@@ -2,7 +2,7 @@ import type {
   InlineEditCallbacks,
   InlineEditCoordinator,
   InlineEditIdentifier,
-} from "@/components/core/inline-edit-coordinator/InlineEditCoordinator.tsx";
+} from "@medatarun/ui/components/core/inline-edit-coordinator/InlineEditCoordinator.tsx";
 
 /**
  * Default coordinator used by InlineEditCoordinatorProvider.

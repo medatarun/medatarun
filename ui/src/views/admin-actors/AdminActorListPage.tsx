@@ -1,8 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
-import type { ActionDescriptor } from "@/business/action-registry";
-import { useActorList } from "@/components/business/auth-actor";
-import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import type { ActionDescriptor } from "@medatarun/ui/business/action-registry";
+import { useActorList } from "@medatarun/ui/components/business/auth-actor";
+import { SectionTable } from "@medatarun/ui/components/layout/SecionTable.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import {
   Caption1,
   Table,
@@ -17,19 +17,19 @@ import { formatLocalDateTime, toProblem } from "@seij/common-types";
 import {
   type ActionCtx,
   displaySubjectNone,
-} from "@/business/action-performer";
-import { useAppI18n } from "@/services/appI18n.tsx";
+} from "@medatarun/ui/business/action-performer";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
-import type { ActorInfoDto } from "@/business/actor/actor.dto.ts";
+import type { ActorInfoDto } from "@medatarun/ui/business/actor/actor.dto.ts";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
 import { PersonKeyRegular } from "@fluentui/react-icons";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import { createActionCtxActor } from "@/business/auth_actor/actor.actioncontexts.ts";
-import { useActionRegistry } from "@/components/business/actions";
-import { MessageBox } from "@/components/core/MessageBox.tsx";
+import { ActionMenuButton } from "@medatarun/ui/components/business/actions/ActionMenuButton.tsx";
+import { createActionCtxActor } from "@medatarun/ui/business/auth_actor/actor.actioncontexts.ts";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
+import { MessageBox } from "@medatarun/ui/components/core/MessageBox.tsx";
 
 export function AdminActorListPage() {
   const { t } = useAppI18n();

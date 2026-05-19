@@ -6,7 +6,7 @@ import {
   type ElementOrigin,
   Model,
   type RelationshipDto,
-} from "@/business/model";
+} from "@medatarun/ui/business/model";
 import {
   useModel,
   useModelAddTag,
@@ -15,49 +15,49 @@ import {
   useModelUpdateDocumentationHome,
   useModelUpdateKey,
   useModelUpdateName,
-} from "@/components/business/model";
+} from "@medatarun/ui/components/business/model";
 import {
   ModelContext,
   useModelContext,
-} from "@/components/business/model/ModelContext.tsx";
-import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
+} from "@medatarun/ui/components/business/model/ModelContext.tsx";
+import { modelTagScope, Tags } from "@medatarun/ui/components/core/Tag.tsx";
 import { Text, tokens } from "@fluentui/react-components";
 import { HistoryRegular } from "@fluentui/react-icons";
-import { EntityCard } from "@/components/business/model/EntityCard.tsx";
-import { RelationshipsTable } from "@/components/business/model/RelationshipsTable.tsx";
-import { TypesTable } from "@/components/business/model/TypesTable.tsx";
-import { TagsTable } from "@/components/business/tag/TagsTable.tsx";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import { useDetailLevelContext } from "@/components/business/detail-level";
-import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { SectionCards } from "@/components/layout/SectionCards.tsx";
-import { SectionTable } from "@/components/layout/SecionTable.tsx";
+import { EntityCard } from "@medatarun/ui/components/business/model/EntityCard.tsx";
+import { RelationshipsTable } from "@medatarun/ui/components/business/model/RelationshipsTable.tsx";
+import { TypesTable } from "@medatarun/ui/components/business/model/TypesTable.tsx";
+import { TagsTable } from "@medatarun/ui/components/business/tag/TagsTable.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
+import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
+import { SectionTitle } from "@medatarun/ui/components/layout/SectionTitle.tsx";
+import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
+import { SectionCards } from "@medatarun/ui/components/layout/SectionCards.tsx";
+import { SectionTable } from "@medatarun/ui/components/layout/SecionTable.tsx";
 import {
   PropertiesForm,
   PropertyLabel,
   PropertyValue,
-} from "@/components/layout/PropertiesForm.tsx";
-import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
-import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
-import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
+} from "@medatarun/ui/components/layout/PropertiesForm.tsx";
+import { InlineEditDescription } from "@medatarun/ui/components/core/InlineEditDescription.tsx";
+import { InlineEditSingleLine } from "@medatarun/ui/components/core/InlineEditSingleLine.tsx";
+import { InlineEditTags } from "@medatarun/ui/components/core/InlineEditTags.tsx";
 import {
   EntityIcon,
   ModelIcon,
   RelationshipIcon,
   TypeIcon,
-} from "@/components/business/model/model.icons.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
-import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { TagIcon } from "@/components/business/tag/tag.icons.tsx";
-import { createActionCtxTag, Tag } from "@/business/tag";
-import { useSecurityContext } from "@/components/business/security";
+} from "@medatarun/ui/components/business/model/model.icons.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
+import { ViewLayoutTechnicalInfos } from "@medatarun/ui/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { TagIcon } from "@medatarun/ui/components/business/tag/tag.icons.tsx";
+import { createActionCtxTag, Tag } from "@medatarun/ui/business/tag";
+import { useSecurityContext } from "@medatarun/ui/components/business/security";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
-import { useActionRegistry } from "@/components/business/actions";
-import { SectionSeparator } from "@/components/layout/SectionSeparator.tsx";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
+import { SectionSeparator } from "@medatarun/ui/components/layout/SectionSeparator.tsx";
 
 export function ModelEditPage({ modelId }: { modelId: string }) {
   const { data: model } = useModel(modelId);

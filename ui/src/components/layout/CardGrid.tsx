@@ -1,6 +1,6 @@
 import { Card, CardHeader, tokens } from "@fluentui/react-components";
 import type { ReactNode } from "react";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
+import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
 
 interface CardGridItemType {
   id: string;

@@ -1,4 +1,4 @@
-import type { InlineEditCoordinator } from "@/components/core/inline-edit-coordinator/InlineEditCoordinator.tsx";
+import type { InlineEditCoordinator } from "@medatarun/ui/components/core/inline-edit-coordinator/InlineEditCoordinator.tsx";
 import { createContext } from "react";
 
 /**

@@ -5,7 +5,7 @@ import {
   type ActionPerformerState,
   type ActionRequest,
   type ActionResp,
-} from "@/business/action-performer";
+} from "@medatarun/ui/business/action-performer";
 
 export interface ActionPerformerContextValue {
   performer: ActionPerformer;

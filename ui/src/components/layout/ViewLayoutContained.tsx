@@ -5,7 +5,7 @@ import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
   ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
+} from "@medatarun/ui/components/layout/Contained.tsx";
 
 const useStyles = makeStyles({
   root: {

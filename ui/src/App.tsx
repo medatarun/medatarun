@@ -7,18 +7,18 @@ import {
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
-import { ActionRunnerPage } from "@/views/actions/ActionRunnerPage.tsx";
-import { ModelListPage } from "@/views/model/ModelListPage.tsx";
-import { ModelEditPage } from "@/views/model/ModelEditPage.tsx";
-import { EntityEditPage } from "@/views/entity/EntityEditPage.tsx";
-import { Layout } from "@/components/layout/layout.tsx";
-import { DashboardPage } from "@/views/dashboard/DashboardPage.tsx";
+import { ActionRunnerPage } from "@medatarun/ui/views/actions/ActionRunnerPage.tsx";
+import { ModelListPage } from "@medatarun/ui/views/model/ModelListPage.tsx";
+import { ModelEditPage } from "@medatarun/ui/views/model/ModelEditPage.tsx";
+import { EntityEditPage } from "@medatarun/ui/views/entity/EntityEditPage.tsx";
+import { Layout } from "@medatarun/ui/components/layout/layout.tsx";
+import { DashboardPage } from "@medatarun/ui/views/dashboard/DashboardPage.tsx";
 import {
   type ConnectionConfig,
   defaultConnection,
 } from "@seij/common-services";
 import { SeijUIProvider } from "@seij/common-ui";
-import { queryClient } from "@/services/queryClient.ts";
+import { queryClient } from "@medatarun/ui/services/queryClient.ts";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
@@ -29,34 +29,34 @@ import {
   AuthenticationProvider,
   createAuthenticationConfig,
 } from "@seij/common-ui-auth";
-import { getOrDefault } from "@/utils/getOrDefault.ts";
-import { DetailLevelProvider } from "@/components/business/detail-level";
-import { PreferencesPage } from "@/views/preferences/PreferencesPage.tsx";
-import { AttributeEditPage } from "@/views/attribute/AttributeEditPage.tsx";
-import { TypeEditPage } from "@/views/type/TypeEditPage.tsx";
-import { RelationshipEditPage } from "@/views/relationship/RelationshipEditPage.tsx";
-import { ReportsPage } from "@/views/reports/ReportsPage.tsx";
-import { TagGroupListPage } from "@/views/tags/TagGroupListPage.tsx";
-import { TagGroupEditPage } from "@/views/tags/TagGroupEditPage.tsx";
-import { TagEditPage } from "@/views/tags/TagEditPage.tsx";
-import { ModelComparePage } from "@/views/model-compare/ModelComparePage.tsx";
-import { ModelHistoryPage } from "@/views/model-history/ModelHistoryPage.tsx";
-import { AdminDbDriverListPage } from "@/views/admin-db/AdminDbDriverListPage.tsx";
-import { AdminDbDatasourceListPage } from "@/views/admin-db/AdminDbDatasourceListPage.tsx";
-import { AdminRoleListPage } from "@/views/admin-roles/AdminRoleListPage.tsx";
-import { AdminRoleEditPage } from "@/views/admin-roles/AdminRoleEditPage.tsx";
-import { AdminActorListPage } from "@/views/admin-actors/AdminActorListPage.tsx";
-import { AdminActorEditPage } from "@/views/admin-actors/AdminActorEditPage.tsx";
-import { AdminUserListPage } from "@/views/admin-users/AdminUserListPage.tsx";
-import { AdminUserEditPage } from "@/views/admin-users/AdminUserEditPage.tsx";
+import { getOrDefault } from "@medatarun/ui/utils/getOrDefault.ts";
+import { DetailLevelProvider } from "@medatarun/ui/components/business/detail-level";
+import { PreferencesPage } from "@medatarun/ui/views/preferences/PreferencesPage.tsx";
+import { AttributeEditPage } from "@medatarun/ui/views/attribute/AttributeEditPage.tsx";
+import { TypeEditPage } from "@medatarun/ui/views/type/TypeEditPage.tsx";
+import { RelationshipEditPage } from "@medatarun/ui/views/relationship/RelationshipEditPage.tsx";
+import { ReportsPage } from "@medatarun/ui/views/reports/ReportsPage.tsx";
+import { TagGroupListPage } from "@medatarun/ui/views/tags/TagGroupListPage.tsx";
+import { TagGroupEditPage } from "@medatarun/ui/views/tags/TagGroupEditPage.tsx";
+import { TagEditPage } from "@medatarun/ui/views/tags/TagEditPage.tsx";
+import { ModelComparePage } from "@medatarun/ui/views/model-compare/ModelComparePage.tsx";
+import { ModelHistoryPage } from "@medatarun/ui/views/model-history/ModelHistoryPage.tsx";
+import { AdminDbDriverListPage } from "@medatarun/ui/views/admin-db/AdminDbDriverListPage.tsx";
+import { AdminDbDatasourceListPage } from "@medatarun/ui/views/admin-db/AdminDbDatasourceListPage.tsx";
+import { AdminRoleListPage } from "@medatarun/ui/views/admin-roles/AdminRoleListPage.tsx";
+import { AdminRoleEditPage } from "@medatarun/ui/views/admin-roles/AdminRoleEditPage.tsx";
+import { AdminActorListPage } from "@medatarun/ui/views/admin-actors/AdminActorListPage.tsx";
+import { AdminActorEditPage } from "@medatarun/ui/views/admin-actors/AdminActorEditPage.tsx";
+import { AdminUserListPage } from "@medatarun/ui/views/admin-users/AdminUserListPage.tsx";
+import { AdminUserEditPage } from "@medatarun/ui/views/admin-users/AdminUserEditPage.tsx";
 import {
   ActionRegistry,
   actionRegistryStatic,
 } from "./business/action-registry";
-import { ActionPerformer } from "@/business/action-performer";
-import { ActionPerformerProvider } from "@/components/business/actions/ActionPerformerProvider.tsx";
-import { ActionRegistryContext } from "@/components/business/actions";
-import { InlineEditCoordinatorProvider } from "@/components/core/inline-edit-coordinator";
+import { ActionPerformer } from "@medatarun/ui/business/action-performer";
+import { ActionPerformerProvider } from "@medatarun/ui/components/business/actions/ActionPerformerProvider.tsx";
+import { ActionRegistryContext } from "@medatarun/ui/components/business/actions";
+import { InlineEditCoordinatorProvider } from "@medatarun/ui/components/core/inline-edit-coordinator";
 import { Logger } from "tslog";
 
 const logger = new Logger();

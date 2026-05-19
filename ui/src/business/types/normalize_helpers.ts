@@ -1,4 +1,4 @@
-import type { TypeDeclarationNormalizeCtx } from "@/business/types/TypeDeclaration.ts";
+import type { TypeDeclarationNormalizeCtx } from "@medatarun/ui/business/types/TypeDeclaration.ts";
 
 export function normalizeString(
   ctx: TypeDeclarationNormalizeCtx,

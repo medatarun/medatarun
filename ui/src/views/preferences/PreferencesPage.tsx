@@ -1,11 +1,11 @@
 import { SwitchButton } from "@seij/common-ui";
-import { useDetailLevelContext } from "@/components/business/detail-level";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
 import { SettingsCogMultipleRegular } from "@fluentui/react-icons";
 
 export function PreferencesPage() {

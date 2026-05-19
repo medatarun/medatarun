@@ -1,8 +1,8 @@
-import type { Model } from "@/business/model/model.domain.ts";
+import type { Model } from "@medatarun/ui/business/model/model.domain.ts";
 import {
   ActionCtxMapping,
   type ActionDisplayedSubject,
-} from "@/business/action-performer";
+} from "@medatarun/ui/business/action-performer";
 import type {
   AttributeDto,
   BusinessKeyDto,
@@ -10,7 +10,7 @@ import type {
   RelationshipDto,
   RelationshipRoleDto,
   TypeDto,
-} from "@/business/model/model.dto.ts";
+} from "@medatarun/ui/business/model/model.dto.ts";
 
 export const createDisplayedSubjectModel = (
   modelId: string,

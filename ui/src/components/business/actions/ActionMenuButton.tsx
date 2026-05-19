@@ -1,5 +1,5 @@
 import type { ActionDescriptor } from "../../../business/action-registry";
-import { type ActionCtx } from "@/business/action-performer";
+import { type ActionCtx } from "@medatarun/ui/business/action-performer";
 import {
   Button,
   Menu,
@@ -9,8 +9,8 @@ import {
   MenuTrigger,
 } from "@fluentui/react-components";
 import { Icon } from "@seij/common-ui-icons";
-import { useSecurityContext } from "@/components/business/security";
-import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
+import { useSecurityContext } from "@medatarun/ui/components/business/security";
+import { useActionPerformer } from "@medatarun/ui/components/business/actions/action-performer-hook.tsx";
 
 export function ActionMenuButton({
   itemActions,

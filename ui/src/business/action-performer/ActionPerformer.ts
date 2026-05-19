@@ -6,8 +6,8 @@ import {
 } from "./action-execute-internal.ts";
 import type { ActionPayload, ActionResp } from "./action-types.ts";
 import type { QueryClient } from "@tanstack/react-query";
-import { actionPostCacheManagement } from "@/business/action-performer/action-post-caches.ts";
-import { actionPostNavigate } from "@/business/action-performer/action-post-navigate.ts";
+import { actionPostCacheManagement } from "@medatarun/ui/business/action-performer/action-post-caches.ts";
+import { actionPostNavigate } from "@medatarun/ui/business/action-performer/action-post-navigate.ts";
 import type { NavigateFn } from "@tanstack/react-router";
 import { throwError } from "@seij/common-types";
 

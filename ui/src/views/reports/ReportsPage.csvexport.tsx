@@ -1,6 +1,6 @@
-import { type SearchResult } from "@/business/model";
+import { type SearchResult } from "@medatarun/ui/business/model";
 import { downloadCsv } from "@seij/common-ui-csv-export";
-import { type AppMessageKey } from "@/services/appI18n.tsx";
+import { type AppMessageKey } from "@medatarun/ui/services/appI18n.tsx";
 
 export function createCsv(
   items: SearchResult[],

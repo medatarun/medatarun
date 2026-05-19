@@ -13,11 +13,15 @@ import {
   type TagPickerProps,
 } from "@fluentui/react-components";
 import { InlineEditSingleLineController } from "./InlineEditSingleLineController.tsx";
-import { createActionCtxTag, Tags, type TagScopeRef } from "@/business/tag";
-import { useTags } from "@/components/business/tag";
-import { type ActionDisplayedSubject } from "@/business/action-performer";
-import { useAppI18n } from "@/services/appI18n.tsx";
-import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
+import {
+  createActionCtxTag,
+  Tags,
+  type TagScopeRef,
+} from "@medatarun/ui/business/tag";
+import { useTags } from "@medatarun/ui/components/business/tag";
+import { type ActionDisplayedSubject } from "@medatarun/ui/business/action-performer";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
+import { useActionPerformer } from "@medatarun/ui/components/business/actions/action-performer-hook.tsx";
 
 const CREATE_OPTION_PREFIX = "__create__:";
 

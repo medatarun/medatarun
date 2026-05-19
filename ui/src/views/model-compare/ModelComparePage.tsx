@@ -2,25 +2,25 @@ import {
   type ModelChangeEventWithVersionDto,
   type ModelCompareReq,
   type ModelListItemDto,
-} from "@/business/model";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
+} from "@medatarun/ui/business/model";
+import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
 import {
   ContainedFixed,
   ContainedMixedScrolling,
   ContainedScrollable,
-} from "@/components/layout/Contained";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+} from "@medatarun/ui/components/layout/Contained";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader";
-import { useAppI18n } from "@/services/appI18n.tsx";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import {
   type ComparisonMode,
   ComparisonModeInput,
-} from "@/views/model-compare/ComparisonModeInput.tsx";
-import { ModelCompareDiffView } from "@/views/model-compare/ModelCompareDiffView.tsx";
-import { ModelHistoryVersionInput } from "@/views/model-history/components/ModelHistoryVersionInput.tsx";
+} from "@medatarun/ui/views/model-compare/ComparisonModeInput.tsx";
+import { ModelCompareDiffView } from "@medatarun/ui/views/model-compare/ModelCompareDiffView.tsx";
+import { ModelHistoryVersionInput } from "@medatarun/ui/views/model-history/components/ModelHistoryVersionInput.tsx";
 import { Text, tokens } from "@fluentui/react-components";
 import { ArrowBidirectionalLeftRightRegular } from "@fluentui/react-icons";
 import { Button, InputCombobox } from "@seij/common-ui";
@@ -29,7 +29,7 @@ import {
   useModelCompare,
   useModelHistoryVersions,
   useModelList,
-} from "@/components/business/model";
+} from "@medatarun/ui/components/business/model";
 
 export function ModelComparePage() {
   const { data: resp } = useModelList();

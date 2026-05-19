@@ -1,7 +1,7 @@
 import type { NavigationTreeItem } from "@seij/common-ui";
-import { useAppI18n } from "@/services/appI18n.tsx";
-import { useDetailLevelContext } from "@/components/business/detail-level";
-import { useCurrentActor } from "@/components/business/auth-actor";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
+import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
+import { useCurrentActor } from "@medatarun/ui/components/business/auth-actor";
 
 export function useMenu() {
   const { t } = useAppI18n();

@@ -1,4 +1,4 @@
-import type { MenuMessages } from "@/locales/contracts/MenuMessages.ts";
+import type { MenuMessages } from "@medatarun/ui/locales/contracts/MenuMessages.ts";
 
 export const menuMessages: MenuMessages = {
   menu_admin: "Administration",

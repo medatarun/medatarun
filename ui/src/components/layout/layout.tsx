@@ -4,11 +4,11 @@ import {
   useMatchRoute,
   useNavigate,
 } from "@tanstack/react-router";
-import { ActionPerformerView } from "@/components/business/actions/ActionPerformerView.tsx";
+import { ActionPerformerView } from "@medatarun/ui/components/business/actions/ActionPerformerView.tsx";
 import logo from "/favicon/favicon.svg?url";
 import { ErrorBoundary } from "./ErrorBoundary.tsx";
 import { ApplicationShellSecured } from "@seij/common-ui-auth";
-import { UserSessionExpiredDialog } from "@/components/auth/UserSessionExpiredDialog.tsx";
+import { UserSessionExpiredDialog } from "@medatarun/ui/components/auth/UserSessionExpiredDialog.tsx";
 import { useMenu } from "./menu.tsx";
 
 export function Layout() {

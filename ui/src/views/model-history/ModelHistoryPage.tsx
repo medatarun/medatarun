@@ -1,14 +1,14 @@
 import { useNavigate } from "@tanstack/react-router";
-import { Model } from "@/business/model";
+import { Model } from "@medatarun/ui/business/model";
 import {
   useModel,
   useModelHistoryVersionChanges,
   useModelHistoryVersions,
-} from "@/components/business/model";
-import { ModelIcon } from "@/components/business/model/model.icons.tsx";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
-import { ModelHistoryVersionInput } from "@/views/model-history/components/ModelHistoryVersionInput.tsx";
+} from "@medatarun/ui/components/business/model";
+import { ModelIcon } from "@medatarun/ui/components/business/model/model.icons.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
+import { ModelHistoryVersionInput } from "@medatarun/ui/views/model-history/components/ModelHistoryVersionInput.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -17,18 +17,18 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { useMemo, useState } from "react";
-import { ContainedHumanReadable } from "@/components/layout/Contained.tsx";
+import { ContainedHumanReadable } from "@medatarun/ui/components/layout/Contained.tsx";
 import { FormField, Loader } from "@seij/common-ui";
-import { ModelHistoryChanges } from "@/views/model-history/components/ModelHistoryChanges.tsx";
+import { ModelHistoryChanges } from "@medatarun/ui/views/model-history/components/ModelHistoryChanges.tsx";
 import {
   ModelContext,
   useModelContext,
-} from "@/components/business/model/ModelContext.tsx";
+} from "@medatarun/ui/components/business/model/ModelContext.tsx";
 import { sortBy } from "lodash-es";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader";
 import { HistoryRegular } from "@fluentui/react-icons";
 
 export function ModelHistoryPage({ modelId }: { modelId: string }) {

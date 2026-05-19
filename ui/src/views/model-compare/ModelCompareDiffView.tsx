@@ -19,16 +19,16 @@
 import type {
   ModelCompareDto,
   ModelCompareEntryDto,
-} from "@/business/model/model.dto.ts";
+} from "@medatarun/ui/business/model/model.dto.ts";
 import {
   AttributeIcon,
   EntityIcon,
   ModelIcon,
   RelationshipIcon,
   TypeIcon,
-} from "@/components/business/model/model.icons.tsx";
+} from "@medatarun/ui/components/business/model/model.icons.tsx";
 import { Text, tokens } from "@fluentui/react-components";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import { type ReactNode, useState } from "react";
 
 export function ModelCompareDiffView({ diff }: { diff: ModelCompareDto }) {

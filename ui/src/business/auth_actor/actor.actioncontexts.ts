@@ -1,8 +1,8 @@
-import { ActorInfo, AuthRole } from "@/business/actor";
+import { ActorInfo, AuthRole } from "@medatarun/ui/business/actor";
 import {
   ActionCtxMapping,
   type ActionDisplayedSubject,
-} from "@/business/action-performer";
+} from "@medatarun/ui/business/action-performer";
 
 export const createDisplayedSubjectRole = (
   roleId: string,

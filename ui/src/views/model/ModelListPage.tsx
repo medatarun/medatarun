@@ -1,23 +1,23 @@
-import { ModelCard } from "@/components/business/model/ModelCard.tsx";
-import { type ModelListItemDto } from "@/business/model";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { ModelCard } from "@medatarun/ui/components/business/model/ModelCard.tsx";
+import { type ModelListItemDto } from "@medatarun/ui/business/model";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import { InfoLabel, tokens } from "@fluentui/react-components";
-import { ModelIcon } from "@/components/business/model/model.icons.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
-import { createActionCtxVoid } from "@/business/action-performer";
-import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
-import { SectionCards } from "@/components/layout/SectionCards.tsx";
+import { ModelIcon } from "@medatarun/ui/components/business/model/model.icons.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
+import { createActionCtxVoid } from "@medatarun/ui/business/action-performer";
+import { SectionTitle } from "@medatarun/ui/components/layout/SectionTitle.tsx";
+import { SectionCards } from "@medatarun/ui/components/layout/SectionCards.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
 import type { ReactNode } from "react";
-import { useActionRegistry } from "@/components/business/actions";
-import { useModelList } from "@/components/business/model";
-import { AdminDangerPanel } from "@/components/business/onboarding/AdminDangerPanel.tsx";
-import { ModelLimitedPermissionsPanel } from "@/components/business/onboarding/ModelLimitedPermissionsPanel.tsx";
-import { ListEmpty } from "@/components/core/ListEmpty.tsx";
-import { useSecurityContext } from "@/components/business/security";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
+import { useModelList } from "@medatarun/ui/components/business/model";
+import { AdminDangerPanel } from "@medatarun/ui/components/business/onboarding/AdminDangerPanel.tsx";
+import { ModelLimitedPermissionsPanel } from "@medatarun/ui/components/business/onboarding/ModelLimitedPermissionsPanel.tsx";
+import { ListEmpty } from "@medatarun/ui/components/core/ListEmpty.tsx";
+import { useSecurityContext } from "@medatarun/ui/components/business/security";
 
 export function ModelListPage({
   onClickModel,

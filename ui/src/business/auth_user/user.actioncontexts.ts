@@ -1,8 +1,8 @@
 import {
   ActionCtxMapping,
   type ActionDisplayedSubject,
-} from "@/business/action-performer";
-import type { UserInfoDto } from "@/business/auth_user/index.ts";
+} from "@medatarun/ui/business/action-performer";
+import type { UserInfoDto } from "@medatarun/ui/business/auth_user/index.ts";
 
 export const createDisplayedSubjectUser = (
   username: string,

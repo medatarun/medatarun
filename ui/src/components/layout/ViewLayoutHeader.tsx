@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
+import { ViewTitle } from "@medatarun/ui/components/core/ViewTitle.tsx";
 import { makeStyles, tokens } from "@fluentui/react-components";
 import { ActionDescriptor } from "../../business/action-registry";
-import type { ActionCtx } from "@/business/action-performer";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import type { ActionCtx } from "@medatarun/ui/business/action-performer";
+import { ActionMenuButton } from "@medatarun/ui/components/business/actions/ActionMenuButton.tsx";
 
 const useStyles = makeStyles({
   breadcrumb: {
