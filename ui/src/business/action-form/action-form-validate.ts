@@ -1,7 +1,7 @@
 import { invalid, type ValidationResult } from "@seij/common-validation";
-import { type AppMessageKey, appT } from "@/services/appI18n.tsx";
+import { type AppMessageKey, appT } from "@medatarun/ui/services/appI18n.tsx";
 import type { ActionFormFieldDescription } from "./action-form-field-description.ts";
-import { TypeRegistry } from "@/business/types/TypeRegistry.ts";
+import { TypeRegistry } from "@medatarun/ui/business/types/TypeRegistry.ts";
 import type { ActionFormData } from "./action-form-data";
 
 const t = (key: AppMessageKey, values?: Record<string, unknown>) =>

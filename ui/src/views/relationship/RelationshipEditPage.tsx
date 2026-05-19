@@ -7,7 +7,7 @@ import {
   Model,
   type RelationshipDto,
   type RelationshipRoleDto,
-} from "@/business/model";
+} from "@medatarun/ui/business/model";
 import {
   useModel,
   useRelationshipAddTag,
@@ -15,38 +15,41 @@ import {
   useRelationshipUpdateDescription,
   useRelationshipUpdateKey,
   useRelationshipUpdateName,
-} from "@/components/business/model";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import { useDetailLevelContext } from "@/components/business/detail-level";
-import { AttributesTable } from "@/components/business/model/AttributesTable.tsx";
+} from "@medatarun/ui/components/business/model";
+import { ActionMenuButton } from "@medatarun/ui/components/business/actions/ActionMenuButton.tsx";
+import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
+import { AttributesTable } from "@medatarun/ui/components/business/model/AttributesTable.tsx";
 import {
   AttributeIcon,
   EntityIcon,
   ModelIcon,
   RelationshipIcon,
-} from "@/components/business/model/model.icons.tsx";
-import { ModelContext } from "@/components/business/model/ModelContext.tsx";
-import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
-import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
-import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
-import { Key } from "@/components/core/Key";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
+} from "@medatarun/ui/components/business/model/model.icons.tsx";
+import { ModelContext } from "@medatarun/ui/components/business/model/ModelContext.tsx";
+import { InlineEditDescription } from "@medatarun/ui/components/core/InlineEditDescription.tsx";
+import { InlineEditSingleLine } from "@medatarun/ui/components/core/InlineEditSingleLine.tsx";
+import { InlineEditTags } from "@medatarun/ui/components/core/InlineEditTags.tsx";
+import { Key } from "@medatarun/ui/components/core/Key";
+import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
+import { modelTagScope, Tags } from "@medatarun/ui/components/core/Tag.tsx";
 import {
   PropertiesForm,
   PropertyLabel,
   PropertyValue,
-} from "@/components/layout/PropertiesForm.tsx";
-import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { SectionCards } from "@/components/layout/SectionCards.tsx";
-import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+} from "@medatarun/ui/components/layout/PropertiesForm.tsx";
+import { SectionTable } from "@medatarun/ui/components/layout/SecionTable.tsx";
+import { SectionCards } from "@medatarun/ui/components/layout/SectionCards.tsx";
+import { SectionTitle } from "@medatarun/ui/components/layout/SectionTitle.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader";
-import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos";
-import { type AppMessageKey, useAppI18n } from "@/services/appI18n.tsx";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader";
+import { ViewLayoutTechnicalInfos } from "@medatarun/ui/components/layout/ViewLayoutTechnicalInfos";
+import {
+  type AppMessageKey,
+  useAppI18n,
+} from "@medatarun/ui/services/appI18n.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -61,8 +64,8 @@ import {
 import { toProblem } from "@seij/common-types";
 import { ErrorBox } from "@seij/common-ui";
 import { useNavigate } from "@tanstack/react-router";
-import { useSecurityContext } from "@/components/business/security";
-import { useActionRegistry } from "@/components/business/actions";
+import { useSecurityContext } from "@medatarun/ui/components/business/security";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
 
 export function RelationshipEditPage({
   modelId,

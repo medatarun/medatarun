@@ -5,27 +5,27 @@ import {
   BreadcrumbDivider,
   BreadcrumbItem,
 } from "@fluentui/react-components";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox, InfoBox } from "@seij/common-ui";
 import { formatLocalDateTime, toProblem } from "@seij/common-types";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import {
   PropertiesForm,
   PropertyLabel,
   PropertyValue,
-} from "@/components/layout/PropertiesForm.tsx";
+} from "@medatarun/ui/components/layout/PropertiesForm.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
 import { PersonRegular } from "@fluentui/react-icons";
-import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { ViewLayoutTechnicalInfos } from "@medatarun/ui/components/layout/ViewLayoutTechnicalInfos.tsx";
 import {
   createActionCtxUser,
   createDisplayedSubjectUser,
-} from "@/business/auth_user/user.actioncontexts.ts";
-import { useActionRegistry } from "@/components/business/actions";
-import { useUserList } from "@/components/business/auth-user";
+} from "@medatarun/ui/business/auth_user/user.actioncontexts.ts";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
+import { useUserList } from "@medatarun/ui/components/business/auth-user";
 
 export function AdminUserEditPage({ userId }: { userId: string }) {
   const { t } = useAppI18n();

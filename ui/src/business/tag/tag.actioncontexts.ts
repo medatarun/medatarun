@@ -1,9 +1,9 @@
-import type { TagScopeRef } from "@/business/tag/tag.dto.ts";
+import type { TagScopeRef } from "@medatarun/ui/business/tag/tag.dto.ts";
 import {
   ActionCtxMapping,
   type ActionDisplayedSubject,
-} from "@/business/action-performer";
-import { type Tag, TagGroup } from "@/business/tag/tag.domain.ts";
+} from "@medatarun/ui/business/action-performer";
+import { type Tag, TagGroup } from "@medatarun/ui/business/tag/tag.domain.ts";
 import { isNil } from "lodash-es";
 
 /**

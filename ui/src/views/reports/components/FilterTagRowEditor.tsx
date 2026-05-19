@@ -2,14 +2,17 @@ import {
   type ModelSearchFilter,
   type ModelSearchTagFilter,
   type ModelSearchTagFilterCondition,
-} from "@/business/model";
-import { useTags } from "@/components/business/tag";
+} from "@medatarun/ui/business/model";
+import { useTags } from "@medatarun/ui/components/business/tag";
 import {
   Dropdown,
   type DropdownProps,
   Option,
 } from "@fluentui/react-components";
-import { type AppMessageKey, useAppI18n } from "@/services/appI18n.tsx";
+import {
+  type AppMessageKey,
+  useAppI18n,
+} from "@medatarun/ui/services/appI18n.tsx";
 import { FilterTagPicker } from "./FilterTagPicker.tsx";
 import { useCompactDropdownStyles } from "./Reports.styles.tsx";
 

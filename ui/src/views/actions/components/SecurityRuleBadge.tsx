@@ -1,7 +1,7 @@
 import { Badge, makeStyles, Text, Tooltip } from "@fluentui/react-components";
 import { CodeRegular, ShieldRegular } from "@fluentui/react-icons";
 import Markdown from "react-markdown";
-import { useSecurityRuleDescriptionRegistry } from "@/components/business/config";
+import { useSecurityRuleDescriptionRegistry } from "@medatarun/ui/components/business/config";
 
 const useStyles = makeStyles({
   codeLine: {

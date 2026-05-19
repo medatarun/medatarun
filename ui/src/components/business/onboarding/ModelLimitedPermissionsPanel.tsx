@@ -1,9 +1,9 @@
-import { useCurrentActor } from "@/components/business/auth-actor";
-import { useSecurityContext } from "@/components/business/security";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { useCurrentActor } from "@medatarun/ui/components/business/auth-actor";
+import { useSecurityContext } from "@medatarun/ui/components/business/security";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import { Link } from "@tanstack/react-router";
-import { MessageBox } from "@/components/core/MessageBox.tsx";
-import type { PropsWithStyle } from "@/components/core";
+import { MessageBox } from "@medatarun/ui/components/core/MessageBox.tsx";
+import type { PropsWithStyle } from "@medatarun/ui/components/core";
 
 export function ModelLimitedPermissionsPanel(props: PropsWithStyle) {
   const actor = useCurrentActor();

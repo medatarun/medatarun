@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import {
   SecurityPermissionRegistry,
   SecurityRuleDescriptionRegistry,
-} from "@/business/config";
+} from "@medatarun/ui/business/config";
 import {
   useSecurityPermissions,
   useSecurityRuleDescriptions,

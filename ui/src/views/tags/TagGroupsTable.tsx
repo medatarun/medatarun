@@ -7,13 +7,13 @@ import {
   Text,
   tokens,
 } from "@fluentui/react-components";
-import { useAppI18n } from "@/services/appI18n.tsx";
-import type { TagGroup } from "@/business/tag";
-import { type ActionCtx } from "@/business/action-performer";
-import { Key } from "@/components/core/Key.tsx";
-import { useDetailLevelContext } from "@/components/business/detail-level";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import { useActionRegistry } from "@/components/business/actions";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
+import type { TagGroup } from "@medatarun/ui/business/tag";
+import { type ActionCtx } from "@medatarun/ui/business/action-performer";
+import { Key } from "@medatarun/ui/components/core/Key.tsx";
+import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
+import { ActionMenuButton } from "@medatarun/ui/components/business/actions/ActionMenuButton.tsx";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
 
 const useStyles = makeStyles({
   titleCell: {},

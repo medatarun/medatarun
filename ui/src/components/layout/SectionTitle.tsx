@@ -3,10 +3,10 @@ import { Text, tokens } from "@fluentui/react-components";
 import {
   type ActionCtx,
   createActionCtxVoid,
-} from "@/business/action-performer";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+} from "@medatarun/ui/business/action-performer";
+import { ActionMenuButton } from "@medatarun/ui/components/business/actions/ActionMenuButton.tsx";
 import type { ActionKey } from "../../business/action-registry";
-import { useActionRegistry } from "@/components/business/actions";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
 
 export function SectionTitle({
   icon,

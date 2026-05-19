@@ -4,9 +4,9 @@ import type {
   RoleDetailsDto,
   RoleListDto,
   WhoAmIRespDto,
-} from "@/business/actor/actor.dto.ts";
+} from "@medatarun/ui/business/actor/actor.dto.ts";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
+import { useActionPerformer } from "@medatarun/ui/components/business/actions/action-performer-hook.tsx";
 import type { ActionKey } from "../../../business/action-registry";
 
 /**

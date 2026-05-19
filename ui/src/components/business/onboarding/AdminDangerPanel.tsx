@@ -1,7 +1,7 @@
-import { useCurrentActor } from "@/components/business/auth-actor";
-import { useAppI18n } from "@/services/appI18n.tsx";
-import { MessageBox } from "@/components/core/MessageBox.tsx";
-import { allStyles, type PropsWithStyle } from "@/components/core";
+import { useCurrentActor } from "@medatarun/ui/components/business/auth-actor";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
+import { MessageBox } from "@medatarun/ui/components/core/MessageBox.tsx";
+import { allStyles, type PropsWithStyle } from "@medatarun/ui/components/core";
 
 export function AdminDangerPanel(props: PropsWithStyle) {
   const actor = useCurrentActor();

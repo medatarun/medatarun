@@ -1,9 +1,9 @@
-import { Identifier } from "@/components/core/Identifier.tsx";
-import { Key } from "@/components/core/Key.tsx";
+import { Identifier } from "@medatarun/ui/components/core/Identifier.tsx";
+import { Key } from "@medatarun/ui/components/core/Key.tsx";
 import { Caption1, tokens } from "@fluentui/react-components";
 import type { ReactNode } from "react";
 import { Fragment } from "react";
-import { useDetailLevelContext } from "@/components/business/detail-level";
+import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
 
 type ViewLayoutTechnicalInfosProps = {
   technicalKey?: string;

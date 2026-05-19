@@ -2,11 +2,11 @@ import type {
   TagDto,
   TagGroupDto,
   TagSearchFilters,
-} from "@/business/tag/tag.dto.ts";
+} from "@medatarun/ui/business/tag/tag.dto.ts";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { type ActionPayload } from "@/business/action-performer";
-import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
-import type { ActionKey } from "@/business/action-registry";
+import { type ActionPayload } from "@medatarun/ui/business/action-performer";
+import { useActionPerformer } from "@medatarun/ui/components/business/actions/action-performer-hook.tsx";
+import type { ActionKey } from "@medatarun/ui/business/action-registry";
 
 export type TagSearchReq = {
   filters?: TagSearchFilters | null;

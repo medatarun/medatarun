@@ -1,4 +1,4 @@
-import type { SearchResult } from "@/business/model";
+import type { SearchResult } from "@medatarun/ui/business/model";
 import {
   Table,
   TableBody,

@@ -1,6 +1,6 @@
 import type { ActionPerformerInputProps } from "./ActionPerformerInputProps.tsx";
 import { normalizeValueStringOrEmpty } from "./ActionPerformerInput.utils.ts";
-import { MarkdownEditor } from "@/components/core/MarkdownEditor.tsx";
+import { MarkdownEditor } from "@medatarun/ui/components/core/MarkdownEditor.tsx";
 import { useImperativeHandle, useRef } from "react";
 import type { RichTextEditorRef } from "@seij/common-ui-richtext";
 

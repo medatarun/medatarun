@@ -4,37 +4,37 @@ import {
   createActionCtxTagGroup,
   createDisplayedSubjectTagGroup,
   Tag,
-} from "@/business/tag";
-import { TagsTable } from "@/components/business/tag/TagsTable.tsx";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
-import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
+} from "@medatarun/ui/business/tag";
+import { TagsTable } from "@medatarun/ui/components/business/tag/TagsTable.tsx";
+import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
+import { InlineEditDescription } from "@medatarun/ui/components/core/InlineEditDescription.tsx";
+import { InlineEditSingleLine } from "@medatarun/ui/components/core/InlineEditSingleLine.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
   BreadcrumbDivider,
   BreadcrumbItem,
 } from "@fluentui/react-components";
-import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { SectionTable } from "@medatarun/ui/components/layout/SecionTable.tsx";
+import { SectionTitle } from "@medatarun/ui/components/layout/SectionTitle.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
-import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { TagGroupIcon } from "@medatarun/ui/components/business/tag/tag.icons.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
-import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { type ActionCtx } from "@/business/action-performer";
-import { useSecurityContext } from "@/components/business/security";
-import { useActionRegistry } from "@/components/business/actions";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
+import { ViewLayoutTechnicalInfos } from "@medatarun/ui/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { type ActionCtx } from "@medatarun/ui/business/action-performer";
+import { useSecurityContext } from "@medatarun/ui/components/business/security";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
 import {
   useTagGroupUpdateDescription,
   useTagGroupUpdateName,
   useTags,
-} from "@/components/business/tag";
+} from "@medatarun/ui/components/business/tag";
 
 export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
   const { t } = useAppI18n();

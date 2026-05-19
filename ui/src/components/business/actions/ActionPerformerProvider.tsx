@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import {
   ActionPerformer,
   type ActionPerformerState,
-} from "@/business/action-performer";
+} from "@medatarun/ui/business/action-performer";
 import {
   ActionPerformerContext,
   type ActionPerformerContextValue,

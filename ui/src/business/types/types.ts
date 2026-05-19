@@ -11,7 +11,7 @@ import {
   normalizeRef,
   normalizeString,
 } from "./normalize_helpers.ts";
-import type { TagScopeRef, TagSearchFilters } from "@/business/tag";
+import type { TagScopeRef, TagSearchFilters } from "@medatarun/ui/business/tag";
 import {
   validateBoolean,
   validateKey,
@@ -19,7 +19,7 @@ import {
   validateString,
 } from "./validate_helpers.ts";
 import { valid } from "@seij/common-validation";
-import type { ModelDiffScopeCode } from "@/business/model";
+import type { ModelDiffScopeCode } from "@medatarun/ui/business/model";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const registeredTypes: TypeDeclaration<any>[] = [

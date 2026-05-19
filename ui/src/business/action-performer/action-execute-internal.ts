@@ -1,6 +1,6 @@
-import { api } from "@/services/api.ts";
+import { api } from "@medatarun/ui/services/api.ts";
 import { Problem } from "@seij/common-types";
-import { notifyUnauthorized } from "@/services/user-session-expired.ts";
+import { notifyUnauthorized } from "@medatarun/ui/services/user-session-expired.ts";
 import type { ActionPayload, ActionResp } from "./action-types.ts";
 
 /**

@@ -1,25 +1,25 @@
 import { useNavigate } from "@tanstack/react-router";
-import { createActionCtxTagGroup, TagGroup } from "@/business/tag";
-import { useTags } from "@/components/business/tag";
+import { createActionCtxTagGroup, TagGroup } from "@medatarun/ui/business/tag";
+import { useTags } from "@medatarun/ui/components/business/tag";
 import { TagGroupsTable } from "./TagGroupsTable.tsx";
-import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { SectionTable } from "@medatarun/ui/components/layout/SecionTable.tsx";
+import { SectionTitle } from "@medatarun/ui/components/layout/SectionTitle.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
-import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { TagGroupIcon } from "@medatarun/ui/components/business/tag/tag.icons.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import {
   createActionCtxVoid,
   displaySubjectNone,
-} from "@/business/action-performer";
+} from "@medatarun/ui/business/action-performer";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
-import { useActionRegistry } from "@/components/business/actions";
-import { MessageBox } from "@/components/core/MessageBox.tsx";
-import { Markdown } from "@/components/core/Markdown.tsx";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
+import { MessageBox } from "@medatarun/ui/components/core/MessageBox.tsx";
+import { Markdown } from "@medatarun/ui/components/core/Markdown.tsx";
 
 export function TagGroupListPage() {
   const { t } = useAppI18n();

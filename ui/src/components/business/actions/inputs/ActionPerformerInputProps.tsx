@@ -1,5 +1,5 @@
 import type { Ref } from "react";
-import type { ActionRequest } from "@/business/action-performer";
+import type { ActionRequest } from "@medatarun/ui/business/action-performer";
 
 export interface ActionPerformerInputElement {
   focus: () => void;

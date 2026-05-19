@@ -5,8 +5,8 @@ import {
   TagGroup,
   tokens,
 } from "@fluentui/react-components";
-import { type TagScopeRef } from "@/business/tag";
-import { useTags } from "@/components/business/tag";
+import { type TagScopeRef } from "@medatarun/ui/business/tag";
+import { useTags } from "@medatarun/ui/components/business/tag";
 import { TagRegular } from "@fluentui/react-icons";
 
 const useStyles = makeStyles({

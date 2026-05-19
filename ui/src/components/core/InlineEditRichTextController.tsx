@@ -8,12 +8,12 @@ import {
 } from "@fluentui/react-components";
 import { Icon } from "@seij/common-ui-icons";
 import { Button, ButtonBar, ErrorBox } from "@seij/common-ui";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import { InlineEditStarted } from "./InlineEditStarted.tsx";
 import {
   useInlineEditCoordinator,
   useInlineEditIdentifier,
-} from "@/components/core/inline-edit-coordinator";
+} from "@medatarun/ui/components/core/inline-edit-coordinator";
 
 const useStyles = makeStyles({
   readRoot: {

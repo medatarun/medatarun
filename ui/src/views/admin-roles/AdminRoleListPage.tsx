@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
-import { AuthRole } from "@/business/actor";
-import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { AuthRole } from "@medatarun/ui/business/actor";
+import { SectionTable } from "@medatarun/ui/components/layout/SecionTable.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import {
   Table,
   TableBody,
@@ -16,23 +16,23 @@ import {
   type ActionCtx,
   createActionCtxVoid,
   displaySubjectNone,
-} from "@/business/action-performer";
-import { useAppI18n } from "@/services/appI18n.tsx";
+} from "@medatarun/ui/business/action-performer";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
 import {
   ArrowSyncCircleRegular,
   KeyMultipleRegular,
   LockClosedRegular,
 } from "@fluentui/react-icons";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import { createActionCtxRole } from "@/business/auth_actor/actor.actioncontexts.ts";
-import { useActionRegistry } from "@/components/business/actions";
-import { useRoleList } from "@/components/business/auth-actor";
-import { MessageBox } from "@/components/core/MessageBox.tsx";
+import { ActionMenuButton } from "@medatarun/ui/components/business/actions/ActionMenuButton.tsx";
+import { createActionCtxRole } from "@medatarun/ui/business/auth_actor/actor.actioncontexts.ts";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
+import { useRoleList } from "@medatarun/ui/components/business/auth-actor";
+import { MessageBox } from "@medatarun/ui/components/core/MessageBox.tsx";
 import { ActionDescriptor } from "../../business/action-registry";
 
 export function AdminRoleListPage() {

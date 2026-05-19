@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import type { SearchResultLocation } from "@/business/model";
+import type { SearchResultLocation } from "@medatarun/ui/business/model";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -11,7 +11,7 @@ import {
   EntityIcon,
   ModelIcon,
   RelationshipIcon,
-} from "@/components/business/model/model.icons.tsx";
+} from "@medatarun/ui/components/business/model/model.icons.tsx";
 
 export function ResultPath({ location }: { location: SearchResultLocation }) {
   const navigate = useNavigate();

@@ -4,14 +4,14 @@ import {
   createDisplayedSubjectType,
   Model,
   type TypeDto,
-} from "@/business/model";
+} from "@medatarun/ui/business/model";
 import {
   useModel,
   useTypeUpdateDescription,
   useTypeUpdateKey,
   useTypeUpdateName,
-} from "@/components/business/model";
-import { ModelContext } from "@/components/business/model/ModelContext.tsx";
+} from "@medatarun/ui/components/business/model";
+import { ModelContext } from "@medatarun/ui/components/business/model/ModelContext.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -20,31 +20,31 @@ import {
   Text,
   tokens,
 } from "@fluentui/react-components";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 
-import { useDetailLevelContext } from "@/components/business/detail-level";
+import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
 import {
   PropertiesForm,
   PropertyLabel,
   PropertyValue,
-} from "@/components/layout/PropertiesForm.tsx";
+} from "@medatarun/ui/components/layout/PropertiesForm.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
-import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
+import { InlineEditDescription } from "@medatarun/ui/components/core/InlineEditDescription.tsx";
 import { useMemo } from "react";
-import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
+import { InlineEditSingleLine } from "@medatarun/ui/components/core/InlineEditSingleLine.tsx";
 import {
   ModelIcon,
   TypeIcon,
-} from "@/components/business/model/model.icons.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
+} from "@medatarun/ui/components/business/model/model.icons.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
-import { useSecurityContext } from "@/components/business/security";
-import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { useActionRegistry } from "@/components/business/actions";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
+import { useSecurityContext } from "@medatarun/ui/components/business/security";
+import { ViewLayoutTechnicalInfos } from "@medatarun/ui/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
 
 export function TypeEditPage({
   modelId,

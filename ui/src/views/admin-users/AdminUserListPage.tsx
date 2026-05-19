@@ -1,8 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { ActionDescriptor } from "../../business/action-registry";
-import { type UserInfoDto } from "@/business/auth_user";
-import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { type UserInfoDto } from "@medatarun/ui/business/auth_user";
+import { SectionTable } from "@medatarun/ui/components/layout/SecionTable.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import {
   Caption1,
   Table,
@@ -18,19 +18,19 @@ import {
   type ActionCtx,
   createActionCtxVoid,
   displaySubjectNone,
-} from "@/business/action-performer";
-import { useAppI18n } from "@/services/appI18n.tsx";
+} from "@medatarun/ui/business/action-performer";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
 import { PersonRegular } from "@fluentui/react-icons";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import { createActionCtxUser } from "@/business/auth_user/user.actioncontexts.ts";
-import { useActionRegistry } from "@/components/business/actions";
-import { useUserList } from "@/components/business/auth-user";
-import { MessageBox } from "@/components/core/MessageBox.tsx";
+import { ActionMenuButton } from "@medatarun/ui/components/business/actions/ActionMenuButton.tsx";
+import { createActionCtxUser } from "@medatarun/ui/business/auth_user/user.actioncontexts.ts";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
+import { useUserList } from "@medatarun/ui/components/business/auth-user";
+import { MessageBox } from "@medatarun/ui/components/core/MessageBox.tsx";
 
 export function AdminUserListPage() {
   const { t } = useAppI18n();

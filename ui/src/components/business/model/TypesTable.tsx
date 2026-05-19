@@ -1,4 +1,4 @@
-import type { TypeDto } from "@/business/model";
+import type { TypeDto } from "@medatarun/ui/business/model";
 import {
   Caption1,
   Card,
@@ -7,10 +7,10 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { useModelContext } from "./ModelContext.tsx";
-import { useDetailLevelContext } from "@/components/business/detail-level";
-import { useAppI18n } from "@/services/appI18n.tsx";
-import { Key } from "@/components/core/Key.tsx";
-import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
+import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
+import { Key } from "@medatarun/ui/components/core/Key.tsx";
+import { MarkdownSummary } from "@medatarun/ui/components/core/MarkdownSummary.tsx";
 
 export function TypesTable({
   types,

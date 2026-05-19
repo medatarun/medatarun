@@ -5,7 +5,7 @@ import type {
   TypeDeclaration,
   TypeDeclarationNormalizeCtx,
   TypeDeclarationValidateCtx,
-} from "@/business/types/TypeDeclaration.ts";
+} from "@medatarun/ui/business/types/TypeDeclaration.ts";
 import { isArray, isNil } from "lodash-es";
 import { throwError } from "@seij/common-types";
 import {
@@ -14,7 +14,7 @@ import {
   valid,
   type ValidationResult,
 } from "@seij/common-validation";
-import { appT } from "@/services/appI18n.tsx";
+import { appT } from "@medatarun/ui/services/appI18n.tsx";
 
 const t = appT;
 

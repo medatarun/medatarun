@@ -10,11 +10,11 @@ import {
   type EntityDto,
   Model,
   type RelationshipDto,
-} from "@/business/model";
+} from "@medatarun/ui/business/model";
 import {
   ModelContext,
   useModelContext,
-} from "@/components/business/model/ModelContext.tsx";
+} from "@medatarun/ui/components/business/model/ModelContext.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -26,41 +26,41 @@ import {
   TableRow,
   tokens,
 } from "@fluentui/react-components";
-import { AttributesTable } from "@/components/business/model/AttributesTable.tsx";
-import { RelationshipsTable } from "@/components/business/model/RelationshipsTable.tsx";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { AttributesTable } from "@medatarun/ui/components/business/model/AttributesTable.tsx";
+import { RelationshipsTable } from "@medatarun/ui/components/business/model/RelationshipsTable.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 
-import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
+import { SectionTitle } from "@medatarun/ui/components/layout/SectionTitle.tsx";
 import { EntityOverview } from "./EntityOverview.tsx";
-import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
-import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
+import { SectionTable } from "@medatarun/ui/components/layout/SecionTable.tsx";
+import { InlineEditDescription } from "@medatarun/ui/components/core/InlineEditDescription.tsx";
+import { InlineEditSingleLine } from "@medatarun/ui/components/core/InlineEditSingleLine.tsx";
+import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
 import {
   AttributeIcon,
   EntityIcon,
   ModelIcon,
   RelationshipIcon,
-} from "@/components/business/model/model.icons.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
+} from "@medatarun/ui/components/business/model/model.icons.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
-import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { useSecurityContext } from "@/components/business/security";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
+import { ViewLayoutTechnicalInfos } from "@medatarun/ui/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { useSecurityContext } from "@medatarun/ui/components/business/security";
 import { KeyRegular } from "@fluentui/react-icons";
-import { Key } from "@/components/core/Key.tsx";
-import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import { useDetailLevelContext } from "@/components/business/detail-level";
-import { useActionRegistry } from "@/components/business/actions";
+import { Key } from "@medatarun/ui/components/core/Key.tsx";
+import { MarkdownSummary } from "@medatarun/ui/components/core/MarkdownSummary.tsx";
+import { ActionMenuButton } from "@medatarun/ui/components/business/actions/ActionMenuButton.tsx";
+import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
 import {
   useEntityUpdateDescription,
   useEntityUpdateName,
   useModel,
-} from "@/components/business/model";
-import { SectionSeparator } from "@/components/layout/SectionSeparator.tsx";
+} from "@medatarun/ui/components/business/model";
+import { SectionSeparator } from "@medatarun/ui/components/layout/SectionSeparator.tsx";
 
 export function EntityEditPage({
   modelId,

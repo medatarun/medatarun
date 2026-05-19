@@ -8,7 +8,7 @@ import { isNil } from "lodash-es";
 import {
   TypeRegistry,
   TypeRegistryInstance,
-} from "@/business/types/TypeRegistry.ts";
+} from "@medatarun/ui/business/types/TypeRegistry.ts";
 import type { ActionFormData } from "./action-form-data";
 
 export function formDataNormalize(

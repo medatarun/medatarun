@@ -8,7 +8,7 @@ import {
   type EntityDto,
   Model,
   type RelationshipDto,
-} from "@/business/model";
+} from "@medatarun/ui/business/model";
 import {
   useEntityAttributeAddTag,
   useEntityAttributeDeleteTag,
@@ -25,12 +25,12 @@ import {
   useRelationshipAttributeUpdateName,
   useRelationshipAttributeUpdateOptional,
   useRelationshipAttributeUpdateType,
-} from "@/components/business/model";
+} from "@medatarun/ui/components/business/model";
 
 import {
   ModelContext,
   useModelContext,
-} from "@/components/business/model/ModelContext.tsx";
+} from "@medatarun/ui/components/business/model/ModelContext.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -38,41 +38,41 @@ import {
   BreadcrumbItem,
   Text,
 } from "@fluentui/react-components";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { useDetailLevelContext } from "@/components/business/detail-level";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
+import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
+import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
 import {
   PropertiesForm,
   PropertyLabel,
   PropertyValue,
-} from "@/components/layout/PropertiesForm.tsx";
-import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
+} from "@medatarun/ui/components/layout/PropertiesForm.tsx";
+import { modelTagScope, Tags } from "@medatarun/ui/components/core/Tag.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
-import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
-import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
-import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
+import { InlineEditDescription } from "@medatarun/ui/components/core/InlineEditDescription.tsx";
+import { InlineEditSingleLine } from "@medatarun/ui/components/core/InlineEditSingleLine.tsx";
+import { InlineEditTags } from "@medatarun/ui/components/core/InlineEditTags.tsx";
 import {
   AttributeIcon,
   EntityIcon,
   ModelIcon,
   RelationshipIcon,
-} from "@/components/business/model/model.icons.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
+} from "@medatarun/ui/components/business/model/model.icons.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import {
   type ActionDisplayedSubject,
   createActionCtxVoid,
   displaySubjectNone,
-} from "@/business/action-performer";
-import { InlineEditBoolean } from "@/components/core/InlineEditBoolean.tsx";
-import { InlineEditCombobox } from "@/components/core/InlineEditCombobox.tsx";
+} from "@medatarun/ui/business/action-performer";
+import { InlineEditBoolean } from "@medatarun/ui/components/core/InlineEditBoolean.tsx";
+import { InlineEditCombobox } from "@medatarun/ui/components/core/InlineEditCombobox.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
-import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { useSecurityContext } from "@/components/business/security";
-import { useActionRegistry } from "@/components/business/actions";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
+import { ViewLayoutTechnicalInfos } from "@medatarun/ui/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { useSecurityContext } from "@medatarun/ui/components/business/security";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
 
 export function AttributeEditPage({
   modelId,

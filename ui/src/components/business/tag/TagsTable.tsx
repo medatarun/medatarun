@@ -10,14 +10,14 @@ import {
 import { useNavigate } from "@tanstack/react-router";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
-import { Tag, type TagScopeRef } from "@/business/tag";
-import { useTags } from "@/components/business/tag";
-import { useAppI18n } from "@/services/appI18n.tsx";
-import { type ActionCtx } from "@/business/action-performer";
-import { Key } from "@/components/core/Key.tsx";
-import { useDetailLevelContext } from "@/components/business/detail-level";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
-import { useActionRegistry } from "@/components/business/actions";
+import { Tag, type TagScopeRef } from "@medatarun/ui/business/tag";
+import { useTags } from "@medatarun/ui/components/business/tag";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
+import { type ActionCtx } from "@medatarun/ui/business/action-performer";
+import { Key } from "@medatarun/ui/components/core/Key.tsx";
+import { useDetailLevelContext } from "@medatarun/ui/components/business/detail-level";
+import { ActionMenuButton } from "@medatarun/ui/components/business/actions/ActionMenuButton.tsx";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
 
 const useStyles = makeStyles({
   titleCell: {},

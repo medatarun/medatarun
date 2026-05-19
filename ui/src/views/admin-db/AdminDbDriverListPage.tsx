@@ -1,19 +1,19 @@
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import { Caption2, Text, tokens } from "@fluentui/react-components";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import {
   ArchiveRegular,
   CodeBlockRegular,
   DatabaseLinkRegular,
 } from "@fluentui/react-icons";
 import { sortBy } from "lodash-es";
-import { CardGrid } from "@/components/layout/CardGrid.tsx";
+import { CardGrid } from "@medatarun/ui/components/layout/CardGrid.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
-import { useDatabaseDrivers } from "@/components/business/db";
-import { MessageBox } from "@/components/core/MessageBox.tsx";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
+import { useDatabaseDrivers } from "@medatarun/ui/components/business/db";
+import { MessageBox } from "@medatarun/ui/components/core/MessageBox.tsx";
 
 export function AdminDbDriverListPage() {
   const { data: driversRaw } = useDatabaseDrivers();

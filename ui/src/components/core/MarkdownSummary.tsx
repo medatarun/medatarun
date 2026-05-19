@@ -1,4 +1,4 @@
-import { extractMarkdownSummary } from "@/utils/extractMarkdownSummary.ts";
+import { extractMarkdownSummary } from "@medatarun/ui/utils/extractMarkdownSummary.ts";
 
 export function MarkdownSummary({
   value,

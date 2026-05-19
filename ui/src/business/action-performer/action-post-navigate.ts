@@ -2,7 +2,7 @@ import type {
   ActionDisplayedSubject,
   ActionDisplayedSubjectResource,
   ActionRequest,
-} from "@/business/action-performer/index.ts";
+} from "@medatarun/ui/business/action-performer/index.ts";
 import type { NavigateFn } from "@tanstack/react-router";
 import type { ActionDescriptor } from "../action-registry";
 

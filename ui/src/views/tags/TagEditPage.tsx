@@ -1,20 +1,20 @@
 import { useNavigate } from "@tanstack/react-router";
-import { Model } from "@/business/model";
+import { Model } from "@medatarun/ui/business/model";
 import {
   createActionCtxTag,
   createDisplayedSubjectTag,
   type Tag,
-} from "@/business/tag";
+} from "@medatarun/ui/business/tag";
 import {
   useTagGlobalUpdateDescription,
   useTagGlobalUpdateName,
   useTagLocalUpdateDescription,
   useTagLocalUpdateName,
   useTags,
-} from "@/components/business/tag";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
-import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
+} from "@medatarun/ui/components/business/tag";
+import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
+import { InlineEditDescription } from "@medatarun/ui/components/core/InlineEditDescription.tsx";
+import { InlineEditSingleLine } from "@medatarun/ui/components/core/InlineEditSingleLine.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -22,20 +22,23 @@ import {
   BreadcrumbItem,
   Text,
 } from "@fluentui/react-components";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
-import { TagGroupIcon, TagIcon } from "@/components/business/tag/tag.icons.tsx";
-import { ModelIcon } from "@/components/business/model/model.icons.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import {
+  TagGroupIcon,
+  TagIcon,
+} from "@medatarun/ui/components/business/tag/tag.icons.tsx";
+import { ModelIcon } from "@medatarun/ui/components/business/model/model.icons.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
-import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { useSecurityContext } from "@/components/business/security";
-import { useActionRegistry } from "@/components/business/actions";
-import { useModel } from "@/components/business/model";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
+import { ViewLayoutTechnicalInfos } from "@medatarun/ui/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { useSecurityContext } from "@medatarun/ui/components/business/security";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions";
+import { useModel } from "@medatarun/ui/components/business/model";
 
 export function TagEditPage({ tagId }: { tagId: string }) {
   const { t } = useAppI18n();

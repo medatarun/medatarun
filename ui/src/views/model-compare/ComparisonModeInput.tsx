@@ -1,6 +1,6 @@
 import { Text, tokens } from "@fluentui/react-components";
 import { InputSelect } from "@seij/common-ui";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 
 export type ComparisonMode = "structural" | "complete";
 

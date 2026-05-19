@@ -19,13 +19,13 @@ import {
   type ActionPerformerRequestState,
   type ActionRequest,
   type ActionResp,
-} from "@/business/action-performer";
+} from "@medatarun/ui/business/action-performer";
 import {
   type ActionFormData,
   type ActionFormFieldDescription,
   ActionFormService,
-} from "@/business/action-form";
-import { ActionDescriptor } from "@/business/action-registry";
+} from "@medatarun/ui/business/action-form";
+import { ActionDescriptor } from "@medatarun/ui/business/action-registry";
 import ReactMarkdown from "react-markdown";
 import {
   combineValidationResults,
@@ -34,20 +34,20 @@ import {
 import { Button, ErrorBox } from "@seij/common-ui";
 import { isPlainObject } from "lodash-es";
 import { toProblem } from "@seij/common-types";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import type {
   ActionPerformerInputElement,
   ActionPerformerInputProps,
 } from "./inputs/ActionPerformerInputProps.tsx";
 import { ActionPerformerInputList } from "./inputs/ActionPerformerInputList.tsx";
-import { TypeRegistryInstance } from "@/business/types/TypeRegistry.ts";
+import { TypeRegistryInstance } from "@medatarun/ui/business/types/TypeRegistry.ts";
 import {
   ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE,
   ACTION_PERFORMER_INPUT_DEFAULT_COMPONENT,
 } from "./inputs/ActionPerformerInputRegistry.ts";
-import { useActionPerformer } from "@/components/business/actions/action-performer-hook.tsx";
-import { useActionRegistry } from "@/components/business/actions/action_registry.hooks.ts";
-import { Markdown } from "@/components/core/Markdown.tsx";
+import { useActionPerformer } from "@medatarun/ui/components/business/actions/action-performer-hook.tsx";
+import { useActionRegistry } from "@medatarun/ui/components/business/actions/action_registry.hooks.ts";
+import { Markdown } from "@medatarun/ui/components/core/Markdown.tsx";
 import { Logger } from "tslog";
 
 const DEBUG = false;

@@ -5,7 +5,7 @@ import {
   Option,
   tokens,
 } from "@fluentui/react-components";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
 import {
   AddRegular,
   ArrowDownloadRegular,
@@ -17,29 +17,29 @@ import {
   ContainedFixed,
   ContainedMixedScrolling,
   ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
+} from "@medatarun/ui/components/layout/Contained.tsx";
 import {
   type ModelSearchFilter,
   type ModelSearchTagFilter,
-} from "@/business/model";
+} from "@medatarun/ui/business/model";
 import { useState } from "react";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
+import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
 import { createCsv } from "./ReportsPage.csvexport.tsx";
 import { v7 as uuidv7 } from "uuid";
-import { ResultTable } from "@/views/reports/components/ResultTable.tsx";
+import { ResultTable } from "@medatarun/ui/views/reports/components/ResultTable.tsx";
 import { FilterTagRowEditor } from "./components/FilterTagRowEditor.tsx";
 import { FilterTextRowEditor } from "./components/FilterTextRowEditor.tsx";
 import { useCompactDropdownStyles } from "./components/Reports.styles.tsx";
 import { ButtonBar, Loader } from "@seij/common-ui";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
-} from "@/components/layout/ViewLayoutHeader.tsx";
+} from "@medatarun/ui/components/layout/ViewLayoutHeader.tsx";
 import {
   type ModelSearchReq,
   useModelSearch,
-} from "@/components/business/model";
+} from "@medatarun/ui/components/business/model";
 
 const LOCAL_STORAGE_KEY = "reports-query-builder";
 

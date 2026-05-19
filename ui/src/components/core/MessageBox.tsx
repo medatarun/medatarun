@@ -1,6 +1,9 @@
 import type { PropsWithChildren } from "react";
 import { makeStyles, mergeClasses, tokens } from "@fluentui/react-components";
-import { allStyles, type PropsWithStyle } from "@/components/core/utils.ts";
+import {
+  allStyles,
+  type PropsWithStyle,
+} from "@medatarun/ui/components/core/utils.ts";
 
 export interface MessageBoxProps extends PropsWithChildren, PropsWithStyle {
   intent: "info" | "warning";

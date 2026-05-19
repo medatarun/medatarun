@@ -9,12 +9,12 @@ import {
 import { useEffect, useState } from "react";
 import { useAuthentication } from "@seij/common-ui-auth";
 import { Button } from "@seij/common-ui";
-import { queryClient } from "@/services/queryClient.ts";
+import { queryClient } from "@medatarun/ui/services/queryClient.ts";
 import {
   resetUserSessionExpiredFlag,
   subscribeUserSessionExpired,
-} from "@/services/user-session-expired.ts";
-import { useAppI18n } from "@/services/appI18n.tsx";
+} from "@medatarun/ui/services/user-session-expired.ts";
+import { useAppI18n } from "@medatarun/ui/services/appI18n.tsx";
 
 /**
  * Dialog that is triggered when the user session expired

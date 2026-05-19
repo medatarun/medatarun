@@ -5,7 +5,7 @@ import {
   type ReactNode,
 } from "react";
 import { toProblem } from "@seij/common-types";
-import { appT } from "@/services/appI18n.tsx";
+import { appT } from "@medatarun/ui/services/appI18n.tsx";
 import { Logger } from "tslog";
 
 type ErrorBoundaryProps = PropsWithChildren;
