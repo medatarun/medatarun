@@ -58,6 +58,8 @@ import { ActionPerformerProvider } from "@medatarun/ui/components/business/actio
 import { ActionRegistryContext } from "@medatarun/ui/components/business/actions";
 import { InlineEditCoordinatorProvider } from "@medatarun/ui/components/core/inline-edit-coordinator";
 import { Logger } from "tslog";
+import { ApplicationConfigContext } from "@medatarun/ui/app-config";
+import { applicationConfigMedatarun } from "@medatarun/ui/app-medatarun";
 
 const logger = new Logger();
 
@@ -449,22 +451,24 @@ defaultConnection.reconfigure(apiConfig);
 
 function App() {
   return (
-    <SeijUIProvider>
-      <ActionRegistryContext.Provider value={actionRegistry}>
-        <ActionPerformerProvider performer={actionPerformer}>
-          <DetailLevelProvider>
-            <AuthenticationProvider {...authenticationConfig}>
-              <QueryClientProvider client={queryClient}>
-                <InlineEditCoordinatorProvider>
-                  <RouterProvider router={router} />
-                  <ReactQueryDevtools initialIsOpen={false} />
-                </InlineEditCoordinatorProvider>
-              </QueryClientProvider>
-            </AuthenticationProvider>
-          </DetailLevelProvider>
-        </ActionPerformerProvider>
-      </ActionRegistryContext.Provider>
-    </SeijUIProvider>
+    <ApplicationConfigContext.Provider value={applicationConfigMedatarun}>
+      <SeijUIProvider>
+        <ActionRegistryContext.Provider value={actionRegistry}>
+          <ActionPerformerProvider performer={actionPerformer}>
+            <DetailLevelProvider>
+              <AuthenticationProvider {...authenticationConfig}>
+                <QueryClientProvider client={queryClient}>
+                  <InlineEditCoordinatorProvider>
+                    <RouterProvider router={router} />
+                    <ReactQueryDevtools initialIsOpen={false} />
+                  </InlineEditCoordinatorProvider>
+                </QueryClientProvider>
+              </AuthenticationProvider>
+            </DetailLevelProvider>
+          </ActionPerformerProvider>
+        </ActionRegistryContext.Provider>
+      </SeijUIProvider>
+    </ApplicationConfigContext.Provider>
   );
 }
 
