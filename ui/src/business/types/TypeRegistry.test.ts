@@ -1,10 +1,13 @@
 import { describe, expect, test } from "vitest";
+import { TypeRegistry } from "@medatarun/ui/business/types/TypeRegistry.ts";
 import {
-  createRegistry,
-  TypeRegistry,
-} from "@medatarun/ui/business/types/TypeRegistry.ts";
-import { inspect_type_system_static } from "@medatarun/ui/business/types/inspect_type_system.static.ts";
+  inspect_type_system_static,
+  registeredTypes,
+} from "@medatarun/ui/app-medatarun";
 import { valid } from "@seij/common-validation";
+
+const createRegistry = () =>
+  new TypeRegistry(inspect_type_system_static.items, registeredTypes);
 
 describe("TypeRegistry", () => {
   test("that registry builds", () => {

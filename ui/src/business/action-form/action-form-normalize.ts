@@ -5,10 +5,7 @@ import {
 } from "../action-registry";
 import type { ActionPayload } from "../action-performer";
 import { isNil } from "lodash-es";
-import {
-  TypeRegistry,
-  TypeRegistryInstance,
-} from "@medatarun/ui/business/types/TypeRegistry.ts";
+import { TypeRegistry } from "@medatarun/ui/business/types/TypeRegistry.ts";
 import type { ActionFormData } from "./action-form-data";
 
 export function formDataNormalize(

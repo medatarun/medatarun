@@ -7,7 +7,7 @@ import {
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
-import { ActionRunnerPage } from "@medatarun/ui/views/actions/ActionRunnerPage.tsx";
+
 import { ModelListPage } from "@medatarun/ui/views/model/ModelListPage.tsx";
 import { ModelEditPage } from "@medatarun/ui/views/model/ModelEditPage.tsx";
 import { EntityEditPage } from "@medatarun/ui/views/entity/EntityEditPage.tsx";
@@ -31,7 +31,6 @@ import {
 } from "@seij/common-ui-auth";
 import { getOrDefault } from "@medatarun/ui/utils/getOrDefault.ts";
 import { DetailLevelProvider } from "@medatarun/ui/components/business/detail-level";
-import { PreferencesPage } from "@medatarun/ui/views/preferences/PreferencesPage.tsx";
 import { AttributeEditPage } from "@medatarun/ui/views/attribute/AttributeEditPage.tsx";
 import { TypeEditPage } from "@medatarun/ui/views/type/TypeEditPage.tsx";
 import { RelationshipEditPage } from "@medatarun/ui/views/relationship/RelationshipEditPage.tsx";
@@ -59,8 +58,14 @@ import { ApplicationConfigContext } from "@medatarun/ui/app-config";
 import {
   actionRegistryStatic,
   applicationConfigMedatarun,
+  inspect_type_system_static,
   type MedatarunDomainTypeMap,
+  registeredTypes,
 } from "@medatarun/ui/app-medatarun";
+import { TypeSystemContext } from "@medatarun/ui/components/business/type-system";
+import { TypeRegistry } from "@medatarun/ui/business/types/TypeRegistry.ts";
+import { modulePreferencesRoutes } from "@medatarun/ui/modules/preferences";
+import { moduleActionsRoutes } from "@medatarun/ui/modules/actions";
 
 const logger = new Logger();
 
@@ -116,9 +121,6 @@ function AuthenticationLogoutComponent() {
   return <AuthenticationLogoutView onClickHome={() => navigate({ to: "/" })} />;
 }
 
-function CommandsRouteComponent() {
-  return <ActionRunnerPage />;
-}
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function DashboardRouteComponent() {
   return <DashboardPage />;
@@ -165,10 +167,6 @@ function ModelRouteComponent() {
 function ModelHistoryRouteComponent() {
   const { modelId } = useParams({ from: "/model/$modelId/history" });
   return <ModelHistoryPage modelId={modelId} />;
-}
-
-function PreferencesRouteComponent() {
-  return <PreferencesPage />;
 }
 
 function RelationshipAttributeRouteComponent() {
@@ -298,12 +296,6 @@ const modelsRoute = createRoute({
   component: ModelsRouteComponent,
 });
 
-const commandsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/commands",
-  component: CommandsRouteComponent,
-});
-
 const modelRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/model/$modelId",
@@ -322,11 +314,6 @@ const modelHistoryRoute = createRoute({
   component: ModelHistoryRouteComponent,
 });
 
-const preferencesRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/preferences",
-  component: PreferencesRouteComponent,
-});
 const entityRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/model/$modelId/entity/$entityId",
@@ -393,7 +380,7 @@ const routeTree = rootRoute.addChildren([
   authenticationCallbackRoute,
   authenticationLoginRoute,
   authenticationLogoutRoute,
-  commandsRoute,
+  ...moduleActionsRoutes(rootRoute),
   dashboardRoute,
   entityAttributeRoute,
   entityRoute,
@@ -401,7 +388,7 @@ const routeTree = rootRoute.addChildren([
   modelHistoryRoute,
   modelRoute,
   modelsRoute,
-  preferencesRoute,
+  ...modulePreferencesRoutes(rootRoute),
   relationshipAttributeRoute,
   relationshipRoute,
   reportsRoute,
@@ -449,6 +436,10 @@ const apiConfig: ConnectionConfig = {
 };
 
 const actionRegistry: ActionRegistry = new ActionRegistry(actionRegistryStatic);
+const typeRegistry: TypeRegistry = new TypeRegistry(
+  inspect_type_system_static.items,
+  registeredTypes,
+);
 
 const actionPerformer: ActionPerformer = new ActionPerformer(
   actionRegistry,
@@ -462,20 +453,22 @@ function App() {
   return (
     <ApplicationConfigContext.Provider value={applicationConfigMedatarun}>
       <SeijUIProvider>
-        <ActionRegistryContext.Provider value={actionRegistry}>
-          <ActionPerformerProvider performer={actionPerformer}>
-            <DetailLevelProvider>
-              <AuthenticationProvider {...authenticationConfig}>
-                <QueryClientProvider client={queryClient}>
-                  <InlineEditCoordinatorProvider>
-                    <RouterProvider router={router} />
-                    <ReactQueryDevtools initialIsOpen={false} />
-                  </InlineEditCoordinatorProvider>
-                </QueryClientProvider>
-              </AuthenticationProvider>
-            </DetailLevelProvider>
-          </ActionPerformerProvider>
-        </ActionRegistryContext.Provider>
+        <TypeSystemContext.Provider value={typeRegistry}>
+          <ActionRegistryContext.Provider value={actionRegistry}>
+            <ActionPerformerProvider performer={actionPerformer}>
+              <DetailLevelProvider>
+                <AuthenticationProvider {...authenticationConfig}>
+                  <QueryClientProvider client={queryClient}>
+                    <InlineEditCoordinatorProvider>
+                      <RouterProvider router={router} />
+                      <ReactQueryDevtools initialIsOpen={false} />
+                    </InlineEditCoordinatorProvider>
+                  </QueryClientProvider>
+                </AuthenticationProvider>
+              </DetailLevelProvider>
+            </ActionPerformerProvider>
+          </ActionRegistryContext.Provider>
+        </TypeSystemContext.Provider>
       </SeijUIProvider>
     </ApplicationConfigContext.Provider>
   );

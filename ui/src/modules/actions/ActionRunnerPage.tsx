@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { type ActionResp } from "@medatarun/ui/business/action-performer";
 import { ActionRegistry } from "../../business/action-registry";
 import { ActionOutput } from "@medatarun/ui/components/business/actions/ActionOutput.tsx";
-import { SecurityRuleBadge } from "@medatarun/ui/views/actions/components/SecurityRuleBadge.tsx";
+import { SecurityRuleBadge } from "./SecurityRuleBadge.tsx";
 import { Markdown } from "@medatarun/ui/components/core/Markdown.tsx";
 import { MissingInformation } from "@medatarun/ui/components/core/MissingInformation.tsx";
 import { ViewLayoutContained } from "@medatarun/ui/components/layout/ViewLayoutContained.tsx";
