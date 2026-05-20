@@ -2,7 +2,7 @@ import type {
   TypeDeclaration,
   TypeDeclarationNormalizeCtx,
   TypeDeclarationValidateCtx,
-} from "./TypeDeclaration.ts";
+} from "@medatarun/ui/business/types/TypeDeclaration.ts";
 import {
   normalizeBoolean,
   normalizeId,
@@ -10,14 +10,13 @@ import {
   normalizeNone,
   normalizeRef,
   normalizeString,
-} from "./normalize_helpers.ts";
-import type { TagScopeRef, TagSearchFilters } from "@medatarun/ui/business/tag";
+} from "@medatarun/ui/business/types/normalize_helpers.ts";
 import {
   validateBoolean,
   validateKey,
   validateRef,
   validateString,
-} from "./validate_helpers.ts";
+} from "@medatarun/ui/business/types/validate_helpers.ts";
 import { valid } from "@seij/common-validation";
 import type { ModelDiffScopeCode } from "@medatarun/ui/business/model";
 

@@ -40,7 +40,6 @@ import type {
   ActionPerformerInputProps,
 } from "./inputs/ActionPerformerInputProps.tsx";
 import { ActionPerformerInputList } from "./inputs/ActionPerformerInputList.tsx";
-import { TypeRegistryInstance } from "@medatarun/ui/business/types/TypeRegistry.ts";
 import {
   ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE,
   ACTION_PERFORMER_INPUT_DEFAULT_COMPONENT,
@@ -49,6 +48,8 @@ import { useActionPerformer } from "@medatarun/ui/components/business/actions/ac
 import { useActionRegistry } from "@medatarun/ui/components/business/actions/action_registry.hooks.ts";
 import { Markdown } from "@medatarun/ui/components/core/Markdown.tsx";
 import { Logger } from "tslog";
+import { useTypeRegistry } from "@medatarun/ui/components/business/type-system";
+import type { TypeRegistry } from "@medatarun/ui/business/types/TypeRegistry.ts";
 
 const DEBUG = false;
 const logger = new Logger();
@@ -106,14 +107,12 @@ export function ActionPerformerViewLoaded({
   const actionRegistry = useActionRegistry();
   const { confirmAction, cancelAction, finishAction, performer } =
     useActionPerformer();
+  const { typeRegistry } = useTypeRegistry();
   const [actionResp, setActionResp] = useState<ActionResp | null>(null);
   const [formData, setFormData] = useState<ActionFormData>(defaultFormData);
   const firstInputRef = useRef<ActionPerformerInputElement>(null);
 
-  const formService = new ActionFormService(
-    TypeRegistryInstance,
-    actionRegistry,
-  );
+  const formService = new ActionFormService(typeRegistry, actionRegistry);
 
   const displayExecute = state.kind == "pendingUser" || state.kind == "error";
   const displayCancel =
@@ -212,6 +211,7 @@ export function ActionPerformerViewLoaded({
                     }
                     request={request}
                     field={field}
+                    typeRegistry={typeRegistry}
                     value={formData[field.key]}
                     validationResult={validationResults.get(field.key)}
                     onChange={handleChangeFormFieldInput}
@@ -263,6 +263,7 @@ export function ActionPerformerViewLoaded({
 function FormFieldInput({
   request,
   field,
+  typeRegistry,
   value,
   validationResult,
   inputRef,
@@ -270,6 +271,7 @@ function FormFieldInput({
 }: {
   request: ActionRequest;
   field: ActionFormFieldDescription;
+  typeRegistry: TypeRegistry;
   value: unknown;
   validationResult: ValidationResult | undefined;
   onChange: (field: ActionFormFieldDescription, value: unknown) => void;
@@ -293,7 +295,7 @@ function FormFieldInput({
     onValueChange: (nextValue) => onChange(field, nextValue),
   };
 
-  const fieldType = TypeRegistryInstance.typeDecode(field.type);
+  const fieldType = typeRegistry.typeDecode(field.type);
   const InputComponent =
     ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE[fieldType.type] ??
     ACTION_PERFORMER_INPUT_DEFAULT_COMPONENT;

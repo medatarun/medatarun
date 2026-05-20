@@ -1,6 +1,4 @@
 import type { TypeDescriptorDto } from "./TypeDescriptorDto.ts";
-import { inspect_type_system_static } from "./inspect_type_system.static.ts";
-import { registeredTypes } from "./types.ts";
 import type {
   TypeDeclaration,
   TypeDeclarationNormalizeCtx,
@@ -138,9 +136,3 @@ export class TypeRegistry {
     return invalid(t("formValidation_unsupportedType", { type: type }));
   }
 }
-
-export function createRegistry(): TypeRegistry {
-  return new TypeRegistry(inspect_type_system_static.items, registeredTypes);
-}
-
-export const TypeRegistryInstance: TypeRegistry = createRegistry();
