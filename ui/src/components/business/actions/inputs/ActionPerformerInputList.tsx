@@ -6,11 +6,8 @@ import {
   DismissRegular,
 } from "@fluentui/react-icons";
 import type { ActionPerformerInputProps } from "./ActionPerformerInputProps.tsx";
-import { useState } from "react";
-import {
-  ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE,
-  ACTION_PERFORMER_INPUT_DEFAULT_COMPONENT,
-} from "./ActionPerformerInputRegistry.ts";
+import { createElement, useState } from "react";
+import { useActionPerformerInputRegistry } from "@medatarun/ui/components/business/actions/action-performer-input-registry-hooks.ts";
 
 function normalizeListValue(value: unknown): unknown[] {
   return Array.isArray(value) ? value : [];
@@ -38,11 +35,11 @@ export function ActionPerformerInputList({
 }: ActionPerformerInputProps<unknown[]> & {
   inputType: string;
 }) {
+  const { actionPerformerRegistry } = useActionPerformerInputRegistry();
   const values = normalizeListValue(value);
   const [draftValue, setDraftValue] = useState<unknown>(null);
   const InputComponent =
-    ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE[inputType] ??
-    ACTION_PERFORMER_INPUT_DEFAULT_COMPONENT;
+    actionPerformerRegistry.findComponentByTypeOrDefault(inputType);
 
   const moveItem = (fromIndex: number, toIndex: number) => {
     if (toIndex < 0 || toIndex >= values.length) return;
@@ -90,13 +87,13 @@ export function ActionPerformerInputList({
       >
         <div style={{ flexGrow: 1 }}>
           <Field>
-            <InputComponent
-              request={request}
-              inputRef={inputRef}
-              value={draftValue}
-              disabled={disabled}
-              onValueChange={setDraftValue}
-            />
+            {createElement(InputComponent, {
+              request: request,
+              inputRef: inputRef,
+              value: draftValue,
+              disabled: disabled,
+              onValueChange: setDraftValue,
+            })}
           </Field>
         </div>
         <Button
@@ -129,13 +126,13 @@ export function ActionPerformerInputList({
           />
           <div style={{ flexGrow: 1 }}>
             <Field>
-              <InputComponent
-                request={request}
-                inputRef={undefined}
-                value={itemValue}
-                disabled={disabled}
-                onValueChange={(nextValue) => updateItem(index, nextValue)}
-              />
+              {createElement(InputComponent, {
+                request: request,
+                inputRef: undefined,
+                value: itemValue,
+                disabled: disabled,
+                onValueChange: (nextValue) => updateItem(index, nextValue),
+              })}
             </Field>
           </div>
           <Button

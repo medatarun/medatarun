@@ -57,6 +57,7 @@ import { Logger } from "tslog";
 import { ApplicationConfigContext } from "@medatarun/ui/app-config";
 import {
   actionRegistryStatic,
+  ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE,
   applicationConfigMedatarun,
   inspect_type_system_static,
   type MedatarunDomainTypeMap,
@@ -66,6 +67,8 @@ import { TypeSystemContext } from "@medatarun/ui/components/business/type-system
 import { TypeRegistry } from "@medatarun/ui/business/types/TypeRegistry.ts";
 import { modulePreferencesRoutes } from "@medatarun/ui/modules/preferences";
 import { moduleActionsRoutes } from "@medatarun/ui/modules/actions";
+import { ActionPerformerInputRegistry } from "@medatarun/ui/components/business/actions/inputs/ActionPerformerInputRegistry.ts";
+import { ActionPerformerInputRegistryContext } from "@medatarun/ui/components/business/actions/action-performer-input-registry-context.ts";
 
 const logger = new Logger();
 
@@ -436,6 +439,8 @@ const apiConfig: ConnectionConfig = {
 };
 
 const actionRegistry: ActionRegistry = new ActionRegistry(actionRegistryStatic);
+const actionPerformerInputRegistry: ActionPerformerInputRegistry =
+  new ActionPerformerInputRegistry(ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE);
 const typeRegistry: TypeRegistry = new TypeRegistry(
   inspect_type_system_static.items,
   registeredTypes,
@@ -455,18 +460,22 @@ function App() {
       <SeijUIProvider>
         <TypeSystemContext.Provider value={typeRegistry}>
           <ActionRegistryContext.Provider value={actionRegistry}>
-            <ActionPerformerProvider performer={actionPerformer}>
-              <DetailLevelProvider>
-                <AuthenticationProvider {...authenticationConfig}>
-                  <QueryClientProvider client={queryClient}>
-                    <InlineEditCoordinatorProvider>
-                      <RouterProvider router={router} />
-                      <ReactQueryDevtools initialIsOpen={false} />
-                    </InlineEditCoordinatorProvider>
-                  </QueryClientProvider>
-                </AuthenticationProvider>
-              </DetailLevelProvider>
-            </ActionPerformerProvider>
+            <ActionPerformerInputRegistryContext.Provider
+              value={actionPerformerInputRegistry}
+            >
+              <ActionPerformerProvider performer={actionPerformer}>
+                <DetailLevelProvider>
+                  <AuthenticationProvider {...authenticationConfig}>
+                    <QueryClientProvider client={queryClient}>
+                      <InlineEditCoordinatorProvider>
+                        <RouterProvider router={router} />
+                        <ReactQueryDevtools initialIsOpen={false} />
+                      </InlineEditCoordinatorProvider>
+                    </QueryClientProvider>
+                  </AuthenticationProvider>
+                </DetailLevelProvider>
+              </ActionPerformerProvider>
+            </ActionPerformerInputRegistryContext.Provider>
           </ActionRegistryContext.Provider>
         </TypeSystemContext.Provider>
       </SeijUIProvider>
