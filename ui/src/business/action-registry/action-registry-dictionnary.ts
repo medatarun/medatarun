@@ -1,4 +1,4 @@
-import { actionRegistryStatic } from "./action-registry-static";
+import type { RegisteredActionRegistry } from "@medatarun/ui/business/action-registry";
 import type { DomainTypeMap } from "./action-registry-domain-types.ts";
 
 /**
@@ -11,9 +11,9 @@ type EmptyObject = Record<string, never>;
  * Single action descriptor type inferred from the static registry.
  * This keeps all derived types synchronized with backend-generated metadata.
  */
-type RegistryItem = (typeof actionRegistryStatic.items)[number];
+type RegistryItem = RegisteredActionRegistry["items"][number];
 
-type ActionItem = (typeof actionRegistryStatic.items)[number];
+type ActionItem = RegisteredActionRegistry["items"][number];
 
 /**
  * Union of all action keys declared in the static registry.
