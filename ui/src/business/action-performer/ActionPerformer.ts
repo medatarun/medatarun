@@ -6,10 +6,12 @@ import {
 } from "./action-execute-internal.ts";
 import type { ActionPayload, ActionResp } from "./action-types.ts";
 import type { QueryClient } from "@tanstack/react-query";
-import { actionPostCacheManagement } from "@medatarun/ui/business/action-performer/action-post-caches.ts";
-import { actionPostNavigate } from "@medatarun/ui/business/action-performer/action-post-navigate.ts";
 import type { NavigateFn } from "@tanstack/react-router";
 import { throwError } from "@seij/common-types";
+import type {
+  ActionPostCacheManagement,
+  ActionPostNavigate,
+} from "@medatarun/ui/business/action-performer/action-post.ts";
 
 export type ActionPerformerFormData = Record<string, unknown>;
 
@@ -39,15 +41,23 @@ export class ActionPerformer {
   private queryClient: QueryClient;
   private navigate: NavigateFn;
   private nextRequestSequence = 0;
+  private actionPostCacheManagement: ActionPostCacheManagement[];
+  private actionPostNavigate: ActionPostNavigate[];
 
   constructor(
     actionRegistry: ActionRegistry,
     queryClient: QueryClient,
     navigate: NavigateFn,
+    config: {
+      actionPostCacheManagement: ActionPostCacheManagement[];
+      actionPostNavigate: ActionPostNavigate[];
+    },
   ) {
     this.actionRegistry = actionRegistry;
     this.queryClient = queryClient;
     this.navigate = navigate;
+    this.actionPostCacheManagement = config.actionPostCacheManagement;
+    this.actionPostNavigate = config.actionPostNavigate;
   }
 
   subscribe(listener: Listener) {
@@ -153,16 +163,20 @@ export class ActionPerformer {
   resolveNavigationAfterSuccess(context: { request: ActionRequest }): void {
     const displayedSubject = context.request.ctx.displayedSubject;
     if (displayedSubject.kind == "none") return;
-    actionPostNavigate({
-      action:
-        this.actionRegistry.findActionDescriptorOptional(
-          context.request.actionRef,
-        ) ??
-        throwError("Action not found in registry " + context.request.actionRef),
-      request: context.request,
-      navigate: this.navigate,
-      displayedSubject: context.request.ctx.displayedSubject,
-    });
+    this.actionPostNavigate.forEach((n) =>
+      n({
+        action:
+          this.actionRegistry.findActionDescriptorOptional(
+            context.request.actionRef,
+          ) ??
+          throwError(
+            "Action not found in registry " + context.request.actionRef,
+          ),
+        request: context.request,
+        navigate: this.navigate,
+        displayedSubject: context.request.ctx.displayedSubject,
+      }),
+    );
   }
 
   /**
@@ -180,10 +194,8 @@ export class ActionPerformer {
    * - Returning true does not stop other matching hooks from running.
    */
   private async onActionSuccess(request: ActionRequest) {
-    return actionPostCacheManagement(
-      request.actionRef as ActionKey,
-      this.queryClient,
-      this.actionRegistry,
+    return this.actionPostCacheManagement.forEach((n) =>
+      n(request.actionRef as ActionKey, this.queryClient, this.actionRegistry),
     );
   }
 }
