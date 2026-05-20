@@ -36,7 +36,8 @@ import java.net.URI
  */
 class AppHttpServer(
     private val publicBaseUrl: URI,
-    private val services: AppHttpServerServices
+    private val services: AppHttpServerServices,
+    private val configureRouting: Routing.(services: AppHttpServerServices) -> Unit = {}
 ) {
 
     private val mcpServerBuilder = McpServerBuilder(
@@ -127,6 +128,8 @@ class AppHttpServer(
 
 
             installHealth()
+
+            configureRouting(services)
 
         }
     }
