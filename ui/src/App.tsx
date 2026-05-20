@@ -56,8 +56,10 @@ import { InlineEditCoordinatorProvider } from "@medatarun/ui/components/core/inl
 import { Logger } from "tslog";
 import { ApplicationConfigContext } from "@medatarun/ui/app-config";
 import {
-  actionRegistryStatic,
   ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE,
+  actionPostCacheManagementMedatarun,
+  actionPostNavigateMedatarun,
+  actionRegistryStatic,
   applicationConfigMedatarun,
   inspect_type_system_static,
   type MedatarunDomainTypeMap,
@@ -450,6 +452,10 @@ const actionPerformer: ActionPerformer = new ActionPerformer(
   actionRegistry,
   queryClient,
   router.navigate,
+  {
+    actionPostCacheManagement: [actionPostCacheManagementMedatarun],
+    actionPostNavigate: [actionPostNavigateMedatarun],
+  },
 );
 
 defaultConnection.reconfigure(apiConfig);

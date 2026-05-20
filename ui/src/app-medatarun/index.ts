@@ -7,6 +7,8 @@ export * from "./action-registry-domain-types.ts";
 export * from "./action-performer-input-components.ts";
 export * from "./inspect_type_system.static.ts";
 export * from "./registered-types.ts";
+export { actionPostNavigateMedatarun } from "./action-post-navigate.ts";
+export { actionPostCacheManagementMedatarun } from "./action-post-caches.ts";
 
 export const applicationConfigMedatarun: ApplicationConfig = {
   applicationName: "Medatarun",

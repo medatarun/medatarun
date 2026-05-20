@@ -1,6 +1,6 @@
 import type { QueryClient, QueryKey } from "@tanstack/react-query";
-import type { ActionKey } from "../action-registry";
-import { ActionDescriptor, ActionRegistry } from "../action-registry";
+import type { ActionKey } from "../business/action-registry";
+import { ActionDescriptor, ActionRegistry } from "../business/action-registry";
 import { ACTION_AUTH_QUERY_KEY_USER_LIST } from "@medatarun/ui/components/business/auth-user";
 
 /**
@@ -11,7 +11,7 @@ import { ACTION_AUTH_QUERY_KEY_USER_LIST } from "@medatarun/ui/components/busine
  * change, ...) The caches of matching subjects must be discared so the
  * screen can be refreshed.
  */
-export async function actionPostCacheManagement(
+export async function actionPostCacheManagementMedatarun(
   actionKey: ActionKey,
   queryClient: QueryClient,
   actionRegistry: ActionRegistry,

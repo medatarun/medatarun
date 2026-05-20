@@ -2,15 +2,15 @@ import type {
   ActionDisplayedSubject,
   ActionDisplayedSubjectResource,
   ActionRequest,
-} from "@medatarun/ui/business/action-performer/index.ts";
+} from "@medatarun/ui/business/action-performer";
 import type { NavigateFn } from "@tanstack/react-router";
-import type { ActionDescriptor } from "../action-registry";
+import type { ActionDescriptor } from "../business/action-registry";
 
 /**
  * Called after an action was successfully completed and the action state is done.
  * This acts as a navigation side effect handler.
  */
-export const actionPostNavigate = (context: {
+export const actionPostNavigateMedatarun = (context: {
   action: ActionDescriptor;
   request: ActionRequest;
   displayedSubject: ActionDisplayedSubject;
