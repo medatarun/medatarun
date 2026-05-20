@@ -12,7 +12,7 @@ import {
   type LabelProps,
   tokens,
 } from "@fluentui/react-components";
-import { type Ref, useEffect, useRef, useState } from "react";
+import { createElement, type Ref, useEffect, useRef, useState } from "react";
 import { ActionOutputBox } from "./ActionOutput.tsx";
 import {
   type ActionCtx,
@@ -40,16 +40,13 @@ import type {
   ActionPerformerInputProps,
 } from "./inputs/ActionPerformerInputProps.tsx";
 import { ActionPerformerInputList } from "./inputs/ActionPerformerInputList.tsx";
-import {
-  ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE,
-  ACTION_PERFORMER_INPUT_DEFAULT_COMPONENT,
-} from "./inputs/ActionPerformerInputRegistry.ts";
 import { useActionPerformer } from "@medatarun/ui/components/business/actions/action-performer-hook.tsx";
 import { useActionRegistry } from "@medatarun/ui/components/business/actions/action_registry.hooks.ts";
 import { Markdown } from "@medatarun/ui/components/core/Markdown.tsx";
 import { Logger } from "tslog";
 import { useTypeRegistry } from "@medatarun/ui/components/business/type-system";
 import type { TypeRegistry } from "@medatarun/ui/business/types/TypeRegistry.ts";
+import { useActionPerformerInputRegistry } from "@medatarun/ui/components/business/actions/action-performer-input-registry-hooks.ts";
 
 const DEBUG = false;
 const logger = new Logger();
@@ -277,6 +274,7 @@ function FormFieldInput({
   onChange: (field: ActionFormFieldDescription, value: unknown) => void;
   inputRef?: Ref<ActionPerformerInputElement>;
 }) {
+  const { actionPerformerRegistry } = useActionPerformerInputRegistry();
   const valueNormalized = value === null || value === undefined ? null : value;
   const validationState: FieldProps["validationState"] =
     validationResult === undefined
@@ -296,9 +294,9 @@ function FormFieldInput({
   };
 
   const fieldType = typeRegistry.typeDecode(field.type);
-  const InputComponent =
-    ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE[fieldType.type] ??
-    ACTION_PERFORMER_INPUT_DEFAULT_COMPONENT;
+  const InputComponent = actionPerformerRegistry.findComponentByTypeOrDefault(
+    fieldType.type,
+  );
 
   return (
     <div>
@@ -330,7 +328,7 @@ function FormFieldInput({
             inputType={fieldType.type}
           />
         ) : (
-          <InputComponent {...inputProps} />
+          createElement(InputComponent, inputProps)
         )}
       </Field>
     </div>

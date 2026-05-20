@@ -1,4 +1,6 @@
 export * from "./action-performer-hook.tsx";
+export * from "./action-performer-input-registry-context.ts";
+export * from "./action-performer-input-registry-hooks.ts";
 export * from "./action_registry.context.ts";
 export * from "./action_registry.hooks.ts";
 export * from "./ActionMenuButton.tsx";
