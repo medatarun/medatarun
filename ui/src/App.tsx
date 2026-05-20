@@ -49,17 +49,18 @@ import { AdminActorListPage } from "@medatarun/ui/views/admin-actors/AdminActorL
 import { AdminActorEditPage } from "@medatarun/ui/views/admin-actors/AdminActorEditPage.tsx";
 import { AdminUserListPage } from "@medatarun/ui/views/admin-users/AdminUserListPage.tsx";
 import { AdminUserEditPage } from "@medatarun/ui/views/admin-users/AdminUserEditPage.tsx";
-import {
-  ActionRegistry,
-  actionRegistryStatic,
-} from "./business/action-registry";
+import { ActionRegistry } from "@medatarun/ui/business/action-registry";
 import { ActionPerformer } from "@medatarun/ui/business/action-performer";
 import { ActionPerformerProvider } from "@medatarun/ui/components/business/actions/ActionPerformerProvider.tsx";
 import { ActionRegistryContext } from "@medatarun/ui/components/business/actions";
 import { InlineEditCoordinatorProvider } from "@medatarun/ui/components/core/inline-edit-coordinator";
 import { Logger } from "tslog";
 import { ApplicationConfigContext } from "@medatarun/ui/app-config";
-import { applicationConfigMedatarun } from "@medatarun/ui/app-medatarun";
+import {
+  actionRegistryStatic,
+  applicationConfigMedatarun,
+  type MedatarunDomainTypeMap,
+} from "@medatarun/ui/app-medatarun";
 
 const logger = new Logger();
 
@@ -420,6 +421,14 @@ declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;
   }
+}
+
+declare module "@medatarun/ui/business/action-registry" {
+  interface ActionRegistryRegister {
+    registry: typeof actionRegistryStatic;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface DomainTypeMap extends MedatarunDomainTypeMap {}
 }
 
 const baseURL = getOrDefault(

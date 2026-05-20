@@ -11,7 +11,7 @@ def main() -> None:
     script_dir = Path(__file__).resolve().parent
     target_file = (
         script_dir.parent.parent.parent
-        / "ui/src/business/action-registry/action-registry-static.ts"
+        / "ui/src/app-medatarun/action-registry-static.ts"
     )
 
     items_json = json.dumps(items, indent=2, ensure_ascii=False, )

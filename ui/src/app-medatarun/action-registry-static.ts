@@ -1,4 +1,4 @@
-import type { ActionRegistryDto } from "./action-registry-dto.ts";
+import type { ActionRegistryDto } from "@medatarun/ui/business/action-registry";
 
 /** This file is auto-generated from the ActionRegistry backend. Do not modify.*/
 export const actionRegistryStatic = {
