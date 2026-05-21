@@ -5,6 +5,7 @@ import com.github.f4b6a3.uuid.util.UuidUtil
 import com.github.f4b6a3.uuid.enums.UuidVersion
 import com.github.f4b6a3.uuid.exception.InvalidUuidException
 import com.github.f4b6a3.uuid.util.UuidValidator
+import io.medatarun.lang.exceptions.MedatarunUserException
 import java.time.Instant
 import java.util.*
 
@@ -32,7 +33,9 @@ object UuidUtils {
                 uuid,
                 UuidVersion.VERSION_TIME_ORDERED_EPOCH.value
             )
-        ) throw InvalidUuidException(value)
+        ) throw InvalidUUIDv7Exception(value)
         return uuid
     }
+
+    class InvalidUUIDv7Exception(value: String): MedatarunUserException("Invalid uuid v7: [$value]")
 }
