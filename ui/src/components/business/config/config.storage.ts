@@ -9,6 +9,7 @@ export const useSecurityRuleDescriptions = () => {
   const { performer } = useActionPerformer();
   return useQuery({
     queryKey: ["action", "config", "inspect_security_rules"],
+    staleTime: Infinity,
     queryFn: async () =>
       (
         await performer.executeJson<SecurityRulesDescriptionsResp>(

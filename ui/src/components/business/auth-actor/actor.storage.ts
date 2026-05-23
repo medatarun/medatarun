@@ -26,6 +26,7 @@ export const useWhoami = (issuer: string | null, subject: string | null) => {
   const { performer } = useActionPerformer();
   return useQuery({
     queryKey: ["whoami", issuer, subject],
+    staleTime: Infinity,
     queryFn: async () => {
       if (!issuer || !subject) return null;
       return performer.executeJson<WhoAmIRespDto>("auth/whoami", {});
