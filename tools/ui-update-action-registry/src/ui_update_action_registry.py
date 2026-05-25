@@ -22,7 +22,7 @@ def write_action_registry(base_url: str, target_file: Path) -> None:
         "\n"
         "/** This file is auto-generated from the ActionRegistry backend. Do not modify.*/"
         "\n"
-        f"export const actionRegistryStatic = {items_json} as const satisfies ActionRegistryDto;\n"
+        f"export const prefetch_inspect_action_registry_all = {items_json} as const satisfies ActionRegistryDto;\n"
     )
 
     target_file.write_text(content, encoding="utf-8")
@@ -36,7 +36,7 @@ def write_inspect_type_system(base_url: str, target_file: Path) -> None:
         "\n"
         "/** This file is auto-generated from the TypeDescriptor backend. Do not modify.*/"
         "\n"
-        f"export const inspect_type_system_static: {{ items: TypeDescriptorDto[] }} = {type_system_json};\n"
+        f"export const prefetch_inspect_type_system: {{ items: TypeDescriptorDto[] }} = {type_system_json};\n"
     )
 
     target_file.write_text(content, encoding="utf-8")
@@ -48,11 +48,11 @@ def main() -> None:
     base_url = "http://localhost:8080/api/"
     write_action_registry(
         base_url,
-        repo_dir / "ui/src/app-medatarun/action-registry-static.ts",
+        repo_dir / "ui/src/app-medatarun/generated-action-registry.ts",
     )
     write_inspect_type_system(
         base_url,
-        repo_dir / "ui/src/app-medatarun/inspect_type_system.static.ts",
+        repo_dir / "ui/src/app-medatarun/generated-type-system.ts",
     )
 
 

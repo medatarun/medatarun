@@ -1,11 +1,11 @@
 import type { ApplicationConfig } from "@medatarun/ui/app-config";
-import { useMedatarunMenu } from "@medatarun/ui/app-medatarun/menu.tsx";
+import { useMedatarunMenu } from "./menu.tsx";
 
 export * from "./menu.tsx";
-export * from "./action-registry-static.ts";
+export * from "./generated-action-registry.ts";
 export * from "./action-registry-domain-types.ts";
 export * from "./action-performer-input-components.ts";
-export * from "./inspect_type_system.static.ts";
+export * from "./generated-type-system.ts";
 export * from "./registered-types.ts";
 export { actionPostNavigateMedatarun } from "./action-post-navigate.ts";
 export { actionPostCacheManagementMedatarun } from "./action-post-caches.ts";
