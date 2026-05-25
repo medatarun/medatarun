@@ -46,13 +46,15 @@ def main() -> None:
     script_dir = Path(__file__).resolve().parent
     repo_dir = script_dir.parent.parent.parent
     base_url = "http://localhost:8080/api/"
+    app_name = "medatarun"
+
     write_action_registry(
         base_url,
-        repo_dir / "ui/src/app-medatarun/generated-action-registry.ts",
+        repo_dir / f"ui/src/app-{app_name}/generated-action-registry.ts",
     )
     write_inspect_type_system(
         base_url,
-        repo_dir / "ui/src/app-medatarun/generated-type-system.ts",
+        repo_dir / f"ui/src/app-{app_name}/generated-type-system.ts",
     )
 
 
