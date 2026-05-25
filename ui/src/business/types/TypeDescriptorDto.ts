@@ -14,4 +14,10 @@ export interface TypeDescriptorDto {
    * Textual description of the type
    */
   description: string;
+  /**
+   * Possible values when this type is an enum.
+   *
+   * Null if it is not an enum.
+   */
+  enumValues: string[] | null;
 }
