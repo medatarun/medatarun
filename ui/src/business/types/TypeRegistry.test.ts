@@ -1,13 +1,13 @@
 import { describe, expect, test } from "vitest";
 import { TypeRegistry } from "@medatarun/ui/business/types/TypeRegistry.ts";
 import {
-  inspect_type_system_static,
+  prefetch_inspect_type_system,
   registeredTypes,
 } from "@medatarun/ui/app-medatarun";
 import { valid } from "@seij/common-validation";
 
 const createRegistry = () =>
-  new TypeRegistry(inspect_type_system_static.items, registeredTypes);
+  new TypeRegistry(prefetch_inspect_type_system.items, registeredTypes);
 
 describe("TypeRegistry", () => {
   test("that registry builds", () => {
@@ -24,7 +24,7 @@ describe("TypeRegistry", () => {
   });
   test("that registry backend types have TypeDeclaration equivalent", () => {
     const r: TypeRegistry = createRegistry();
-    for (const item of inspect_type_system_static.items) {
+    for (const item of prefetch_inspect_type_system.items) {
       expect(
         r.findTypeByIdOptional(item.id),
         `type [${item.id}]`,
@@ -33,7 +33,7 @@ describe("TypeRegistry", () => {
   });
   test("that registry all TypeDeclaration have a backend type equivalent", () => {
     const r: TypeRegistry = createRegistry();
-    for (const item of inspect_type_system_static.items) {
+    for (const item of prefetch_inspect_type_system.items) {
       expect(r.findDtoByIdOptional(item.id), `type [${item.id}]`).toBeDefined();
     }
   });

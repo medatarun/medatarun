@@ -59,9 +59,9 @@ import {
   ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE,
   actionPostCacheManagementMedatarun,
   actionPostNavigateMedatarun,
-  actionRegistryStatic,
+  prefetch_inspect_action_registry_all,
   applicationConfigMedatarun,
-  inspect_type_system_static,
+  prefetch_inspect_type_system,
   type MedatarunDomainTypeMap,
   registeredTypes,
 } from "@medatarun/ui/app-medatarun";
@@ -417,7 +417,7 @@ declare module "@tanstack/react-router" {
 
 declare module "@medatarun/ui/business/action-registry" {
   interface ActionRegistryRegister {
-    registry: typeof actionRegistryStatic;
+    registry: typeof prefetch_inspect_action_registry_all;
   }
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface DomainTypeMap extends MedatarunDomainTypeMap {}
@@ -440,11 +440,13 @@ const apiConfig: ConnectionConfig = {
   getApiAccessToken: authenticationConfig.getCurrentAccessToken,
 };
 
-const actionRegistry: ActionRegistry = new ActionRegistry(actionRegistryStatic);
+const actionRegistry: ActionRegistry = new ActionRegistry(
+  prefetch_inspect_action_registry_all,
+);
 const actionPerformerInputRegistry: ActionPerformerInputRegistry =
   new ActionPerformerInputRegistry(ACTION_PERFORMER_INPUT_COMPONENTS_BY_TYPE);
 const typeRegistry: TypeRegistry = new TypeRegistry(
-  inspect_type_system_static.items,
+  prefetch_inspect_type_system.items,
   registeredTypes,
 );
 

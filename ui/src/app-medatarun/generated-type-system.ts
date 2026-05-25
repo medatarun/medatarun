@@ -1,7 +1,7 @@
 import type { TypeDescriptorDto } from "@medatarun/ui/business/types/TypeDescriptorDto.ts";
 
 /** This file is auto-generated from the TypeDescriptor backend. Do not modify.*/
-export const inspect_type_system_static: { items: TypeDescriptorDto[] } = {
+export const prefetch_inspect_type_system: { items: TypeDescriptorDto[] } = {
   items: [
     {
       id: "TextMarkdown",

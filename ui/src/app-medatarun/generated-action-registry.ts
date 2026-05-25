@@ -1,7 +1,7 @@
 import type { ActionRegistryDto } from "@medatarun/ui/business/action-registry";
 
 /** This file is auto-generated from the ActionRegistry backend. Do not modify.*/
-export const actionRegistryStatic = {
+export const prefetch_inspect_action_registry_all = {
   items: [
     {
       actionRef: "batch/batch_run",
