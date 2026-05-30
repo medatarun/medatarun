@@ -3,7 +3,6 @@ package io.medatarun.model.infra.db
 import io.medatarun.model.domain.BusinessKeyId
 import io.medatarun.model.domain.BusinessKeyKey
 import io.medatarun.model.domain.ModelId
-import io.medatarun.model.infra.db.ModelEventJsonCodecTest.CmdTestCase
 import io.medatarun.model.ports.needs.ModelStorageCmd.BusinessKeyUpdateKey
 import org.intellij.lang.annotations.Language
 

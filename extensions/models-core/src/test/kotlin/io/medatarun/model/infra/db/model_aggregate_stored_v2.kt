@@ -1,7 +1,6 @@
 package io.medatarun.model.infra.db
 
 import io.medatarun.model.domain.*
-import io.medatarun.model.infra.db.ModelEventJsonCodecTest.CmdTestCase
 import io.medatarun.model.ports.needs.*
 import io.medatarun.type.commons.text.TextMarkdown
 import io.medatarun.type.commons.text.TextSingleLine
