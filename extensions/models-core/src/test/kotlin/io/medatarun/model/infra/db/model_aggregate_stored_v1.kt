@@ -7,7 +7,7 @@ import io.medatarun.type.commons.text.TextSingleLine
 import org.intellij.lang.annotations.Language
 import java.net.URL
 
-val model_aggregate_stored_v1 = ModelEventJsonCodecTest.CmdTestCase(
+val model_aggregate_stored_v1 = CmdTestCase(
     eventType = "model_aggregate_stored",
     eventVersion = 1,
     cmd = sampleStoreModelAggregateOld(),

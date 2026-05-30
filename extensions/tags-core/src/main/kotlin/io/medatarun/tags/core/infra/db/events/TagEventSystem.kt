@@ -12,7 +12,7 @@ class TagEventSystem {
     private val registryEntries = StorageEventRegistryBuilder<TagStorageCmd>()
         .build(TagStorageCmd::class)
 
-    private val storageEventRegistry: StorageEventRegistry<TagStorageCmd> =
+    val registry: StorageEventRegistry<TagStorageCmd> =
         StorageEventRegistry("TagEventRegistry", registryEntries)
 
     val jsonSerializer = Json {
@@ -22,7 +22,7 @@ class TagEventSystem {
         serializersModule = TagsJsonSerializers.module()
     }
     val codec: StorageEventJsonCodec<TagStorageCmd> =
-        StorageEventJsonCodec(registry = storageEventRegistry, json = jsonSerializer)
+        StorageEventJsonCodec(registry = registry, json = jsonSerializer)
 
     val recordFactory = TagEventRecordFactory(codec)
 

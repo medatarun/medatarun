@@ -7,7 +7,6 @@ import io.medatarun.model.domain.EntityId
 import io.medatarun.type.commons.text.TextMarkdown
 import io.medatarun.type.commons.text.TextSingleLine
 import io.medatarun.model.domain.ModelId
-import io.medatarun.model.infra.db.ModelEventJsonCodecTest.CmdTestCase
 import io.medatarun.model.ports.needs.ModelStorageCmd.BusinessKeyCreate
 import org.intellij.lang.annotations.Language
 

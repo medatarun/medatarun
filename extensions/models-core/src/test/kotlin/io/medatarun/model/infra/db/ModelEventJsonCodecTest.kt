@@ -1,116 +1,30 @@
 package io.medatarun.model.infra.db
 
 import io.medatarun.model.domain.*
-import io.medatarun.model.domain.AttributeId
-import io.medatarun.model.domain.EntityId
-import io.medatarun.type.commons.text.TextMarkdown
-import io.medatarun.type.commons.text.TextSingleLine
-import io.medatarun.model.domain.ModelId
-import io.medatarun.model.domain.RelationshipId
-import io.medatarun.model.domain.RelationshipRoleId
-import io.medatarun.model.domain.TypeId
 import io.medatarun.model.infra.db.events.ModelEventSystem
 import io.medatarun.model.ports.needs.*
-import io.medatarun.storage.eventsourcing.StorageEventEncoded
-import io.medatarun.storage.eventsourcing.StorageEventUnknownContractException
+import io.medatarun.storage.eventsourcing.testkit.StorageCmdJsonCodecTestBase
+import io.medatarun.storage.eventsourcing.testkit.StorageCmdTestCase
 import io.medatarun.tags.core.domain.TagId
-import kotlinx.serialization.json.Json
-import org.intellij.lang.annotations.Language
+import io.medatarun.type.commons.text.TextMarkdown
+import io.medatarun.type.commons.text.TextSingleLine
 import java.net.URI
 import java.net.URL
-import kotlin.reflect.full.primaryConstructor
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
+import kotlin.reflect.KClass
+import io.medatarun.storage.eventsourcing.StorageCmd
 
-class ModelEventJsonCodecTest {
-
-    private val sys = ModelEventSystem()
-    private val codec = sys.codec
-
-    @Test
-    fun `test cases contains all possible cmds`() {
-        val testCases = cmdTestCases()
-        sys.registry.findAllDescripors().forEach { desc->
-            assertTrue(testCases.any { testCase ->
-                testCase.eventType == desc.eventType
-                        && testCase.eventVersion == desc.eventVersion
-            }, "Storage command ${desc.eventType} ${desc.eventVersion} not covered by tests")
-        }
+class ModelEventJsonCodecTest : StorageCmdJsonCodecTestBase<ModelStorageCmdAnyVersion>(
+    codec = sys.codec,
+    registeredContracts = sys.registry.findAllDescripors(),
+    upscale = sys::upscale,
+) {
+    companion object {
+        private val sys = ModelEventSystem()
     }
 
-    @Test
-    fun `encode uses the expected event contract`() {
-        val testCases = cmdTestCases()
+    override val storageCmdRootClass: KClass<out StorageCmd> = ModelStorageCmd::class
 
-        for (testCase in testCases) {
-            val encoded = codec.encode(testCase.cmd)
-
-            assertEquals(
-                testCase.eventType,
-                encoded.eventType,
-                "Wrong event type for ${testCase.cmd::class.simpleName}"
-            )
-            assertEquals(
-                testCase.eventVersion,
-                encoded.eventVersion,
-                "Wrong event version for ${testCase.cmd::class.simpleName}"
-            )
-            assertJsonEquals(testCase.json, encoded.payload, "Wrong payload for ${testCase.eventType} ${testCase.eventVersion}")
-        }
-    }
-
-    @Test
-    fun `decode reads the expected event contract`() {
-        val testCases = cmdTestCases()
-
-        for (testCase in testCases) {
-            val evt = StorageEventEncoded(testCase.eventType, testCase.eventVersion, testCase.json)
-            val decoded = codec.decode(evt)
-            assertEquals(testCase.cmd, decoded, "Wrong decoded command for ${testCase.eventType}  ${testCase.eventVersion}")
-        }
-    }
-
-    @Test
-    fun `decode unknown event contract throws dedicated exception`() {
-        assertFailsWith<StorageEventUnknownContractException> {
-            val evt = StorageEventEncoded("unknown_event", 1, "{}")
-            codec.decode(evt)
-        }
-    }
-
-    @Test
-    fun `model repo commands do not define default constructor values`() {
-        val optionalParametersByCommand = ModelStorageCmd::class.sealedSubclasses.mapNotNull { commandClass ->
-            val constructor = commandClass.primaryConstructor ?: return@mapNotNull null
-            val optionalParameters = constructor.parameters.filter { it.isOptional }.mapNotNull { it.name }
-            if (optionalParameters.isEmpty()) {
-                null
-            } else {
-                "${commandClass.simpleName}: ${optionalParameters.joinToString(", ")}"
-            }
-        }
-
-        assertTrue(
-            actual = optionalParametersByCommand.isEmpty(),
-            message = "ModelRepoCmd constructors must not define default values. Offenders: ${
-                optionalParametersByCommand.joinToString("; ")
-            }"
-        )
-    }
-
-    @Test
-    fun `upscaled versions`() {
-        val testCases = cmdTestCases()
-        for (testCase in testCases) {
-            val results = sys.upscale(testCase.cmd)
-            assertEquals(testCase.upscaled, results, "${testCase.eventType} ${testCase.eventVersion} had not been upscaled correctly")
-        }
-
-    }
-
-    private fun cmdTestCases(): List<CmdTestCase> {
+    override fun testCases(): List<StorageCmdTestCase<ModelStorageCmdAnyVersion>> {
         val modelId = ModelId.fromString("00000000-0000-0000-0000-000000000001")
         val typeId = TypeId.fromString("00000000-0000-0000-0000-000000000002")
         val entityId = EntityId.fromString("00000000-0000-0000-0000-000000000003")
@@ -136,9 +50,7 @@ class ModelEventJsonCodecTest {
                     authority = ModelAuthority.CANONICAL,
                     documentationHome = URL("https://example.com/docs/models/crm")
                 ),
-                json = """
-                    {"id":"00000000-0000-0000-0000-000000000001","key":"crm","name":"CRM","description":"CRM model","version":"1.0.0","origin":{"origin_type":"uri","uri":"https://example.com/model/crm"},"authority":"canonical","documentationHome":"https://example.com/docs/models/crm"}
-                """.trimIndent()
+                json = """{"id":"00000000-0000-0000-0000-000000000001","key":"crm","name":"CRM","description":"CRM model","version":"1.0.0","origin":{"origin_type":"uri","uri":"https://example.com/model/crm"},"authority":"canonical","documentationHome":"https://example.com/docs/models/crm"}"""
             ),
             CmdTestCase(
                 eventType = "model_name_updated",
@@ -155,9 +67,7 @@ class ModelEventJsonCodecTest {
             CmdTestCase(
                 eventType = "model_description_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateModelDescription(modelId,
-                    TextMarkdown("Model description")
-                ),
+                cmd = ModelStorageCmd.UpdateModelDescription(modelId, TextMarkdown("Model description")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","description":"Model description"}"""
             ),
             CmdTestCase(
@@ -223,9 +133,7 @@ class ModelEventJsonCodecTest {
             CmdTestCase(
                 eventType = "type_description_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateTypeDescription(modelId, typeId,
-                    TextMarkdown("String type")
-                ),
+                cmd = ModelStorageCmd.UpdateTypeDescription(modelId, typeId, TextMarkdown("String type")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","typeId":"00000000-0000-0000-0000-000000000002","description":"String type"}"""
             ),
             CmdTestCase(
@@ -252,9 +160,7 @@ class ModelEventJsonCodecTest {
                     identityAttributeDescription = TextMarkdown("Identity attribute"),
                     identityAttributeIdOptional = false
                 ),
-                json = """
-                    {"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","key":"customer","name":"Customer","description":"Customer entity","documentationHome":"https://example.com/docs/entities/customer","origin":{"origin_type":"uri","uri":"https://example.com/origin/customer"},"identityAttributeId":"00000000-0000-0000-0000-000000000006","identityAttributeKey":"customer_id","identityAttributeTypeId":"00000000-0000-0000-0000-000000000002","identityAttributeName":"Customer Id","identityAttributeDescription":"Identity attribute","identityAttributeOptional":false}
-                """.trimIndent(),
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","key":"customer","name":"Customer","description":"Customer entity","documentationHome":"https://example.com/docs/entities/customer","origin":{"origin_type":"uri","uri":"https://example.com/origin/customer"},"identityAttributeId":"00000000-0000-0000-0000-000000000006","identityAttributeKey":"customer_id","identityAttributeTypeId":"00000000-0000-0000-0000-000000000002","identityAttributeName":"Customer Id","identityAttributeDescription":"Identity attribute","identityAttributeOptional":false}""",
                 upscaled = listOf(
                     ModelStorageCmd.CreateEntity(
                         modelId = modelId,
@@ -294,9 +200,7 @@ class ModelEventJsonCodecTest {
                     documentationHome = URL("https://example.com/docs/entities/customer"),
                     origin = EntityOrigin.Uri(URI("https://example.com/origin/customer")),
                 ),
-                json = """
-                    {"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","key":"customer","name":"Customer","description":"Customer entity","documentationHome":"https://example.com/docs/entities/customer","origin":{"origin_type":"uri","uri":"https://example.com/origin/customer"}}
-                """.trimIndent()
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","key":"customer","name":"Customer","description":"Customer entity","documentationHome":"https://example.com/docs/entities/customer","origin":{"origin_type":"uri","uri":"https://example.com/origin/customer"}}"""
             ),
             CmdTestCase(
                 eventType = "entity_key_updated",
@@ -313,12 +217,9 @@ class ModelEventJsonCodecTest {
             CmdTestCase(
                 eventType = "entity_description_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateEntityDescription(modelId, entityId,
-                    TextMarkdown("Client entity")
-                ),
+                cmd = ModelStorageCmd.UpdateEntityDescription(modelId, entityId, TextMarkdown("Client entity")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","description":"Client entity"}"""
             ),
-
             CmdTestCase(
                 eventType = "entity_primary_key_set",
                 eventVersion = 1,
@@ -341,11 +242,7 @@ class ModelEventJsonCodecTest {
             CmdTestCase(
                 eventType = "entity_documentation_home_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateEntityDocumentationHome(
-                    modelId,
-                    entityId,
-                    URL("https://example.com/docs/entities/client")
-                ),
+                cmd = ModelStorageCmd.UpdateEntityDocumentationHome(modelId, entityId, URL("https://example.com/docs/entities/client")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","documentationHome":"https://example.com/docs/entities/client"}"""
             ),
             CmdTestCase(
@@ -369,16 +266,7 @@ class ModelEventJsonCodecTest {
             CmdTestCase(
                 eventType = "entity_attribute_created",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.CreateEntityAttribute(
-                    modelId,
-                    entityId,
-                    entityAttributeId,
-                    AttributeKey("code"),
-                    TextSingleLine("Code"),
-                    TextMarkdown("Entity code"),
-                    typeId,
-                    false
-                ),
+                cmd = ModelStorageCmd.CreateEntityAttribute(modelId, entityId, entityAttributeId, AttributeKey("code"), TextSingleLine("Code"), TextMarkdown("Entity code"), typeId, false),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeId":"00000000-0000-0000-0000-000000000006","key":"code","name":"Code","description":"Entity code","typeId":"00000000-0000-0000-0000-000000000002","optional":false}"""
             ),
             CmdTestCase(
@@ -390,34 +278,19 @@ class ModelEventJsonCodecTest {
             CmdTestCase(
                 eventType = "entity_attribute_key_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateEntityAttributeKey(
-                    modelId,
-                    entityId,
-                    entityAttributeId,
-                    AttributeKey("external_code")
-                ),
+                cmd = ModelStorageCmd.UpdateEntityAttributeKey(modelId, entityId, entityAttributeId, AttributeKey("external_code")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeId":"00000000-0000-0000-0000-000000000006","key":"external_code"}"""
             ),
             CmdTestCase(
                 eventType = "entity_attribute_name_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateEntityAttributeName(
-                    modelId,
-                    entityId,
-                    entityAttributeId,
-                    TextSingleLine("External Code")
-                ),
+                cmd = ModelStorageCmd.UpdateEntityAttributeName(modelId, entityId, entityAttributeId, TextSingleLine("External Code")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeId":"00000000-0000-0000-0000-000000000006","name":"External Code"}"""
             ),
             CmdTestCase(
                 eventType = "entity_attribute_description_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateEntityAttributeDescription(
-                    modelId,
-                    entityId,
-                    entityAttributeId,
-                    TextMarkdown("External code attribute")
-                ),
+                cmd = ModelStorageCmd.UpdateEntityAttributeDescription(modelId, entityId, entityAttributeId, TextMarkdown("External code attribute")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeId":"00000000-0000-0000-0000-000000000006","description":"External code attribute"}"""
             ),
             CmdTestCase(
@@ -463,94 +336,54 @@ class ModelEventJsonCodecTest {
                         )
                     )
                 ),
-                json = """
-                    {"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","key":"customer_order","name":"Customer Order","description":"Customer order relationship","roles":[{"id":"00000000-0000-0000-0000-000000000005","key":"customer","entityId":"00000000-0000-0000-0000-000000000003","name":"Customer","cardinality":"many"}]}
-                """.trimIndent()
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","key":"customer_order","name":"Customer Order","description":"Customer order relationship","roles":[{"id":"00000000-0000-0000-0000-000000000005","key":"customer","entityId":"00000000-0000-0000-0000-000000000003","name":"Customer","cardinality":"many"}]}"""
             ),
             CmdTestCase(
                 eventType = "relationship_key_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipKey(
-                    modelId,
-                    relationshipId,
-                    RelationshipKey("customer_invoice")
-                ),
+                cmd = ModelStorageCmd.UpdateRelationshipKey(modelId, relationshipId, RelationshipKey("customer_invoice")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","key":"customer_invoice"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_name_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipName(modelId, relationshipId,
-                    TextSingleLine("Customer Invoice")
-                ),
+                cmd = ModelStorageCmd.UpdateRelationshipName(modelId, relationshipId, TextSingleLine("Customer Invoice")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","name":"Customer Invoice"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_description_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipDescription(
-                    modelId,
-                    relationshipId,
-                    TextMarkdown("Customer invoice relationship")
-                ),
+                cmd = ModelStorageCmd.UpdateRelationshipDescription(modelId, relationshipId, TextMarkdown("Customer invoice relationship")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","description":"Customer invoice relationship"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_role_created",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.CreateRelationshipRole(
-                    modelId,
-                    relationshipId,
-                    relationshipRoleId,
-                    RelationshipRoleKey("buyer"),
-                    entityId,
-                    TextSingleLine("Buyer"),
-                    RelationshipCardinality.One
-                ),
+                cmd = ModelStorageCmd.CreateRelationshipRole(modelId, relationshipId, relationshipRoleId, RelationshipRoleKey("buyer"), entityId, TextSingleLine("Buyer"), RelationshipCardinality.One),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","relationshipRoleId":"00000000-0000-0000-0000-000000000005","key":"buyer","entityId":"00000000-0000-0000-0000-000000000003","name":"Buyer","cardinality":"one"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_role_key_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipRoleKey(
-                    modelId,
-                    relationshipId,
-                    relationshipRoleId,
-                    RelationshipRoleKey("seller")
-                ),
+                cmd = ModelStorageCmd.UpdateRelationshipRoleKey(modelId, relationshipId, relationshipRoleId, RelationshipRoleKey("seller")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","relationshipRoleId":"00000000-0000-0000-0000-000000000005","key":"seller"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_role_name_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipRoleName(
-                    modelId,
-                    relationshipId,
-                    relationshipRoleId,
-                    TextSingleLine("Seller")
-                ),
+                cmd = ModelStorageCmd.UpdateRelationshipRoleName(modelId, relationshipId, relationshipRoleId, TextSingleLine("Seller")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","relationshipRoleId":"00000000-0000-0000-0000-000000000005","name":"Seller"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_role_entity_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipRoleEntity(
-                    modelId,
-                    relationshipId,
-                    relationshipRoleId,
-                    entityId
-                ),
+                cmd = ModelStorageCmd.UpdateRelationshipRoleEntity(modelId, relationshipId, relationshipRoleId, entityId),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","relationshipRoleId":"00000000-0000-0000-0000-000000000005","entityId":"00000000-0000-0000-0000-000000000003"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_role_cardinality_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipRoleCardinality(
-                    modelId,
-                    relationshipId,
-                    relationshipRoleId,
-                    RelationshipCardinality.ZeroOrOne
-                ),
+                cmd = ModelStorageCmd.UpdateRelationshipRoleCardinality(modelId, relationshipId, relationshipRoleId, RelationshipCardinality.ZeroOrOne),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","relationshipRoleId":"00000000-0000-0000-0000-000000000005","cardinality":"zeroOrOne"}"""
             ),
             CmdTestCase(
@@ -580,93 +413,49 @@ class ModelEventJsonCodecTest {
             CmdTestCase(
                 eventType = "relationship_attribute_created",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.CreateRelationshipAttribute(
-                    modelId,
-                    relationshipId,
-                    relationshipAttributeId,
-                    AttributeKey("weight"),
-                    TextSingleLine("Weight"),
-                    TextMarkdown("Relationship weight"),
-                    typeId,
-                    true
-                ),
+                cmd = ModelStorageCmd.CreateRelationshipAttribute(modelId, relationshipId, relationshipAttributeId, AttributeKey("weight"), TextSingleLine("Weight"), TextMarkdown("Relationship weight"), typeId, true),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","key":"weight","name":"Weight","description":"Relationship weight","typeId":"00000000-0000-0000-0000-000000000002","optional":true}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_name_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipAttributeName(
-                    modelId,
-                    relationshipId,
-                    relationshipAttributeId,
-                    TextSingleLine("Load")
-                ),
+                cmd = ModelStorageCmd.UpdateRelationshipAttributeName(modelId, relationshipId, relationshipAttributeId, TextSingleLine("Load")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","name":"Load"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_description_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipAttributeDescription(
-                    modelId,
-                    relationshipId,
-                    relationshipAttributeId,
-                    TextMarkdown("Relationship load")
-                ),
+                cmd = ModelStorageCmd.UpdateRelationshipAttributeDescription(modelId, relationshipId, relationshipAttributeId, TextMarkdown("Relationship load")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","description":"Relationship load"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_key_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipAttributeKey(
-                    modelId,
-                    relationshipId,
-                    relationshipAttributeId,
-                    AttributeKey("load")
-                ),
+                cmd = ModelStorageCmd.UpdateRelationshipAttributeKey(modelId, relationshipId, relationshipAttributeId, AttributeKey("load")),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","key":"load"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_type_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipAttributeType(
-                    modelId,
-                    relationshipId,
-                    relationshipAttributeId,
-                    typeId
-                ),
+                cmd = ModelStorageCmd.UpdateRelationshipAttributeType(modelId, relationshipId, relationshipAttributeId, typeId),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","typeId":"00000000-0000-0000-0000-000000000002"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_optional_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipAttributeOptional(
-                    modelId,
-                    relationshipId,
-                    relationshipAttributeId,
-                    false
-                ),
+                cmd = ModelStorageCmd.UpdateRelationshipAttributeOptional(modelId, relationshipId, relationshipAttributeId, false),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","optional":false}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_tag_added",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipAttributeTagAdd(
-                    modelId,
-                    relationshipId,
-                    relationshipAttributeId,
-                    tagId
-                ),
+                cmd = ModelStorageCmd.UpdateRelationshipAttributeTagAdd(modelId, relationshipId, relationshipAttributeId, tagId),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","tagId":"00000000-0000-0000-0000-000000000008"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_tag_deleted",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipAttributeTagDelete(
-                    modelId,
-                    relationshipId,
-                    relationshipAttributeId,
-                    tagId
-                ),
+                cmd = ModelStorageCmd.UpdateRelationshipAttributeTagDelete(modelId, relationshipId, relationshipAttributeId, tagId),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","tagId":"00000000-0000-0000-0000-000000000008"}"""
             ),
             CmdTestCase(
@@ -683,28 +472,4 @@ class ModelEventJsonCodecTest {
             business_key_deleted_v1,
         )
     }
-
-
-
-
-    private fun assertJsonEquals(expected: String, actual: String, message: String) {
-        assertEquals(
-            normalizeJson(expected),
-            normalizeJson(actual),
-            message
-        )
-    }
-
-    private fun normalizeJson(value: String): String {
-        return Json.parseToJsonElement(value).toString()
-    }
-
-    data class CmdTestCase(
-        val eventType: String,
-        val eventVersion: Int,
-        val cmd: ModelStorageCmdAnyVersion,
-        @Language("JSON")
-        val json: String,
-        val upscaled: List<ModelStorageCmdAnyVersion> = listOf(cmd)
-    )
 }
