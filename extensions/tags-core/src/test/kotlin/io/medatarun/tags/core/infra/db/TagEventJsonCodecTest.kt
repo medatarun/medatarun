@@ -1,7 +1,7 @@
 package io.medatarun.tags.core.infra.db
 
-import io.medatarun.storage.eventsourcing.testkit.StorageCmdJsonCodecTestBase
 import io.medatarun.storage.eventsourcing.testkit.StorageCmdTestCase
+import io.medatarun.storage.eventsourcing.testkit.StorageEventJsonCodecTestBase
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.infra.db.events.TagEventSystem
 import io.medatarun.tags.core.ports.needs.TagStorageCmd
@@ -9,15 +9,9 @@ import io.medatarun.type.commons.id.Id
 import io.medatarun.type.commons.text.TextMarkdown
 import io.medatarun.type.commons.text.TextSingleLine
 
-class TagEventJsonCodecTest : StorageCmdJsonCodecTestBase<TagStorageCmd>(
-    codec = sys.codec,
-    registeredContracts = sys.registry.findAllDescriptor(),
+class TagEventJsonCodecTest : StorageEventJsonCodecTestBase<TagStorageCmd>(
+    sys = TagEventSystem()
 ) {
-    companion object {
-        private val sys = TagEventSystem()
-    }
-
-    override val storageCmdRootClass = TagStorageCmd::class
 
     override fun testCases(): List<StorageCmdTestCase<TagStorageCmd>> {
         val tagId = TagId.fromString("00000000-0000-0000-0000-000000000001")

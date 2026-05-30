@@ -4,6 +4,7 @@ import io.medatarun.storage.eventsourcing.StorageCmd
 import io.medatarun.storage.eventsourcing.StorageEventDescriptor
 import io.medatarun.storage.eventsourcing.StorageEventEncoded
 import io.medatarun.storage.eventsourcing.StorageEventJsonCodec
+import io.medatarun.storage.eventsourcing.StorageEventSystem
 import io.medatarun.storage.eventsourcing.StorageEventUnknownContractException
 import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
@@ -13,12 +14,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-abstract class StorageCmdJsonCodecTestBase<CMD : StorageCmd>(
-    private val codec: StorageEventJsonCodec<CMD>,
-    private val registeredContracts: Collection<StorageEventDescriptor<out CMD>>,
-    private val upscale: (CMD) -> List<CMD> = { listOf(it) },
+abstract class StorageEventJsonCodecTestBase<CMD : StorageCmd>(
+    private val sys: StorageEventSystem<CMD>,
 ) {
-    abstract val storageCmdRootClass: KClass<out StorageCmd>
+    private val codec = sys.codec
+    private val registeredContracts = sys.findAllDescriptors()
+    private val upscale = sys::upscale
+
+
 
     abstract fun testCases(): List<StorageCmdTestCase<CMD>>
 
@@ -67,7 +70,7 @@ abstract class StorageCmdJsonCodecTestBase<CMD : StorageCmd>(
 
     @Test
     fun `storage commands do not define default constructor values`() {
-        val offenders = allLeafClasses(storageCmdRootClass).mapNotNull { cmdClass ->
+        val offenders = allLeafClasses(sys.storageCmdRootClass).mapNotNull { cmdClass ->
             val constructor = cmdClass.primaryConstructor ?: return@mapNotNull null
             val optionalParams = constructor.parameters.filter { it.isOptional }.mapNotNull { it.name }
             if (optionalParams.isEmpty()) null

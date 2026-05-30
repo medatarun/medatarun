@@ -2,27 +2,21 @@ package io.medatarun.model.infra.db
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.events.ModelEventSystem
-import io.medatarun.model.ports.needs.*
-import io.medatarun.storage.eventsourcing.testkit.StorageCmdJsonCodecTestBase
+import io.medatarun.model.ports.needs.ModelStorageCmd
+import io.medatarun.model.ports.needs.ModelStorageCmdAnyVersion
+import io.medatarun.model.ports.needs.ModelStorageCmdOld
 import io.medatarun.storage.eventsourcing.testkit.StorageCmdTestCase
+import io.medatarun.storage.eventsourcing.testkit.StorageEventJsonCodecTestBase
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.type.commons.text.TextMarkdown
 import io.medatarun.type.commons.text.TextSingleLine
 import java.net.URI
 import java.net.URL
-import kotlin.reflect.KClass
-import io.medatarun.storage.eventsourcing.StorageCmd
 
-class ModelEventJsonCodecTest : StorageCmdJsonCodecTestBase<ModelStorageCmdAnyVersion>(
-    codec = sys.codec,
-    registeredContracts = sys.registry.findAllDescripors(),
-    upscale = sys::upscale,
+class ModelEventJsonCodecTest : StorageEventJsonCodecTestBase<ModelStorageCmdAnyVersion>(
+    sys = ModelEventSystem(),
 ) {
-    companion object {
-        private val sys = ModelEventSystem()
-    }
 
-    override val storageCmdRootClass: KClass<out StorageCmd> = ModelStorageCmd::class
 
     override fun testCases(): List<StorageCmdTestCase<ModelStorageCmdAnyVersion>> {
         val modelId = ModelId.fromString("00000000-0000-0000-0000-000000000001")
