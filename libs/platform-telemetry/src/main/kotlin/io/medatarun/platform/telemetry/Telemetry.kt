@@ -1,7 +1,6 @@
 package io.medatarun.platform.telemetry
 
 import io.medatarun.platform.kernel.Service
-import io.medatarun.platform.telemetry.internal.TelemetrySpanNoop
 import io.opentelemetry.api.common.AttributeKey
 
 interface Telemetry: Service  {
@@ -43,4 +42,14 @@ interface Telemetry: Service  {
 interface TelemetrySpan {
     fun setAttribute(key: String, value: String)
     fun recordException(exception: Throwable)
+}
+
+private object TelemetrySpanNoop : TelemetrySpan {
+    override fun setAttribute(key: String, value: String) {
+
+    }
+
+    override fun recordException(exception: Throwable) {
+
+    }
 }
