@@ -16,27 +16,23 @@ fun getOpenTelemetry(): OpenTelemetry {
 }
 
 
-class TelemetryOpenTelemetry(val telemetryEnabled: Boolean) : Telemetry {
-    val openTelemetry: OpenTelemetry = getOpenTelemetry()
+class TelemetryOpenTelemetry(telemetryEnabled: Boolean) : Telemetry {
+    val openTelemetry: OpenTelemetry = if (telemetryEnabled) getOpenTelemetry() else OpenTelemetry.noop()
     override val enabled: Boolean = telemetryEnabled
 
     override fun <T> span(name: String, block: (TelemetrySpan) -> T): T {
-        if (enabled) {
-            val span = openTelemetry.getTracer(name)
-                .spanBuilder(name)
-                .startSpan()
-            try {
-                span.makeCurrent().use {
-                    return block(TelemetrySpanOpenTelemetry(span))
-                }
-            } catch (exception: Exception) {
-                span.recordException(exception)
-                throw exception
-            } finally {
-                span.end()
+        val span = openTelemetry.getTracer(name)
+            .spanBuilder(name)
+            .startSpan()
+        try {
+            span.makeCurrent().use {
+                return block(TelemetrySpanOpenTelemetry(span))
             }
-        } else {
-            return block(TelemetrySpanNoop)
+        } catch (exception: Exception) {
+            span.recordException(exception)
+            throw exception
+        } finally {
+            span.end()
         }
     }
 
@@ -60,16 +56,6 @@ class TelemetrySpanOpenTelemetry(private val span: Span) : TelemetrySpan {
 
     override fun recordException(exception: Throwable) {
         span.recordException(exception)
-    }
-}
-
-object TelemetrySpanNoop : TelemetrySpan {
-    override fun setAttribute(key: String, value: String) {
-
-    }
-
-    override fun recordException(exception: Throwable) {
-
     }
 }
 
