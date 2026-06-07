@@ -17,9 +17,6 @@ import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.*
 import kotlinx.serialization.serializer
-import org.slf4j.LoggerFactory
-import kotlin.reflect.KClass
-import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 
 // Json serialization for tool responses
@@ -198,7 +195,7 @@ class McpServerBuilder(
         val properties = buildJsonObject {
             actionDescriptor.parameters.forEach { param ->
                 put(param.key, buildJsonObject {
-                    put("type", mapParameterType(param.type))
+                    put("type", param.jsonType.code)
                 })
             }
         }
@@ -210,25 +207,6 @@ class McpServerBuilder(
             properties = properties,
             required = required.takeIf { it.isNotEmpty() }
         )
-    }
-
-    /**
-     * Map Kotlin parameter types to the JSON Schema primitive
-     * types supported by MCP tools.
-     *
-     * MCP supports string, number, integer, boolean, array, object, et null
-     *
-     * We don't support array, object (and null, because it has no meaning here).
-     *
-     **/
-    private fun mapParameterType(parameterType: KType): String {
-        val classifier = parameterType.classifier as? KClass<*> ?: return "string"
-        return when (classifier) {
-            Boolean::class -> "boolean"
-            Int::class, Long::class, Short::class, Byte::class -> "integer"
-            Double::class, Float::class -> "number"
-            else -> "string"
-        }
     }
 
 
