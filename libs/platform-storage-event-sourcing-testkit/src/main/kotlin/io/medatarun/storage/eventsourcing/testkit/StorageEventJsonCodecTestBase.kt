@@ -1,12 +1,12 @@
 package io.medatarun.storage.eventsourcing.testkit
 
 import io.medatarun.storage.eventsourcing.StorageCmd
-import io.medatarun.storage.eventsourcing.StorageEventDescriptor
 import io.medatarun.storage.eventsourcing.StorageEventEncoded
-import io.medatarun.storage.eventsourcing.StorageEventJsonCodec
 import io.medatarun.storage.eventsourcing.StorageEventSystem
 import io.medatarun.storage.eventsourcing.StorageEventUnknownContractException
 import kotlinx.serialization.json.Json
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.TestFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 import kotlin.test.Test
@@ -22,7 +22,6 @@ abstract class StorageEventJsonCodecTestBase<CMD : StorageCmd>(
     private val upscale = sys::upscale
 
 
-
     abstract fun testCases(): List<StorageCmdTestCase<CMD>>
 
     @Test
@@ -36,28 +35,53 @@ abstract class StorageEventJsonCodecTestBase<CMD : StorageCmd>(
         }
     }
 
-    @Test
-    fun `encode uses the expected event contract`() {
-        for (testCase in testCases()) {
-            val encoded = codec.encode(testCase.cmd)
-            assertEquals(testCase.eventType, encoded.eventType, "Wrong event type for ${testCase.cmd::class.simpleName}")
-            assertEquals(testCase.eventVersion, encoded.eventVersion, "Wrong event version for ${testCase.cmd::class.simpleName}")
-            assertJsonEquals(testCase.json, encoded.payload, "Wrong payload for ${testCase.eventType} v${testCase.eventVersion}")
+    @TestFactory
+    fun `encode uses the expected event contract`(): List<DynamicTest> {
+        return testCases().map { testCase ->
+            DynamicTest.dynamicTest(testCase.id) {
+                val encoded = codec.encode(testCase.cmd)
+                assertEquals(
+                    testCase.eventType,
+                    encoded.eventType,
+                    "Wrong event type for ${testCase.cmd::class.simpleName}"
+                )
+                assertEquals(
+                    testCase.eventVersion,
+                    encoded.eventVersion,
+                    "Wrong event version for ${testCase.cmd::class.simpleName}"
+                )
+                assertJsonEquals(
+                    testCase.json,
+                    encoded.payload,
+                    "Wrong payload for ${testCase.eventType} v${testCase.eventVersion}"
+                )
+            }
         }
+
     }
 
-    @Test
-    fun `decode reads the expected event contract`() {
-        for (testCase in testCases()) {
-            val decoded = codec.decode(StorageEventEncoded(testCase.eventType, testCase.eventVersion, testCase.json))
-            assertEquals(testCase.cmd, decoded, "Wrong decoded command for ${testCase.eventType} v${testCase.eventVersion}")
+    @TestFactory
+    fun `decode reads the expected event contract`(): List<DynamicTest> {
+        return testCases().map { testCase ->
+            DynamicTest.dynamicTest(testCase.id) {
+                val decoded = codec.decode(StorageEventEncoded(testCase.eventType, testCase.eventVersion, testCase.json))
+                assertEquals(
+                    testCase.cmd,
+                    decoded,
+                    "Wrong decoded command for ${testCase.eventType} v${testCase.eventVersion}"
+                )
+            }
         }
     }
 
     @Test
     fun `upscaled versions`() {
         for (testCase in testCases()) {
-            assertEquals(testCase.upscaled, upscale(testCase.cmd), "Wrong upscaled for ${testCase.eventType} v${testCase.eventVersion}")
+            assertEquals(
+                testCase.upscaled,
+                upscale(testCase.cmd),
+                "Wrong upscaled for ${testCase.eventType} v${testCase.eventVersion}"
+            )
         }
     }
 

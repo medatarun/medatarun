@@ -8,4 +8,6 @@ data class StorageCmdTestCase<CMD : StorageCmd>(
     val cmd: CMD,
     val json: String,
     val upscaled: List<CMD> = listOf(cmd),
-)
+) {
+    val id = listOf(eventType, ""+eventVersion, ""+hashCode()).joinToString("_")
+}
