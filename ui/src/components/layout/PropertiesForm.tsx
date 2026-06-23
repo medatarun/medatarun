@@ -7,14 +7,15 @@ const useStyles = makeStyles({
     gridTemplateColumns: "max-content auto",
     columnGap: tokens.spacingVerticalM,
     rowGap: tokens.spacingVerticalS,
-    alignItems: "baseline",
+    alignItems: "stretch",
   },
   label: {
     // backgroundColor: "lightblue",
     boxSizing: "border-box",
     minHeight: "2.3em",
     height: "2.3em",
-    lineHeight: "2.1em",
+    display: "flex",
+    alignItems: "center",
     color: tokens.colorNeutralForeground3,
   },
   value: {
@@ -22,7 +23,13 @@ const useStyles = makeStyles({
     boxSizing: "border-box",
     minHeight: "2.3em",
     height: "2.3em",
-    lineHeight: "2.1em",
+    display: "flex",
+    alignItems: "center",
+    minWidth: 0,
+    "& > *": {
+      flex: "1 1 auto",
+      minWidth: 0,
+    },
   },
 });
 
