@@ -14,30 +14,33 @@ importers:
       '@fluentui/react-icons':
         specifier: ^2.0.330
         version: 2.0.330(react@19.2.7)
+      '@lexical/react':
+        specifier: ^0.44.0
+        version: 0.44.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(yjs@13.6.30)
       '@seij/common-services':
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^2.0.0
+        version: 2.0.0
       '@seij/common-types':
-        specifier: ^0.1.5
-        version: 0.1.5
+        specifier: ^2.0.0
+        version: 2.0.0
       '@seij/common-ui':
-        specifier: ^0.2.0
-        version: 0.2.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(intl-messageformat@11.1.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)(typescript@6.0.3)
+        specifier: ^2.0.0
+        version: 2.0.0(@fluentui/react-components@9.74.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0))(@seij/common-ui-icons@2.0.0(@fluentui/react-icons@2.0.330(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(i18next-browser-languagedetector@8.2.1)(i18next-icu@2.4.3(intl-messageformat@11.1.2))(i18next@25.10.10(typescript@6.0.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@seij/common-ui-auth':
-        specifier: ^0.2.0
-        version: 0.2.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(intl-messageformat@11.1.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)(typescript@6.0.3)
+        specifier: ^2.0.0
+        version: 2.0.0(@seij/common-ui-icons@2.0.0(@fluentui/react-icons@2.0.330(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@seij/common-ui@2.0.0(@fluentui/react-components@9.74.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0))(@seij/common-ui-icons@2.0.0(@fluentui/react-icons@2.0.330(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(i18next-browser-languagedetector@8.2.1)(i18next-icu@2.4.3(intl-messageformat@11.1.2))(i18next@25.10.10(typescript@6.0.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(oidc-client-ts@3.5.0)(react-dom@19.2.7(react@19.2.7))(react-oidc-context@3.3.1(oidc-client-ts@3.5.0)(react@19.2.7))(react@19.2.7)
       '@seij/common-ui-csv-export':
-        specifier: ^0.1.1
-        version: 0.1.1
+        specifier: ^2.0.0
+        version: 2.0.0
       '@seij/common-ui-icons':
-        specifier: ^0.2.0
-        version: 0.2.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^2.0.0
+        version: 2.0.0(@fluentui/react-icons@2.0.330(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@seij/common-ui-richtext':
-        specifier: ^0.4.0
-        version: 0.4.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(intl-messageformat@11.1.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)(typescript@6.0.3)(yjs@13.6.30)
+        specifier: ^2.0.0
+        version: 2.0.0(@fluentui/react-components@9.74.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0))(@fluentui/react-icons@2.0.330(react@19.2.7))(@lexical/react@0.44.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(yjs@13.6.30))(@seij/common-ui@2.0.0(@fluentui/react-components@9.74.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0))(@seij/common-ui-icons@2.0.0(@fluentui/react-icons@2.0.330(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(i18next-browser-languagedetector@8.2.1)(i18next-icu@2.4.3(intl-messageformat@11.1.2))(i18next@25.10.10(typescript@6.0.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(lexical@0.44.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@seij/common-validation':
-        specifier: ^0.1.2
-        version: 0.1.2
+        specifier: ^2.0.0
+        version: 2.0.0
       '@tanstack/react-query':
         specifier: ^5.101.1
         version: 5.101.1(react@19.2.7)
@@ -47,12 +50,27 @@ importers:
       '@tanstack/react-router':
         specifier: ^1.170.16
         version: 1.170.16(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      i18next:
+        specifier: ^25.7.3
+        version: 25.10.10(typescript@6.0.3)
+      i18next-browser-languagedetector:
+        specifier: ^8.2.0
+        version: 8.2.1
+      i18next-icu:
+        specifier: ^2.4.1
+        version: 2.4.3(intl-messageformat@11.1.2)
+      lexical:
+        specifier: ^0.44.0
+        version: 0.44.0
       lodash-es:
         specifier: ^4.18.1
         version: 4.18.1
       mdast-util-to-string:
         specifier: ^4.0.0
         version: 4.0.0
+      oidc-client-ts:
+        specifier: ^3.5.0
+        version: 3.5.0
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -62,6 +80,9 @@ importers:
       react-markdown:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.2.17)(react@19.2.7)
+      react-oidc-context:
+        specifier: ^3.3.1
+        version: 3.3.1(oidc-client-ts@3.5.0)(react@19.2.7)
       remark-parse:
         specifier: ^11.0.0
         version: 11.0.0
@@ -1197,41 +1218,56 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@seij/common-services@0.2.0':
-    resolution: {integrity: sha512-/gSlIIM1fGPGFmmBADVoBNdSEOk3O98/BGUpaZOwNS5F6v5IunvFBh04oRhQAjBR+hbiOEPoV5dTOYaFwJ9K9g==}
+  '@seij/common-services@2.0.0':
+    resolution: {integrity: sha512-/PSKFwyBsG9YbXL5Y/dtQOvIDiatsZkcBQWgIeoIJGq2MVyQrdzf7aM61ZfrqOt56K3zQARSvfHC2gfedpyWDw==}
 
-  '@seij/common-types@0.1.5':
-    resolution: {integrity: sha512-CkDtKUs1ZoqEF2AAoKyrkwkKYJt+C3LyxRValXBOO4NX3NtWYzslVXJQwelAuWvNWdshdgnon0TAfzcqYxP3jw==}
+  '@seij/common-types@2.0.0':
+    resolution: {integrity: sha512-ti6PYo74NOmzah/pnzt1A/+Ce8mqz02mqY9V5F7feq/ze8poBpIXfs6gzZtVH3AK75wlphfLKiMajkalgjYSlQ==}
 
-  '@seij/common-ui-auth@0.2.0':
-    resolution: {integrity: sha512-KJW7ETBYIoY3kfuC77JRonx/hzPWuYy8WPrVWMPJKhGA7/ySDwnmVEQXyjKr4Wy8fsoexSv7HvAUsPnpUBbxbw==}
+  '@seij/common-ui-auth@2.0.0':
+    resolution: {integrity: sha512-yFzXgnjtftE/MT1/VkebeujQR5MrG8gDLm0v1BFEaZzdlU/ZAAOgJpBweTKprlcPIJnuTno4iF5Gwrokz11QzA==}
     peerDependencies:
+      '@seij/common-ui': ^2.0.0
+      '@seij/common-ui-icons': ^2.0.0
+      oidc-client-ts: ^3.5.0
+      react: ^19.2.4
+      react-dom: ^19.2.4
+      react-oidc-context: ^3.3.1
+
+  '@seij/common-ui-csv-export@2.0.0':
+    resolution: {integrity: sha512-FZM05oCpLA5lPn79vtwcrv3LIKLrqvqYwHON7+1BYzwrEvhHRGId9VsF/sluBe1A0PrZ4siLjwxpWi4+1P66Pw==}
+
+  '@seij/common-ui-icons@2.0.0':
+    resolution: {integrity: sha512-hdrlF5lsXfxUWmAhzWB3sSoZD8WtKHAVdZh03n9yA7F8yERcTteh0VWEvSh0ta0N95mFa1aBv1X8TTb+k1X6hQ==}
+    peerDependencies:
+      '@fluentui/react-icons': ^2.0.325
       react: ^19.2.4
       react-dom: ^19.2.4
 
-  '@seij/common-ui-csv-export@0.1.1':
-    resolution: {integrity: sha512-6i8tyHHwat4BJnDSVkGrrXEGfY0Dtoau81qqjmHSUTrwH8r6/8QF+CArhs0WD0stq636ucfntmh7FcBLxEckMw==}
-
-  '@seij/common-ui-icons@0.2.0':
-    resolution: {integrity: sha512-ORRAcdkaJ0TakHsCGbgEa97uFIvaxdQw8rNmCEG+wZjarWQ1spt4UF5LaVInX3lYAJfboH8zpQGoAfdwTij0ug==}
+  '@seij/common-ui-richtext@2.0.0':
+    resolution: {integrity: sha512-bH8+IBWD9jIOG8yqf5LxYdXQ/HQpfGjE6uRuVS6NffYgJ67ueeDk89pRQYdhQFEsKBTcPmUtapfcjGX3y+nDCA==}
     peerDependencies:
+      '@fluentui/react-components': ^9.73.8
+      '@fluentui/react-icons': ^2.0.325
+      '@lexical/react': ^0.44.0
+      '@seij/common-ui': ^2.0.0
+      lexical: ^0.44.0
       react: ^19.2.4
       react-dom: ^19.2.4
 
-  '@seij/common-ui-richtext@0.4.0':
-    resolution: {integrity: sha512-09YxZ4/1shWAUcTX4NbM9N7eoSR96M+oOnSDLNEXH2H69pwKYBsD7LrQxeZEXbNOg9JKZRC2EVU+EMD/LZNoWQ==}
+  '@seij/common-ui@2.0.0':
+    resolution: {integrity: sha512-TC+mzaMQKTJOTFooMW6uGGx/jU9lNQlVxRyelieqIilpM8jX5FIv8ZBUKNujbelbtjOh6rfa3o5xWXZH+MXVbw==}
     peerDependencies:
+      '@fluentui/react-components': ^9.73.8
+      '@seij/common-ui-icons': ^2.0.0
+      i18next: ^25.7.3
+      i18next-browser-languagedetector: ^8.2.0
+      i18next-icu: ^2.4.1
       react: ^19.2.4
       react-dom: ^19.2.4
 
-  '@seij/common-ui@0.2.0':
-    resolution: {integrity: sha512-3/6iWaplmprXKf5IDe1cfUJJ7WTxpc9/7WnnvUmNwypSZbibpcP3zrEKM8DPBfCFc65ZBuGHLTobJAZ4aPduLQ==}
-    peerDependencies:
-      react: ^19.2.4
-      react-dom: ^19.2.4
-
-  '@seij/common-validation@0.1.2':
-    resolution: {integrity: sha512-EqVyFyehYDj4As7i9W7DzT+FaQ5B0b0tJV028a8Qg+Z0uCn1hFx9PexMliJxG1unMJvFrdqzJNtBKEyDAS0NQA==}
+  '@seij/common-validation@2.0.0':
+    resolution: {integrity: sha512-P9nsFB32KIMd1eVzY48PKLBlCqBH0vHx4yit51ZNO1R9yQBhVVIuUGS3gu2w+VJzqpazNps8B01Zi6JGTrWBLQ==}
 
   '@shikijs/core@4.3.0':
     resolution: {integrity: sha512-EooU3i9F6IAE8kEu+AnGf9DFZWkQBZ+hJn3tLVbsH+61mtQiva5biai66fAA6nvFPXkLgvrh7BrR7YcJU83xQQ==}
@@ -4193,43 +4229,37 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@seij/common-services@0.2.0':
+  '@seij/common-services@2.0.0':
     dependencies:
-      '@seij/common-types': 0.1.5
+      '@seij/common-types': 2.0.0
       lodash-es: 4.18.1
 
-  '@seij/common-types@0.1.5':
+  '@seij/common-types@2.0.0':
     dependencies:
       date-fns: 4.4.0
       lodash-es: 4.18.1
       luxon: 3.7.2
 
-  '@seij/common-ui-auth@0.2.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(intl-messageformat@11.1.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)(typescript@6.0.3)':
+  '@seij/common-ui-auth@2.0.0(@seij/common-ui-icons@2.0.0(@fluentui/react-icons@2.0.330(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@seij/common-ui@2.0.0(@fluentui/react-components@9.74.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0))(@seij/common-ui-icons@2.0.0(@fluentui/react-icons@2.0.330(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(i18next-browser-languagedetector@8.2.1)(i18next-icu@2.4.3(intl-messageformat@11.1.2))(i18next@25.10.10(typescript@6.0.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(oidc-client-ts@3.5.0)(react-dom@19.2.7(react@19.2.7))(react-oidc-context@3.3.1(oidc-client-ts@3.5.0)(react@19.2.7))(react@19.2.7)':
     dependencies:
-      '@seij/common-types': 0.1.5
-      '@seij/common-ui': 0.2.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(intl-messageformat@11.1.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)(typescript@6.0.3)
-      '@seij/common-ui-icons': 0.2.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@seij/common-types': 2.0.0
+      '@seij/common-ui': 2.0.0(@fluentui/react-components@9.74.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0))(@seij/common-ui-icons@2.0.0(@fluentui/react-icons@2.0.330(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(i18next-browser-languagedetector@8.2.1)(i18next-icu@2.4.3(intl-messageformat@11.1.2))(i18next@25.10.10(typescript@6.0.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@seij/common-ui-icons': 2.0.0(@fluentui/react-icons@2.0.330(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       lodash-es: 4.18.1
       oidc-client-ts: 3.5.0
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
       react-oidc-context: 3.3.1(oidc-client-ts@3.5.0)(react@19.2.7)
-    transitivePeerDependencies:
-      - '@types/react'
-      - '@types/react-dom'
-      - intl-messageformat
-      - scheduler
-      - typescript
 
-  '@seij/common-ui-csv-export@0.1.1': {}
+  '@seij/common-ui-csv-export@2.0.0': {}
 
-  '@seij/common-ui-icons@0.2.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@seij/common-ui-icons@2.0.0(@fluentui/react-icons@2.0.330(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       '@fluentui/react-icons': 2.0.330(react@19.2.7)
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
 
-  '@seij/common-ui-richtext@0.4.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(intl-messageformat@11.1.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)(typescript@6.0.3)(yjs@13.6.30)':
+  '@seij/common-ui-richtext@2.0.0(@fluentui/react-components@9.74.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0))(@fluentui/react-icons@2.0.330(react@19.2.7))(@lexical/react@0.44.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(yjs@13.6.30))(@seij/common-ui@2.0.0(@fluentui/react-components@9.74.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0))(@seij/common-ui-icons@2.0.0(@fluentui/react-icons@2.0.330(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(i18next-browser-languagedetector@8.2.1)(i18next-icu@2.4.3(intl-messageformat@11.1.2))(i18next@25.10.10(typescript@6.0.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(lexical@0.44.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       '@fluentui/react-components': 9.74.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)
       '@fluentui/react-icons': 2.0.330(react@19.2.7)
@@ -4243,23 +4273,16 @@ snapshots:
       '@lexical/react': 0.44.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(yjs@13.6.30)
       '@lexical/rich-text': 0.44.0
       '@lexical/selection': 0.44.0
-      '@seij/common-ui': 0.2.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(intl-messageformat@11.1.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)(typescript@6.0.3)
+      '@seij/common-ui': 2.0.0(@fluentui/react-components@9.74.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0))(@seij/common-ui-icons@2.0.0(@fluentui/react-icons@2.0.330(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(i18next-browser-languagedetector@8.2.1)(i18next-icu@2.4.3(intl-messageformat@11.1.2))(i18next@25.10.10(typescript@6.0.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       lexical: 0.44.0
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
-    transitivePeerDependencies:
-      - '@types/react'
-      - '@types/react-dom'
-      - intl-messageformat
-      - scheduler
-      - typescript
-      - yjs
 
-  '@seij/common-ui@0.2.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(intl-messageformat@11.1.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)(typescript@6.0.3)':
+  '@seij/common-ui@2.0.0(@fluentui/react-components@9.74.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0))(@seij/common-ui-icons@2.0.0(@fluentui/react-icons@2.0.330(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(i18next-browser-languagedetector@8.2.1)(i18next-icu@2.4.3(intl-messageformat@11.1.2))(i18next@25.10.10(typescript@6.0.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       '@fluentui/react-components': 9.74.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)
-      '@seij/common-types': 0.1.5
-      '@seij/common-ui-icons': 0.2.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@seij/common-types': 2.0.0
+      '@seij/common-ui-icons': 2.0.0(@fluentui/react-icons@2.0.330(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       date-fns: 4.4.0
       i18next: 25.10.10(typescript@6.0.3)
       i18next-browser-languagedetector: 8.2.1
@@ -4268,16 +4291,10 @@ snapshots:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
       rifm: 0.12.1(react@19.2.7)
-    transitivePeerDependencies:
-      - '@types/react'
-      - '@types/react-dom'
-      - intl-messageformat
-      - scheduler
-      - typescript
 
-  '@seij/common-validation@0.1.2':
+  '@seij/common-validation@2.0.0':
     dependencies:
-      '@seij/common-types': 0.1.5
+      '@seij/common-types': 2.0.0
       lodash-es: 4.18.1
 
   '@shikijs/core@4.3.0':
