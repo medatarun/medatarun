@@ -5,6 +5,7 @@
 ### Features
 
 - Integration with OpenTelemetry
+- Medatarun modules are published in GitHub Packages at each release. See [Use Medatarun modules](documentation/docs/development/publish-modules.md)
 
 ## v0.15.0
 

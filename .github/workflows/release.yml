@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      packages: write
 
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +30,14 @@ jobs:
 
       - name: Build distribution
         run: ./gradlew build
+
+      # Publishes all JVM modules to GitHub Packages. The version comes from the tag (GITHUB_REF_NAME).
+      # Credentials come from the workflow token, nothing is stored in the repository.
+      - name: Publish modules to GitHub Packages
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew publish
 
       - name: Create GitHub Release
         env:
