@@ -74,11 +74,13 @@ jobs:
 
       # Publishes all JVM modules to GitHub Packages. The version comes from the tag (GITHUB_REF_NAME).
       # Credentials come from the workflow token, nothing is stored in the repository.
+      # --parallel uploads the modules at the same time. Each module takes about 27 seconds
+      # to upload, so publishing them one after the other takes about 10 minutes.
       - name: Publish modules to GitHub Packages
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew publish
+        run: ./gradlew publish --parallel
 
       # Publishes the frontend sources prepared and checked above.
       - name: Publish frontend package to GitHub Packages
