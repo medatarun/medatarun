@@ -7,6 +7,8 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin in JVM projects.
     kotlin("jvm")
+    // Publish every JVM module to GitHub Packages (see the "publishing" block below).
+    `maven-publish`
 }
 
 kotlin {
@@ -29,5 +31,46 @@ tasks.withType<Test>().configureEach {
             TestLogEvent.PASSED,
             TestLogEvent.SKIPPED
         )
+    }
+}
+
+java {
+    // Consumers get sources in their IDE.
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+            pom {
+                name = project.name
+                description = "Medatarun module ${project.name}"
+                url = "https://github.com/medatarun/medatarun"
+                licenses {
+                    license {
+                        name = "Apache License, Version 2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                scm {
+                    url = "https://github.com/medatarun/medatarun"
+                    connection = "scm:git:https://github.com/medatarun/medatarun.git"
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/medatarun/medatarun")
+            // Local: gpr.user / gpr.key in ~/.gradle/gradle.properties. CI: GITHUB_ACTOR / GITHUB_TOKEN.
+            credentials {
+                username = providers.gradleProperty("gpr.user")
+                    .orElse(providers.environmentVariable("GITHUB_ACTOR")).orNull
+                password = providers.gradleProperty("gpr.key")
+                    .orElse(providers.environmentVariable("GITHUB_TOKEN")).orNull
+            }
+        }
     }
 }
