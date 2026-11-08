@@ -1,8 +1,28 @@
 {
-  "name": "medatarun-ui",
-  "private": true,
+  "name": "@medatarun/ui",
   "version": "0.0.0",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/medatarun/medatarun.git",
+    "directory": "ui"
+  },
+  "files": [
+    "src",
+    "!src/**/*.test.ts"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    "./*": [
+      "./src/*",
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b --pretty false && vite build",
